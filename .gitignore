@@ -1,6 +1,7 @@
 # Dependencies
 /vue-app/node_modules/
 /vendor/
+/node_modules/
 jspm_packages/
 
 # Build files

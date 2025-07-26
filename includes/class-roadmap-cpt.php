@@ -337,7 +337,7 @@ class Roadmap_CPT {
                 'id' => '_roadmap_github_issue',
                 'label' => __('GitHub Issue URL', 'roadmap-plugin'),
                 'type' => 'url',
-                'placeholder' => 'https://github.com/owner/repo/issues/123',
+                'placeholder' => '',
                 'description' => __('Link to related GitHub issue', 'roadmap-plugin'),
                 'pro' => true,
             ],
@@ -345,7 +345,7 @@ class Roadmap_CPT {
                 'id' => '_roadmap_external_link',
                 'label' => __('External Link', 'roadmap-plugin'),
                 'type' => 'url',
-                'placeholder' => 'https://example.com/feature-spec',
+                'placeholder' => '',
                 'description' => __('Link to external documentation or reference', 'roadmap-plugin'),
                 'free' => true,
             ],
@@ -556,6 +556,16 @@ class Roadmap_CPT {
             [],
             ROADMAP_VERSION
         );
+        
+        // Enqueue RTL styles if needed
+        if (is_rtl() && file_exists(ROADMAP_PLUGIN_PATH . 'assets/css/meta-box-rtl.css')) {
+            wp_enqueue_style(
+                'roadmap-meta-box-rtl',
+                ROADMAP_PLUGIN_URL . 'assets/css/meta-box-rtl.css',
+                ['roadmap-meta-box'],
+                ROADMAP_VERSION
+            );
+        }
         
         // Localize script with field data
         wp_localize_script('roadmap-block-editor', 'roadmapMeta', [

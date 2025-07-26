@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: Product Roadmap
- * Plugin URI: https://github.com/vapvarun/product-roadmap
+ * Plugin URI: https://wbcomdesigns.com/
  * Description: Create public product roadmaps to share your vision, collect user feedback, and build products your customers actually want.
  * Version: 1.0.0
  * Author: Wbcom Designs

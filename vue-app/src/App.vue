@@ -19,6 +19,7 @@
         v-model:status="selectedStatus"
         v-model:category="selectedCategory"
         v-model:product="selectedProduct"
+        v-model:sortBy="selectedSort"
         :statuses="statuses"
         :categories="categories"
         :products="products"
@@ -236,6 +237,7 @@ const searchQuery = ref('')
 const selectedStatus = ref('')
 const selectedCategory = ref('')
 const selectedProduct = ref(props.config.product || '')
+const selectedSort = ref(props.config.default_sort || '')
 
 // Modal State
 const showItemModal = ref(false)
@@ -310,6 +312,27 @@ const filteredItems = computed(() => {
       item.product && Array.isArray(item.product) && 
       item.product.some(p => p.slug === selectedProduct.value)
     )
+  }
+  
+  // Sort items
+  if (selectedSort.value) {
+    filtered = [...filtered].sort((a, b) => {
+      switch (selectedSort.value) {
+        case 'votes':
+          return (b.votes || 0) - (a.votes || 0)
+        case 'recent':
+          return new Date(b.date) - new Date(a.date)
+        case 'comments':
+          return (b.comment_count || 0) - (a.comment_count || 0)
+        case 'priority':
+          const priorityOrder = { critical: 4, high: 3, medium: 2, low: 1 }
+          const aPriority = priorityOrder[a.priority] || 0
+          const bPriority = priorityOrder[b.priority] || 0
+          return bPriority - aPriority
+        default:
+          return 0
+      }
+    })
   }
   
   return filtered

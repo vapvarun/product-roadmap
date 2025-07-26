@@ -1,0 +1,19 @@
+{
+  "name": "roadmap-plugin",
+  "version": "1.0.0",
+  "description": "WordPress Roadmap Plugin",
+  "scripts": {
+    "build": "./build.sh",
+    "build:all": "./build-all.sh",
+    "build:rtl": "node build-rtl.js",
+    "build:vue": "cd vue-app && npm run build",
+    "dev": "cd vue-app && npm run dev"
+  },
+  "devDependencies": {
+    "postcss": "^8.5.6",
+    "rtlcss": "^4.3.0",
+    "cssnano": "^6.0.0",
+    "cssnano-cli": "^1.0.5",
+    "terser": "^5.26.0"
+  }
+}

@@ -27,6 +27,7 @@ class Roadmap_Shortcode {
             'product' => '',
             'class' => '',
             'template' => 'board',
+            'sort' => '', // Default sort: votes, recent, comments, priority
         ], $atts, 'roadmap');
         
         // Handle product parameter
@@ -73,6 +74,7 @@ class Roadmap_Shortcode {
             'allow_frontend_edit' => filter_var($atts['allow_frontend_edit'], FILTER_VALIDATE_BOOLEAN),
             'product' => $atts['product'],
             'template' => $atts['template'],
+            'default_sort' => $atts['sort'],
             'is_pro' => (defined('ROADMAP_PRO_ACTIVE') && ROADMAP_PRO_ACTIVE),
             'settings' => [
                 'enable_voting' => get_option('roadmap_enable_voting', 'yes') === 'yes',
@@ -131,6 +133,16 @@ class Roadmap_Shortcode {
                 [],
                 $version
             );
+            
+            // Enqueue RTL styles if needed
+            if (is_rtl() && file_exists(ROADMAP_PLUGIN_PATH . 'vue-app/dist/assets/index-rtl.css')) {
+                wp_enqueue_style(
+                    'roadmap-vue-app-rtl',
+                    ROADMAP_PLUGIN_URL . 'vue-app/dist/assets/index-rtl.css',
+                    ['roadmap-vue-app'],
+                    $version
+                );
+            }
         } else {
             // Production mode - use built assets
             wp_enqueue_script(
@@ -147,6 +159,16 @@ class Roadmap_Shortcode {
                 [],
                 $version
             );
+            
+            // Enqueue RTL styles if needed
+            if (is_rtl() && file_exists(ROADMAP_PLUGIN_PATH . 'assets/css/roadmap-app-rtl.css')) {
+                wp_enqueue_style(
+                    'roadmap-vue-app-rtl',
+                    ROADMAP_PLUGIN_URL . 'assets/css/roadmap-app-rtl.css',
+                    ['roadmap-vue-app'],
+                    $version
+                );
+            }
         }
         
         // Add inline CSS to hide product filter for single product roadmaps
@@ -248,6 +270,60 @@ class Roadmap_Shortcode {
             'medium' => __('Medium', 'roadmap-plugin'),
             'high' => __('High', 'roadmap-plugin'),
             'critical' => __('Critical', 'roadmap-plugin'),
+            'suggest_feature' => __('Suggest a Feature', 'roadmap-plugin'),
+            'submit' => __('Submit', 'roadmap-plugin'),
+            'submit_comment' => __('Submit Comment', 'roadmap-plugin'),
+            'your_comment' => __('Your Comment', 'roadmap-plugin'),
+            'share_thoughts' => __('Share your thoughts...', 'roadmap-plugin'),
+            'feature_title' => __('Feature Title', 'roadmap-plugin'),
+            'brief_title' => __('Brief title for your feature idea', 'roadmap-plugin'),
+            'describe_detail' => __('Describe your feature idea in detail...', 'roadmap-plugin'),
+            'external_link' => __('External Link', 'roadmap-plugin'),
+            'link_details' => __('Link to more details or examples', 'roadmap-plugin'),
+            'optional' => __('Optional', 'roadmap-plugin'),
+            'edit' => __('Edit', 'roadmap-plugin'),
+            'delete' => __('Delete', 'roadmap-plugin'),
+            'vote_for_item' => __('Vote for this item', 'roadmap-plugin'),
+            'view_comments' => __('View comments', 'roadmap-plugin'),
+            'remove_vote' => __('Remove Vote', 'roadmap-plugin'),
+            'vote_for_this' => __('Vote for This', 'roadmap-plugin'),
+            'search_roadmap' => __('Search roadmap...', 'roadmap-plugin'),
+            'all_items' => __('All Items', 'roadmap-plugin'),
+            'other' => __('Other', 'roadmap-plugin'),
+            'unknown' => __('Unknown', 'roadmap-plugin'),
+            'future_later' => __('Future - Later', 'roadmap-plugin'),
+            'months' => [
+                __('January', 'roadmap-plugin'),
+                __('February', 'roadmap-plugin'),
+                __('March', 'roadmap-plugin'),
+                __('April', 'roadmap-plugin'),
+                __('May', 'roadmap-plugin'),
+                __('June', 'roadmap-plugin'),
+                __('July', 'roadmap-plugin'),
+                __('August', 'roadmap-plugin'),
+                __('September', 'roadmap-plugin'),
+                __('October', 'roadmap-plugin'),
+                __('November', 'roadmap-plugin'),
+                __('December', 'roadmap-plugin'),
+            ],
+            'progress' => __('Progress', 'roadmap-plugin'),
+            'start_date' => __('Start Date', 'roadmap-plugin'),
+            'end_date' => __('End Date', 'roadmap-plugin'),
+            'effort_estimate' => __('Effort Estimate', 'roadmap-plugin'),
+            'github_issue' => __('GitHub Issue', 'roadmap-plugin'),
+            'assignee' => __('Assignee', 'roadmap-plugin'),
+            'select_status' => __('Select Status', 'roadmap-plugin'),
+            'select_category' => __('Select Category', 'roadmap-plugin'),
+            'select_priority' => __('Select Priority', 'roadmap-plugin'),
+            'drag_drop_enabled' => __('Drag items to change status', 'roadmap-plugin'),
+            'pro_feature' => __('Pro Feature', 'roadmap-plugin'),
+            'upgrade_pro' => __('Upgrade to Pro', 'roadmap-plugin'),
+            'all_products' => __('All Products', 'roadmap-plugin'),
+            'sort_by' => __('Sort By', 'roadmap-plugin'),
+            'most_voted' => __('Most Voted', 'roadmap-plugin'),
+            'most_recent' => __('Most Recent', 'roadmap-plugin'),
+            'most_discussed' => __('Most Discussed', 'roadmap-plugin'),
+            'highest_priority' => __('Highest Priority', 'roadmap-plugin'),
         ];
     }
 }
