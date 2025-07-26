@@ -43,7 +43,7 @@
         
         <!-- Board View -->
         <RoadmapBoard
-          v-else-if="viewMode === 'board'"
+          v-if="viewMode === 'board'"
           :items="filteredItems"
           :statuses="statuses"
           :mode="currentMode"
@@ -61,8 +61,68 @@
         <RoadmapTimeline
           v-else-if="viewMode === 'timeline' && config.is_pro"
           :items="filteredItems"
+          :statuses="statuses"
+          :categories="categories"
           :mode="currentMode"
+          :can-edit="canEdit"
+          :pro-features="config.pro_features"
+          @item-click="openDetailModal"
           @update-item="updateItem"
+        />
+        
+        <!-- List View (Pro) -->
+        <RoadmapList
+          v-else-if="viewMode === 'list' && config.is_pro"
+          :items="filteredItems"
+          :statuses="statuses"
+          :categories="categories"
+          :mode="currentMode"
+          :can-edit="canEdit"
+          :pro-features="config.pro_features"
+          @item-click="openDetailModal"
+          @update-item="updateItem"
+        />
+        
+        <!-- Cards View (Pro) -->
+        <RoadmapCards
+          v-else-if="viewMode === 'cards' && config.is_pro"
+          :items="filteredItems"
+          :statuses="statuses"
+          :categories="categories"
+          :mode="currentMode"
+          :can-edit="canEdit"
+          :pro-features="config.pro_features"
+          @item-click="openDetailModal"
+          @update-item="updateItem"
+        />
+        
+        <!-- Minimal View (Pro) -->
+        <RoadmapMinimal
+          v-else-if="viewMode === 'minimal' && config.is_pro"
+          :items="filteredItems"
+          :statuses="statuses"
+          :categories="categories"
+          :mode="currentMode"
+          :can-edit="canEdit"
+          :pro-features="config.pro_features"
+          @item-click="openDetailModal"
+          @update-item="updateItem"
+        />
+        
+        <!-- Fallback to Board for Pro templates when not Pro -->
+        <RoadmapBoard
+          v-else-if="['timeline', 'list', 'cards', 'minimal'].includes(viewMode) && !config.is_pro"
+          :items="filteredItems"
+          :statuses="statuses"
+          :mode="currentMode"
+          :can-edit="canEdit"
+          :pro-features="config.pro_features"
+          @update-item="updateItem"
+          @delete-item="deleteItem"
+          @vote="submitVote"
+          @comment="openCommentModal"
+          @item-click="openDetailModal"
+          @edit-item="openItemModal"
         />
         
         <!-- No Items -->
@@ -139,6 +199,9 @@ import RoadmapHeader from '@/components/RoadmapHeader.vue'
 import RoadmapFilters from '@/components/RoadmapFilters.vue'
 import RoadmapBoard from '@/components/RoadmapBoard.vue'
 import RoadmapTimeline from '@/components/RoadmapTimeline.vue'
+import RoadmapList from '@/components/RoadmapList.vue'
+import RoadmapCards from '@/components/RoadmapCards.vue'
+import RoadmapMinimal from '@/components/RoadmapMinimal.vue'
 import RoadmapFooter from '@/components/RoadmapFooter.vue'
 import ItemModal from '@/components/ItemModal.vue'
 import CommentModal from '@/components/CommentModal.vue'
@@ -167,7 +230,7 @@ const products = ref([])
 
 // UI State
 const currentMode = ref(props.config.mode || 'view')
-const viewMode = ref('board')
+const viewMode = ref(props.config.template || 'board')
 const darkMode = ref(false)
 const searchQuery = ref('')
 const selectedStatus = ref('')
