@@ -6,12 +6,14 @@ jspm_packages/
 # Build files
 /vue-app/dist/
 /vue-app/.vite/
-/assets/js/roadmap-app.js
-/assets/css/roadmap-app.css
+# Don't ignore built assets - they need to be committed
+# /assets/js/roadmap-app.js
+# /assets/css/roadmap-app.css
 *.tsbuildinfo
 
 # Package manager files
-package-lock.json
+# package-lock.json should be committed for consistent dependencies
+# package-lock.json
 yarn.lock
 composer.lock
 .pnpm-debug.log*
