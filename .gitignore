@@ -1,0 +1,165 @@
+# Dependencies
+/vue-app/node_modules/
+/vendor/
+jspm_packages/
+
+# Build files
+/vue-app/dist/
+/vue-app/.vite/
+/assets/js/roadmap-app.js
+/assets/css/roadmap-app.css
+*.tsbuildinfo
+
+# Package manager files
+package-lock.json
+yarn.lock
+composer.lock
+.pnpm-debug.log*
+
+# Development files
+.DS_Store
+Thumbs.db
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Editor directories and files
+.idea/
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.swp
+*.swo
+*~
+*.sublime-project
+*.sublime-workspace
+
+# OS files - MacOS
+.DS_Store
+.DS_Store?
+._*
+.AppleDouble
+.LSOverride
+Icon
+.Spotlight-V100
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# OS files - Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# OS files - Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# WordPress files
+wp-config.php
+.htaccess
+wp-content/uploads/
+wp-content/cache/
+wp-content/backup-db/
+wp-content/upgrade/
+wp-content/advanced-cache.php
+wp-content/wp-cache-config.php
+*.sql
+*.sqlite
+
+# Environment files
+.env
+.env.local
+.env.*.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Cache
+/cache/
+*.cache
+.cache/
+.parcel-cache/
+.npm
+.eslintcache
+.stylelintcache
+
+# Temporary files
+*.tmp
+*.temp
+*.backup
+*.back
+*.bak
+*.orig
+
+# Archive files
+*.zip
+*.rar
+*.tar
+*.tar.gz
+*.tar.bz2
+*.7z
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage and testing
+coverage/
+*.lcov
+.nyc_output
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Build tools output
+build/Release
+dist/
+.nuxt/
+.next/
+out/
+
+# Security files
+*.key
+*.pem
+*.crt
+*.csr
+*.p12
+*.pfx
+
+# Development overrides
+local-settings.php
+local-config.php
+
+# SASS
+.sass-cache/
+*.css.map
+*.sass.map
+*.scss.map
+
+# Source maps
+*.map
