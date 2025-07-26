@@ -290,8 +290,14 @@ class Roadmap_API {
             'modified' => $post->post_modified,
             'votes' => (int) get_post_meta($post->ID, '_roadmap_votes', true),
             'comment_count' => $post->comment_count,
-            'target_date' => get_post_meta($post->ID, '_roadmap_target_date', true),
             'priority' => get_post_meta($post->ID, '_roadmap_priority', true),
+            'progress' => (int) get_post_meta($post->ID, '_roadmap_progress', true),
+            'target_date' => get_post_meta($post->ID, '_roadmap_target_date', true),
+            'external_link' => get_post_meta($post->ID, '_roadmap_external_link', true),
+            'start_date' => get_post_meta($post->ID, '_roadmap_start_date', true),
+            'end_date' => get_post_meta($post->ID, '_roadmap_end_date', true),
+            'effort_estimate' => get_post_meta($post->ID, '_roadmap_effort_estimate', true),
+            'github_issue' => get_post_meta($post->ID, '_roadmap_github_issue', true),
             'status' => $this->get_item_terms($post->ID, 'roadmap_status'),
             'categories' => $this->get_item_terms($post->ID, 'roadmap_category'),
             'user_voted' => $this->has_user_voted($post->ID),
@@ -420,6 +426,18 @@ class Roadmap_API {
             // Set default product
             update_post_meta($post_id, '_roadmap_product', get_option('roadmap_default_product', 'main'));
             
+            // Set priority if provided
+            $priority = $request->get_param('priority');
+            if ($priority) {
+                update_post_meta($post_id, '_roadmap_priority', sanitize_text_field($priority));
+            }
+            
+            // Set external link if provided
+            $external_link = $request->get_param('external_link');
+            if ($external_link) {
+                update_post_meta($post_id, '_roadmap_external_link', esc_url_raw($external_link));
+            }
+            
             do_action('roadmap_suggestion_submitted', $post_id, $user_id);
             
             return new WP_REST_Response([
@@ -504,9 +522,23 @@ class Roadmap_API {
                 }
             }
             
-            // Set meta
-            update_post_meta($post_id, '_roadmap_priority', $request->get_param('priority'));
-            update_post_meta($post_id, '_roadmap_target_date', $request->get_param('target_date'));
+            // Set all meta fields
+            $meta_fields = [
+                '_roadmap_priority' => $request->get_param('priority'),
+                '_roadmap_progress' => $request->get_param('progress'),
+                '_roadmap_target_date' => $request->get_param('target_date'),
+                '_roadmap_external_link' => $request->get_param('external_link'),
+                '_roadmap_start_date' => $request->get_param('start_date'),
+                '_roadmap_end_date' => $request->get_param('end_date'),
+                '_roadmap_effort_estimate' => $request->get_param('effort_estimate'),
+                '_roadmap_github_issue' => $request->get_param('github_issue'),
+            ];
+            
+            foreach ($meta_fields as $key => $value) {
+                if ($value !== null) {
+                    update_post_meta($post_id, $key, sanitize_text_field($value));
+                }
+            }
             
             // Set product taxonomy
             $product = $request->get_param('product');
@@ -551,12 +583,22 @@ class Roadmap_API {
                 }
             }
             
-            // Update meta
-            if ($request->get_param('priority')) {
-                update_post_meta($post_id, '_roadmap_priority', $request->get_param('priority'));
-            }
-            if ($request->get_param('target_date')) {
-                update_post_meta($post_id, '_roadmap_target_date', $request->get_param('target_date'));
+            // Update all meta fields
+            $meta_fields = [
+                '_roadmap_priority' => $request->get_param('priority'),
+                '_roadmap_progress' => $request->get_param('progress'),
+                '_roadmap_target_date' => $request->get_param('target_date'),
+                '_roadmap_external_link' => $request->get_param('external_link'),
+                '_roadmap_start_date' => $request->get_param('start_date'),
+                '_roadmap_end_date' => $request->get_param('end_date'),
+                '_roadmap_effort_estimate' => $request->get_param('effort_estimate'),
+                '_roadmap_github_issue' => $request->get_param('github_issue'),
+            ];
+            
+            foreach ($meta_fields as $key => $value) {
+                if ($value !== null) {
+                    update_post_meta($post_id, $key, sanitize_text_field($value));
+                }
             }
             
             return new WP_REST_Response($this->format_item(get_post($post_id)), 200);

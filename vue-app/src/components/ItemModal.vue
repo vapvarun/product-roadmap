@@ -59,7 +59,7 @@
             </div>
           </div>
           
-          <div v-if="isPro" class="roadmap-form-group">
+          <div class="roadmap-form-group">
             <label class="roadmap-form-label">Priority</label>
             <select v-model="form.priority" class="roadmap-form-control">
               <option value="">None</option>
@@ -70,12 +70,80 @@
             </select>
           </div>
           
-          <div v-if="isPro" class="roadmap-form-group">
+          <div class="roadmap-form-group">
+            <label class="roadmap-form-label">Progress (%)</label>
+            <div class="roadmap-range-wrapper">
+              <input 
+                v-model="form.progress"
+                type="range"
+                min="0"
+                max="100"
+                step="5"
+                class="roadmap-range-input"
+              >
+              <span class="roadmap-range-value">{{ form.progress }}%</span>
+            </div>
+          </div>
+          
+          <div class="roadmap-form-group">
             <label class="roadmap-form-label">Target Date</label>
             <input 
               v-model="form.target_date"
               type="date"
               class="roadmap-form-control"
+            >
+          </div>
+          
+          <div class="roadmap-form-group">
+            <label class="roadmap-form-label">External Link</label>
+            <input 
+              v-model="form.external_link"
+              type="url"
+              class="roadmap-form-control"
+              placeholder="https://example.com/feature-spec"
+            >
+          </div>
+          
+          <div v-if="isPro" class="roadmap-form-row">
+            <div class="roadmap-form-group">
+              <label class="roadmap-form-label">Start Date</label>
+              <input 
+                v-model="form.start_date"
+                type="date"
+                class="roadmap-form-control"
+              >
+            </div>
+            
+            <div class="roadmap-form-group">
+              <label class="roadmap-form-label">End Date</label>
+              <input 
+                v-model="form.end_date"
+                type="date"
+                class="roadmap-form-control"
+              >
+            </div>
+          </div>
+          
+          <div v-if="isPro" class="roadmap-form-group">
+            <label class="roadmap-form-label">Effort Estimate</label>
+            <select v-model="form.effort_estimate" class="roadmap-form-control">
+              <option value="">-- Select Effort --</option>
+              <option value="xs">XS - Very Small (1-2 days)</option>
+              <option value="s">S - Small (3-5 days)</option>
+              <option value="m">M - Medium (1-2 weeks)</option>
+              <option value="l">L - Large (2-4 weeks)</option>
+              <option value="xl">XL - Extra Large (1-2 months)</option>
+              <option value="xxl">XXL - Huge (2+ months)</option>
+            </select>
+          </div>
+          
+          <div v-if="isPro" class="roadmap-form-group">
+            <label class="roadmap-form-label">GitHub Issue URL</label>
+            <input 
+              v-model="form.github_issue"
+              type="url"
+              class="roadmap-form-control"
+              placeholder="https://github.com/owner/repo/issues/123"
             >
           </div>
         </form>
@@ -111,7 +179,13 @@ const form = reactive({
   status: 'planned',
   categories: [],
   priority: '',
-  target_date: ''
+  progress: 0,
+  target_date: '',
+  external_link: '',
+  start_date: '',
+  end_date: '',
+  effort_estimate: '',
+  github_issue: ''
 })
 
 watch(() => props.item, (newItem) => {
@@ -121,7 +195,13 @@ watch(() => props.item, (newItem) => {
     form.status = newItem.status?.[0]?.slug || 'planned'
     form.categories = newItem.categories?.map(cat => cat.id) || []
     form.priority = newItem.priority || ''
+    form.progress = newItem.progress || 0
     form.target_date = newItem.target_date || ''
+    form.external_link = newItem.external_link || ''
+    form.start_date = newItem.start_date || ''
+    form.end_date = newItem.end_date || ''
+    form.effort_estimate = newItem.effort_estimate || ''
+    form.github_issue = newItem.github_issue || ''
   } else {
     // Reset form for new item
     form.title = ''
@@ -129,7 +209,13 @@ watch(() => props.item, (newItem) => {
     form.status = 'planned'
     form.categories = []
     form.priority = ''
+    form.progress = 0
     form.target_date = ''
+    form.external_link = ''
+    form.start_date = ''
+    form.end_date = ''
+    form.effort_estimate = ''
+    form.github_issue = ''
   }
 }, { immediate: true })
 
@@ -141,3 +227,59 @@ const handleSubmit = () => {
   emit('save', data)
 }
 </script>
+
+<style scoped>
+.roadmap-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+.roadmap-range-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.roadmap-range-input {
+  flex: 1;
+  height: 8px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: #e0e0e0;
+  border-radius: 4px;
+  outline: none;
+}
+
+.roadmap-range-input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  background: #0073aa;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.roadmap-range-input::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  background: #0073aa;
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+}
+
+.roadmap-range-value {
+  min-width: 45px;
+  font-weight: 600;
+  color: #0073aa;
+  font-size: 14px;
+}
+
+@media (max-width: 640px) {
+  .roadmap-form-row {
+    grid-template-columns: 1fr;
+  }
+}
+</style>

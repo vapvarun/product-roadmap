@@ -18,8 +18,10 @@ class Roadmap_CPT {
     private function __construct() {
         add_action('init', [$this, 'register_post_types']);
         add_action('init', [$this, 'register_taxonomies']);
+        add_action('init', [$this, 'register_block_meta']);
         add_action('add_meta_boxes', [$this, 'add_meta_boxes']);
         add_action('save_post_roadmap_item', [$this, 'save_meta_boxes'], 10, 2);
+        add_action('enqueue_block_editor_assets', [$this, 'enqueue_block_editor_assets']);
         add_action('wp_insert_post', [$this, 'set_default_product_on_create'], 10, 3);
         
         // Custom permalink structure
@@ -204,25 +206,65 @@ class Roadmap_CPT {
         wp_nonce_field('roadmap_item_meta_box', 'roadmap_item_meta_box_nonce');
         
         $fields = $this->get_meta_fields();
+        $basic_fields = array_filter($fields, function($field) {
+            return empty($field['pro']) || !$field['pro'];
+        });
+        $pro_fields = array_filter($fields, function($field) {
+            return !empty($field['pro']) && $field['pro'];
+        });
         
-        foreach ($fields as $field) {
-            $value = get_post_meta($post->ID, $field['id'], true);
-            
-            // Use default value if empty
-            if (empty($value) && isset($field['default'])) {
-                $value = $field['default'];
-            }
+        // Basic Fields Section
+        if (!empty($basic_fields)) {
             ?>
-            <p>
-                <label for="<?php echo esc_attr($field['id']); ?>">
-                    <?php echo esc_html($field['label']); ?>:
-                </label>
-                <br>
-                <?php $this->render_field($field, $value); ?>
-                <?php if (!empty($field['description'])) : ?>
-                    <span class="description"><?php echo esc_html($field['description']); ?></span>
-                <?php endif; ?>
-            </p>
+            <div class="roadmap-meta-section">
+                <?php foreach ($basic_fields as $field) : 
+                    $value = get_post_meta($post->ID, $field['id'], true);
+                    
+                    // Use default value if empty
+                    if (empty($value) && isset($field['default'])) {
+                        $value = $field['default'];
+                    }
+                    ?>
+                    <p>
+                        <label for="<?php echo esc_attr($field['id']); ?>">
+                            <?php echo esc_html($field['label']); ?>:
+                        </label>
+                        <br>
+                        <?php $this->render_field($field, $value); ?>
+                        <?php if (!empty($field['description'])) : ?>
+                            <span class="description"><?php echo esc_html($field['description']); ?></span>
+                        <?php endif; ?>
+                    </p>
+                <?php endforeach; ?>
+            </div>
+            <?php
+        }
+        
+        // Pro Fields Section
+        if (!empty($pro_fields)) {
+            ?>
+            <div class="roadmap-meta-section">
+                <h3><?php _e('Pro Features', 'roadmap-plugin'); ?></h3>
+                <?php foreach ($pro_fields as $field) : 
+                    $value = get_post_meta($post->ID, $field['id'], true);
+                    
+                    // Use default value if empty
+                    if (empty($value) && isset($field['default'])) {
+                        $value = $field['default'];
+                    }
+                    ?>
+                    <p>
+                        <label for="<?php echo esc_attr($field['id']); ?>">
+                            <?php echo esc_html($field['label']); ?>:
+                        </label>
+                        <br>
+                        <?php $this->render_field($field, $value); ?>
+                        <?php if (!empty($field['description'])) : ?>
+                            <span class="description"><?php echo esc_html($field['description']); ?></span>
+                        <?php endif; ?>
+                    </p>
+                <?php endforeach; ?>
+            </div>
             <?php
         }
     }
@@ -230,28 +272,89 @@ class Roadmap_CPT {
     private function get_meta_fields() {
         $fields = [
             [
-                'id' => '_roadmap_target_date',
-                'label' => __('Target Date', 'roadmap-plugin'),
-                'type' => 'date',
-                'free' => true,
-            ],
-            [
-                'id' => '_roadmap_votes',
-                'label' => __('Votes', 'roadmap-plugin'),
-                'type' => 'number',
-                'readonly' => true,
-                'free' => true,
-            ],
-            [
                 'id' => '_roadmap_priority',
                 'label' => __('Priority', 'roadmap-plugin'),
                 'type' => 'select',
                 'options' => [
+                    '' => __('-- Select Priority --', 'roadmap-plugin'),
                     'low' => __('Low', 'roadmap-plugin'),
                     'medium' => __('Medium', 'roadmap-plugin'),
                     'high' => __('High', 'roadmap-plugin'),
                     'critical' => __('Critical', 'roadmap-plugin'),
                 ],
+                'description' => __('Set the priority level for this item.', 'roadmap-plugin'),
+                'free' => true,
+            ],
+            [
+                'id' => '_roadmap_progress',
+                'label' => __('Progress', 'roadmap-plugin'),
+                'type' => 'range',
+                'min' => 0,
+                'max' => 100,
+                'step' => 5,
+                'default' => 0,
+                'description' => __('Current completion percentage (0-100%)', 'roadmap-plugin'),
+                'free' => true,
+            ],
+            [
+                'id' => '_roadmap_target_date',
+                'label' => __('Target Date', 'roadmap-plugin'),
+                'type' => 'date',
+                'description' => __('Expected completion date', 'roadmap-plugin'),
+                'free' => true,
+            ],
+            [
+                'id' => '_roadmap_start_date',
+                'label' => __('Start Date', 'roadmap-plugin'),
+                'type' => 'date',
+                'description' => __('When work begins on this item', 'roadmap-plugin'),
+                'pro' => true,
+            ],
+            [
+                'id' => '_roadmap_end_date',
+                'label' => __('End Date', 'roadmap-plugin'),
+                'type' => 'date',
+                'description' => __('When work was completed', 'roadmap-plugin'),
+                'pro' => true,
+            ],
+            [
+                'id' => '_roadmap_effort_estimate',
+                'label' => __('Effort Estimate', 'roadmap-plugin'),
+                'type' => 'select',
+                'options' => [
+                    '' => __('-- Select Effort --', 'roadmap-plugin'),
+                    'xs' => __('XS - Very Small (1-2 days)', 'roadmap-plugin'),
+                    's' => __('S - Small (3-5 days)', 'roadmap-plugin'),
+                    'm' => __('M - Medium (1-2 weeks)', 'roadmap-plugin'),
+                    'l' => __('L - Large (2-4 weeks)', 'roadmap-plugin'),
+                    'xl' => __('XL - Extra Large (1-2 months)', 'roadmap-plugin'),
+                    'xxl' => __('XXL - Huge (2+ months)', 'roadmap-plugin'),
+                ],
+                'description' => __('Estimated effort required', 'roadmap-plugin'),
+                'pro' => true,
+            ],
+            [
+                'id' => '_roadmap_github_issue',
+                'label' => __('GitHub Issue URL', 'roadmap-plugin'),
+                'type' => 'url',
+                'placeholder' => 'https://github.com/owner/repo/issues/123',
+                'description' => __('Link to related GitHub issue', 'roadmap-plugin'),
+                'pro' => true,
+            ],
+            [
+                'id' => '_roadmap_external_link',
+                'label' => __('External Link', 'roadmap-plugin'),
+                'type' => 'url',
+                'placeholder' => 'https://example.com/feature-spec',
+                'description' => __('Link to external documentation or reference', 'roadmap-plugin'),
+                'free' => true,
+            ],
+            [
+                'id' => '_roadmap_vote_count',
+                'label' => __('Vote Count', 'roadmap-plugin'),
+                'type' => 'number',
+                'readonly' => true,
+                'description' => __('Total number of votes (automatically calculated)', 'roadmap-plugin'),
                 'free' => true,
             ],
         ];
@@ -261,18 +364,64 @@ class Roadmap_CPT {
     
     private function render_field($field, $value) {
         $readonly = isset($field['readonly']) && $field['readonly'] ? 'readonly' : '';
+        $is_pro = isset($field['pro']) && $field['pro'];
+        $is_disabled = $is_pro && !defined('ROADMAP_PRO_VERSION');
+        $placeholder = isset($field['placeholder']) ? $field['placeholder'] : '';
+        
+        // Check if field should be disabled for free version
+        if ($is_disabled) {
+            ?>
+            <div class="roadmap-pro-field-wrapper">
+                <input type="text" 
+                       value="<?php _e('Pro Feature', 'roadmap-plugin'); ?>" 
+                       class="widefat" 
+                       disabled>
+                <span class="roadmap-pro-badge">PRO</span>
+            </div>
+            <?php
+            return;
+        }
         
         switch ($field['type']) {
             case 'text':
             case 'date':
             case 'number':
+            case 'url':
                 ?>
                 <input type="<?php echo esc_attr($field['type']); ?>" 
                        id="<?php echo esc_attr($field['id']); ?>" 
                        name="<?php echo esc_attr($field['id']); ?>" 
                        value="<?php echo esc_attr($value); ?>" 
+                       placeholder="<?php echo esc_attr($placeholder); ?>"
                        class="widefat"
                        <?php echo $readonly; ?>>
+                <?php
+                break;
+                
+            case 'range':
+                $min = isset($field['min']) ? $field['min'] : 0;
+                $max = isset($field['max']) ? $field['max'] : 100;
+                $step = isset($field['step']) ? $field['step'] : 1;
+                ?>
+                <div class="roadmap-range-wrapper">
+                    <input type="range" 
+                           id="<?php echo esc_attr($field['id']); ?>" 
+                           name="<?php echo esc_attr($field['id']); ?>" 
+                           value="<?php echo esc_attr($value); ?>" 
+                           min="<?php echo esc_attr($min); ?>"
+                           max="<?php echo esc_attr($max); ?>"
+                           step="<?php echo esc_attr($step); ?>"
+                           class="roadmap-range-input"
+                           <?php echo $readonly; ?>>
+                    <span class="roadmap-range-value"><?php echo esc_html($value); ?>%</span>
+                </div>
+                <script>
+                    jQuery(document).ready(function($) {
+                        $('#<?php echo esc_js($field['id']); ?>').on('input', function() {
+                            $(this).next('.roadmap-range-value').text($(this).val() + '%');
+                        });
+                    });
+                </script>
                 <?php
                 break;
                 
@@ -280,8 +429,8 @@ class Roadmap_CPT {
                 ?>
                 <select id="<?php echo esc_attr($field['id']); ?>" 
                         name="<?php echo esc_attr($field['id']); ?>" 
-                        class="widefat">
-                    <option value=""><?php _e('Select...', 'roadmap-plugin'); ?></option>
+                        class="widefat"
+                        <?php echo $readonly; ?>>
                     <?php foreach ($field['options'] as $option_value => $option_label) : ?>
                         <option value="<?php echo esc_attr($option_value); ?>" 
                                 <?php selected($value, $option_value); ?>>
@@ -334,6 +483,86 @@ class Roadmap_CPT {
     public function filter_meta_fields($fields) {
         // This filter allows pro addon to add additional fields
         return $fields;
+    }
+    
+    /**
+     * Register block editor meta fields
+     */
+    public function register_block_meta() {
+        $fields = $this->get_meta_fields();
+        
+        foreach ($fields as $field) {
+            // Skip readonly fields
+            if (isset($field['readonly']) && $field['readonly']) {
+                continue;
+            }
+            
+            // Register meta field for block editor
+            register_post_meta('roadmap_item', $field['id'], [
+                'show_in_rest' => true,
+                'single' => true,
+                'type' => $this->get_field_rest_type($field),
+                'auth_callback' => function() {
+                    return current_user_can('edit_posts');
+                }
+            ]);
+        }
+    }
+    
+    /**
+     * Get REST API type for field
+     */
+    private function get_field_rest_type($field) {
+        switch ($field['type']) {
+            case 'number':
+            case 'range':
+                return 'integer';
+            case 'date':
+            case 'text':
+            case 'select':
+            case 'url':
+            case 'textarea':
+            default:
+                return 'string';
+        }
+    }
+    
+    /**
+     * Enqueue block editor assets
+     */
+    public function enqueue_block_editor_assets() {
+        if (!function_exists('get_current_screen')) {
+            return;
+        }
+        
+        $screen = get_current_screen();
+        if (!$screen || $screen->post_type !== 'roadmap_item') {
+            return;
+        }
+        
+        // Enqueue block editor scripts
+        wp_enqueue_script(
+            'roadmap-block-editor',
+            ROADMAP_PLUGIN_URL . 'assets/js/block-editor.js',
+            ['wp-blocks', 'wp-element', 'wp-editor', 'wp-components', 'wp-data'],
+            ROADMAP_VERSION,
+            true
+        );
+        
+        // Enqueue meta box styles
+        wp_enqueue_style(
+            'roadmap-meta-box',
+            ROADMAP_PLUGIN_URL . 'assets/css/meta-box.css',
+            [],
+            ROADMAP_VERSION
+        );
+        
+        // Localize script with field data
+        wp_localize_script('roadmap-block-editor', 'roadmapMeta', [
+            'fields' => $this->get_meta_fields(),
+            'nonce' => wp_create_nonce('roadmap_meta'),
+            'isPro' => defined('ROADMAP_PRO_VERSION')
+        ]);
     }
     
     public function set_default_product_on_create($post_id, $post, $update) {

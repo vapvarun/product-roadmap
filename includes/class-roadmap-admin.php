@@ -16,6 +16,29 @@ class Roadmap_Admin {
     }
     
     private function __construct() {
-        // Admin functionality will be implemented here
+        add_action('admin_enqueue_scripts', [$this, 'enqueue_admin_scripts']);
+    }
+    
+    /**
+     * Enqueue admin scripts and styles
+     */
+    public function enqueue_admin_scripts($hook) {
+        global $post;
+        
+        // Only load on roadmap item edit screens
+        if (($hook === 'post.php' || $hook === 'post-new.php') && 
+            isset($post) && $post->post_type === 'roadmap_item') {
+            
+            // Enqueue meta box styles
+            wp_enqueue_style(
+                'roadmap-meta-box',
+                ROADMAP_PLUGIN_URL . 'assets/css/meta-box.css',
+                [],
+                ROADMAP_VERSION
+            );
+            
+            // Enqueue jQuery for range slider
+            wp_enqueue_script('jquery');
+        }
     }
 }

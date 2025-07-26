@@ -469,7 +469,7 @@ const submitVote = async (itemId, voteValue) => {
       item.user_voted = voteValue
     }
     
-    showNotification(props.config.i18n.vote_submitted)
+    showNotification(props.config.i18n.vote_submitted, 'success')
   } catch (err) {
     showNotification(err.message || props.config.i18n.error, 'error')
   }
@@ -655,30 +655,69 @@ defineExpose({
 <style lang="scss">
 @import './assets/css/main.scss';
 
-// Simple notification styles
+// Professional notification styles
 .roadmap-notification {
   position: fixed;
-  top: 20px;
+  top: 50%;
   left: 50%;
-  transform: translateX(-50%);
-  padding: 12px 24px;
-  background: #46b450;
-  color: white;
-  border-radius: 4px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  font-size: 14px;
-  z-index: 10000;
+  transform: translate(-50%, -50%) scale(0.8);
+  padding: 20px 30px;
+  background: #fff;
+  color: #333;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  font-size: 16px;
+  font-weight: 500;
+  text-align: center;
+  min-width: 250px;
+  z-index: 99999;
+  
+  &-success {
+    color: #4caf50;
+    border: 2px solid #4caf50;
+    
+    &::before {
+      content: "✓ ";
+      font-size: 20px;
+      font-weight: bold;
+      margin-right: 8px;
+    }
+  }
   
   &-error {
-    background: #dc3232;
+    color: #f44336;
+    border: 2px solid #f44336;
+    
+    &::before {
+      content: "✕ ";
+      font-size: 20px;
+      font-weight: bold;
+      margin-right: 8px;
+    }
   }
   
   &-warning {
-    background: #f0b849;
+    color: #ff9800;
+    border: 2px solid #ff9800;
+    
+    &::before {
+      content: "⚠ ";
+      font-size: 20px;
+      font-weight: bold;
+      margin-right: 8px;
+    }
   }
   
   &-info {
-    background: #2271b1;
+    color: #2196f3;
+    border: 2px solid #2196f3;
+    
+    &::before {
+      content: "ℹ ";
+      font-size: 20px;
+      font-weight: bold;
+      margin-right: 8px;
+    }
   }
 }
 
@@ -689,12 +728,12 @@ defineExpose({
 }
 
 .notification-enter-from {
-  transform: translate(-50%, -100%);
+  transform: translate(-50%, -50%) scale(0.5);
   opacity: 0;
 }
 
 .notification-leave-to {
-  transform: translate(-50%, -100%);
+  transform: translate(-50%, -50%) scale(0.5);
   opacity: 0;
 }
 </style>

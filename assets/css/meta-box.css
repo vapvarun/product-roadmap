@@ -1,0 +1,243 @@
+/**
+ * Roadmap Meta Box Styles
+ */
+
+/* Classic Editor Styles */
+#roadmap_item_details .inside {
+    padding: 15px;
+}
+
+#roadmap_item_details p {
+    margin-bottom: 20px;
+}
+
+#roadmap_item_details label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 5px;
+    color: #23282d;
+}
+
+#roadmap_item_details .description {
+    display: block;
+    margin-top: 5px;
+    color: #666;
+    font-size: 13px;
+    font-style: italic;
+}
+
+/* Range Input Styling */
+.roadmap-range-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.roadmap-range-input {
+    flex: 1;
+    height: 8px;
+    -webkit-appearance: none;
+    appearance: none;
+    background: #e0e0e0;
+    border-radius: 4px;
+    outline: none;
+}
+
+.roadmap-range-input::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    background: #0073aa;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.roadmap-range-input::-webkit-slider-thumb:hover {
+    background: #005a87;
+}
+
+.roadmap-range-input::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    background: #0073aa;
+    border-radius: 50%;
+    cursor: pointer;
+    border: none;
+    transition: background 0.2s;
+}
+
+.roadmap-range-input::-moz-range-thumb:hover {
+    background: #005a87;
+}
+
+.roadmap-range-value {
+    min-width: 45px;
+    font-weight: 600;
+    color: #0073aa;
+    font-size: 14px;
+}
+
+/* Pro Field Styling */
+.roadmap-pro-field-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.roadmap-pro-field-wrapper input[disabled] {
+    background: #f5f5f5;
+    color: #999;
+    cursor: not-allowed;
+}
+
+.roadmap-pro-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    background: #ff6900;
+    color: white;
+    font-size: 11px;
+    font-weight: 600;
+    border-radius: 3px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Block Editor Styles */
+.roadmap-meta-panel .components-panel__row {
+    padding: 12px 16px;
+}
+
+.roadmap-meta-panel .components-base-control {
+    margin-bottom: 0;
+}
+
+.roadmap-meta-panel .components-base-control__help {
+    margin-top: 4px;
+    font-size: 12px;
+    color: #757575;
+}
+
+.roadmap-date-field label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #1e1e1e;
+}
+
+.roadmap-range-field .components-range-control__wrapper {
+    margin-top: 8px;
+}
+
+/* Pro Notice in Block Editor */
+.roadmap-pro-notice {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: #f0f0f0;
+    border-radius: 4px;
+    font-size: 13px;
+    color: #666;
+}
+
+.roadmap-pro-notice .roadmap-pro-badge {
+    margin: 0;
+}
+
+/* Field Grouping */
+.roadmap-meta-section {
+    border-top: 1px solid #e0e0e0;
+    margin-top: 20px;
+    padding-top: 20px;
+}
+
+.roadmap-meta-section:first-child {
+    border-top: none;
+    margin-top: 0;
+    padding-top: 0;
+}
+
+.roadmap-meta-section h3 {
+    margin: 0 0 15px 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #23282d;
+}
+
+/* Input Field Enhancements */
+#roadmap_item_details input[type="text"],
+#roadmap_item_details input[type="date"],
+#roadmap_item_details input[type="number"],
+#roadmap_item_details input[type="url"],
+#roadmap_item_details select,
+#roadmap_item_details textarea {
+    width: 100%;
+    max-width: 400px;
+}
+
+#roadmap_item_details input[type="date"] {
+    max-width: 200px;
+}
+
+#roadmap_item_details input[type="number"] {
+    max-width: 100px;
+}
+
+/* Responsive Design */
+@media screen and (max-width: 782px) {
+    .roadmap-range-wrapper {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .roadmap-range-input {
+        width: 100%;
+    }
+    
+    #roadmap_item_details input[type="text"],
+    #roadmap_item_details input[type="date"],
+    #roadmap_item_details input[type="number"],
+    #roadmap_item_details input[type="url"],
+    #roadmap_item_details select,
+    #roadmap_item_details textarea {
+        max-width: 100%;
+    }
+}
+
+/* Focus States */
+#roadmap_item_details input:focus,
+#roadmap_item_details select:focus,
+#roadmap_item_details textarea:focus {
+    border-color: #0073aa;
+    box-shadow: 0 0 0 1px #0073aa;
+}
+
+/* Disabled States */
+#roadmap_item_details input[readonly],
+#roadmap_item_details select[disabled],
+#roadmap_item_details textarea[readonly] {
+    background-color: #f5f5f5;
+    color: #666;
+    cursor: not-allowed;
+}
+
+/* Placeholder Styling */
+#roadmap_item_details input::placeholder {
+    color: #999;
+    opacity: 1;
+}
+
+/* Error States */
+#roadmap_item_details .error {
+    border-color: #dc3232;
+}
+
+#roadmap_item_details .error-message {
+    color: #dc3232;
+    font-size: 13px;
+    margin-top: 5px;
+}

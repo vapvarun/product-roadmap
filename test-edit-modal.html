@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Edit Modal - Roadmap Plugin</title>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        h2 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+        }
+        .success {
+            color: green;
+        }
+        .error {
+            color: red;
+        }
+        pre {
+            background: #f4f4f4;
+            padding: 10px;
+            overflow: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>Roadmap Edit Modal Test</h1>
+    
+    <div class="test-section">
+        <h2>Test Steps:</h2>
+        <ol>
+            <li>Navigate to a single roadmap item page</li>
+            <li>Check if you can see the "Edit this item" button</li>
+            <li>Open browser console (F12)</li>
+            <li>Click the edit button</li>
+            <li>Check console for debug messages</li>
+        </ol>
+    </div>
+    
+    <div class="test-section">
+        <h2>Debug Commands (run in console):</h2>
+        <pre>
+// Check if RoadmapApp is loaded
+console.log('RoadmapApp:', window.RoadmapApp);
+
+// Check if debug helper is loaded
+console.log('Debug Helper:', window.RoadmapEditDebug);
+
+// Get the container
+var container = document.getElementById('roadmap-edit-app');
+console.log('Container:', container);
+
+// Check container data
+console.log('Config:', container?.dataset?.config);
+
+// Try to get Vue instance
+console.log('Vue Instance:', container?.__vue_app__);
+
+// Manual test - try to open modal for item ID 1
+if (window.RoadmapEditDebug) {
+    window.RoadmapEditDebug.tryOpenModal(container, 1);
+}
+        </pre>
+    </div>
+    
+    <div class="test-section">
+        <h2>Expected Console Output:</h2>
+        <ul>
+            <li class="success">[Roadmap Edit] Initializing edit handler</li>
+            <li class="success">[Roadmap Edit] Edit button found</li>
+            <li class="success">[Roadmap Edit] Edit button clicked</li>
+            <li class="success">[Roadmap Edit] Item ID: [number]</li>
+            <li class="success">[Roadmap Edit] Container found</li>
+            <li class="success">[Roadmap Edit] RoadmapApp available</li>
+            <li class="success">[Roadmap Edit] Vue app mounted successfully</li>
+            <li class="success">[Roadmap Edit] Calling openSingleItemModal</li>
+        </ul>
+    </div>
+    
+    <div class="test-section">
+        <h2>Common Issues:</h2>
+        <ul>
+            <li><strong>No edit button:</strong> Check user permissions</li>
+            <li><strong>RoadmapApp not loaded:</strong> Vue assets not enqueued properly</li>
+            <li><strong>Container missing:</strong> Template issue</li>
+            <li><strong>Method not found:</strong> Vue app not properly exposed</li>
+        </ul>
+    </div>
+    
+    <div class="test-section">
+        <h2>File Locations:</h2>
+        <ul>
+            <li>Template: <code>/templates/single-roadmap-item.php</code></li>
+            <li>Edit Handler: <code>/assets/js/roadmap-single-edit.js</code></li>
+            <li>Vue App: <code>/vue-app/src/App.vue</code></li>
+            <li>Modal Component: <code>/vue-app/src/components/ItemModal.vue</code></li>
+        </ul>
+    </div>
+</body>
+</html>

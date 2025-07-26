@@ -8,12 +8,12 @@ jQuery(document).ready(function($) {
     // Show notification
     function showNotification(message, type = 'success') {
         notification.text(message);
-        notification.removeClass('error').addClass(type === 'error' ? 'error' : '');
+        notification.removeClass('error success').addClass(type);
         notification.addClass('show');
         
         setTimeout(function() {
             notification.removeClass('show');
-        }, 3000);
+        }, 2000);
     }
     
     // Handle vote click

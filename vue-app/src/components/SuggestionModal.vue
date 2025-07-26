@@ -43,6 +43,27 @@
               </option>
             </select>
           </div>
+          
+          <div class="roadmap-form-group">
+            <label class="roadmap-form-label">Priority (Optional)</label>
+            <select v-model="form.priority" class="roadmap-form-control">
+              <option value="">Select priority</option>
+              <option value="low">Low - Nice to have</option>
+              <option value="medium">Medium - Important</option>
+              <option value="high">High - Very important</option>
+              <option value="critical">Critical - Must have</option>
+            </select>
+          </div>
+          
+          <div class="roadmap-form-group">
+            <label class="roadmap-form-label">External Link (Optional)</label>
+            <input 
+              v-model="form.external_link"
+              type="url"
+              class="roadmap-form-control"
+              placeholder="Link to more details or examples"
+            >
+          </div>
         </form>
       </div>
       
@@ -70,7 +91,9 @@ const emit = defineEmits(['submit', 'close'])
 const form = reactive({
   title: '',
   description: '',
-  category: ''
+  category: '',
+  priority: '',
+  external_link: ''
 })
 
 const handleSubmit = () => {
@@ -80,6 +103,8 @@ const handleSubmit = () => {
     form.title = ''
     form.description = ''
     form.category = ''
+    form.priority = ''
+    form.external_link = ''
   }
 }
 </script>

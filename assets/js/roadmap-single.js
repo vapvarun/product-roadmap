@@ -85,30 +85,52 @@ jQuery(document).ready(function($) {
     style.textContent = `
         .roadmap-notification {
             position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 15px 20px;
-            border-radius: 4px;
-            background: #333;
-            color: white;
-            z-index: 9999;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.8);
+            padding: 20px 30px;
+            border-radius: 8px;
+            background: #fff;
+            color: #333;
+            z-index: 99999;
             opacity: 0;
-            transform: translateX(100%);
             transition: all 0.3s ease;
-            max-width: 300px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            font-size: 16px;
+            font-weight: 500;
+            text-align: center;
+            min-width: 250px;
         }
         
         .roadmap-notification.show {
             opacity: 1;
-            transform: translateX(0);
+            transform: translate(-50%, -50%) scale(1);
         }
         
         .roadmap-notification-success {
-            background: #4caf50;
+            background: #fff;
+            color: #4caf50;
+            border: 2px solid #4caf50;
+        }
+        
+        .roadmap-notification-success::before {
+            content: "✓ ";
+            font-size: 20px;
+            font-weight: bold;
+            margin-right: 8px;
         }
         
         .roadmap-notification-error {
-            background: #f44336;
+            background: #fff;
+            color: #f44336;
+            border: 2px solid #f44336;
+        }
+        
+        .roadmap-notification-error::before {
+            content: "✕ ";
+            font-size: 20px;
+            font-weight: bold;
+            margin-right: 8px;
         }
         
         .roadmap-vote-btn.voted {

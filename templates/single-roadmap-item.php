@@ -13,6 +13,15 @@ wp_enqueue_script(
     true
 );
 
+// Enqueue edit handler script
+wp_enqueue_script(
+    'roadmap-single-edit',
+    ROADMAP_PLUGIN_URL . 'assets/js/roadmap-single-edit.js',
+    ['jquery'],
+    ROADMAP_VERSION,
+    true
+);
+
 // Localize script
 wp_localize_script('roadmap-single', 'roadmapAjax', [
     'apiUrl' => rest_url('roadmap/v1'),
@@ -245,6 +254,16 @@ while (have_posts()) : the_post();
 .roadmap-edit-btn:hover {
     background: #555;
 }
+
+/* Vue app container for edit modal */
+.roadmap-single-edit-app {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 99999;
+}
 </style>
 
 <?php
@@ -278,31 +297,6 @@ while (have_posts()) : the_post();
          style="display: none;">
     </div>
     
-    <script>
-    jQuery(document).ready(function($) {
-        // Handle edit button click
-        $('.roadmap-edit-btn').on('click', function(e) {
-            e.preventDefault();
-            var itemId = $(this).data('item-id');
-            
-            // Initialize Vue app if not already done
-            var container = document.getElementById('roadmap-edit-app');
-            if (container && window.RoadmapApp && !container.__vue_app__) {
-                try {
-                    var config = JSON.parse(container.dataset.config);
-                    window.RoadmapApp.mount(container, config);
-                } catch (e) {
-                    console.error('Failed to initialize edit modal:', e);
-                }
-            }
-            
-            // Call the exposed method
-            if (container && container.__vue_app__) {
-                container.__vue_app__.openSingleItemModal(itemId);
-            }
-        });
-    });
-    </script>
     
 <?php
 endwhile;
