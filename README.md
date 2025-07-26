@@ -90,6 +90,14 @@ Enable frontend editing for authorized users:
 - **Community Projects**: Let members decide project direction
 - **Any Business**: That wants to build products customers actually want
 
+## Documentation
+
+- **[User Guide](docs/USER-GUIDE.md)** - Complete guide for using the plugin
+- **[Developer Guide](docs/DEVELOPER-GUIDE.md)** - Hooks, filters, and API reference  
+- **[Product System](docs/PRODUCT-SYSTEM.md)** - Multi-product roadmap documentation
+- **[Settings Guide](docs/SETTINGS-GUIDE.md)** - Configuration options
+- **[Build Instructions](BUILD.md)** - Development setup
+
 ## Development
 
 ### Building the Plugin
