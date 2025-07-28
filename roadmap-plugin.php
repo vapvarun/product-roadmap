@@ -48,6 +48,7 @@ class RoadmapPlugin {
         require_once ROADMAP_PLUGIN_PATH . 'includes/class-roadmap-notifications.php';
         require_once ROADMAP_PLUGIN_PATH . 'includes/class-roadmap-migration.php';
         require_once ROADMAP_PLUGIN_PATH . 'includes/class-roadmap-admin.php';
+        require_once ROADMAP_PLUGIN_PATH . 'includes/class-roadmap-demo-import.php';
         require_once ROADMAP_PLUGIN_PATH . 'includes/class-roadmap-voting.php';
         require_once ROADMAP_PLUGIN_PATH . 'includes/class-roadmap-comments.php';
         require_once ROADMAP_PLUGIN_PATH . 'includes/class-roadmap-suggestions.php';

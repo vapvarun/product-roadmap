@@ -147,6 +147,53 @@ If the build fails:
 
 The built files in `assets/` directory are ready for production use. No additional build steps are required on the production server.
 
+## Creating Release Packages
+
+To create distribution-ready zip files for both free and pro versions:
+
+```bash
+# Create release packages
+./build-release.sh
+```
+
+This will:
+1. Build the plugin with production assets
+2. Create a `releases` directory
+3. Generate zip files for distribution:
+   - `roadmap-plugin-{version}.zip` - Free version only
+   - `roadmap-plugin-pro-{version}.zip` - Complete pro package (includes both plugins)
+
+### Release Package Contents
+
+**Free Version Package:**
+- All core plugin files
+- Production-ready assets (minified JS/CSS)
+- No development files (build scripts, source files, etc.)
+- Ready for WordPress.org repository
+
+**Pro Version Package:**
+- Complete free plugin
+- Pro addon with all features
+- Production-ready assets for both plugins
+- No development files
+
+### Manual Packaging
+
+If you need to create packages manually:
+
+```bash
+# Free version
+zip -r roadmap-plugin.zip roadmap-plugin/ \
+  -x "*/node_modules/*" \
+  -x "*/vue-app/*" \
+  -x "*/.git/*" \
+  -x "*/build*.sh" \
+  -x "*/package*.json" \
+  -x "*/.*" \
+  -x "*/docs/*" \
+  -x "*/*.md"
+```
+
 ## Contributing
 
 When making CSS changes:
