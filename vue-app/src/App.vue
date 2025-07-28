@@ -676,7 +676,7 @@ defineExpose({
 </script>
 
 <style lang="scss">
-@import './assets/css/main.scss';
+@use './assets/css/main.scss' as *;
 
 // Professional notification styles
 .roadmap-notification {

@@ -71,7 +71,7 @@ Optionally import sample roadmap items to see how everything works.
 ### Step 4: Finish
 
 The wizard completes by:
-1. Creating a roadmap page with the `[roadmap]` shortcode
+1. Creating a roadmap page with the `[roadmap product="main"]` shortcode
 2. Saving all your configuration
 3. Providing quick links to:
    - View your roadmap page
@@ -83,7 +83,7 @@ The wizard completes by:
 
 ### Page Creation
 - Creates a new page titled "{Your Product} Roadmap"
-- Adds the `[roadmap]` shortcode automatically
+- Adds the `[roadmap product="main"]` shortcode automatically
 - Sets page status to published
 - Prevents duplicate pages if run multiple times
 
@@ -136,7 +136,7 @@ After completing the wizard, you can:
 3. Change the page template if needed
 4. Modify shortcode parameters:
    ```
-   [roadmap sort="votes" template="board"]
+   [roadmap product="main" sort="votes" template="board"]
    ```
 
 ## Troubleshooting

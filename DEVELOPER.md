@@ -54,14 +54,16 @@ The `[roadmap]` shortcode accepts these parameters:
 
 ```php
 [roadmap 
+    product="main"           // REQUIRED - specify product to display
     mode="view"              // view or manage
     allow_frontend_edit="false" 
-    product=""               // defaults to 'main' in free version
     class=""                 // custom CSS classes
     template="board"         // board, timeline, list (pro)
     sort=""                  // votes, recent, comments, priority
 ]
 ```
+
+**Important:** The `product` parameter is mandatory. Always specify which product roadmap to display.
 
 ### 3. REST API
 

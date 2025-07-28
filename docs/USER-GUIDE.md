@@ -138,9 +138,11 @@ Products allow you to maintain separate roadmaps for different offerings. The fr
 
 ### Basic Shortcode
 ```
-[roadmap]
+[roadmap product="main"]
 ```
-Displays the default roadmap board view.
+Displays the roadmap board view for the specified product.
+
+**Important:** The `product` parameter is mandatory. Always specify which product roadmap to display.
 
 ### Shortcode Parameters
 ```
@@ -148,7 +150,7 @@ Displays the default roadmap board view.
 ```
 
 **Available Parameters:**
-- `product`: Which product to display (default: "main")
+- `product`: **(Required)** Which product to display. Use "main" for the default product
 - `template`: Display template (default: "board")
   - `board`: Kanban-style board (free version)
 

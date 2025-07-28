@@ -65,8 +65,10 @@ Product Roadmap transforms the way you communicate with your customers about upc
 The Setup Wizard automatically creates a roadmap page for you. You can also add the roadmap to any page or post using the shortcode:
 
 ```
-[roadmap]
+[roadmap product="main"]
 ```
+
+**Note:** The `product` parameter is mandatory. Use `product="main"` for the default product.
 
 ### First Time Setup
 
@@ -81,7 +83,7 @@ The Setup Wizard automatically creates a roadmap page for you. You can also add 
 Enable frontend editing for authorized users:
 
 ```
-[roadmap allow_frontend_edit="true"]
+[roadmap product="main" allow_frontend_edit="true"]
 ```
 
 ### Pro Version - Multiple Products

@@ -390,7 +390,7 @@ class Roadmap_Setup_Wizard {
                 <h3 style="margin-top: 0;"><?php _e('Quick Start:', 'roadmap'); ?></h3>
                 <p><?php _e('Add this shortcode to any page or post to display your roadmap:', 'roadmap'); ?></p>
                 <p style="font-size: 18px; font-family: monospace; background: #fff; padding: 10px; border: 1px solid #ddd;">
-                    [roadmap]
+                    [roadmap product="main"]
                 </p>
             </div>
         <?php endif; ?>
@@ -399,7 +399,7 @@ class Roadmap_Setup_Wizard {
         <ul style="list-style: disc; margin-left: 20px; line-height: 2;">
             <li>
                 <a href="<?php echo admin_url('post-new.php?post_type=page'); ?>">
-                    <?php _e('Create a new page and add the [roadmap] shortcode', 'roadmap'); ?>
+                    <?php _e('Create a new page and add the [roadmap product="main"] shortcode', 'roadmap'); ?>
                 </a>
             </li>
             <li>
@@ -522,7 +522,7 @@ class Roadmap_Setup_Wizard {
         // Create a new page with the roadmap shortcode
         $page_data = array(
             'post_title' => sprintf(__('%s Roadmap', 'roadmap'), $product_name),
-            'post_content' => '[roadmap]',
+            'post_content' => '[roadmap product="main"]',
             'post_status' => 'publish',
             'post_type' => 'page',
             'post_author' => get_current_user_id(),

@@ -2,20 +2,20 @@
   <div class="roadmap-modal" @click.self="$emit('close')">
     <div class="roadmap-modal-dialog">
       <div class="roadmap-modal-header">
-        <h3>Suggest a Feature</h3>
+        <h3>{{ i18n.suggest || `Suggest ${i18n.item_singular || 'Feature'}` }}</h3>
         <button @click="$emit('close')" class="roadmap-btn roadmap-btn-icon">×</button>
       </div>
       
       <div class="roadmap-modal-body">
         <form @submit.prevent="handleSubmit">
           <div class="roadmap-form-group">
-            <label class="roadmap-form-label">Feature Title</label>
+            <label class="roadmap-form-label">{{ i18n.item_singular || 'Feature' }} {{ i18n.title || 'Title' }}</label>
             <input 
               v-model="form.title"
               type="text"
               class="roadmap-form-control"
               required
-              placeholder="Brief title for your feature idea"
+              :placeholder="i18n.brief_title || 'Brief title for your feature idea'"
             >
           </div>
           
@@ -80,13 +80,16 @@
 </template>
 
 <script setup>
-import { reactive } from 'vue'
+import { reactive, inject } from 'vue'
 
 const props = defineProps({
   categories: Array
 })
 
 const emit = defineEmits(['submit', 'close'])
+
+const config = inject('$roadmapConfig')
+const i18n = config?.i18n || {}
 
 const form = reactive({
   title: '',

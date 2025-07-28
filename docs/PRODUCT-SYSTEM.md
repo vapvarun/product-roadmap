@@ -8,7 +8,7 @@ The Roadmap Plugin uses a product-based architecture where roadmap items are org
 
 ### Free Version (Base Plugin)
 - **Single Product**: Limited to the default "main" product
-- **Shortcode**: `[roadmap]` or `[roadmap product="main"]`
+- **Shortcode**: `[roadmap product="main"]` (product parameter is required)
 - **Product Taxonomy**: Registered but not editable
 - **Admin Menu**: No Products menu item
 
@@ -28,8 +28,7 @@ When the plugin is activated, it automatically creates a default product called 
 
 **Free Version:**
 ```
-[roadmap]                    → Defaults to product="main"
-[roadmap product="main"]     → Works normally
+[roadmap product="main"]     → Works normally (product parameter required)
 [roadmap product="mobile"]   → Shows error (Pro required)
 ```
 
@@ -117,7 +116,7 @@ When creating new items:
 
 Starting with Free version:
 1. All items use the "main" product
-2. Shortcodes work with or without product parameter
+2. Shortcodes must include the product parameter
 
 Upgrading to Pro:
 1. Existing items remain in "main" product

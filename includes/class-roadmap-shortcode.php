@@ -231,15 +231,20 @@ class Roadmap_Shortcode {
     }
     
     public function get_translations() {
+        // Get custom labels
+        $item_singular = get_option('roadmap_item_singular_label', 'Feature');
+        $item_plural = get_option('roadmap_item_plural_label', 'Features');
+        $product_name = get_option('roadmap_product_name', 'Product');
+        
         return [
             'loading' => __('Loading...', 'roadmap-plugin'),
             'error' => __('An error occurred', 'roadmap-plugin'),
-            'no_items' => __('No roadmap items found', 'roadmap-plugin'),
+            'no_items' => sprintf(__('No %s found', 'roadmap-plugin'), strtolower($item_plural)),
             'vote' => __('Vote', 'roadmap-plugin'),
             'votes' => __('votes', 'roadmap-plugin'),
             'comment' => __('Comment', 'roadmap-plugin'),
             'comments' => __('comments', 'roadmap-plugin'),
-            'suggest' => __('Suggest Feature', 'roadmap-plugin'),
+            'suggest' => sprintf(__('Suggest %s', 'roadmap-plugin'), $item_singular),
             'search' => __('Search...', 'roadmap-plugin'),
             'filter_by_status' => __('Filter by Status', 'roadmap-plugin'),
             'filter_by_category' => __('Filter by Category', 'roadmap-plugin'),
@@ -247,15 +252,15 @@ class Roadmap_Shortcode {
             'all_categories' => __('All Categories', 'roadmap-plugin'),
             'view_mode' => __('View Mode', 'roadmap-plugin'),
             'manage_mode' => __('Manage Mode', 'roadmap-plugin'),
-            'add_item' => __('Add Item', 'roadmap-plugin'),
-            'edit_item' => __('Edit Item', 'roadmap-plugin'),
-            'delete_item' => __('Delete Item', 'roadmap-plugin'),
+            'add_item' => sprintf(__('Add %s', 'roadmap-plugin'), $item_singular),
+            'edit_item' => sprintf(__('Edit %s', 'roadmap-plugin'), $item_singular),
+            'delete_item' => sprintf(__('Delete %s', 'roadmap-plugin'), $item_singular),
             'save' => __('Save', 'roadmap-plugin'),
             'cancel' => __('Cancel', 'roadmap-plugin'),
-            'confirm_delete' => __('Are you sure you want to delete this item?', 'roadmap-plugin'),
-            'item_added' => __('Item added successfully', 'roadmap-plugin'),
-            'item_updated' => __('Item updated successfully', 'roadmap-plugin'),
-            'item_deleted' => __('Item deleted successfully', 'roadmap-plugin'),
+            'confirm_delete' => sprintf(__('Are you sure you want to delete this %s?', 'roadmap-plugin'), strtolower($item_singular)),
+            'item_added' => sprintf(__('%s added successfully', 'roadmap-plugin'), $item_singular),
+            'item_updated' => sprintf(__('%s updated successfully', 'roadmap-plugin'), $item_singular),
+            'item_deleted' => sprintf(__('%s deleted successfully', 'roadmap-plugin'), $item_singular),
             'vote_submitted' => __('Your vote has been submitted', 'roadmap-plugin'),
             'comment_submitted' => __('Your comment has been submitted', 'roadmap-plugin'),
             'suggestion_submitted' => __('Your suggestion has been submitted', 'roadmap-plugin'),
@@ -324,6 +329,10 @@ class Roadmap_Shortcode {
             'most_recent' => __('Most Recent', 'roadmap-plugin'),
             'most_discussed' => __('Most Discussed', 'roadmap-plugin'),
             'highest_priority' => __('Highest Priority', 'roadmap-plugin'),
+            // Custom labels
+            'item_singular' => $item_singular,
+            'item_plural' => $item_plural,
+            'product_name' => $product_name,
         ];
     }
 }

@@ -4,13 +4,18 @@
       @click="$emit('suggest')"
       class="roadmap-btn roadmap-btn-primary"
     >
-      Suggest a Feature
+      {{ i18n.suggest || `Suggest ${i18n.item_singular || 'Feature'}` }}
     </button>
   </div>
 </template>
 
 <script setup>
+import { inject } from 'vue'
+
 defineEmits(['suggest'])
+
+const config = inject('$roadmapConfig')
+const i18n = config?.i18n || {}
 </script>
 
 <style lang="scss" scoped>
