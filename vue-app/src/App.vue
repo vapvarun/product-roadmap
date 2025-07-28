@@ -112,7 +112,7 @@
         
         <!-- Fallback to Board for Pro templates when not Pro -->
         <RoadmapBoard
-          v-else-if="['timeline', 'list', 'cards', 'minimal'].includes(viewMode) && !config.is_pro"
+          v-else-if="['grid', 'timeline', 'list', 'cards', 'minimal'].includes(viewMode) && !config.is_pro"
           :items="filteredItems"
           :statuses="statuses"
           :mode="currentMode"
