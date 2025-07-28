@@ -158,24 +158,63 @@ To create distribution-ready zip files for both free and pro versions:
 
 This will:
 1. Build the plugin with production assets
-2. Create a `releases` directory
+2. Create a `releases` directory with timestamp
 3. Generate zip files for distribution:
    - `roadmap-plugin-{version}.zip` - Free version only
    - `roadmap-plugin-pro-{version}.zip` - Complete pro package (includes both plugins)
+
+### Release Build Process
+
+The release script performs these steps:
+
+1. **Production Build**: Runs `./build.sh` to compile all assets
+2. **Version Detection**: Reads version from main plugin file
+3. **Directory Setup**: Creates timestamped release directory
+4. **Free Version Package**:
+   - Copies all plugin files
+   - Removes development files (node_modules, build scripts, etc.)
+   - Excludes source files and documentation
+5. **Pro Version Package**:
+   - Includes complete free plugin
+   - Adds pro addon (if available)
+   - Removes all development files
 
 ### Release Package Contents
 
 **Free Version Package:**
 - All core plugin files
 - Production-ready assets (minified JS/CSS)
-- No development files (build scripts, source files, etc.)
+- Setup wizard and demo import
+- No development files
 - Ready for WordPress.org repository
 
 **Pro Version Package:**
-- Complete free plugin
-- Pro addon with all features
+- Complete free plugin with all features
+- Pro addon with premium features
 - Production-ready assets for both plugins
 - No development files
+
+### Files Excluded from Release:
+```
+.git/
+.gitignore
+.env
+node_modules/
+vue-app/src/
+vue-app/public/
+vue-app/index.html
+vue-app/.gitignore
+build*.sh
+package*.json
+vite.config.js
+build-rtl.js
+*.log
+.DS_Store
+Thumbs.db
+BUILD.md
+DEVELOPER.md
+docs/
+```
 
 ### Manual Packaging
 
@@ -185,14 +224,38 @@ If you need to create packages manually:
 # Free version
 zip -r roadmap-plugin.zip roadmap-plugin/ \
   -x "*/node_modules/*" \
-  -x "*/vue-app/*" \
+  -x "*/vue-app/src/*" \
+  -x "*/vue-app/public/*" \
   -x "*/.git/*" \
   -x "*/build*.sh" \
   -x "*/package*.json" \
   -x "*/.*" \
   -x "*/docs/*" \
-  -x "*/*.md"
+  -x "*/BUILD.md" \
+  -x "*/DEVELOPER.md"
+
+# Pro version (from parent directory)
+zip -r roadmap-plugin-pro.zip roadmap-plugin/ roadmap-pro-addon/ \
+  -x "*/node_modules/*" \
+  -x "*/vue-app/src/*" \
+  -x "*/.git/*" \
+  -x "*/build*.sh" \
+  -x "*/.*"
 ```
+
+### Version Management
+
+The version number is automatically read from the plugin header:
+```php
+/**
+ * Version: 1.0.0
+ */
+```
+
+To update the version:
+1. Update version in `roadmap-plugin.php` header
+2. Update version in `readme.txt` (if using WordPress.org)
+3. Run `./build-release.sh` to create new versioned packages
 
 ## Contributing
 

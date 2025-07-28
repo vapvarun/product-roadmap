@@ -25,10 +25,14 @@ Product Roadmap transforms the way you communicate with your customers about upc
 
 - **Public Roadmap Display**: Share your development plans openly with customers
 - **User Voting**: Let customers vote on features they want most
-- **Progress Tracking**: Show what's planned, in progress, or completed
+- **Progress Tracking**: Show what's planned, in progress, under review, on hold, or completed
 - **Organized Categories**: Group similar features together for easy browsing
 - **User Suggestions**: Allow customers to submit their own feature ideas
 - **Comment System**: Enable discussions on each roadmap item
+- **Setup Wizard**: Get started quickly with our 4-step guided setup
+- **Demo Content**: Import sample roadmap items to see how it works
+- **Custom Labels**: Personalize item labels (e.g., "Features", "Tasks", "Stories")
+- **Product Name**: Brand your roadmap with your product name
 - **Quick Setup**: Add to any page with a simple shortcode
 - **Mobile Friendly**: Your roadmap looks great on all devices
 
@@ -47,17 +51,30 @@ Product Roadmap transforms the way you communicate with your customers about upc
 
 1. Upload the `product-roadmap` folder to `/wp-content/plugins/`
 2. Activate the plugin through the 'Plugins' menu in WordPress
-3. Navigate to Roadmap → Dashboard to get started
+3. Follow the automatic Setup Wizard or navigate to Roadmap → Setup Wizard
+4. Complete the 4 simple steps:
+   - Configure your product name and item labels
+   - Set up basic settings (voting, comments)
+   - Import demo content (optional)
+   - Your roadmap page is created automatically!
 
 ## Usage
 
 ### Basic Usage
 
-Add the roadmap to any page or post using the shortcode:
+The Setup Wizard automatically creates a roadmap page for you. You can also add the roadmap to any page or post using the shortcode:
 
 ```
 [roadmap]
 ```
+
+### First Time Setup
+
+1. **Run the Setup Wizard**: After activation, you'll see a welcome notice. Click "Run Setup Wizard"
+2. **Configure Product**: Enter your product name and customize item labels
+3. **Basic Settings**: Enable/disable voting and comments
+4. **Import Demo**: Optionally import 11 demo items to see the roadmap in action
+5. **Done!**: Your roadmap page is created with the shortcode already added
 
 ### Frontend Editing
 
@@ -93,10 +110,11 @@ Enable frontend editing for authorized users:
 ## Documentation
 
 - **[User Guide](docs/USER-GUIDE.md)** - Complete guide for using the plugin
-- **[Developer Guide](docs/DEVELOPER-GUIDE.md)** - Hooks, filters, and API reference  
+- **[Developer Guide](DEVELOPER.md)** - Hooks, filters, and API reference  
 - **[Product System](docs/PRODUCT-SYSTEM.md)** - Multi-product roadmap documentation
 - **[Settings Guide](docs/SETTINGS-GUIDE.md)** - Configuration options
-- **[Build Instructions](BUILD.md)** - Development setup
+- **[Build Instructions](BUILD.md)** - Development setup and release process
+- **[Setup Wizard Guide](docs/SETUP-WIZARD.md)** - Detailed setup wizard documentation
 
 ## Development
 
@@ -113,6 +131,21 @@ This will:
 2. Build the Vue.js application
 3. Copy assets to WordPress directories
 4. Create production-ready files
+
+### Creating Release Packages
+
+To generate distribution packages for both free and pro versions:
+
+```bash
+./build-release.sh
+```
+
+This will:
+1. Build production assets
+2. Create a `releases` directory
+3. Generate two zip files:
+   - `roadmap-plugin-{version}.zip` - Free version
+   - `roadmap-plugin-pro-{version}.zip` - Pro version with all features
 
 ### Development Mode
 

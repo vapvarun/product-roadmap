@@ -48,7 +48,7 @@ class Roadmap_Setup_Wizard {
      * Add setup menu
      */
     public function add_setup_menu() {
-        // Always add as submenu under Roadmap
+        // Add as submenu under Roadmap
         add_submenu_page(
             'roadmap-dashboard',
             __('Setup Wizard', 'roadmap'),
@@ -57,19 +57,6 @@ class Roadmap_Setup_Wizard {
             'roadmap-setup-wizard',
             array($this, 'render_setup_page')
         );
-        
-        // Also show as main menu if wizard not completed
-        if (!get_option('roadmap_wizard_completed')) {
-            add_menu_page(
-                __('Roadmap Setup', 'roadmap'),
-                __('Roadmap Setup', 'roadmap'),
-                'manage_options',
-                'roadmap-setup-wizard',
-                array($this, 'render_setup_page'),
-                'dashicons-chart-line',
-                25
-            );
-        }
     }
     
     /**
@@ -320,6 +307,8 @@ class Roadmap_Setup_Wizard {
      */
     private function render_step_demo() {
         $product_name = get_option('roadmap_product_name', 'Product');
+        $existing_page_id = get_option('roadmap_page_id');
+        $has_existing_page = $existing_page_id && get_post($existing_page_id);
         ?>
         <h2><?php _e('Import Demo Content', 'roadmap'); ?></h2>
         <p><?php printf(__('Would you like to import demo content for "%s"? This helps you see how the roadmap works.', 'roadmap'), esc_html($product_name)); ?></p>
@@ -341,6 +330,22 @@ class Roadmap_Setup_Wizard {
                 </label>
             </div>
             
+            <?php if ($has_existing_page): ?>
+                <div style="background: #f0f6fc; border-left: 4px solid #2271b1; padding: 12px; margin: 20px 0;">
+                    <p style="margin: 0;">
+                        <strong><?php _e('Note:', 'roadmap'); ?></strong> 
+                        <?php _e('A roadmap page already exists. The setup will use the existing page.', 'roadmap'); ?>
+                        <a href="<?php echo get_permalink($existing_page_id); ?>" target="_blank"><?php _e('View existing page', 'roadmap'); ?></a>
+                    </p>
+                </div>
+            <?php else: ?>
+                <div style="background: #f0f9ff; border: 1px solid #0073aa; padding: 12px; margin: 20px 0;">
+                    <p style="margin: 0;">
+                        <?php printf(__('After this step, we\'ll create a "%s Roadmap" page with the [roadmap] shortcode.', 'roadmap'), esc_html($product_name)); ?>
+                    </p>
+                </div>
+            <?php endif; ?>
+            
             <div class="roadmap-setup-actions">
                 <a href="<?php echo admin_url('admin.php?page=roadmap-setup-wizard&step=2'); ?>" 
                    class="button button-large"><?php _e('← Back', 'roadmap'); ?></a>
@@ -360,17 +365,35 @@ class Roadmap_Setup_Wizard {
         $was_completed = get_option('roadmap_wizard_completed');
         update_option('roadmap_wizard_completed', true);
         $product_name = get_option('roadmap_product_name', 'Product');
+        $roadmap_page_id = get_option('roadmap_page_id');
         ?>
         <h2><?php _e('🎉 Setup Complete!', 'roadmap'); ?></h2>
         <p><?php printf(__('Your %s roadmap is ready to use!', 'roadmap'), esc_html($product_name)); ?></p>
         
-        <div style="background: #f0f9ff; border: 1px solid #0073aa; padding: 20px; margin: 20px 0;">
-            <h3 style="margin-top: 0;"><?php _e('Quick Start:', 'roadmap'); ?></h3>
-            <p><?php _e('Add this shortcode to any page or post to display your roadmap:', 'roadmap'); ?></p>
-            <p style="font-size: 18px; font-family: monospace; background: #fff; padding: 10px; border: 1px solid #ddd;">
-                [roadmap]
-            </p>
-        </div>
+        <?php if ($roadmap_page_id && get_post($roadmap_page_id)): ?>
+            <div style="background: #d4f4dd; border: 1px solid #00a32a; padding: 20px; margin: 20px 0; text-align: center;">
+                <h3 style="margin-top: 0; color: #00a32a;"><?php _e('Your Roadmap Page is Ready!', 'roadmap'); ?></h3>
+                <p><?php _e('We\'ve created a page with your roadmap. You can view it now:', 'roadmap'); ?></p>
+                <p>
+                    <a href="<?php echo get_permalink($roadmap_page_id); ?>" class="button button-primary button-hero" target="_blank">
+                        <?php _e('View Your Roadmap', 'roadmap'); ?> →
+                    </a>
+                </p>
+                <p style="margin-top: 10px;">
+                    <a href="<?php echo admin_url('post.php?post=' . $roadmap_page_id . '&action=edit'); ?>">
+                        <?php _e('Edit Page', 'roadmap'); ?>
+                    </a>
+                </p>
+            </div>
+        <?php else: ?>
+            <div style="background: #f0f9ff; border: 1px solid #0073aa; padding: 20px; margin: 20px 0;">
+                <h3 style="margin-top: 0;"><?php _e('Quick Start:', 'roadmap'); ?></h3>
+                <p><?php _e('Add this shortcode to any page or post to display your roadmap:', 'roadmap'); ?></p>
+                <p style="font-size: 18px; font-family: monospace; background: #fff; padding: 10px; border: 1px solid #ddd;">
+                    [roadmap]
+                </p>
+            </div>
+        <?php endif; ?>
         
         <h3><?php _e('What\'s Next?', 'roadmap'); ?></h3>
         <ul style="list-style: disc; margin-left: 20px; line-height: 2;">
@@ -449,10 +472,16 @@ class Roadmap_Setup_Wizard {
                 
                 // Import demo content if requested
                 if (isset($_POST['import_demo']) && $_POST['import_demo'] === 'yes') {
+                    // Ensure CPT and taxonomies are loaded
+                    Roadmap_CPT::get_instance();
+                    
                     require_once ROADMAP_PLUGIN_PATH . 'includes/class-roadmap-demo-import.php';
                     $demo_import = new Roadmap_Demo_Import();
                     $demo_import->import_demo_content_direct();
                 }
+                
+                // Always create a roadmap page
+                $this->create_roadmap_page();
                 
                 wp_redirect(admin_url('admin.php?page=roadmap-setup-wizard&step=4'));
                 exit;
@@ -460,11 +489,62 @@ class Roadmap_Setup_Wizard {
     }
     
     /**
+     * Create roadmap page with shortcode
+     */
+    private function create_roadmap_page() {
+        // Check if page already exists
+        $existing_page_id = get_option('roadmap_page_id');
+        if ($existing_page_id) {
+            $existing_page = get_post($existing_page_id);
+            // Verify the page still exists and is published
+            if ($existing_page && $existing_page->post_status === 'publish') {
+                return $existing_page_id;
+            }
+        }
+        
+        // Also check if a page with roadmap shortcode already exists
+        $args = array(
+            'post_type' => 'page',
+            'post_status' => 'publish',
+            's' => '[roadmap]',
+            'posts_per_page' => 1
+        );
+        $existing_pages = get_posts($args);
+        
+        if (!empty($existing_pages)) {
+            $existing_page_id = $existing_pages[0]->ID;
+            update_option('roadmap_page_id', $existing_page_id);
+            return $existing_page_id;
+        }
+        
+        $product_name = get_option('roadmap_product_name', 'Product');
+        
+        // Create a new page with the roadmap shortcode
+        $page_data = array(
+            'post_title' => sprintf(__('%s Roadmap', 'roadmap'), $product_name),
+            'post_content' => '[roadmap]',
+            'post_status' => 'publish',
+            'post_type' => 'page',
+            'post_author' => get_current_user_id(),
+            'comment_status' => 'closed'
+        );
+        
+        $page_id = wp_insert_post($page_data);
+        
+        if ($page_id && !is_wp_error($page_id)) {
+            update_option('roadmap_page_id', $page_id);
+            return $page_id;
+        }
+        
+        return false;
+    }
+    
+    /**
      * Enqueue scripts and styles
      */
     public function enqueue_scripts($hook) {
-        // Check for both toplevel and submenu page hooks
-        if ($hook !== 'toplevel_page_roadmap-setup-wizard' && $hook !== 'roadmap_page_roadmap-setup-wizard') {
+        // Check for submenu page hook
+        if ($hook !== 'roadmap_page_roadmap-setup-wizard') {
             return;
         }
         

@@ -100,6 +100,15 @@ class Roadmap_Demo_Import {
      * Import demo content - public wrapper
      */
     public function import_demo_content_direct() {
+        // Ensure post type and taxonomies are registered
+        if (!post_type_exists('roadmap_item')) {
+            Roadmap_CPT::get_instance()->register_post_types();
+        }
+        
+        if (!taxonomy_exists('roadmap_product') || !taxonomy_exists('roadmap_status') || !taxonomy_exists('roadmap_category')) {
+            Roadmap_CPT::get_instance()->register_taxonomies();
+        }
+        
         return $this->import_demo_content();
     }
     
@@ -107,6 +116,12 @@ class Roadmap_Demo_Import {
      * Import demo content
      */
     private function import_demo_content() {
+        // First ensure we have the default product term
+        $default_product_id = $this->ensure_default_product();
+        
+        // Create status terms if they don't exist
+        $this->ensure_status_terms();
+        
         // Create categories first
         $categories = array(
             'Features' => __('New features and enhancements', 'roadmap'),
@@ -117,11 +132,17 @@ class Roadmap_Demo_Import {
         
         $category_ids = array();
         foreach ($categories as $name => $description) {
-            $term = wp_insert_term($name, 'roadmap_category', array(
-                'description' => $description
-            ));
-            if (!is_wp_error($term)) {
-                $category_ids[$name] = $term['term_id'];
+            // Check if term already exists
+            $existing_term = get_term_by('name', $name, 'roadmap_category');
+            if ($existing_term) {
+                $category_ids[$name] = $existing_term->term_id;
+            } else {
+                $term = wp_insert_term($name, 'roadmap_category', array(
+                    'description' => $description
+                ));
+                if (!is_wp_error($term)) {
+                    $category_ids[$name] = $term['term_id'];
+                }
             }
         }
         
@@ -133,7 +154,8 @@ class Roadmap_Demo_Import {
                 'status' => 'planned',
                 'priority' => 'high',
                 'category' => 'Features',
-                'votes' => 45
+                'votes' => 45,
+                'target_date' => date('Y-m-d', strtotime('+3 months'))
             ),
             array(
                 'title' => __('Mobile App Development', 'roadmap'),
@@ -149,7 +171,8 @@ class Roadmap_Demo_Import {
                 'status' => 'in-progress',
                 'priority' => 'high',
                 'category' => 'Features',
-                'votes' => 52
+                'votes' => 52,
+                'target_date' => date('Y-m-d', strtotime('+1 month'))
             ),
             array(
                 'title' => __('Performance Optimization', 'roadmap'),
@@ -157,7 +180,8 @@ class Roadmap_Demo_Import {
                 'status' => 'in-progress',
                 'priority' => 'high',
                 'category' => 'Improvements',
-                'votes' => 31
+                'votes' => 31,
+                'target_date' => date('Y-m-d', strtotime('+2 weeks'))
             ),
             array(
                 'title' => __('Email Notification System', 'roadmap'),
@@ -178,7 +202,7 @@ class Roadmap_Demo_Import {
             array(
                 'title' => __('API Rate Limiting', 'roadmap'),
                 'content' => __('Implement rate limiting for API endpoints to prevent abuse and ensure fair usage. Include configurable limits per user and IP address.', 'roadmap'),
-                'status' => 'planned',
+                'status' => 'under-review',
                 'priority' => 'medium',
                 'category' => 'Infrastructure',
                 'votes' => 18
@@ -186,7 +210,7 @@ class Roadmap_Demo_Import {
             array(
                 'title' => __('Multi-language Support', 'roadmap'),
                 'content' => __('Add full internationalization support with translations for major languages. Include RTL language support and locale-specific formatting.', 'roadmap'),
-                'status' => 'planned',
+                'status' => 'on-hold',
                 'priority' => 'low',
                 'category' => 'Features',
                 'votes' => 29
@@ -202,10 +226,18 @@ class Roadmap_Demo_Import {
             array(
                 'title' => __('Backup and Restore', 'roadmap'),
                 'content' => __('Implement automated backup functionality with scheduled backups and one-click restore options. Include selective backup for specific data types.', 'roadmap'),
-                'status' => 'planned',
+                'status' => 'under-review',
                 'priority' => 'high',
                 'category' => 'Infrastructure',
                 'votes' => 55
+            ),
+            array(
+                'title' => __('Social Media Integration', 'roadmap'),
+                'content' => __('Add social media sharing capabilities and integration with major platforms. Allow users to share roadmap items and updates on Twitter, LinkedIn, and Facebook.', 'roadmap'),
+                'status' => 'on-hold',
+                'priority' => 'low',
+                'category' => 'Features',
+                'votes' => 22
             )
         );
         
@@ -216,11 +248,7 @@ class Roadmap_Demo_Import {
                 'post_content' => $item['content'],
                 'post_status' => 'publish',
                 'post_type' => 'roadmap_item',
-                'meta_input' => array(
-                    'roadmap_status' => $item['status'],
-                    'roadmap_priority' => $item['priority'],
-                    'roadmap_votes' => $item['votes']
-                )
+                'meta_input' => array()
             );
             
             $post_id = wp_insert_post($post_data);
@@ -228,8 +256,61 @@ class Roadmap_Demo_Import {
             if ($post_id && !is_wp_error($post_id)) {
                 // Assign category
                 if (isset($category_ids[$item['category']])) {
-                    wp_set_object_terms($post_id, $category_ids[$item['category']], 'roadmap_category');
+                    $cat_result = wp_set_object_terms($post_id, (int)$category_ids[$item['category']], 'roadmap_category', false);
+                    if (is_wp_error($cat_result)) {
+                        error_log('Failed to assign category: ' . $cat_result->get_error_message());
+                    }
                 }
+                
+                // Assign product (main product for free version)
+                if ($default_product_id) {
+                    $prod_result = wp_set_object_terms($post_id, (int)$default_product_id, 'roadmap_product', false);
+                    if (is_wp_error($prod_result)) {
+                        error_log('Failed to assign product: ' . $prod_result->get_error_message());
+                    }
+                }
+                
+                // Assign status
+                $status_term = get_term_by('slug', $item['status'], 'roadmap_status');
+                if ($status_term && !is_wp_error($status_term)) {
+                    $status_result = wp_set_object_terms($post_id, (int)$status_term->term_id, 'roadmap_status', false);
+                    if (is_wp_error($status_result)) {
+                        error_log('Failed to assign status: ' . $status_result->get_error_message());
+                    }
+                } else {
+                    error_log('Status term not found: ' . $item['status']);
+                }
+                
+                // Update meta fields with proper values
+                update_post_meta($post_id, '_roadmap_priority', $item['priority']);
+                update_post_meta($post_id, '_roadmap_vote_count', $item['votes']);
+                
+                // Set target date if provided
+                if (isset($item['target_date'])) {
+                    update_post_meta($post_id, '_roadmap_target_date', $item['target_date']);
+                }
+                
+                // Set progress based on status
+                $progress = 0;
+                switch($item['status']) {
+                    case 'completed':
+                        $progress = 100;
+                        break;
+                    case 'in-progress':
+                        $progress = 50;
+                        break;
+                    case 'under-review':
+                        $progress = 20;
+                        break;
+                    case 'on-hold':
+                        $progress = 10;
+                        break;
+                    case 'planned':
+                    default:
+                        $progress = 0;
+                        break;
+                }
+                update_post_meta($post_id, '_roadmap_progress', $progress);
                 
                 // Add some sample comments for items with more votes
                 if ($item['votes'] > 40) {
@@ -248,6 +329,77 @@ class Roadmap_Demo_Import {
         // Mark demo as imported
         update_option('roadmap_demo_imported', true);
         update_option('roadmap_setup_notice_dismissed', true);
+        
+        // Flush rewrite rules to ensure permalinks work
+        flush_rewrite_rules();
+        
+        return true;
+    }
+    
+    /**
+     * Ensure default product exists
+     */
+    private function ensure_default_product() {
+        // First check if taxonomy exists
+        if (!taxonomy_exists('roadmap_product')) {
+            error_log('roadmap_product taxonomy does not exist');
+            return false;
+        }
+        
+        $default_product = get_option('roadmap_default_product', 'main');
+        $term = get_term_by('slug', $default_product, 'roadmap_product');
+        
+        if (!$term || is_wp_error($term)) {
+            // Create default product term
+            $product_name = get_option('roadmap_product_name', 'Main Product');
+            $result = wp_insert_term(
+                $product_name,
+                'roadmap_product',
+                array('slug' => $default_product)
+            );
+            
+            if (!is_wp_error($result)) {
+                update_option('roadmap_default_product_id', $result['term_id']);
+                return $result['term_id'];
+            } else {
+                error_log('Failed to create default product term: ' . $result->get_error_message());
+                return false;
+            }
+        } else {
+            update_option('roadmap_default_product_id', $term->term_id);
+            return $term->term_id;
+        }
+    }
+    
+    /**
+     * Ensure status terms exist
+     */
+    private function ensure_status_terms() {
+        // First check if taxonomy exists
+        if (!taxonomy_exists('roadmap_status')) {
+            error_log('roadmap_status taxonomy does not exist');
+            return false;
+        }
+        
+        $default_statuses = array(
+            'planned' => __('Planned', 'roadmap'),
+            'in-progress' => __('In Progress', 'roadmap'),
+            'completed' => __('Completed', 'roadmap'),
+            'on-hold' => __('On Hold', 'roadmap'),
+            'under-review' => __('Under Review', 'roadmap')
+        );
+        
+        foreach ($default_statuses as $slug => $name) {
+            $existing = get_term_by('slug', $slug, 'roadmap_status');
+            if (!$existing || is_wp_error($existing)) {
+                $result = wp_insert_term($name, 'roadmap_status', array('slug' => $slug));
+                if (is_wp_error($result)) {
+                    error_log('Failed to create status term ' . $slug . ': ' . $result->get_error_message());
+                }
+            }
+        }
+        
+        return true;
     }
 }
 

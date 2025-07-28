@@ -185,8 +185,10 @@ class Roadmap_CPT {
         // Insert default product term
         $default_product = get_option('roadmap_default_product', 'main');
         if (!term_exists($default_product, 'roadmap_product')) {
+            // Use the product name from settings if available
+            $product_name = get_option('roadmap_product_name', __('Main Product', 'roadmap-plugin'));
             $term = wp_insert_term(
-                __('Main Product', 'roadmap-plugin'),
+                $product_name,
                 'roadmap_product',
                 ['slug' => $default_product]
             );
