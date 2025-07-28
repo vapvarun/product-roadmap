@@ -1,3 +1,6 @@
+// Import Sass color module
+@use 'sass:color';
+
 // Variables
 $primary-color: #2271b1;
 $secondary-color: #50575e;
@@ -74,8 +77,8 @@ $white: #ffffff;
     border-color: $primary-color;
     
     &:hover:not(:disabled) {
-      background: darken($primary-color, 10%);
-      border-color: darken($primary-color, 10%);
+      background: color.adjust($primary-color, $lightness: -10%);
+      border-color: color.adjust($primary-color, $lightness: -10%);
     }
   }
   
@@ -95,7 +98,7 @@ $white: #ffffff;
     border-color: $success-color;
     
     &:hover:not(:disabled) {
-      background: darken($success-color, 10%);
+      background: color.adjust($success-color, $lightness: -10%);
     }
   }
   
@@ -105,7 +108,7 @@ $white: #ffffff;
     border-color: $danger-color;
     
     &:hover:not(:disabled) {
-      background: darken($danger-color, 10%);
+      background: color.adjust($danger-color, $lightness: -10%);
     }
   }
   
@@ -185,7 +188,7 @@ $white: #ffffff;
 .roadmap-error {
   text-align: center;
   padding: 40px 20px;
-  background: lighten($danger-color, 45%);
+  background: color.adjust($danger-color, $lightness: 45%);
   border: 1px solid lighten($danger-color, 30%);
   border-radius: 4px;
   color: $danger-color;

@@ -133,6 +133,11 @@ class Roadmap_Settings {
             'default' => $this->get_default_global_settings()
         ]);
         
+        // Product name and labels
+        register_setting('roadmap_global', 'roadmap_product_name');
+        register_setting('roadmap_global', 'roadmap_item_singular_label');
+        register_setting('roadmap_global', 'roadmap_item_plural_label');
+        
         // Product-specific settings
         register_setting('roadmap_products', 'roadmap_product_settings', [
             'type' => 'array',
@@ -361,188 +366,366 @@ class Roadmap_Settings {
         $active_tab = isset($_GET['tab']) ? $_GET['tab'] : 'general';
         $global_settings = get_option('roadmap_global_settings', $this->get_default_global_settings());
         ?>
-        <div class="wrap">
-            <h1><?php _e('Roadmap Settings', 'roadmap-plugin'); ?></h1>
+        <div class="wrap roadmap-settings-wrap">
+            <div class="roadmap-settings-header">
+                <h1><?php _e('Roadmap Settings', 'roadmap-plugin'); ?></h1>
+                <p class="roadmap-settings-description">
+                    <?php _e('Configure your roadmap settings to match your workflow and requirements.', 'roadmap-plugin'); ?>
+                </p>
+            </div>
             
-            <h2 class="nav-tab-wrapper">
-                <a href="?page=roadmap-settings&tab=general" 
-                   class="nav-tab <?php echo $active_tab === 'general' ? 'nav-tab-active' : ''; ?>">
-                    <?php _e('General', 'roadmap-plugin'); ?>
-                </a>
-                <a href="?page=roadmap-settings&tab=notifications" 
-                   class="nav-tab <?php echo $active_tab === 'notifications' ? 'nav-tab-active' : ''; ?>">
-                    <?php _e('Notifications', 'roadmap-plugin'); ?>
-                </a>
-                <?php
-                // Allow pro addon to add tabs
-                $tabs = apply_filters('roadmap_settings_tabs', []);
-                foreach ($tabs as $tab_key => $tab_label) {
-                    ?>
-                    <a href="?page=roadmap-settings&tab=<?php echo esc_attr($tab_key); ?>" 
-                       class="nav-tab <?php echo $active_tab === $tab_key ? 'nav-tab-active' : ''; ?>">
-                        <?php echo esc_html($tab_label); ?>
-                    </a>
+            <div class="roadmap-settings-container">
+                <div class="roadmap-settings-sidebar">
+                    <ul class="roadmap-settings-nav">
+                        <li>
+                            <a href="?page=roadmap-settings&tab=general" 
+                               class="roadmap-nav-item <?php echo $active_tab === 'general' ? 'active' : ''; ?>">
+                                <i class="dashicons dashicons-admin-settings"></i>
+                                <span><?php _e('General', 'roadmap-plugin'); ?></span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="?page=roadmap-settings&tab=notifications" 
+                               class="roadmap-nav-item <?php echo $active_tab === 'notifications' ? 'active' : ''; ?>">
+                                <i class="dashicons dashicons-email"></i>
+                                <span><?php _e('Notifications', 'roadmap-plugin'); ?></span>
+                            </a>
+                        </li>
+                        <?php
+                        // Allow pro addon to add tabs
+                        $tabs = apply_filters('roadmap_settings_tabs', []);
+                        foreach ($tabs as $tab_key => $tab_data) {
+                            $icon = isset($tab_data['icon']) ? $tab_data['icon'] : 'dashicons-admin-generic';
+                            $label = isset($tab_data['label']) ? $tab_data['label'] : $tab_data;
+                            ?>
+                            <li>
+                                <a href="?page=roadmap-settings&tab=<?php echo esc_attr($tab_key); ?>" 
+                                   class="roadmap-nav-item <?php echo $active_tab === $tab_key ? 'active' : ''; ?>">
+                                    <i class="dashicons <?php echo esc_attr($icon); ?>"></i>
+                                    <span><?php echo esc_html($label); ?></span>
+                                </a>
+                            </li>
+                            <?php
+                        }
+                        ?>
+                    </ul>
+                    
+                    <?php if (!defined('ROADMAP_PRO_ACTIVE') || !ROADMAP_PRO_ACTIVE): ?>
+                    <div class="roadmap-pro-cta">
+                        <h3><?php _e('Upgrade to Pro', 'roadmap-plugin'); ?></h3>
+                        <p><?php _e('Unlock advanced features like multiple products, timeline view, and more.', 'roadmap-plugin'); ?></p>
+                        <a href="https://wbcomdesigns.com/downloads/product-roadmap-pro/" class="button button-primary" target="_blank">
+                            <?php _e('Get Pro Version', 'roadmap-plugin'); ?>
+                        </a>
+                    </div>
+                    <?php endif; ?>
+                </div>
+                
+                <div class="roadmap-settings-content">
                     <?php
-                }
-                ?>
-            </h2>
-            
-            <form method="post" action="options.php">
-                <?php settings_fields('roadmap_global'); ?>
-                
-                <?php
-                switch ($active_tab) {
-                    case 'general':
-                        $this->render_general_settings($global_settings);
-                        break;
-                    case 'notifications':
-                        $this->render_notifications_settings($global_settings);
-                        break;
-                    default:
-                        // Allow pro addon to render custom tabs
-                        do_action('roadmap_settings_tab_content', $active_tab);
-                        break;
-                }
-                ?>
-                
-                <?php submit_button(); ?>
-            </form>
+                    // Check if this is a tab that needs form wrapper
+                    $form_tabs = array('general', 'notifications');
+                    $needs_form = in_array($active_tab, $form_tabs);
+                    
+                    if ($needs_form) {
+                        echo '<form method="post" action="options.php" class="roadmap-settings-form">';
+                        settings_fields('roadmap_global');
+                    }
+                    
+                    switch ($active_tab) {
+                        case 'general':
+                            $this->render_general_settings_modern($global_settings);
+                            break;
+                        case 'notifications':
+                            $this->render_notifications_settings_modern($global_settings);
+                            break;
+                        default:
+                            // Allow pro addon to render custom tabs
+                            $this->render_pro_tab_content($active_tab, $global_settings);
+                            break;
+                    }
+                    
+                    if ($needs_form) {
+                        ?>
+                        <div class="roadmap-settings-footer">
+                            <?php submit_button(__('Save Settings', 'roadmap-plugin'), 'primary', 'submit', false); ?>
+                            <span class="roadmap-settings-saved" style="display: none;">
+                                <i class="dashicons dashicons-yes-alt"></i> <?php _e('Settings saved', 'roadmap-plugin'); ?>
+                            </span>
+                        </div>
+                        
+                        <?php if (isset($_GET['settings-updated']) && $_GET['settings-updated']) : ?>
+                        <script>
+                            jQuery(document).ready(function($) {
+                                $(".roadmap-settings-saved").show();
+                                setTimeout(function() {
+                                    $(".roadmap-settings-saved").fadeOut();
+                                }, 3000);
+                            });
+                        </script>
+                        <?php endif; ?>
+                        </form>
+                        <?php
+                    }
+                    ?>
+                </div>
+            </div>
         </div>
+        
+        <?php $this->render_settings_styles(); ?>
         <?php
     }
     
     private function render_general_settings($settings) {
+        // Legacy method kept for compatibility
+        $this->render_general_settings_modern($settings);
+    }
+    
+    private function render_general_settings_modern($settings) {
         $statuses = get_terms(['taxonomy' => 'roadmap_status', 'hide_empty' => false]);
+        $product_name = get_option('roadmap_product_name', 'Product');
+        $item_singular = get_option('roadmap_item_singular_label', 'Feature');
+        $item_plural = get_option('roadmap_item_plural_label', 'Features');
         ?>
-        <table class="form-table">
-            <tr>
-                <th scope="row">
-                    <label for="default_status"><?php _e('Default Status for New Items', 'roadmap-plugin'); ?></label>
-                </th>
-                <td>
-                    <select name="roadmap_global_settings[default_status]" id="default_status">
-                        <?php foreach ($statuses as $status): ?>
-                            <option value="<?php echo esc_attr($status->slug); ?>" 
-                                <?php selected($settings['default_status'], $status->slug); ?>>
-                                <?php echo esc_html($status->name); ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                    <p class="description"><?php _e('New roadmap items will be created with this status.', 'roadmap-plugin'); ?></p>
-                </td>
-            </tr>
+        <div class="roadmap-settings-section">
+            <h2><?php _e('General Settings', 'roadmap-plugin'); ?></h2>
+            <p class="section-description">
+                <?php _e('Configure the basic settings for your roadmap.', 'roadmap-plugin'); ?>
+            </p>
             
-            <tr>
-                <th scope="row">
-                    <label for="items_per_page"><?php _e('Items Per Page', 'roadmap-plugin'); ?></label>
-                </th>
-                <td>
-                    <input type="number" name="roadmap_global_settings[items_per_page]" 
-                           id="items_per_page" value="<?php echo esc_attr($settings['items_per_page']); ?>" 
-                           min="5" max="100" />
-                    <p class="description"><?php _e('Number of items to show per page in the roadmap.', 'roadmap-plugin'); ?></p>
-                </td>
-            </tr>
+            <!-- Product Configuration Card -->
+            <div class="roadmap-settings-card">
+                <div class="card-header">
+                    <h3><i class="dashicons dashicons-portfolio"></i> <?php _e('Product Configuration', 'roadmap-plugin'); ?></h3>
+                </div>
+                <div class="card-body">
+                    <div class="form-row">
+                        <label for="product_name"><?php _e('Product Name', 'roadmap-plugin'); ?></label>
+                        <input type="text" name="roadmap_product_name" id="product_name" 
+                               value="<?php echo esc_attr($product_name); ?>" class="regular-text" />
+                        <p class="description"><?php _e('The name of your product or project.', 'roadmap-plugin'); ?></p>
+                    </div>
+                    
+                    <div class="form-row-group">
+                        <div class="form-row half">
+                            <label for="item_singular"><?php _e('Item Label (Singular)', 'roadmap-plugin'); ?></label>
+                            <input type="text" name="roadmap_item_singular_label" id="item_singular" 
+                                   value="<?php echo esc_attr($item_singular); ?>" />
+                            <p class="description"><?php _e('e.g., Feature, Task, Story', 'roadmap-plugin'); ?></p>
+                        </div>
+                        <div class="form-row half">
+                            <label for="item_plural"><?php _e('Item Label (Plural)', 'roadmap-plugin'); ?></label>
+                            <input type="text" name="roadmap_item_plural_label" id="item_plural" 
+                                   value="<?php echo esc_attr($item_plural); ?>" />
+                            <p class="description"><?php _e('e.g., Features, Tasks, Stories', 'roadmap-plugin'); ?></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
             
-            <tr>
-                <th scope="row"><?php _e('Features', 'roadmap-plugin'); ?></th>
-                <td>
-                    <fieldset>
-                        <label>
-                            <input type="checkbox" name="roadmap_global_settings[enable_voting]" value="1" 
-                                   <?php checked($settings['enable_voting'], true); ?> />
-                            <?php _e('Enable Voting', 'roadmap-plugin'); ?>
-                        </label><br>
+            <!-- Display Settings Card -->
+            <div class="roadmap-settings-card">
+                <div class="card-header">
+                    <h3><i class="dashicons dashicons-layout"></i> <?php _e('Display Settings', 'roadmap-plugin'); ?></h3>
+                </div>
+                <div class="card-body">
+                    <div class="form-row-group">
+                        <div class="form-row half">
+                            <label for="default_status"><?php _e('Default Status', 'roadmap-plugin'); ?></label>
+                            <select name="roadmap_global_settings[default_status]" id="default_status">
+                                <?php foreach ($statuses as $status): ?>
+                                    <option value="<?php echo esc_attr($status->slug); ?>" 
+                                        <?php selected($settings['default_status'], $status->slug); ?>>
+                                        <?php echo esc_html($status->name); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                            <p class="description"><?php _e('Default status for new items.', 'roadmap-plugin'); ?></p>
+                        </div>
                         
-                        <label>
-                            <input type="checkbox" name="roadmap_global_settings[enable_comments]" value="1" 
-                                   <?php checked($settings['enable_comments'], true); ?> />
-                            <?php _e('Enable Comments', 'roadmap-plugin'); ?>
-                        </label><br>
-                        
-                        <label>
-                            <input type="checkbox" name="roadmap_global_settings[enable_suggestions]" value="1" 
-                                   <?php checked($settings['enable_suggestions'], true); ?> />
-                            <?php _e('Enable User Suggestions', 'roadmap-plugin'); ?>
-                        </label>
-                    </fieldset>
-                </td>
-            </tr>
+                        <div class="form-row half">
+                            <label for="items_per_page"><?php _e('Items Per Page', 'roadmap-plugin'); ?></label>
+                            <input type="number" name="roadmap_global_settings[items_per_page]" 
+                                   id="items_per_page" value="<?php echo esc_attr($settings['items_per_page']); ?>" 
+                                   min="5" max="100" />
+                            <p class="description"><?php _e('Items to show per page.', 'roadmap-plugin'); ?></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
             
-            <?php if ($settings['enable_suggestions']): ?>
-            <tr>
-                <th scope="row">
-                    <label for="suggestion_default_status"><?php _e('Default Status for Suggestions', 'roadmap-plugin'); ?></label>
-                </th>
-                <td>
-                    <select name="roadmap_global_settings[suggestion_default_status]" id="suggestion_default_status">
-                        <?php foreach ($statuses as $status): ?>
-                            <option value="<?php echo esc_attr($status->slug); ?>" 
-                                <?php selected($settings['suggestion_default_status'] ?? 'under-review', $status->slug); ?>>
-                                <?php echo esc_html($status->name); ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                    <p class="description"><?php _e('User suggestions will be created with this status.', 'roadmap-plugin'); ?></p>
-                </td>
-            </tr>
-            <?php endif; ?>
-        </table>
+            <!-- Features Card -->
+            <div class="roadmap-settings-card">
+                <div class="card-header">
+                    <h3><i class="dashicons dashicons-admin-generic"></i> <?php _e('Features', 'roadmap-plugin'); ?></h3>
+                </div>
+                <div class="card-body">
+                    <div class="features-grid">
+                        <div class="feature-toggle">
+                            <label class="toggle-switch">
+                                <input type="checkbox" name="roadmap_global_settings[enable_voting]" value="1" 
+                                       <?php checked($settings['enable_voting'], true); ?> />
+                                <span class="toggle-slider"></span>
+                            </label>
+                            <div class="feature-info">
+                                <h4><?php _e('Enable Voting', 'roadmap-plugin'); ?></h4>
+                                <p><?php _e('Allow users to vote on roadmap items.', 'roadmap-plugin'); ?></p>
+                            </div>
+                        </div>
+                        
+                        <div class="feature-toggle">
+                            <label class="toggle-switch">
+                                <input type="checkbox" name="roadmap_global_settings[enable_comments]" value="1" 
+                                       <?php checked($settings['enable_comments'], true); ?> />
+                                <span class="toggle-slider"></span>
+                            </label>
+                            <div class="feature-info">
+                                <h4><?php _e('Enable Comments', 'roadmap-plugin'); ?></h4>
+                                <p><?php _e('Allow users to comment on items.', 'roadmap-plugin'); ?></p>
+                            </div>
+                        </div>
+                        
+                        <div class="feature-toggle">
+                            <label class="toggle-switch">
+                                <input type="checkbox" name="roadmap_global_settings[enable_suggestions]" value="1" 
+                                       <?php checked($settings['enable_suggestions'], true); ?> />
+                                <span class="toggle-slider"></span>
+                            </label>
+                            <div class="feature-info">
+                                <h4><?php _e('User Suggestions', 'roadmap-plugin'); ?></h4>
+                                <p><?php _e('Let users submit feature ideas.', 'roadmap-plugin'); ?></p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <?php if ($settings['enable_suggestions']): ?>
+                    <div class="form-row" style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee;">
+                        <label for="suggestion_default_status"><?php _e('Default Status for Suggestions', 'roadmap-plugin'); ?></label>
+                        <select name="roadmap_global_settings[suggestion_default_status]" id="suggestion_default_status">
+                            <?php foreach ($statuses as $status): ?>
+                                <option value="<?php echo esc_attr($status->slug); ?>" 
+                                    <?php selected($settings['suggestion_default_status'] ?? 'under-review', $status->slug); ?>>
+                                    <?php echo esc_html($status->name); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                        <p class="description"><?php _e('Status assigned to user-submitted suggestions.', 'roadmap-plugin'); ?></p>
+                    </div>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
         <?php
     }
     
     private function render_notifications_settings($settings) {
+        // Legacy method kept for compatibility
+        $this->render_notifications_settings_modern($settings);
+    }
+    
+    private function render_notifications_settings_modern($settings) {
         ?>
-        <table class="form-table">
-            <tr>
-                <th scope="row">
-                    <label for="enable_notifications"><?php _e('Enable Email Notifications', 'roadmap-plugin'); ?></label>
-                </th>
-                <td>
-                    <input type="checkbox" name="roadmap_global_settings[enable_notifications]" 
-                           id="enable_notifications" value="1" 
-                           <?php checked($settings['enable_notifications'], true); ?> />
-                    <p class="description"><?php _e('Send email notifications for roadmap activity.', 'roadmap-plugin'); ?></p>
-                </td>
-            </tr>
+        <div class="roadmap-settings-section">
+            <h2><?php _e('Email Notifications', 'roadmap-plugin'); ?></h2>
+            <p class="section-description">
+                <?php _e('Configure email notifications to stay informed about roadmap activity.', 'roadmap-plugin'); ?>
+            </p>
             
-            <tr>
-                <th scope="row">
-                    <label for="notification_email"><?php _e('Notification Email', 'roadmap-plugin'); ?></label>
-                </th>
-                <td>
-                    <input type="email" name="roadmap_global_settings[notification_email]" 
-                           id="notification_email" value="<?php echo esc_attr($settings['notification_email']); ?>" 
-                           class="regular-text" />
-                    <p class="description"><?php _e('Email address to receive notifications.', 'roadmap-plugin'); ?></p>
-                </td>
-            </tr>
-            
-            <tr>
-                <th scope="row"><?php _e('Notify On', 'roadmap-plugin'); ?></th>
-                <td>
-                    <fieldset>
-                        <label>
-                            <input type="checkbox" name="roadmap_global_settings[notify_on_vote]" value="1" 
-                                   <?php checked($settings['notify_on_vote'] ?? false, true); ?> />
-                            <?php _e('New Votes', 'roadmap-plugin'); ?>
-                        </label><br>
-                        
-                        <label>
-                            <input type="checkbox" name="roadmap_global_settings[notify_on_comment]" value="1" 
-                                   <?php checked($settings['notify_on_comment'], true); ?> />
-                            <?php _e('New Comments', 'roadmap-plugin'); ?>
-                        </label><br>
-                        
-                        <label>
-                            <input type="checkbox" name="roadmap_global_settings[notify_on_suggestion]" value="1" 
-                                   <?php checked($settings['notify_on_suggestion'], true); ?> />
-                            <?php _e('New Suggestions', 'roadmap-plugin'); ?>
+            <!-- Email Configuration Card -->
+            <div class="roadmap-settings-card">
+                <div class="card-header">
+                    <h3><i class="dashicons dashicons-email-alt"></i> <?php _e('Email Configuration', 'roadmap-plugin'); ?></h3>
+                </div>
+                <div class="card-body">
+                    <div class="feature-toggle large">
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="roadmap_global_settings[enable_notifications]" 
+                                   id="enable_notifications" value="1" 
+                                   <?php checked($settings['enable_notifications'], true); ?> />
+                            <span class="toggle-slider"></span>
                         </label>
-                    </fieldset>
-                </td>
-            </tr>
-        </table>
+                        <div class="feature-info">
+                            <h4><?php _e('Enable Email Notifications', 'roadmap-plugin'); ?></h4>
+                            <p><?php _e('Receive email alerts for roadmap activity.', 'roadmap-plugin'); ?></p>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row" style="margin-top: 20px;">
+                        <label for="notification_email"><?php _e('Notification Email Address', 'roadmap-plugin'); ?></label>
+                        <input type="email" name="roadmap_global_settings[notification_email]" 
+                               id="notification_email" value="<?php echo esc_attr($settings['notification_email']); ?>" 
+                               class="regular-text" placeholder="admin@example.com" />
+                        <p class="description"><?php _e('Where notification emails should be sent.', 'roadmap-plugin'); ?></p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Notification Events Card -->
+            <div class="roadmap-settings-card">
+                <div class="card-header">
+                    <h3><i class="dashicons dashicons-bell"></i> <?php _e('Notification Events', 'roadmap-plugin'); ?></h3>
+                </div>
+                <div class="card-body">
+                    <p class="card-description"><?php _e('Choose which events trigger email notifications.', 'roadmap-plugin'); ?></p>
+                    
+                    <div class="notification-events">
+                        <div class="notification-event">
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="roadmap_global_settings[notify_on_vote]" value="1" 
+                                       <?php checked($settings['notify_on_vote'] ?? false, true); ?> />
+                                <span class="checkbox-text">
+                                    <strong><?php _e('New Votes', 'roadmap-plugin'); ?></strong>
+                                    <small><?php _e('When users vote on roadmap items', 'roadmap-plugin'); ?></small>
+                                </span>
+                            </label>
+                        </div>
+                        
+                        <div class="notification-event">
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="roadmap_global_settings[notify_on_comment]" value="1" 
+                                       <?php checked($settings['notify_on_comment'], true); ?> />
+                                <span class="checkbox-text">
+                                    <strong><?php _e('New Comments', 'roadmap-plugin'); ?></strong>
+                                    <small><?php _e('When users comment on items', 'roadmap-plugin'); ?></small>
+                                </span>
+                            </label>
+                        </div>
+                        
+                        <div class="notification-event">
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="roadmap_global_settings[notify_on_suggestion]" value="1" 
+                                       <?php checked($settings['notify_on_suggestion'], true); ?> />
+                                <span class="checkbox-text">
+                                    <strong><?php _e('New Suggestions', 'roadmap-plugin'); ?></strong>
+                                    <small><?php _e('When users submit feature suggestions', 'roadmap-plugin'); ?></small>
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <?php if (!defined('ROADMAP_PRO_ACTIVE') || !ROADMAP_PRO_ACTIVE): ?>
+            <!-- Pro Features Preview -->
+            <div class="roadmap-settings-card pro-preview">
+                <div class="card-header">
+                    <h3><i class="dashicons dashicons-star-filled"></i> <?php _e('Pro Notification Features', 'roadmap-plugin'); ?></h3>
+                    <span class="pro-badge">PRO</span>
+                </div>
+                <div class="card-body">
+                    <ul class="pro-features-list">
+                        <li><i class="dashicons dashicons-yes"></i> <?php _e('Custom email templates', 'roadmap-plugin'); ?></li>
+                        <li><i class="dashicons dashicons-yes"></i> <?php _e('Multiple notification recipients', 'roadmap-plugin'); ?></li>
+                        <li><i class="dashicons dashicons-yes"></i> <?php _e('Digest emails (daily/weekly)', 'roadmap-plugin'); ?></li>
+                        <li><i class="dashicons dashicons-yes"></i> <?php _e('User notification preferences', 'roadmap-plugin'); ?></li>
+                    </ul>
+                    <a href="https://wbcomdesigns.com/downloads/product-roadmap-pro/" class="button button-primary" target="_blank">
+                        <?php _e('Upgrade to Pro', 'roadmap-plugin'); ?>
+                    </a>
+                </div>
+            </div>
+            <?php endif; ?>
+        </div>
         <?php
     }
     
@@ -860,8 +1043,35 @@ class Roadmap_Settings {
             return;
         }
         
+        // Enqueue modern admin CSS
+        wp_enqueue_style('roadmap-admin', ROADMAP_PLUGIN_URL . 'assets/css/roadmap-admin.css', [], ROADMAP_VERSION);
+        
         wp_enqueue_style('wp-color-picker');
         wp_enqueue_script('wp-color-picker');
+        
+        // Add settings page script
+        if ($hook === 'roadmap_page_roadmap-settings') {
+            wp_add_inline_script('jquery', '
+                jQuery(document).ready(function($) {
+                    // Show saved message on form submit
+                    $(".roadmap-settings-form").on("submit", function() {
+                        // This will be handled by WordPress options.php
+                        // Just prepare for showing saved message on reload
+                    });
+                    
+                    // Show saved message if redirected after save
+                    if (window.location.href.indexOf("settings-updated=true") > -1) {
+                        $(".roadmap-settings-saved").show();
+                        setTimeout(function() {
+                            $(".roadmap-settings-saved").fadeOut();
+                        }, 3000);
+                    }
+                    
+                    // Initialize color picker
+                    $(".color-field").wpColorPicker();
+                });
+            ');
+        }
     }
     
     public function add_product_columns($columns) {
@@ -927,6 +1137,550 @@ class Roadmap_Settings {
         }
         
         return $submenu_file;
+    }
+    
+    private function render_pro_tab_content($tab, $settings) {
+        // Provide card-based wrapper for pro tabs
+        switch ($tab) {
+            case 'templates':
+                $this->render_templates_tab($settings);
+                break;
+            case 'advanced':
+                $this->render_advanced_tab($settings);
+                break;
+            default:
+                // Allow other pro tabs
+                do_action('roadmap_settings_tab_content', $tab);
+                break;
+        }
+    }
+    
+    private function render_templates_tab($settings) {
+        ?>
+        <div class="roadmap-settings-section">
+            <h2><?php _e('Template Settings', 'roadmap-plugin'); ?></h2>
+            <p class="section-description">
+                <?php _e('Customize the appearance and layout of your roadmap.', 'roadmap-plugin'); ?>
+            </p>
+            
+            <?php if (!defined('ROADMAP_PRO_ACTIVE') || !ROADMAP_PRO_ACTIVE): ?>
+            <!-- Pro Feature Notice -->
+            <div class="roadmap-settings-card pro-preview">
+                <div class="card-header">
+                    <h3><i class="dashicons dashicons-layout"></i> <?php _e('Template Options', 'roadmap-plugin'); ?></h3>
+                    <span class="pro-badge">PRO</span>
+                </div>
+                <div class="card-body">
+                    <div class="roadmap-empty-state">
+                        <i class="dashicons dashicons-star-filled"></i>
+                        <h3><?php _e('Pro Feature', 'roadmap-plugin'); ?></h3>
+                        <p><?php _e('Unlock multiple template layouts and customization options with the Pro version.', 'roadmap-plugin'); ?></p>
+                        <ul class="pro-features-list" style="text-align: left; max-width: 400px; margin: 20px auto;">
+                            <li><i class="dashicons dashicons-yes"></i> <?php _e('Timeline view template', 'roadmap-plugin'); ?></li>
+                            <li><i class="dashicons dashicons-yes"></i> <?php _e('Grid view template', 'roadmap-plugin'); ?></li>
+                            <li><i class="dashicons dashicons-yes"></i> <?php _e('Kanban board template', 'roadmap-plugin'); ?></li>
+                            <li><i class="dashicons dashicons-yes"></i> <?php _e('Compact list template', 'roadmap-plugin'); ?></li>
+                            <li><i class="dashicons dashicons-yes"></i> <?php _e('Custom CSS editor', 'roadmap-plugin'); ?></li>
+                            <li><i class="dashicons dashicons-yes"></i> <?php _e('Dark mode support', 'roadmap-plugin'); ?></li>
+                        </ul>
+                        <a href="https://wbcomdesigns.com/downloads/product-roadmap-pro/" class="button button-primary" target="_blank">
+                            <?php _e('Get Pro Version', 'roadmap-plugin'); ?>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <?php else: ?>
+                <?php // Pro version would render actual settings here ?>
+                <?php do_action('roadmap_render_templates_settings', $settings); ?>
+            <?php endif; ?>
+        </div>
+        <?php
+    }
+    
+    private function render_advanced_tab($settings) {
+        ?>
+        <div class="roadmap-settings-section">
+            <h2><?php _e('Advanced Settings', 'roadmap-plugin'); ?></h2>
+            <p class="section-description">
+                <?php _e('Fine-tune your roadmap with advanced configuration options.', 'roadmap-plugin'); ?>
+            </p>
+            
+            <?php if (!defined('ROADMAP_PRO_ACTIVE') || !ROADMAP_PRO_ACTIVE): ?>
+            <!-- Pro Feature Notice -->
+            <div class="roadmap-settings-card pro-preview">
+                <div class="card-header">
+                    <h3><i class="dashicons dashicons-admin-tools"></i> <?php _e('Advanced Options', 'roadmap-plugin'); ?></h3>
+                    <span class="pro-badge">PRO</span>
+                </div>
+                <div class="card-body">
+                    <div class="roadmap-empty-state">
+                        <i class="dashicons dashicons-star-filled"></i>
+                        <h3><?php _e('Pro Feature', 'roadmap-plugin'); ?></h3>
+                        <p><?php _e('Access advanced settings and customization options with the Pro version.', 'roadmap-plugin'); ?></p>
+                        <ul class="pro-features-list" style="text-align: left; max-width: 400px; margin: 20px auto;">
+                            <li><i class="dashicons dashicons-yes"></i> <?php _e('Custom post type slug', 'roadmap-plugin'); ?></li>
+                            <li><i class="dashicons dashicons-yes"></i> <?php _e('Advanced permissions', 'roadmap-plugin'); ?></li>
+                            <li><i class="dashicons dashicons-yes"></i> <?php _e('API access control', 'roadmap-plugin'); ?></li>
+                            <li><i class="dashicons dashicons-yes"></i> <?php _e('Export/Import settings', 'roadmap-plugin'); ?></li>
+                            <li><i class="dashicons dashicons-yes"></i> <?php _e('Database optimization', 'roadmap-plugin'); ?></li>
+                        </ul>
+                        <a href="https://wbcomdesigns.com/downloads/product-roadmap-pro/" class="button button-primary" target="_blank">
+                            <?php _e('Get Pro Version', 'roadmap-plugin'); ?>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <?php else: ?>
+                <?php // Pro version would render actual settings here ?>
+                <?php do_action('roadmap_render_advanced_settings', $settings); ?>
+            <?php endif; ?>
+        </div>
+        <?php
+    }
+    
+    private function render_settings_styles() {
+        ?>
+        <style>
+        /* Main Container */
+        .roadmap-settings-wrap {
+            margin-top: 20px;
+            max-width: 1400px;
+        }
+        
+        .roadmap-settings-header {
+            margin-bottom: 30px;
+        }
+        
+        .roadmap-settings-header h1 {
+            margin-bottom: 10px;
+            font-size: 32px;
+            font-weight: 600;
+            color: #1d2327;
+        }
+        
+        .roadmap-settings-description {
+            color: #646970;
+            font-size: 16px;
+            margin: 0;
+        }
+        
+        /* Layout */
+        .roadmap-settings-container {
+            display: flex;
+            gap: 30px;
+            align-items: flex-start;
+        }
+        
+        /* Sidebar */
+        .roadmap-settings-sidebar {
+            width: 250px;
+            flex-shrink: 0;
+        }
+        
+        .roadmap-settings-nav {
+            background: #fff;
+            border: 1px solid #c3c4c7;
+            border-radius: 8px;
+            padding: 0;
+            margin: 0 0 20px 0;
+            list-style: none;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        }
+        
+        .roadmap-settings-nav li {
+            margin: 0;
+            border-bottom: 1px solid #f0f0f1;
+        }
+        
+        .roadmap-settings-nav li:last-child {
+            border-bottom: none;
+        }
+        
+        .roadmap-nav-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            text-decoration: none;
+            color: #3c434a;
+            transition: all 0.2s;
+        }
+        
+        .roadmap-nav-item:hover {
+            background: #f6f7f7;
+            color: #2271b1;
+        }
+        
+        .roadmap-nav-item.active {
+            background: #f0f6fc;
+            color: #2271b1;
+            font-weight: 600;
+            position: relative;
+        }
+        
+        .roadmap-nav-item.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: #2271b1;
+        }
+        
+        .roadmap-nav-item i {
+            margin-right: 10px;
+            font-size: 18px;
+        }
+        
+        /* Pro CTA */
+        .roadmap-pro-cta {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .roadmap-pro-cta h3 {
+            margin: 0 0 10px 0;
+            color: #fff;
+            font-size: 18px;
+        }
+        
+        .roadmap-pro-cta p {
+            margin: 0 0 15px 0;
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .roadmap-pro-cta .button-primary {
+            background: #fff;
+            color: #667eea;
+            border: none;
+            font-weight: 600;
+        }
+        
+        .roadmap-pro-cta .button-primary:hover {
+            background: #f0f0f1;
+        }
+        
+        /* Content Area */
+        .roadmap-settings-content {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .roadmap-settings-section h2 {
+            margin: 0 0 10px 0;
+            font-size: 24px;
+            font-weight: 600;
+            color: #1d2327;
+        }
+        
+        .section-description {
+            color: #646970;
+            margin: 0 0 25px 0;
+            font-size: 14px;
+        }
+        
+        /* Cards */
+        .roadmap-settings-card {
+            background: #fff;
+            border: 1px solid #c3c4c7;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+            transition: box-shadow 0.2s;
+        }
+        
+        .roadmap-settings-card:hover {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        
+        .card-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #f0f0f1;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .card-header h3 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 600;
+            color: #1d2327;
+            display: flex;
+            align-items: center;
+        }
+        
+        .card-header h3 i {
+            margin-right: 10px;
+            color: #646970;
+        }
+        
+        .card-body {
+            padding: 20px;
+        }
+        
+        .card-description {
+            color: #646970;
+            margin: 0 0 20px 0;
+            font-size: 14px;
+        }
+        
+        /* Form Elements */
+        .form-row {
+            margin-bottom: 20px;
+        }
+        
+        .form-row:last-child {
+            margin-bottom: 0;
+        }
+        
+        .form-row label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #1d2327;
+            font-size: 14px;
+        }
+        
+        .form-row input[type="text"],
+        .form-row input[type="email"],
+        .form-row input[type="number"],
+        .form-row select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #8c8f94;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+        
+        .form-row input[type="text"]:focus,
+        .form-row input[type="email"]:focus,
+        .form-row input[type="number"]:focus,
+        .form-row select:focus {
+            border-color: #2271b1;
+            outline: none;
+            box-shadow: 0 0 0 1px #2271b1;
+        }
+        
+        .form-row .description {
+            margin-top: 5px;
+            color: #646970;
+            font-size: 13px;
+        }
+        
+        .form-row-group {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .form-row.half {
+            flex: 1;
+        }
+        
+        /* Toggle Switches */
+        .feature-toggle {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+        
+        .feature-toggle.large {
+            padding: 15px;
+            background: #f6f7f7;
+            border-radius: 6px;
+            margin-bottom: 0;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 24px;
+        }
+        
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .toggle-slider {
+            background-color: #2271b1;
+        }
+        
+        input:checked + .toggle-slider:before {
+            transform: translateX(20px);
+        }
+        
+        .feature-info h4 {
+            margin: 0 0 5px 0;
+            font-size: 14px;
+            font-weight: 600;
+            color: #1d2327;
+        }
+        
+        .feature-info p {
+            margin: 0;
+            color: #646970;
+            font-size: 13px;
+        }
+        
+        /* Notification Events */
+        .notification-events {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .notification-event {
+            padding: 15px;
+            background: #f6f7f7;
+            border-radius: 6px;
+            transition: background 0.2s;
+        }
+        
+        .notification-event:hover {
+            background: #f0f0f1;
+        }
+        
+        .checkbox-label {
+            display: flex;
+            align-items: flex-start;
+            cursor: pointer;
+        }
+        
+        .checkbox-label input[type="checkbox"] {
+            margin-right: 10px;
+            margin-top: 3px;
+        }
+        
+        .checkbox-text strong {
+            display: block;
+            margin-bottom: 3px;
+            color: #1d2327;
+        }
+        
+        .checkbox-text small {
+            display: block;
+            color: #646970;
+            font-size: 12px;
+        }
+        
+        /* Pro Preview Card */
+        .roadmap-settings-card.pro-preview {
+            background: linear-gradient(135deg, #f6f7f7 0%, #f0f0f1 100%);
+            border: 2px dashed #8c8f94;
+            position: relative;
+        }
+        
+        .pro-badge {
+            background: #667eea;
+            color: #fff;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .pro-features-list {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 20px 0;
+        }
+        
+        .pro-features-list li {
+            padding: 8px 0;
+            display: flex;
+            align-items: center;
+            color: #646970;
+        }
+        
+        .pro-features-list li i {
+            color: #00a32a;
+            margin-right: 10px;
+        }
+        
+        /* Footer */
+        .roadmap-settings-footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #f0f0f1;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .roadmap-settings-saved {
+            color: #00a32a;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            animation: fadeIn 0.3s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Responsive */
+        @media (max-width: 782px) {
+            .roadmap-settings-container {
+                flex-direction: column;
+            }
+            
+            .roadmap-settings-sidebar {
+                width: 100%;
+            }
+            
+            .form-row-group {
+                flex-direction: column;
+            }
+            
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        </style>
+        <?php
     }
 }
 

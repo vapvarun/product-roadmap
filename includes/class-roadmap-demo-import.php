@@ -257,28 +257,23 @@ class Roadmap_Demo_Import {
                 // Assign category
                 if (isset($category_ids[$item['category']])) {
                     $cat_result = wp_set_object_terms($post_id, (int)$category_ids[$item['category']], 'roadmap_category', false);
+                    // Silently handle errors
                     if (is_wp_error($cat_result)) {
-                        error_log('Failed to assign category: ' . $cat_result->get_error_message());
+                        // Category assignment failed, but continue
                     }
                 }
                 
                 // Assign product (main product for free version)
                 if ($default_product_id) {
                     $prod_result = wp_set_object_terms($post_id, (int)$default_product_id, 'roadmap_product', false);
-                    if (is_wp_error($prod_result)) {
-                        error_log('Failed to assign product: ' . $prod_result->get_error_message());
-                    }
+                    // Silently handle errors
                 }
                 
                 // Assign status
                 $status_term = get_term_by('slug', $item['status'], 'roadmap_status');
                 if ($status_term && !is_wp_error($status_term)) {
                     $status_result = wp_set_object_terms($post_id, (int)$status_term->term_id, 'roadmap_status', false);
-                    if (is_wp_error($status_result)) {
-                        error_log('Failed to assign status: ' . $status_result->get_error_message());
-                    }
-                } else {
-                    error_log('Status term not found: ' . $item['status']);
+                    // Silently handle errors
                 }
                 
                 // Update meta fields with proper values
@@ -342,7 +337,7 @@ class Roadmap_Demo_Import {
     private function ensure_default_product() {
         // First check if taxonomy exists
         if (!taxonomy_exists('roadmap_product')) {
-            error_log('roadmap_product taxonomy does not exist');
+            // Taxonomy not registered yet
             return false;
         }
         
@@ -362,7 +357,7 @@ class Roadmap_Demo_Import {
                 update_option('roadmap_default_product_id', $result['term_id']);
                 return $result['term_id'];
             } else {
-                error_log('Failed to create default product term: ' . $result->get_error_message());
+                // Failed to create term
                 return false;
             }
         } else {
@@ -377,7 +372,7 @@ class Roadmap_Demo_Import {
     private function ensure_status_terms() {
         // First check if taxonomy exists
         if (!taxonomy_exists('roadmap_status')) {
-            error_log('roadmap_status taxonomy does not exist');
+            // Taxonomy not registered yet
             return false;
         }
         
@@ -393,9 +388,7 @@ class Roadmap_Demo_Import {
             $existing = get_term_by('slug', $slug, 'roadmap_status');
             if (!$existing || is_wp_error($existing)) {
                 $result = wp_insert_term($name, 'roadmap_status', array('slug' => $slug));
-                if (is_wp_error($result)) {
-                    error_log('Failed to create status term ' . $slug . ': ' . $result->get_error_message());
-                }
+                // Silently handle errors
             }
         }
         
