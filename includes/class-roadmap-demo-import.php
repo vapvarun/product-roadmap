@@ -19,41 +19,14 @@ class Roadmap_Demo_Import {
      * Constructor
      */
     public function __construct() {
-        add_action('admin_menu', array($this, 'add_setup_menu'));
-        add_action('admin_init', array($this, 'handle_demo_import'));
+        // Only show the setup notice - demo import is handled by setup wizard
         add_action('admin_notices', array($this, 'show_setup_notice'));
         add_action('wp_ajax_roadmap_dismiss_setup_notice', array($this, 'dismiss_setup_notice'));
-        add_action('admin_enqueue_scripts', array($this, 'enqueue_setup_styles'));
+        
+        // Legacy hook - kept to prevent errors during transition
+        add_action('admin_init', array($this, 'handle_demo_import'));
     }
     
-    /**
-     * Enqueue setup page styles
-     */
-    public function enqueue_setup_styles($hook) {
-        // Only load on our setup page
-        if ($hook === 'roadmap_item_page_roadmap-setup') {
-            wp_enqueue_style(
-                'roadmap-setup',
-                ROADMAP_PLUGIN_URL . 'assets/css/roadmap-setup.css',
-                array(),
-                ROADMAP_VERSION
-            );
-        }
-    }
-    
-    /**
-     * Add setup menu item
-     */
-    public function add_setup_menu() {
-        add_submenu_page(
-            'edit.php?post_type=roadmap_item',
-            __('Quick Setup', 'roadmap'),
-            __('Quick Setup', 'roadmap'),
-            'manage_options',
-            'roadmap-setup',
-            array($this, 'render_setup_page')
-        );
-    }
     
     /**
      * Show setup notice for new installations
@@ -83,8 +56,8 @@ class Roadmap_Demo_Import {
                 <?php _e('Get started quickly by importing demo content to see how the plugin works.', 'roadmap'); ?>
             </p>
             <p>
-                <a href="<?php echo admin_url('edit.php?post_type=roadmap_item&page=roadmap-setup'); ?>" class="button button-primary">
-                    <?php _e('Run Quick Setup', 'roadmap'); ?>
+                <a href="<?php echo admin_url('admin.php?page=roadmap-setup-wizard'); ?>" class="button button-primary">
+                    <?php _e('Run Setup Wizard', 'roadmap'); ?>
                 </a>
                 <a href="#" class="button" onclick="roadmapDismissSetupNotice(); return false;">
                     <?php _e('Dismiss', 'roadmap'); ?>
@@ -112,102 +85,22 @@ class Roadmap_Demo_Import {
         wp_die();
     }
     
+    
     /**
-     * Render setup page
+     * Legacy demo import handler - now handled by setup wizard
+     * Kept to prevent errors during transition
      */
-    public function render_setup_page() {
-        ?>
-        <div class="wrap">
-            <h1><?php _e('Product Roadmap Quick Setup', 'roadmap'); ?></h1>
-            
-            <?php if (isset($_GET['imported']) && $_GET['imported'] == 'success'): ?>
-                <div class="notice notice-success">
-                    <p><?php _e('Demo content imported successfully!', 'roadmap'); ?></p>
-                </div>
-            <?php endif; ?>
-            
-            <div class="roadmap-setup-container" style="max-width: 800px; margin-top: 20px;">
-                <div class="card">
-                    <h2><?php _e('Import Demo Content', 'roadmap'); ?></h2>
-                    <p><?php _e('Import sample roadmap items to quickly see how the plugin works. This will create:', 'roadmap'); ?></p>
-                    <ul style="list-style: disc; margin-left: 20px;">
-                        <li><?php _e('Sample roadmap items in different statuses (Planned, In Progress, Completed)', 'roadmap'); ?></li>
-                        <li><?php _e('Different priority levels', 'roadmap'); ?></li>
-                        <li><?php _e('Sample categories', 'roadmap'); ?></li>
-                        <li><?php _e('Example votes and comments', 'roadmap'); ?></li>
-                    </ul>
-                    
-                    <?php if (get_option('roadmap_demo_imported')): ?>
-                        <p style="color: #d63638;">
-                            <strong><?php _e('Note:', 'roadmap'); ?></strong> 
-                            <?php _e('Demo content has already been imported. Importing again will create duplicate items.', 'roadmap'); ?>
-                        </p>
-                    <?php endif; ?>
-                    
-                    <form method="post" action="">
-                        <?php wp_nonce_field('roadmap_import_demo', 'roadmap_demo_nonce'); ?>
-                        <input type="hidden" name="roadmap_import_demo" value="1">
-                        <p>
-                            <input type="submit" class="button button-primary button-large" value="<?php _e('Import Demo Content', 'roadmap'); ?>">
-                        </p>
-                    </form>
-                </div>
-                
-                <div class="card" style="margin-top: 20px;">
-                    <h2><?php _e('Next Steps', 'roadmap'); ?></h2>
-                    <ol>
-                        <li>
-                            <strong><?php _e('Add the Roadmap to a Page:', 'roadmap'); ?></strong><br>
-                            <?php _e('Use the shortcode', 'roadmap'); ?> <code>[roadmap]</code> <?php _e('on any page or post.', 'roadmap'); ?>
-                        </li>
-                        <li>
-                            <strong><?php _e('Customize Settings:', 'roadmap'); ?></strong><br>
-                            <?php printf(__('Visit <a href="%s">Roadmap Settings</a> to configure options.', 'roadmap'), admin_url('edit.php?post_type=roadmap_item&page=roadmap-settings')); ?>
-                        </li>
-                        <li>
-                            <strong><?php _e('Create Your Own Items:', 'roadmap'); ?></strong><br>
-                            <?php printf(__('Start adding real roadmap items from the <a href="%s">Add New</a> page.', 'roadmap'), admin_url('post-new.php?post_type=roadmap_item')); ?>
-                        </li>
-                    </ol>
-                </div>
-                
-                <div class="card" style="margin-top: 20px;">
-                    <h2><?php _e('Shortcode Options', 'roadmap'); ?></h2>
-                    <p><?php _e('Display your roadmap with different layouts and options:', 'roadmap'); ?></p>
-                    <ul>
-                        <li><code>[roadmap]</code> - <?php _e('Default board view', 'roadmap'); ?></li>
-                        <li><code>[roadmap view="list"]</code> - <?php _e('List view', 'roadmap'); ?></li>
-                        <li><code>[roadmap view="timeline"]</code> - <?php _e('Timeline view (Pro)', 'roadmap'); ?></li>
-                        <li><code>[roadmap sort="votes"]</code> - <?php _e('Sort by most voted', 'roadmap'); ?></li>
-                        <li><code>[roadmap category="feature"]</code> - <?php _e('Filter by category', 'roadmap'); ?></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-        <?php
+    public function handle_demo_import() {
+        // This functionality is now handled by the setup wizard
+        // This method is kept empty to prevent errors
+        return;
     }
     
     /**
-     * Handle demo import
+     * Import demo content - public wrapper
      */
-    public function handle_demo_import() {
-        if (!isset($_POST['roadmap_import_demo']) || !isset($_POST['roadmap_demo_nonce'])) {
-            return;
-        }
-        
-        if (!wp_verify_nonce($_POST['roadmap_demo_nonce'], 'roadmap_import_demo')) {
-            return;
-        }
-        
-        if (!current_user_can('manage_options')) {
-            return;
-        }
-        
-        $this->import_demo_content();
-        
-        // Redirect to prevent form resubmission
-        wp_redirect(admin_url('edit.php?post_type=roadmap_item&page=roadmap-setup&imported=success'));
-        exit;
+    public function import_demo_content_direct() {
+        return $this->import_demo_content();
     }
     
     /**

@@ -38,18 +38,24 @@ class Roadmap_CPT {
     }
     
     public function register_post_types() {
+        // Get custom labels
+        $item_singular = get_option('roadmap_item_singular_label', 'Feature');
+        $item_plural = get_option('roadmap_item_plural_label', 'Features');
+        $product_name = get_option('roadmap_product_name', 'Product');
+        
         $labels = [
-            'name'               => __('Roadmap Items', 'roadmap-plugin'),
-            'singular_name'      => __('Roadmap Item', 'roadmap-plugin'),
-            'menu_name'          => __('Roadmap', 'roadmap-plugin'),
+            'name'               => sprintf(__('%s Roadmap', 'roadmap-plugin'), $product_name),
+            'singular_name'      => $item_singular,
+            'menu_name'          => sprintf(__('%s Roadmap', 'roadmap-plugin'), $product_name),
             'add_new'            => __('Add New', 'roadmap-plugin'),
-            'add_new_item'       => __('Add New Roadmap Item', 'roadmap-plugin'),
-            'edit_item'          => __('Edit Roadmap Item', 'roadmap-plugin'),
-            'new_item'           => __('New Roadmap Item', 'roadmap-plugin'),
-            'view_item'          => __('View Roadmap Item', 'roadmap-plugin'),
-            'search_items'       => __('Search Roadmap Items', 'roadmap-plugin'),
-            'not_found'          => __('No roadmap items found', 'roadmap-plugin'),
-            'not_found_in_trash' => __('No roadmap items found in trash', 'roadmap-plugin'),
+            'add_new_item'       => sprintf(__('Add New %s', 'roadmap-plugin'), $item_singular),
+            'edit_item'          => sprintf(__('Edit %s', 'roadmap-plugin'), $item_singular),
+            'new_item'           => sprintf(__('New %s', 'roadmap-plugin'), $item_singular),
+            'view_item'          => sprintf(__('View %s', 'roadmap-plugin'), $item_singular),
+            'search_items'       => sprintf(__('Search %s', 'roadmap-plugin'), $item_plural),
+            'not_found'          => sprintf(__('No %s found', 'roadmap-plugin'), strtolower($item_plural)),
+            'not_found_in_trash' => sprintf(__('No %s found in trash', 'roadmap-plugin'), strtolower($item_plural)),
+            'all_items'          => sprintf(__('All %s', 'roadmap-plugin'), $item_plural),
         ];
         
         $args = [

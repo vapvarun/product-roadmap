@@ -1,0 +1,80 @@
+/**
+ * Roadmap Admin Styles
+ */
+
+/* Admin notice improvements */
+.roadmap-admin-notice {
+    padding: 15px;
+    margin: 15px 0;
+}
+
+/* Settings page styles */
+.roadmap-settings-section {
+    background: #fff;
+    padding: 20px;
+    margin-bottom: 20px;
+    border: 1px solid #ccd0d4;
+    box-shadow: 0 1px 1px rgba(0,0,0,.04);
+}
+
+.roadmap-settings-section h2 {
+    margin-top: 0;
+}
+
+/* Pro features notice */
+.roadmap-pro-features {
+    background: #f0f6fc;
+    border-left: 4px solid #2271b1;
+    padding: 12px;
+    margin: 20px 0;
+}
+
+/* Roadmap items list improvements */
+.type-roadmap_item .row-actions {
+    color: #787c82;
+}
+
+.roadmap-status-badge {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 3px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.roadmap-status-badge.status-planned {
+    background: #f0f0f1;
+    color: #50575e;
+}
+
+.roadmap-status-badge.status-in-progress {
+    background: #f0f6fc;
+    color: #0073aa;
+}
+
+.roadmap-status-badge.status-completed {
+    background: #edfaef;
+    color: #00a32a;
+}
+
+/* Priority indicators */
+.roadmap-priority {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: 5px;
+}
+
+.roadmap-priority.priority-high {
+    background: #d63638;
+}
+
+.roadmap-priority.priority-medium {
+    background: #f0b849;
+}
+
+.roadmap-priority.priority-low {
+    background: #00a32a;
+}
