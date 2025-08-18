@@ -244,7 +244,7 @@ const currentItems = computed(() => {
     const statusSlug = item.status?.[0]?.slug
     return inProgressStatuses.includes(statusSlug) || 
            (item.start_date && new Date(item.start_date) <= now && (!item.end_date || new Date(item.end_date) >= now))
-  }).slice(0, 10)
+  })
 })
 
 const upcomingItems = computed(() => {
@@ -256,7 +256,7 @@ const upcomingItems = computed(() => {
     const statusSlug = item.status?.[0]?.slug
     return upcomingStatuses.includes(statusSlug) || 
            (item.start_date && new Date(item.start_date) > now && new Date(item.start_date) <= futureDate)
-  }).slice(0, 10)
+  })
 })
 
 const futureItems = computed(() => {
@@ -268,7 +268,7 @@ const futureItems = computed(() => {
     const statusSlug = item.status?.[0]?.slug
     return futureStatuses.includes(statusSlug) || 
            (!item.start_date || (item.start_date && new Date(item.start_date) > futureDate))
-  }).slice(0, 10)
+  })
 })
 
 const getStatusSlug = (item) => {

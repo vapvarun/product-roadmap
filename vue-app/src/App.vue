@@ -372,7 +372,8 @@ const fetchItems = async () => {
   
   try {
     const params = new URLSearchParams({
-      product: selectedProduct.value || props.config.product
+      product: selectedProduct.value || props.config.product,
+      per_page: props.config.settings?.items_per_page || 100
     })
     
     const response = await apiCall(`/items?${params}`)

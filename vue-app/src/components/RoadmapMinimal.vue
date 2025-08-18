@@ -134,7 +134,7 @@ const props = defineProps({
 defineEmits(['item-click', 'update-item'])
 
 const activeFilter = ref('all')
-const showCompleted = ref(false)
+const showCompleted = ref(true)
 
 const filters = computed(() => {
   const all = { key: 'all', name: 'All', count: props.items.length }
