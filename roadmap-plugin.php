@@ -3,7 +3,7 @@
  * Plugin Name: Product Roadmap
  * Plugin URI: https://wbcomdesigns.com/
  * Description: Create public product roadmaps to share your vision, collect user feedback, and build products your customers actually want.
- * Version: 1.0.0
+ * Version: 1.0.1
  * Author: Wbcom Designs
  * Author URI: https://wbcomdesigns.com/
  * License: GPL v2 or later
@@ -18,7 +18,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('ROADMAP_VERSION', '1.0.0');
+define('ROADMAP_VERSION', '1.0.1');
 define('ROADMAP_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('ROADMAP_PLUGIN_PATH', plugin_dir_path(__FILE__));
 define('ROADMAP_PLUGIN_BASENAME', plugin_basename(__FILE__));
@@ -166,7 +166,7 @@ class RoadmapPlugin {
             'roadmap_enable_comments' => 'yes',
             'roadmap_enable_suggestions' => 'yes',
             'roadmap_default_product' => 'main',
-            'roadmap_items_per_page' => 20,
+            'roadmap_items_per_page' => 100,
             'roadmap_enable_notifications' => 'yes',
             'roadmap_notification_email' => get_option('admin_email'),
         ];

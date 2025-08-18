@@ -80,7 +80,7 @@ class Roadmap_Shortcode {
                 'enable_voting' => get_option('roadmap_enable_voting', 'yes') === 'yes',
                 'enable_comments' => get_option('roadmap_enable_comments', 'yes') === 'yes',
                 'enable_suggestions' => get_option('roadmap_enable_suggestions', 'yes') === 'yes',
-                'items_per_page' => (int) get_option('roadmap_items_per_page', 20),
+                'items_per_page' => (int) get_option('roadmap_items_per_page', 100),
             ],
             'user' => $this->get_user_data(),
             'i18n' => $this->get_translations(),

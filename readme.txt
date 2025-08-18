@@ -3,7 +3,7 @@ Contributors: wbcomdesigns, vapvarun
 Tags: roadmap, product roadmap, feature voting, user feedback, product management
 Requires at least: 5.8
 Tested up to: 6.4
-Stable tag: 1.0.0
+Stable tag: 1.0.1
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -106,6 +106,12 @@ Multiple product roadmaps are available in the Pro version. Free version support
 
 == Changelog ==
 
+= 1.0.1 =
+* Fix: Changed default items per page from 20 to 100
+* Fix: Made items per page configurable via settings
+* Enhancement: Improved display to show all roadmap items without pagination
+* Fix: Updated API endpoints to handle more items properly
+
 = 1.0.0 =
 * Initial release
 * Core roadmap functionality
@@ -116,6 +122,9 @@ Multiple product roadmaps are available in the Pro version. Free version support
 * Shortcode support
 
 == Upgrade Notice ==
+
+= 1.0.1 =
+Important fix: Roadmap now displays up to 100 items by default (configurable in settings) instead of being limited to 20.
 
 = 1.0.0 =
 Initial release of Product Roadmap. Start building products your customers love!

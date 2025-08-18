@@ -149,7 +149,7 @@ class Roadmap_Settings {
     private function get_default_global_settings() {
         return [
             'default_status' => 'planned',
-            'items_per_page' => 20,
+            'items_per_page' => 100,
             'enable_voting' => true,
             'enable_comments' => true,
             'enable_suggestions' => true,
@@ -169,7 +169,7 @@ class Roadmap_Settings {
             'enable_comments' => true,
             'enable_suggestions' => true,
             'default_status' => 'planned',
-            'items_per_page' => 20,
+            'items_per_page' => 100,
             'show_in_nav_menu' => true,
             'custom_slug' => '',
             'theme_color' => '#2271b1',
@@ -1018,7 +1018,7 @@ class Roadmap_Settings {
         $sanitized = [];
         
         $sanitized['default_status'] = sanitize_text_field($input['default_status'] ?? 'planned');
-        $sanitized['items_per_page'] = absint($input['items_per_page'] ?? 20);
+        $sanitized['items_per_page'] = absint($input['items_per_page'] ?? 100);
         $sanitized['enable_voting'] = !empty($input['enable_voting']);
         $sanitized['enable_comments'] = !empty($input['enable_comments']);
         $sanitized['enable_suggestions'] = !empty($input['enable_suggestions']);

@@ -34,7 +34,7 @@ if (import.meta.env.DEV) {
       enable_voting: true,
       enable_comments: true,
       enable_suggestions: true,
-      items_per_page: 20,
+      items_per_page: 100,
     },
     user: {
       id: 1,

@@ -43,7 +43,7 @@ class Roadmap_API {
                     'sanitize_callback' => 'absint',
                 ],
                 'per_page' => [
-                    'default' => 20,
+                    'default' => 100,
                     'sanitize_callback' => 'absint',
                 ],
             ],
@@ -622,7 +622,7 @@ class Roadmap_API {
             'enable_voting' => get_option('roadmap_enable_voting', 'yes') === 'yes',
             'enable_comments' => get_option('roadmap_enable_comments', 'yes') === 'yes',
             'enable_suggestions' => get_option('roadmap_enable_suggestions', 'yes') === 'yes',
-            'items_per_page' => (int) get_option('roadmap_items_per_page', 20),
+            'items_per_page' => (int) get_option('roadmap_items_per_page', 100),
             'current_user' => $this->get_current_user_data(),
             'statuses' => $this->get_all_statuses(),
             'categories' => $this->get_all_categories(),
