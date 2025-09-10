@@ -44,11 +44,12 @@ Every day, your customers have ideas about how to improve your product. Most bus
 * **Progress Tracking** - Show what's planned, in-progress, or completed
 * **Categories** - Organize features for easy browsing
 * **Comments** - Enable discussions on each item
-* **Simple Shortcode** - Add to any page with [roadmap]
+* **Simple Shortcode** - Add to any page with [roadmap product="main"]
 
 **Pro Version - For Growing Teams:**
 
 * **Multiple Products** - Separate roadmaps for each product line
+* **Board View** - Kanban-style board layout
 * **Timeline View** - Visual representation of your plans
 * **Priority Levels** - Mark features as critical, high, or nice-to-have
 * **Advanced Analytics** - Understand voting patterns

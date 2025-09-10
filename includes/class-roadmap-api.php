@@ -620,6 +620,7 @@ class Roadmap_API {
     public function get_settings($request) {
         $settings = [
             'enable_voting' => get_option('roadmap_enable_voting', 'yes') === 'yes',
+            'allow_guest_voting' => get_option('roadmap_allow_guest_voting', 'yes') === 'yes',
             'enable_comments' => get_option('roadmap_enable_comments', 'yes') === 'yes',
             'enable_suggestions' => get_option('roadmap_enable_suggestions', 'yes') === 'yes',
             'items_per_page' => (int) get_option('roadmap_items_per_page', 100),
@@ -793,7 +794,10 @@ class Roadmap_API {
     
     // Permission callbacks
     public function can_vote() {
-        return is_user_logged_in() && get_option('roadmap_enable_voting', 'yes') === 'yes';
+        $voting_enabled = get_option('roadmap_enable_voting', 'yes') === 'yes';
+        $guest_voting_allowed = get_option('roadmap_allow_guest_voting', 'yes') === 'yes';
+        
+        return $voting_enabled && ($guest_voting_allowed || is_user_logged_in());
     }
     
     public function can_comment() {

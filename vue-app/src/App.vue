@@ -42,9 +42,25 @@
           </button>
         </div>
         
-        <!-- Board View -->
+        <!-- Minimal View (Default for Free) -->
+        <RoadmapMinimal
+          v-if="viewMode === 'minimal'"
+          :items="filteredItems"
+          :statuses="statuses"
+          :mode="currentMode"
+          :can-edit="canEdit"
+          :pro-features="config.pro_features"
+          @update-item="updateItem"
+          @delete-item="deleteItem"
+          @vote="submitVote"
+          @comment="openCommentModal"
+          @item-click="openDetailModal"
+          @edit-item="openItemModal"
+        />
+        
+        <!-- Board View (Pro) -->
         <RoadmapBoard
-          v-if="viewMode === 'board'"
+          v-else-if="viewMode === 'board' && config.is_pro"
           :items="filteredItems"
           :statuses="statuses"
           :mode="currentMode"
@@ -97,22 +113,10 @@
           @update-item="updateItem"
         />
         
-        <!-- Minimal View (Pro) -->
-        <RoadmapMinimal
-          v-else-if="viewMode === 'minimal' && config.is_pro"
-          :items="filteredItems"
-          :statuses="statuses"
-          :categories="categories"
-          :mode="currentMode"
-          :can-edit="canEdit"
-          :pro-features="config.pro_features"
-          @item-click="openDetailModal"
-          @update-item="updateItem"
-        />
         
-        <!-- Fallback to Board for Pro templates when not Pro -->
-        <RoadmapBoard
-          v-else-if="['grid', 'timeline', 'list', 'cards', 'minimal'].includes(viewMode) && !config.is_pro"
+        <!-- Fallback to Minimal for Pro templates when not Pro -->
+        <RoadmapMinimal
+          v-else-if="['grid', 'timeline', 'list', 'cards', 'board'].includes(viewMode) && !config.is_pro"
           :items="filteredItems"
           :statuses="statuses"
           :mode="currentMode"
@@ -231,7 +235,7 @@ const products = ref([])
 
 // UI State
 const currentMode = ref(props.config.mode || 'view')
-const viewMode = ref(props.config.template || 'board')
+const viewMode = ref(props.config.template || 'minimal')
 const darkMode = ref(false)
 const searchQuery = ref('')
 const selectedStatus = ref('')

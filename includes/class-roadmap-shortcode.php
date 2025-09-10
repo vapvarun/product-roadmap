@@ -26,7 +26,7 @@ class Roadmap_Shortcode {
             'allow_frontend_edit' => 'false',
             'product' => '',
             'class' => '',
-            'template' => 'board',
+            'template' => 'minimal',
             'sort' => '', // Default sort: votes, recent, comments, priority
         ], $atts, 'roadmap');
         
@@ -47,9 +47,9 @@ class Roadmap_Shortcode {
         }
         
         // Handle template fallback for pro templates when pro is not active
-        $pro_templates = ['timeline', 'list', 'cards', 'minimal'];
+        $pro_templates = ['timeline', 'list', 'cards', 'board'];
         if ((!defined('ROADMAP_PRO_ACTIVE') || !ROADMAP_PRO_ACTIVE) && in_array($atts['template'], $pro_templates)) {
-            $atts['template'] = 'board'; // Fallback to default board template
+            $atts['template'] = 'minimal'; // Fallback to default minimal template
         }
         
         // Validate mode
@@ -78,6 +78,7 @@ class Roadmap_Shortcode {
             'is_pro' => (defined('ROADMAP_PRO_ACTIVE') && ROADMAP_PRO_ACTIVE),
             'settings' => [
                 'enable_voting' => get_option('roadmap_enable_voting', 'yes') === 'yes',
+                'allow_guest_voting' => get_option('roadmap_allow_guest_voting', 'yes') === 'yes',
                 'enable_comments' => get_option('roadmap_enable_comments', 'yes') === 'yes',
                 'enable_suggestions' => get_option('roadmap_enable_suggestions', 'yes') === 'yes',
                 'items_per_page' => (int) get_option('roadmap_items_per_page', 100),
@@ -222,7 +223,8 @@ class Roadmap_Shortcode {
             'name' => $user->display_name,
             'email' => $user->user_email,
             'avatar' => get_avatar_url($user->ID),
-            'can_vote' => get_option('roadmap_enable_voting', 'yes') === 'yes',
+            'can_vote' => get_option('roadmap_enable_voting', 'yes') === 'yes' && 
+                          (get_option('roadmap_allow_guest_voting', 'yes') === 'yes' || is_user_logged_in()),
             'can_comment' => get_option('roadmap_enable_comments', 'yes') === 'yes',
             'can_suggest' => get_option('roadmap_enable_suggestions', 'yes') === 'yes',
             'can_edit' => current_user_can('edit_posts'),

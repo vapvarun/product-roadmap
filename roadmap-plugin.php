@@ -163,6 +163,7 @@ class RoadmapPlugin {
     private function set_default_options() {
         $defaults = [
             'roadmap_enable_voting' => 'yes',
+            'roadmap_allow_guest_voting' => 'yes',
             'roadmap_enable_comments' => 'yes',
             'roadmap_enable_suggestions' => 'yes',
             'roadmap_default_product' => 'main',

@@ -250,7 +250,7 @@ class Roadmap_Setup_Wizard {
     private function render_step_settings() {
         $voting_enabled = get_option('roadmap_enable_voting', 'yes');
         $comments_enabled = get_option('roadmap_enable_comments', 'yes');
-        $guest_voting = get_option('roadmap_allow_guest_voting', 'no');
+        $guest_voting = get_option('roadmap_allow_guest_voting', 'yes');
         ?>
         <h2><?php _e('Basic Settings', 'roadmap'); ?></h2>
         <p><?php _e('Configure how users can interact with your roadmap.', 'roadmap'); ?></p>

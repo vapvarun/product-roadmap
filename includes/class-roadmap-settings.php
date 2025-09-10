@@ -138,6 +138,10 @@ class Roadmap_Settings {
         register_setting('roadmap_global', 'roadmap_item_singular_label');
         register_setting('roadmap_global', 'roadmap_item_plural_label');
         
+        // Advanced settings
+        register_setting('roadmap_global', 'roadmap_allow_guest_voting');
+        register_setting('roadmap_global', 'roadmap_cache_expiry');
+        
         // Product-specific settings
         register_setting('roadmap_products', 'roadmap_product_settings', [
             'type' => 'array',
@@ -424,7 +428,7 @@ class Roadmap_Settings {
                 <div class="roadmap-settings-content">
                     <?php
                     // Check if this is a tab that needs form wrapper
-                    $form_tabs = array('general', 'notifications');
+                    $form_tabs = array('general', 'notifications', 'advanced');
                     $needs_form = in_array($active_tab, $form_tabs);
                     
                     if ($needs_form) {
@@ -550,6 +554,40 @@ class Roadmap_Settings {
                                    min="5" max="100" />
                             <p class="description"><?php _e('Items to show per page.', 'roadmap-plugin'); ?></p>
                         </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Permissions & Access Card -->
+            <div class="roadmap-settings-card">
+                <div class="card-header">
+                    <h3><i class="dashicons dashicons-admin-users"></i> <?php _e('Permissions & Access', 'roadmap-plugin'); ?></h3>
+                </div>
+                <div class="card-body">
+                    <div class="form-row">
+                        <label for="who_can_vote"><?php _e('Who Can Vote', 'roadmap-plugin'); ?></label>
+                        <select name="roadmap_allow_guest_voting" id="who_can_vote">
+                            <option value="yes" <?php selected(get_option('roadmap_allow_guest_voting', 'yes'), 'yes'); ?>>
+                                <?php _e('Anyone (including guests)', 'roadmap-plugin'); ?>
+                            </option>
+                            <option value="no" <?php selected(get_option('roadmap_allow_guest_voting', 'yes'), 'no'); ?>>
+                                <?php _e('Logged in users only', 'roadmap-plugin'); ?>
+                            </option>
+                        </select>
+                        <p class="description"><?php _e('Control who can vote on roadmap items.', 'roadmap-plugin'); ?></p>
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="who_can_suggest"><?php _e('Who Can Suggest Ideas', 'roadmap-plugin'); ?></label>
+                        <select name="roadmap_global_settings[suggestion_requires_login]" id="who_can_suggest">
+                            <option value="0" <?php selected($settings['suggestion_requires_login'] ?? true, false); ?>>
+                                <?php _e('Anyone (including guests)', 'roadmap-plugin'); ?>
+                            </option>
+                            <option value="1" <?php selected($settings['suggestion_requires_login'] ?? true, true); ?>>
+                                <?php _e('Logged in users only', 'roadmap-plugin'); ?>
+                            </option>
+                        </select>
+                        <p class="description"><?php _e('Control who can submit new ideas.', 'roadmap-plugin'); ?></p>
                     </div>
                 </div>
             </div>
@@ -1148,6 +1186,10 @@ class Roadmap_Settings {
             case 'advanced':
                 $this->render_advanced_tab($settings);
                 break;
+            case 'license':
+                // Let pro addon handle license tab
+                do_action('roadmap_render_license_tab');
+                break;
             default:
                 // Allow other pro tabs
                 do_action('roadmap_settings_tab_content', $tab);
@@ -1205,18 +1247,34 @@ class Roadmap_Settings {
                 <?php _e('Fine-tune your roadmap with advanced configuration options.', 'roadmap-plugin'); ?>
             </p>
             
+            <!-- Cache Settings Card -->
+            <div class="roadmap-settings-card">
+                <div class="card-header">
+                    <h3><i class="dashicons dashicons-performance"></i> <?php _e('Performance Settings', 'roadmap-plugin'); ?></h3>
+                </div>
+                <div class="card-body">
+                    <div class="form-row">
+                        <label for="cache_expiry"><?php _e('Cache Expiry (seconds)', 'roadmap-plugin'); ?></label>
+                        <input type="number" name="roadmap_cache_expiry" id="cache_expiry" 
+                               value="<?php echo esc_attr(get_option('roadmap_cache_expiry', '3600')); ?>" 
+                               min="0" max="86400" />
+                        <p class="description"><?php _e('How long to cache roadmap data. Set to 0 to disable caching.', 'roadmap-plugin'); ?></p>
+                    </div>
+                </div>
+            </div>
+            
             <?php if (!defined('ROADMAP_PRO_ACTIVE') || !ROADMAP_PRO_ACTIVE): ?>
             <!-- Pro Feature Notice -->
             <div class="roadmap-settings-card pro-preview">
                 <div class="card-header">
-                    <h3><i class="dashicons dashicons-admin-tools"></i> <?php _e('Advanced Options', 'roadmap-plugin'); ?></h3>
+                    <h3><i class="dashicons dashicons-admin-tools"></i> <?php _e('More Advanced Options', 'roadmap-plugin'); ?></h3>
                     <span class="pro-badge">PRO</span>
                 </div>
                 <div class="card-body">
                     <div class="roadmap-empty-state">
                         <i class="dashicons dashicons-star-filled"></i>
-                        <h3><?php _e('Pro Feature', 'roadmap-plugin'); ?></h3>
-                        <p><?php _e('Access advanced settings and customization options with the Pro version.', 'roadmap-plugin'); ?></p>
+                        <h3><?php _e('Pro Features', 'roadmap-plugin'); ?></h3>
+                        <p><?php _e('Access more advanced settings and customization options with the Pro version.', 'roadmap-plugin'); ?></p>
                         <ul class="pro-features-list" style="text-align: left; max-width: 400px; margin: 20px auto;">
                             <li><i class="dashicons dashicons-yes"></i> <?php _e('Custom post type slug', 'roadmap-plugin'); ?></li>
                             <li><i class="dashicons dashicons-yes"></i> <?php _e('Advanced permissions', 'roadmap-plugin'); ?></li>
