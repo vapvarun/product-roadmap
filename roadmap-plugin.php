@@ -4,7 +4,7 @@
  * Plugin URI: https://wbcomdesigns.com/
  * Description: Create public product roadmaps to share your vision, collect user feedback, and build products your customers actually want.
  * Version: 1.0.1
- * Author: Wbcom Designs
+ * Author: wbcomdesigns
  * Author URI: https://wbcomdesigns.com/
  * License: GPL v2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
