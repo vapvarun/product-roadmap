@@ -37,13 +37,13 @@ class Roadmap_Shortcode {
                 $atts['product'] = 'main';
             } else {
                 // Pro is active but no product specified
-                return '<div class="roadmap-error">' . __('Error: Product parameter is required. Example: [roadmap product="main"]', 'roadmap-plugin') . '</div>';
+                return '<div class="roadmap-error">' . __('Error: Product parameter is required. Example: [roadmap product="main"]', 'product-roadmap') . '</div>';
             }
         }
         
         // If Pro is not active and product is not 'main', show error
         if ((!defined('ROADMAP_PRO_ACTIVE') || !ROADMAP_PRO_ACTIVE) && $atts['product'] !== 'main') {
-            return '<div class="roadmap-error">' . __('Multiple products require the Pro version. Upgrade to use different products.', 'roadmap-plugin') . '</div>';
+            return '<div class="roadmap-error">' . __('Multiple products require the Pro version. Upgrade to use different products.', 'product-roadmap') . '</div>';
         }
         
         // Handle template fallback for pro templates when pro is not active
@@ -95,10 +95,10 @@ class Roadmap_Shortcode {
         ob_start();
         ?>
         <div id="<?php echo esc_attr($app_id); ?>" 
-             class="roadmap-app <?php echo esc_attr($atts['class']); ?> <?php echo $atts['product'] ? 'roadmap-single-product' : ''; ?>"
+             class="roadmap-app <?php echo esc_attr($atts['class']); ?> <?php echo esc_attr($atts['product'] ? 'roadmap-single-product' : ''); ?>"
              data-config='<?php echo esc_attr(json_encode($app_data)); ?>'>
             <div class="roadmap-loading">
-                <?php _e('Loading roadmap...', 'roadmap-plugin'); ?>
+                <?php esc_html_e('Loading roadmap...', 'product-roadmap'); ?>
             </div>
         </div>
         <?php
@@ -239,98 +239,134 @@ class Roadmap_Shortcode {
         $product_name = get_option('roadmap_product_name', 'Product');
         
         return [
-            'loading' => __('Loading...', 'roadmap-plugin'),
-            'error' => __('An error occurred', 'roadmap-plugin'),
-            'no_items' => sprintf(__('No %s found', 'roadmap-plugin'), strtolower($item_plural)),
-            'vote' => __('Vote', 'roadmap-plugin'),
-            'votes' => __('votes', 'roadmap-plugin'),
-            'comment' => __('Comment', 'roadmap-plugin'),
-            'comments' => __('comments', 'roadmap-plugin'),
-            'suggest' => sprintf(__('Suggest %s', 'roadmap-plugin'), $item_singular),
-            'search' => __('Search...', 'roadmap-plugin'),
-            'filter_by_status' => __('Filter by Status', 'roadmap-plugin'),
-            'filter_by_category' => __('Filter by Category', 'roadmap-plugin'),
-            'all_statuses' => __('All Statuses', 'roadmap-plugin'),
-            'all_categories' => __('All Categories', 'roadmap-plugin'),
-            'view_mode' => __('View Mode', 'roadmap-plugin'),
-            'manage_mode' => __('Manage Mode', 'roadmap-plugin'),
-            'add_item' => sprintf(__('Add %s', 'roadmap-plugin'), $item_singular),
-            'edit_item' => sprintf(__('Edit %s', 'roadmap-plugin'), $item_singular),
-            'delete_item' => sprintf(__('Delete %s', 'roadmap-plugin'), $item_singular),
-            'save' => __('Save', 'roadmap-plugin'),
-            'cancel' => __('Cancel', 'roadmap-plugin'),
-            'confirm_delete' => sprintf(__('Are you sure you want to delete this %s?', 'roadmap-plugin'), strtolower($item_singular)),
-            'item_added' => sprintf(__('%s added successfully', 'roadmap-plugin'), $item_singular),
-            'item_updated' => sprintf(__('%s updated successfully', 'roadmap-plugin'), $item_singular),
-            'item_deleted' => sprintf(__('%s deleted successfully', 'roadmap-plugin'), $item_singular),
-            'vote_submitted' => __('Your vote has been submitted', 'roadmap-plugin'),
-            'comment_submitted' => __('Your comment has been submitted', 'roadmap-plugin'),
-            'suggestion_submitted' => __('Your suggestion has been submitted', 'roadmap-plugin'),
-            'login_required' => __('Please login to perform this action', 'roadmap-plugin'),
-            'title' => __('Title', 'roadmap-plugin'),
-            'description' => __('Description', 'roadmap-plugin'),
-            'status' => __('Status', 'roadmap-plugin'),
-            'category' => __('Category', 'roadmap-plugin'),
-            'priority' => __('Priority', 'roadmap-plugin'),
-            'target_date' => __('Target Date', 'roadmap-plugin'),
-            'low' => __('Low', 'roadmap-plugin'),
-            'medium' => __('Medium', 'roadmap-plugin'),
-            'high' => __('High', 'roadmap-plugin'),
-            'critical' => __('Critical', 'roadmap-plugin'),
-            'suggest_feature' => __('Suggest a Feature', 'roadmap-plugin'),
-            'submit' => __('Submit', 'roadmap-plugin'),
-            'submit_comment' => __('Submit Comment', 'roadmap-plugin'),
-            'your_comment' => __('Your Comment', 'roadmap-plugin'),
-            'share_thoughts' => __('Share your thoughts...', 'roadmap-plugin'),
-            'feature_title' => __('Feature Title', 'roadmap-plugin'),
-            'brief_title' => __('Brief title for your feature idea', 'roadmap-plugin'),
-            'describe_detail' => __('Describe your feature idea in detail...', 'roadmap-plugin'),
-            'external_link' => __('External Link', 'roadmap-plugin'),
-            'link_details' => __('Link to more details or examples', 'roadmap-plugin'),
-            'optional' => __('Optional', 'roadmap-plugin'),
-            'edit' => __('Edit', 'roadmap-plugin'),
-            'delete' => __('Delete', 'roadmap-plugin'),
-            'vote_for_item' => __('Vote for this item', 'roadmap-plugin'),
-            'view_comments' => __('View comments', 'roadmap-plugin'),
-            'remove_vote' => __('Remove Vote', 'roadmap-plugin'),
-            'vote_for_this' => __('Vote for This', 'roadmap-plugin'),
-            'search_roadmap' => __('Search roadmap...', 'roadmap-plugin'),
-            'all_items' => __('All Items', 'roadmap-plugin'),
-            'other' => __('Other', 'roadmap-plugin'),
-            'unknown' => __('Unknown', 'roadmap-plugin'),
-            'future_later' => __('Future - Later', 'roadmap-plugin'),
+            'loading' => __('Loading...', 'product-roadmap'),
+            'error' => __('An error occurred', 'product-roadmap'),
+            'no_items' => sprintf(
+                /* translators: %s: Item plural label */
+                __('No %s found', 'product-roadmap'),
+                strtolower($item_plural)
+            ),
+            'vote' => __('Vote', 'product-roadmap'),
+            'votes' => __('votes', 'product-roadmap'),
+            'comment' => __('Comment', 'product-roadmap'),
+            'comments' => __('comments', 'product-roadmap'),
+            'suggest' => sprintf(
+                /* translators: %s: Item singular label */
+                __('Suggest %s', 'product-roadmap'),
+                $item_singular
+            ),
+            'search' => __('Search...', 'product-roadmap'),
+            'filter_by_status' => __('Filter by Status', 'product-roadmap'),
+            'filter_by_category' => __('Filter by Category', 'product-roadmap'),
+            'all_statuses' => __('All Statuses', 'product-roadmap'),
+            'all_categories' => __('All Categories', 'product-roadmap'),
+            'view_mode' => __('View Mode', 'product-roadmap'),
+            'manage_mode' => __('Manage Mode', 'product-roadmap'),
+            'add_item' => sprintf(
+                /* translators: %s: Item singular label */
+                __('Add %s', 'product-roadmap'),
+                $item_singular
+            ),
+            'edit_item' => sprintf(
+                /* translators: %s: Item singular label */
+                __('Edit %s', 'product-roadmap'),
+                $item_singular
+            ),
+            'delete_item' => sprintf(
+                /* translators: %s: Item singular label */
+                __('Delete %s', 'product-roadmap'),
+                $item_singular
+            ),
+            'save' => __('Save', 'product-roadmap'),
+            'cancel' => __('Cancel', 'product-roadmap'),
+            'confirm_delete' => sprintf(
+                /* translators: %s: Item singular label */
+                __('Are you sure you want to delete this %s?', 'product-roadmap'),
+                strtolower($item_singular)
+            ),
+            'item_added' => sprintf(
+                /* translators: %s: Item singular label */
+                __('%s added successfully', 'product-roadmap'),
+                $item_singular
+            ),
+            'item_updated' => sprintf(
+                /* translators: %s: Item singular label */
+                __('%s updated successfully', 'product-roadmap'),
+                $item_singular
+            ),
+            'item_deleted' => sprintf(
+                /* translators: %s: Item singular label */
+                __('%s deleted successfully', 'product-roadmap'),
+                $item_singular
+            ),
+            'vote_submitted' => __('Your vote has been submitted', 'product-roadmap'),
+            'comment_submitted' => __('Your comment has been submitted', 'product-roadmap'),
+            'suggestion_submitted' => __('Your suggestion has been submitted', 'product-roadmap'),
+            'login_required' => __('Please login to perform this action', 'product-roadmap'),
+            'title' => __('Title', 'product-roadmap'),
+            'description' => __('Description', 'product-roadmap'),
+            'status' => __('Status', 'product-roadmap'),
+            'category' => __('Category', 'product-roadmap'),
+            'priority' => __('Priority', 'product-roadmap'),
+            'target_date' => __('Target Date', 'product-roadmap'),
+            'low' => __('Low', 'product-roadmap'),
+            'medium' => __('Medium', 'product-roadmap'),
+            'high' => __('High', 'product-roadmap'),
+            'critical' => __('Critical', 'product-roadmap'),
+            'suggest_feature' => __('Suggest a Feature', 'product-roadmap'),
+            'submit' => __('Submit', 'product-roadmap'),
+            'submit_comment' => __('Submit Comment', 'product-roadmap'),
+            'your_comment' => __('Your Comment', 'product-roadmap'),
+            'share_thoughts' => __('Share your thoughts...', 'product-roadmap'),
+            'feature_title' => __('Feature Title', 'product-roadmap'),
+            'brief_title' => __('Brief title for your feature idea', 'product-roadmap'),
+            'describe_detail' => __('Describe your feature idea in detail...', 'product-roadmap'),
+            'external_link' => __('External Link', 'product-roadmap'),
+            'link_details' => __('Link to more details or examples', 'product-roadmap'),
+            'optional' => __('Optional', 'product-roadmap'),
+            'edit' => __('Edit', 'product-roadmap'),
+            'delete' => __('Delete', 'product-roadmap'),
+            'vote_for_item' => __('Vote for this item', 'product-roadmap'),
+            'view_comments' => __('View comments', 'product-roadmap'),
+            'remove_vote' => __('Remove Vote', 'product-roadmap'),
+            'vote_for_this' => __('Vote for This', 'product-roadmap'),
+            'search_roadmap' => __('Search roadmap...', 'product-roadmap'),
+            'all_items' => __('All Items', 'product-roadmap'),
+            'other' => __('Other', 'product-roadmap'),
+            'unknown' => __('Unknown', 'product-roadmap'),
+            'future_later' => __('Future - Later', 'product-roadmap'),
             'months' => [
-                __('January', 'roadmap-plugin'),
-                __('February', 'roadmap-plugin'),
-                __('March', 'roadmap-plugin'),
-                __('April', 'roadmap-plugin'),
-                __('May', 'roadmap-plugin'),
-                __('June', 'roadmap-plugin'),
-                __('July', 'roadmap-plugin'),
-                __('August', 'roadmap-plugin'),
-                __('September', 'roadmap-plugin'),
-                __('October', 'roadmap-plugin'),
-                __('November', 'roadmap-plugin'),
-                __('December', 'roadmap-plugin'),
+                __('January', 'product-roadmap'),
+                __('February', 'product-roadmap'),
+                __('March', 'product-roadmap'),
+                __('April', 'product-roadmap'),
+                __('May', 'product-roadmap'),
+                __('June', 'product-roadmap'),
+                __('July', 'product-roadmap'),
+                __('August', 'product-roadmap'),
+                __('September', 'product-roadmap'),
+                __('October', 'product-roadmap'),
+                __('November', 'product-roadmap'),
+                __('December', 'product-roadmap'),
             ],
-            'progress' => __('Progress', 'roadmap-plugin'),
-            'start_date' => __('Start Date', 'roadmap-plugin'),
-            'end_date' => __('End Date', 'roadmap-plugin'),
-            'effort_estimate' => __('Effort Estimate', 'roadmap-plugin'),
-            'github_issue' => __('GitHub Issue', 'roadmap-plugin'),
-            'assignee' => __('Assignee', 'roadmap-plugin'),
-            'select_status' => __('Select Status', 'roadmap-plugin'),
-            'select_category' => __('Select Category', 'roadmap-plugin'),
-            'select_priority' => __('Select Priority', 'roadmap-plugin'),
-            'drag_drop_enabled' => __('Drag items to change status', 'roadmap-plugin'),
-            'pro_feature' => __('Pro Feature', 'roadmap-plugin'),
-            'upgrade_pro' => __('Upgrade to Pro', 'roadmap-plugin'),
-            'all_products' => __('All Products', 'roadmap-plugin'),
-            'sort_by' => __('Sort By', 'roadmap-plugin'),
-            'most_voted' => __('Most Voted', 'roadmap-plugin'),
-            'most_recent' => __('Most Recent', 'roadmap-plugin'),
-            'most_discussed' => __('Most Discussed', 'roadmap-plugin'),
-            'highest_priority' => __('Highest Priority', 'roadmap-plugin'),
+            'progress' => __('Progress', 'product-roadmap'),
+            'start_date' => __('Start Date', 'product-roadmap'),
+            'end_date' => __('End Date', 'product-roadmap'),
+            'effort_estimate' => __('Effort Estimate', 'product-roadmap'),
+            'github_issue' => __('GitHub Issue', 'product-roadmap'),
+            'assignee' => __('Assignee', 'product-roadmap'),
+            'select_status' => __('Select Status', 'product-roadmap'),
+            'select_category' => __('Select Category', 'product-roadmap'),
+            'select_priority' => __('Select Priority', 'product-roadmap'),
+            'drag_drop_enabled' => __('Drag items to change status', 'product-roadmap'),
+            'pro_feature' => __('Pro Feature', 'product-roadmap'),
+            'upgrade_pro' => __('Upgrade to Pro', 'product-roadmap'),
+            'all_products' => __('All Products', 'product-roadmap'),
+            'sort_by' => __('Sort By', 'product-roadmap'),
+            'most_voted' => __('Most Voted', 'product-roadmap'),
+            'most_recent' => __('Most Recent', 'product-roadmap'),
+            'most_discussed' => __('Most Discussed', 'product-roadmap'),
+            'highest_priority' => __('Highest Priority', 'product-roadmap'),
             // Custom labels
             'item_singular' => $item_singular,
             'item_plural' => $item_plural,

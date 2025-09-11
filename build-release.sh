@@ -10,7 +10,7 @@ echo ""
 
 # Store current directory
 CURRENT_DIR=$(pwd)
-PLUGIN_SLUG="roadmap-plugin"
+PLUGIN_SLUG="product-roadmap"
 PRO_SLUG="roadmap-pro-addon"
 
 # Create a releases directory if it doesn't exist
@@ -18,11 +18,11 @@ RELEASES_DIR="$CURRENT_DIR/../releases"
 mkdir -p "$RELEASES_DIR"
 
 # Get version from plugin file
-if [ -f "roadmap-plugin.php" ]; then
-    VERSION=$(grep -i "Version:" roadmap-plugin.php | sed 's/.*Version: *//' | tr -d '\r\n' | awk '{print $1}')
+if [ -f "product-roadmap.php" ]; then
+    VERSION=$(grep -i "Version:" product-roadmap.php | sed 's/.*Version: *//' | tr -d '\r\n' | awk '{print $1}')
     echo "Plugin version: $VERSION"
 else
-    echo "✗ Error: roadmap-plugin.php not found"
+    echo "✗ Error: product-roadmap.php not found"
     exit 1
 fi
 
@@ -53,7 +53,7 @@ cp -r assets "$FREE_DIR/"
 cp -r includes "$FREE_DIR/"
 cp -r languages "$FREE_DIR/"
 cp -r templates "$FREE_DIR/"
-cp roadmap-plugin.php "$FREE_DIR/"
+cp product-roadmap.php "$FREE_DIR/"
 cp readme.txt "$FREE_DIR/"
 cp LICENSE "$FREE_DIR/" 2>/dev/null || true
 

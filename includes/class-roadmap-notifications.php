@@ -35,13 +35,15 @@ class Roadmap_Notifications {
         }
         
         $subject = sprintf(
-            __('[%s] New vote on: %s', 'roadmap-plugin'),
+            /* translators: %1$s: Site name, %2$s: Item title */
+            __('[%1$s] New vote on: %2$s', 'product-roadmap'),
             get_bloginfo('name'),
             $item->post_title
         );
         
         $message = sprintf(
-            __("A new vote has been submitted on your roadmap:\n\nItem: %s\nUser: %s\nVote: %s\n\nView item: %s", 'roadmap-plugin'),
+            /* translators: %1$s: Item title, %2$s: User name, %3$s: Vote value, %4$s: Item URL */
+            __("A new vote has been submitted on your roadmap:\n\nItem: %1\$s\nUser: %2\$s\nVote: %3\$s\n\nView item: %4\$s", 'product-roadmap'),
             $item->post_title,
             $user->display_name,
             $vote_value > 0 ? '+1' : '-1',
@@ -65,13 +67,15 @@ class Roadmap_Notifications {
         }
         
         $subject = sprintf(
-            __('[%s] New comment on: %s', 'roadmap-plugin'),
+            /* translators: %1$s: Site name, %2$s: Item title */
+            __('[%1$s] New comment on: %2$s', 'product-roadmap'),
             get_bloginfo('name'),
             $item->post_title
         );
         
         $message = sprintf(
-            __("A new comment has been posted on your roadmap:\n\nItem: %s\nUser: %s\nComment: %s\n\nView item: %s", 'roadmap-plugin'),
+            /* translators: %1$s: Item title, %2$s: User name, %3$s: Comment excerpt, %4$s: Item URL */
+            __("A new comment has been posted on your roadmap:\n\nItem: %1\$s\nUser: %2\$s\nComment: %3\$s\n\nView item: %4\$s", 'product-roadmap'),
             $item->post_title,
             $user->display_name,
             wp_trim_words($comment->comment_content, 50),
@@ -94,13 +98,15 @@ class Roadmap_Notifications {
         }
         
         $subject = sprintf(
-            __('[%s] New feature suggestion: %s', 'roadmap-plugin'),
+            /* translators: %1$s: Site name, %2$s: Suggestion title */
+            __('[%1$s] New feature suggestion: %2$s', 'product-roadmap'),
             get_bloginfo('name'),
             $post->post_title
         );
         
         $message = sprintf(
-            __("A new feature has been suggested:\n\nTitle: %s\nUser: %s\nDescription: %s\n\nReview suggestion: %s", 'roadmap-plugin'),
+            /* translators: %1$s: Suggestion title, %2$s: User name, %3$s: Description excerpt, %4$s: Admin URL */
+            __("A new feature has been suggested:\n\nTitle: %1\$s\nUser: %2\$s\nDescription: %3\$s\n\nReview suggestion: %4\$s", 'product-roadmap'),
             $post->post_title,
             $user->display_name,
             wp_trim_words($post->post_content, 100),
@@ -134,15 +140,17 @@ class Roadmap_Notifications {
         }
         
         $subject = sprintf(
-            __('[%s] Status update: %s', 'roadmap-plugin'),
+            /* translators: %1$s: Site name, %2$s: Item title */
+            __('[%1$s] Status update: %2$s', 'product-roadmap'),
             get_bloginfo('name'),
             $post->post_title
         );
         
         $message = sprintf(
-            __("A roadmap item you're following has been updated:\n\nItem: %s\nNew Status: %s\n\nView item: %s", 'roadmap-plugin'),
+            /* translators: %1$s: Item title, %2$s: New status, %3$s: Item URL */
+            __("A roadmap item you're following has been updated:\n\nItem: %1\$s\nNew Status: %2\$s\n\nView item: %3\$s", 'product-roadmap'),
             $post->post_title,
-            $status_term ? $status_term->name : __('Updated', 'roadmap-plugin'),
+            $status_term ? $status_term->name : __('Updated', 'product-roadmap'),
             get_permalink($post->ID)
         );
         
@@ -158,28 +166,43 @@ class Roadmap_Notifications {
         $users = [];
         
         // Get users who voted
-        $votes_table = $wpdb->prefix . 'roadmap_votes';
-        $voted_users = $wpdb->get_col($wpdb->prepare(
-            "SELECT DISTINCT u.user_email 
-            FROM $votes_table v 
-            JOIN {$wpdb->users} u ON v.user_id = u.ID 
-            WHERE v.item_id = %d",
-            $item_id
-        ));
+        $cache_key = 'roadmap_voted_users_' . $item_id;
+        $voted_users = wp_cache_get($cache_key, 'roadmap');
+        
+        if (false === $voted_users) {
+            $votes_table = $wpdb->prefix . 'roadmap_votes';
+            // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+            $voted_users = $wpdb->get_col($wpdb->prepare(
+                "SELECT DISTINCT u.user_email 
+                FROM {$votes_table} v 
+                JOIN {$wpdb->users} u ON v.user_id = u.ID 
+                WHERE v.item_id = %d",
+                $item_id
+            )); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table query with caching
+            // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+            wp_cache_set($cache_key, $voted_users, 'roadmap', 3600);
+        }
         
         if ($voted_users) {
             $users = array_merge($users, $voted_users);
         }
         
         // Get users who commented
-        $comment_users = $wpdb->get_col($wpdb->prepare(
-            "SELECT DISTINCT u.user_email 
-            FROM {$wpdb->comments} c 
-            JOIN {$wpdb->users} u ON c.user_id = u.ID 
-            WHERE c.comment_post_ID = %d 
-            AND c.comment_approved = '1'",
-            $item_id
-        ));
+        $cache_key_comments = 'roadmap_comment_users_' . $item_id;
+        $comment_users = wp_cache_get($cache_key_comments, 'roadmap');
+        
+        if (false === $comment_users) {
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Core table query with caching
+            $comment_users = $wpdb->get_col($wpdb->prepare(
+                "SELECT DISTINCT u.user_email 
+                FROM {$wpdb->comments} c 
+                JOIN {$wpdb->users} u ON c.user_id = u.ID 
+                WHERE c.comment_post_ID = %d 
+                AND c.comment_approved = '1'",
+                $item_id
+            ));
+            wp_cache_set($cache_key_comments, $comment_users, 'roadmap', 3600);
+        }
         
         if ($comment_users) {
             $users = array_merge($users, $comment_users);

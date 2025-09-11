@@ -44,18 +44,58 @@ class Roadmap_CPT {
         $product_name = get_option('roadmap_product_name', 'Product');
         
         $labels = [
-            'name'               => sprintf(__('%s Roadmap', 'roadmap-plugin'), $product_name),
+            'name'               => sprintf(
+                /* translators: %s: Product name */
+                __('%s Roadmap', 'product-roadmap'),
+                $product_name
+            ),
             'singular_name'      => $item_singular,
-            'menu_name'          => sprintf(__('%s Roadmap', 'roadmap-plugin'), $product_name),
-            'add_new'            => __('Add New', 'roadmap-plugin'),
-            'add_new_item'       => sprintf(__('Add New %s', 'roadmap-plugin'), $item_singular),
-            'edit_item'          => sprintf(__('Edit %s', 'roadmap-plugin'), $item_singular),
-            'new_item'           => sprintf(__('New %s', 'roadmap-plugin'), $item_singular),
-            'view_item'          => sprintf(__('View %s', 'roadmap-plugin'), $item_singular),
-            'search_items'       => sprintf(__('Search %s', 'roadmap-plugin'), $item_plural),
-            'not_found'          => sprintf(__('No %s found', 'roadmap-plugin'), strtolower($item_plural)),
-            'not_found_in_trash' => sprintf(__('No %s found in trash', 'roadmap-plugin'), strtolower($item_plural)),
-            'all_items'          => sprintf(__('All %s', 'roadmap-plugin'), $item_plural),
+            'menu_name'          => sprintf(
+                /* translators: %s: Product name */
+                __('%s Roadmap', 'product-roadmap'),
+                $product_name
+            ),
+            'add_new'            => __('Add New', 'product-roadmap'),
+            'add_new_item'       => sprintf(
+                /* translators: %s: Singular item label */
+                __('Add New %s', 'product-roadmap'),
+                $item_singular
+            ),
+            'edit_item'          => sprintf(
+                /* translators: %s: Singular item label */
+                __('Edit %s', 'product-roadmap'),
+                $item_singular
+            ),
+            'new_item'           => sprintf(
+                /* translators: %s: Singular item label */
+                __('New %s', 'product-roadmap'),
+                $item_singular
+            ),
+            'view_item'          => sprintf(
+                /* translators: %s: Singular item label */
+                __('View %s', 'product-roadmap'),
+                $item_singular
+            ),
+            'search_items'       => sprintf(
+                /* translators: %s: Plural item label */
+                __('Search %s', 'product-roadmap'),
+                $item_plural
+            ),
+            'not_found'          => sprintf(
+                /* translators: %s: Plural item label (lowercase) */
+                __('No %s found', 'product-roadmap'),
+                strtolower($item_plural)
+            ),
+            'not_found_in_trash' => sprintf(
+                /* translators: %s: Plural item label (lowercase) */
+                __('No %s found in trash', 'product-roadmap'),
+                strtolower($item_plural)
+            ),
+            'all_items'          => sprintf(
+                /* translators: %s: Plural item label */
+                __('All %s', 'product-roadmap'),
+                $item_plural
+            ),
         ];
         
         $args = [
@@ -84,15 +124,15 @@ class Roadmap_CPT {
     public function register_taxonomies() {
         // Status taxonomy
         $status_labels = [
-            'name'              => __('Statuses', 'roadmap-plugin'),
-            'singular_name'     => __('Status', 'roadmap-plugin'),
-            'search_items'      => __('Search Statuses', 'roadmap-plugin'),
-            'all_items'         => __('All Statuses', 'roadmap-plugin'),
-            'edit_item'         => __('Edit Status', 'roadmap-plugin'),
-            'update_item'       => __('Update Status', 'roadmap-plugin'),
-            'add_new_item'      => __('Add New Status', 'roadmap-plugin'),
-            'new_item_name'     => __('New Status Name', 'roadmap-plugin'),
-            'menu_name'         => __('Statuses', 'roadmap-plugin'),
+            'name'              => __('Statuses', 'product-roadmap'),
+            'singular_name'     => __('Status', 'product-roadmap'),
+            'search_items'      => __('Search Statuses', 'product-roadmap'),
+            'all_items'         => __('All Statuses', 'product-roadmap'),
+            'edit_item'         => __('Edit Status', 'product-roadmap'),
+            'update_item'       => __('Update Status', 'product-roadmap'),
+            'add_new_item'      => __('Add New Status', 'product-roadmap'),
+            'new_item_name'     => __('New Status Name', 'product-roadmap'),
+            'menu_name'         => __('Statuses', 'product-roadmap'),
         ];
         
         $status_args = [
@@ -109,15 +149,15 @@ class Roadmap_CPT {
         
         // Category taxonomy
         $category_labels = [
-            'name'              => __('Categories', 'roadmap-plugin'),
-            'singular_name'     => __('Category', 'roadmap-plugin'),
-            'search_items'      => __('Search Categories', 'roadmap-plugin'),
-            'all_items'         => __('All Categories', 'roadmap-plugin'),
-            'edit_item'         => __('Edit Category', 'roadmap-plugin'),
-            'update_item'       => __('Update Category', 'roadmap-plugin'),
-            'add_new_item'      => __('Add New Category', 'roadmap-plugin'),
-            'new_item_name'     => __('New Category Name', 'roadmap-plugin'),
-            'menu_name'         => __('Categories', 'roadmap-plugin'),
+            'name'              => __('Categories', 'product-roadmap'),
+            'singular_name'     => __('Category', 'product-roadmap'),
+            'search_items'      => __('Search Categories', 'product-roadmap'),
+            'all_items'         => __('All Categories', 'product-roadmap'),
+            'edit_item'         => __('Edit Category', 'product-roadmap'),
+            'update_item'       => __('Update Category', 'product-roadmap'),
+            'add_new_item'      => __('Add New Category', 'product-roadmap'),
+            'new_item_name'     => __('New Category Name', 'product-roadmap'),
+            'menu_name'         => __('Categories', 'product-roadmap'),
         ];
         
         $category_args = [
@@ -134,15 +174,15 @@ class Roadmap_CPT {
         
         // Product taxonomy (even in free version, but limited to one)
         $product_labels = [
-            'name'              => __('Products', 'roadmap-plugin'),
-            'singular_name'     => __('Product', 'roadmap-plugin'),
-            'search_items'      => __('Search Products', 'roadmap-plugin'),
-            'all_items'         => __('All Products', 'roadmap-plugin'),
-            'edit_item'         => __('Edit Product', 'roadmap-plugin'),
-            'update_item'       => __('Update Product', 'roadmap-plugin'),
-            'add_new_item'      => __('Add New Product', 'roadmap-plugin'),
-            'new_item_name'     => __('New Product Name', 'roadmap-plugin'),
-            'menu_name'         => __('Products', 'roadmap-plugin'),
+            'name'              => __('Products', 'product-roadmap'),
+            'singular_name'     => __('Product', 'product-roadmap'),
+            'search_items'      => __('Search Products', 'product-roadmap'),
+            'all_items'         => __('All Products', 'product-roadmap'),
+            'edit_item'         => __('Edit Product', 'product-roadmap'),
+            'update_item'       => __('Update Product', 'product-roadmap'),
+            'add_new_item'      => __('Add New Product', 'product-roadmap'),
+            'new_item_name'     => __('New Product Name', 'product-roadmap'),
+            'menu_name'         => __('Products', 'product-roadmap'),
         ];
         
         $product_args = [
@@ -169,11 +209,11 @@ class Roadmap_CPT {
     
     private function insert_default_terms() {
         $default_statuses = [
-            'planned' => __('Planned', 'roadmap-plugin'),
-            'in-progress' => __('In Progress', 'roadmap-plugin'),
-            'completed' => __('Completed', 'roadmap-plugin'),
-            'on-hold' => __('On Hold', 'roadmap-plugin'),
-            'under-review' => __('Under Review', 'roadmap-plugin'),
+            'planned' => __('Planned', 'product-roadmap'),
+            'in-progress' => __('In Progress', 'product-roadmap'),
+            'completed' => __('Completed', 'product-roadmap'),
+            'on-hold' => __('On Hold', 'product-roadmap'),
+            'under-review' => __('Under Review', 'product-roadmap'),
         ];
         
         foreach ($default_statuses as $slug => $name) {
@@ -186,7 +226,7 @@ class Roadmap_CPT {
         $default_product = get_option('roadmap_default_product', 'main');
         if (!term_exists($default_product, 'roadmap_product')) {
             // Use the product name from settings if available
-            $product_name = get_option('roadmap_product_name', __('Main Product', 'roadmap-plugin'));
+            $product_name = get_option('roadmap_product_name', __('Main Product', 'product-roadmap'));
             $term = wp_insert_term(
                 $product_name,
                 'roadmap_product',
@@ -202,7 +242,7 @@ class Roadmap_CPT {
     public function add_meta_boxes() {
         add_meta_box(
             'roadmap_item_details',
-            __('Roadmap Item Details', 'roadmap-plugin'),
+            __('Roadmap Item Details', 'product-roadmap'),
             [$this, 'render_meta_box'],
             'roadmap_item',
             'normal',
@@ -252,7 +292,7 @@ class Roadmap_CPT {
         if (!empty($pro_fields)) {
             ?>
             <div class="roadmap-meta-section">
-                <h3><?php _e('Pro Features', 'roadmap-plugin'); ?></h3>
+                <h3><?php esc_html_e('Pro Features', 'product-roadmap'); ?></h3>
                 <?php foreach ($pro_fields as $field) : 
                     $value = get_post_meta($post->ID, $field['id'], true);
                     
@@ -281,88 +321,88 @@ class Roadmap_CPT {
         $fields = [
             [
                 'id' => '_roadmap_priority',
-                'label' => __('Priority', 'roadmap-plugin'),
+                'label' => __('Priority', 'product-roadmap'),
                 'type' => 'select',
                 'options' => [
-                    '' => __('-- Select Priority --', 'roadmap-plugin'),
-                    'low' => __('Low', 'roadmap-plugin'),
-                    'medium' => __('Medium', 'roadmap-plugin'),
-                    'high' => __('High', 'roadmap-plugin'),
-                    'critical' => __('Critical', 'roadmap-plugin'),
+                    '' => __('-- Select Priority --', 'product-roadmap'),
+                    'low' => __('Low', 'product-roadmap'),
+                    'medium' => __('Medium', 'product-roadmap'),
+                    'high' => __('High', 'product-roadmap'),
+                    'critical' => __('Critical', 'product-roadmap'),
                 ],
-                'description' => __('Set the priority level for this item.', 'roadmap-plugin'),
+                'description' => __('Set the priority level for this item.', 'product-roadmap'),
                 'free' => true,
             ],
             [
                 'id' => '_roadmap_progress',
-                'label' => __('Progress', 'roadmap-plugin'),
+                'label' => __('Progress', 'product-roadmap'),
                 'type' => 'range',
                 'min' => 0,
                 'max' => 100,
                 'step' => 5,
                 'default' => 0,
-                'description' => __('Current completion percentage (0-100%)', 'roadmap-plugin'),
+                'description' => __('Current completion percentage (0-100%)', 'product-roadmap'),
                 'free' => true,
             ],
             [
                 'id' => '_roadmap_target_date',
-                'label' => __('Target Date', 'roadmap-plugin'),
+                'label' => __('Target Date', 'product-roadmap'),
                 'type' => 'date',
-                'description' => __('Expected completion date', 'roadmap-plugin'),
+                'description' => __('Expected completion date', 'product-roadmap'),
                 'free' => true,
             ],
             [
                 'id' => '_roadmap_start_date',
-                'label' => __('Start Date', 'roadmap-plugin'),
+                'label' => __('Start Date', 'product-roadmap'),
                 'type' => 'date',
-                'description' => __('When work begins on this item', 'roadmap-plugin'),
+                'description' => __('When work begins on this item', 'product-roadmap'),
                 'pro' => true,
             ],
             [
                 'id' => '_roadmap_end_date',
-                'label' => __('End Date', 'roadmap-plugin'),
+                'label' => __('End Date', 'product-roadmap'),
                 'type' => 'date',
-                'description' => __('When work was completed', 'roadmap-plugin'),
+                'description' => __('When work was completed', 'product-roadmap'),
                 'pro' => true,
             ],
             [
                 'id' => '_roadmap_effort_estimate',
-                'label' => __('Effort Estimate', 'roadmap-plugin'),
+                'label' => __('Effort Estimate', 'product-roadmap'),
                 'type' => 'select',
                 'options' => [
-                    '' => __('-- Select Effort --', 'roadmap-plugin'),
-                    'xs' => __('XS - Very Small (1-2 days)', 'roadmap-plugin'),
-                    's' => __('S - Small (3-5 days)', 'roadmap-plugin'),
-                    'm' => __('M - Medium (1-2 weeks)', 'roadmap-plugin'),
-                    'l' => __('L - Large (2-4 weeks)', 'roadmap-plugin'),
-                    'xl' => __('XL - Extra Large (1-2 months)', 'roadmap-plugin'),
-                    'xxl' => __('XXL - Huge (2+ months)', 'roadmap-plugin'),
+                    '' => __('-- Select Effort --', 'product-roadmap'),
+                    'xs' => __('XS - Very Small (1-2 days)', 'product-roadmap'),
+                    's' => __('S - Small (3-5 days)', 'product-roadmap'),
+                    'm' => __('M - Medium (1-2 weeks)', 'product-roadmap'),
+                    'l' => __('L - Large (2-4 weeks)', 'product-roadmap'),
+                    'xl' => __('XL - Extra Large (1-2 months)', 'product-roadmap'),
+                    'xxl' => __('XXL - Huge (2+ months)', 'product-roadmap'),
                 ],
-                'description' => __('Estimated effort required', 'roadmap-plugin'),
+                'description' => __('Estimated effort required', 'product-roadmap'),
                 'pro' => true,
             ],
             [
                 'id' => '_roadmap_github_issue',
-                'label' => __('GitHub Issue URL', 'roadmap-plugin'),
+                'label' => __('GitHub Issue URL', 'product-roadmap'),
                 'type' => 'url',
                 'placeholder' => '',
-                'description' => __('Link to related GitHub issue', 'roadmap-plugin'),
+                'description' => __('Link to related GitHub issue', 'product-roadmap'),
                 'pro' => true,
             ],
             [
                 'id' => '_roadmap_external_link',
-                'label' => __('External Link', 'roadmap-plugin'),
+                'label' => __('External Link', 'product-roadmap'),
                 'type' => 'url',
                 'placeholder' => '',
-                'description' => __('Link to external documentation or reference', 'roadmap-plugin'),
+                'description' => __('Link to external documentation or reference', 'product-roadmap'),
                 'free' => true,
             ],
             [
                 'id' => '_roadmap_vote_count',
-                'label' => __('Vote Count', 'roadmap-plugin'),
+                'label' => __('Vote Count', 'product-roadmap'),
                 'type' => 'number',
                 'readonly' => true,
-                'description' => __('Total number of votes (automatically calculated)', 'roadmap-plugin'),
+                'description' => __('Total number of votes (automatically calculated)', 'product-roadmap'),
                 'free' => true,
             ],
         ];
@@ -381,7 +421,7 @@ class Roadmap_CPT {
             ?>
             <div class="roadmap-pro-field-wrapper">
                 <input type="text" 
-                       value="<?php _e('Pro Feature', 'roadmap-plugin'); ?>" 
+                       value="<?php esc_attr_e('Pro Feature', 'product-roadmap'); ?>" 
                        class="widefat" 
                        disabled>
                 <span class="roadmap-pro-badge">PRO</span>
@@ -402,7 +442,7 @@ class Roadmap_CPT {
                        value="<?php echo esc_attr($value); ?>" 
                        placeholder="<?php echo esc_attr($placeholder); ?>"
                        class="widefat"
-                       <?php echo $readonly; ?>>
+                       <?php echo esc_attr($readonly); ?>>
                 <?php
                 break;
                 
@@ -420,7 +460,7 @@ class Roadmap_CPT {
                            max="<?php echo esc_attr($max); ?>"
                            step="<?php echo esc_attr($step); ?>"
                            class="roadmap-range-input"
-                           <?php echo $readonly; ?>>
+                           <?php echo esc_attr($readonly); ?>>
                     <span class="roadmap-range-value"><?php echo esc_html($value); ?>%</span>
                 </div>
                 <script>
@@ -438,7 +478,7 @@ class Roadmap_CPT {
                 <select id="<?php echo esc_attr($field['id']); ?>" 
                         name="<?php echo esc_attr($field['id']); ?>" 
                         class="widefat"
-                        <?php echo $readonly; ?>>
+                        <?php echo esc_attr($readonly); ?>>
                     <?php foreach ($field['options'] as $option_value => $option_label) : ?>
                         <option value="<?php echo esc_attr($option_value); ?>" 
                                 <?php selected($value, $option_value); ?>>
@@ -462,7 +502,7 @@ class Roadmap_CPT {
     
     public function save_meta_boxes($post_id, $post) {
         if (!isset($_POST['roadmap_item_meta_box_nonce']) || 
-            !wp_verify_nonce($_POST['roadmap_item_meta_box_nonce'], 'roadmap_item_meta_box')) {
+            !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['roadmap_item_meta_box_nonce'])), 'roadmap_item_meta_box')) {
             return;
         }
         
@@ -482,7 +522,7 @@ class Roadmap_CPT {
             }
             
             if (isset($_POST[$field['id']])) {
-                $value = sanitize_text_field($_POST[$field['id']]);
+                $value = sanitize_text_field(wp_unslash($_POST[$field['id']]));
                 update_post_meta($post_id, $field['id'], $value);
             }
         }

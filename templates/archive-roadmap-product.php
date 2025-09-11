@@ -27,7 +27,7 @@ if (!$product_term) {
     </div>
     
     <div class="roadmap-archive-footer">
-        <p><a href="<?php echo home_url(); ?>">&laquo; Back to Home</a></p>
+        <p><a href="<?php echo esc_url(home_url()); ?>">&laquo; Back to Home</a></p>
     </div>
 </div>
 

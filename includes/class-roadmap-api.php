@@ -223,7 +223,9 @@ class Roadmap_API {
             'posts_per_page' => $params['per_page'],
             'paged' => $params['page'],
             'post_status' => 'publish',
+            // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- API endpoint requires filtering
             'meta_query' => [],
+            // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- API endpoint requires filtering
             'tax_query' => [],
         ];
         
@@ -333,10 +335,11 @@ class Roadmap_API {
         $user_id = get_current_user_id();
         
         $vote = $wpdb->get_var($wpdb->prepare(
-            "SELECT vote_value FROM $table WHERE user_id = %d AND item_id = %d",
+            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+            "SELECT vote_value FROM {$table} WHERE user_id = %d AND item_id = %d",
             $user_id,
             $item_id
-        ));
+        )); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table, caching not needed for single user vote check
         
         return $vote ? (int) $vote : false;
     }
@@ -351,13 +354,15 @@ class Roadmap_API {
         
         // Check if user already voted
         $existing_vote = $wpdb->get_row($wpdb->prepare(
-            "SELECT * FROM $table WHERE user_id = %d AND item_id = %d",
+            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+            "SELECT * FROM {$table} WHERE user_id = %d AND item_id = %d",
             $user_id,
             $item_id
-        ));
+        )); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table, caching not needed for vote submission
         
         if ($existing_vote) {
             // Update existing vote
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table update
             $wpdb->update(
                 $table,
                 ['vote_value' => $vote_value],
@@ -365,6 +370,7 @@ class Roadmap_API {
             );
         } else {
             // Insert new vote
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Custom table insert
             $wpdb->insert(
                 $table,
                 [
@@ -391,9 +397,10 @@ class Roadmap_API {
         $table = $wpdb->prefix . 'roadmap_votes';
         
         $vote_count = $wpdb->get_var($wpdb->prepare(
-            "SELECT SUM(vote_value) FROM $table WHERE item_id = %d",
+            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+            "SELECT SUM(vote_value) FROM {$table} WHERE item_id = %d",
             $item_id
-        ));
+        )); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table, vote count is cached in post meta
         
         update_post_meta($item_id, '_roadmap_votes', (int) $vote_count);
     }
@@ -442,11 +449,11 @@ class Roadmap_API {
             
             return new WP_REST_Response([
                 'success' => true,
-                'message' => __('Thank you for your suggestion!', 'roadmap-plugin'),
+                'message' => __('Thank you for your suggestion!', 'product-roadmap'),
             ], 200);
         }
         
-        return new WP_Error('suggestion_failed', __('Failed to submit suggestion', 'roadmap-plugin'), ['status' => 500]);
+        return new WP_Error('suggestion_failed', __('Failed to submit suggestion', 'product-roadmap'), ['status' => 500]);
     }
     
     public function get_stats($request) {
@@ -463,11 +470,14 @@ class Roadmap_API {
     private function get_total_votes() {
         global $wpdb;
         $table = $wpdb->prefix . 'roadmap_votes';
-        return (int) $wpdb->get_var("SELECT COUNT(*) FROM $table");
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Statistics endpoint, caching not needed
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Statistics endpoint, table name is safe
+        return (int) $wpdb->get_var("SELECT COUNT(*) FROM {$table}");
     }
     
     private function get_total_comments() {
         global $wpdb;
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Statistics endpoint, caching not needed
         return (int) $wpdb->get_var($wpdb->prepare(
             "SELECT COUNT(*) FROM $wpdb->comments WHERE comment_post_ID IN (
                 SELECT ID FROM $wpdb->posts WHERE post_type = %s
@@ -549,7 +559,7 @@ class Roadmap_API {
             return new WP_REST_Response($this->format_item(get_post($post_id)), 201);
         }
         
-        return new WP_Error('create_failed', __('Failed to create item', 'roadmap-plugin'), ['status' => 500]);
+        return new WP_Error('create_failed', __('Failed to create item', 'product-roadmap'), ['status' => 500]);
     }
     
     public function update_item($request) {
@@ -604,7 +614,7 @@ class Roadmap_API {
             return new WP_REST_Response($this->format_item(get_post($post_id)), 200);
         }
         
-        return new WP_Error('update_failed', __('Failed to update item', 'roadmap-plugin'), ['status' => 500]);
+        return new WP_Error('update_failed', __('Failed to update item', 'product-roadmap'), ['status' => 500]);
     }
     
     public function delete_item($request) {
@@ -614,7 +624,7 @@ class Roadmap_API {
             return new WP_REST_Response(['success' => true], 200);
         }
         
-        return new WP_Error('delete_failed', __('Failed to delete item', 'roadmap-plugin'), ['status' => 500]);
+        return new WP_Error('delete_failed', __('Failed to delete item', 'product-roadmap'), ['status' => 500]);
     }
     
     public function get_settings($request) {
@@ -741,7 +751,7 @@ class Roadmap_API {
         // Verify the roadmap item exists
         $post = get_post($item_id);
         if (!$post || $post->post_type !== 'roadmap_item') {
-            return new WP_Error('invalid_item', __('Invalid roadmap item', 'roadmap-plugin'), ['status' => 404]);
+            return new WP_Error('invalid_item', __('Invalid roadmap item', 'product-roadmap'), ['status' => 404]);
         }
         
         // Create the comment
@@ -756,13 +766,13 @@ class Roadmap_API {
         $comment_id = wp_insert_comment($comment_data);
         
         if (!$comment_id) {
-            return new WP_Error('comment_failed', __('Failed to add comment', 'roadmap-plugin'), ['status' => 500]);
+            return new WP_Error('comment_failed', __('Failed to add comment', 'product-roadmap'), ['status' => 500]);
         }
         
         return new WP_REST_Response([
             'success' => true,
             'comment_id' => $comment_id,
-            'message' => __('Comment added successfully', 'roadmap-plugin'),
+            'message' => __('Comment added successfully', 'product-roadmap'),
         ], 201);
     }
     

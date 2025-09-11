@@ -15,10 +15,11 @@ while (have_posts()) : the_post();
         global $wpdb;
         $table = $wpdb->prefix . 'roadmap_votes';
         $user_voted = $wpdb->get_var($wpdb->prepare(
-            "SELECT vote_value FROM $table WHERE item_id = %d AND user_id = %d",
+            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+            "SELECT vote_value FROM {$table} WHERE item_id = %d AND user_id = %d",
             $item_id,
             $user_id
-        )) > 0;
+        )) > 0; // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- User vote check, table name is safe
     }
     
     // Get taxonomies
@@ -35,10 +36,10 @@ while (have_posts()) : the_post();
         'item_id' => $item_id,
         'user_voted' => $user_voted,
         'i18n' => [
-            'vote_submitted' => __('Your vote has been submitted!', 'roadmap-plugin'),
-            'vote_removed' => __('Your vote has been removed!', 'roadmap-plugin'),
-            'error' => __('An error occurred. Please try again.', 'roadmap-plugin'),
-            'login_required' => __('Please login to vote.', 'roadmap-plugin'),
+            'vote_submitted' => __('Your vote has been submitted!', 'product-roadmap'),
+            'vote_removed' => __('Your vote has been removed!', 'product-roadmap'),
+            'error' => __('An error occurred. Please try again.', 'product-roadmap'),
+            'login_required' => __('Please login to vote.', 'product-roadmap'),
         ]
     ]);
 ?>
@@ -226,10 +227,10 @@ while (have_posts()) : the_post();
                     <?php endforeach; ?>
                 </div>
                 
-                <button class="roadmap-single-vote <?php echo $user_voted ? 'voted' : ''; ?>" id="roadmap-vote-btn">
+                <button class="roadmap-single-vote <?php echo esc_attr($user_voted ? 'voted' : ''); ?>" id="roadmap-vote-btn">
                     <span class="roadmap-single-vote-icon">👍</span>
                     <span class="roadmap-single-vote-count"><?php echo intval($votes); ?></span>
-                    <span class="roadmap-single-vote-text"><?php echo $user_voted ? __('Voted', 'roadmap-plugin') : __('Vote', 'roadmap-plugin'); ?></span>
+                    <span class="roadmap-single-vote-text"><?php echo esc_html($user_voted ? __('Voted', 'product-roadmap') : __('Vote', 'product-roadmap')); ?></span>
                 </button>
             </div>
         </header>

@@ -160,8 +160,8 @@ This will:
 1. Build the plugin with production assets
 2. Create a `releases` directory with timestamp
 3. Generate zip files for distribution:
-   - `roadmap-plugin-{version}.zip` - Free version only
-   - `roadmap-plugin-pro-{version}.zip` - Complete pro package (includes both plugins)
+   - `product-roadmap-{version}.zip` - Free version only
+   - `product-roadmap-pro-{version}.zip` - Complete pro package (includes both plugins)
 
 ### Release Build Process
 
@@ -235,7 +235,7 @@ zip -r roadmap-plugin.zip roadmap-plugin/ \
   -x "*/DEVELOPER.md"
 
 # Pro version (from parent directory)
-zip -r roadmap-plugin-pro.zip roadmap-plugin/ roadmap-pro-addon/ \
+zip -r product-roadmap-pro.zip product-roadmap/ roadmap-pro-addon/ \
   -x "*/node_modules/*" \
   -x "*/vue-app/src/*" \
   -x "*/.git/*" \
@@ -253,7 +253,7 @@ The version number is automatically read from the plugin header:
 ```
 
 To update the version:
-1. Update version in `roadmap-plugin.php` header
+1. Update version in `product-roadmap.php` header
 2. Update version in `readme.txt` (if using WordPress.org)
 3. Run `./build-release.sh` to create new versioned packages
 

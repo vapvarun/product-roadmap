@@ -82,17 +82,25 @@ class Roadmap_Migration {
     public static function needs_migration() {
         global $wpdb;
         
-        // Check if any items have the old meta field but no taxonomy term
-        $count = $wpdb->get_var("
-            SELECT COUNT(DISTINCT p.ID)
-            FROM {$wpdb->posts} p
-            INNER JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id
-            LEFT JOIN {$wpdb->term_relationships} tr ON p.ID = tr.object_id
-            LEFT JOIN {$wpdb->term_taxonomy} tt ON tr.term_taxonomy_id = tt.term_taxonomy_id AND tt.taxonomy = 'roadmap_product'
-            WHERE p.post_type = 'roadmap_item'
-            AND pm.meta_key = '_roadmap_product'
-            AND tt.term_taxonomy_id IS NULL
-        ");
+        $cache_key = 'roadmap_needs_migration';
+        $count = wp_cache_get($cache_key, 'roadmap');
+        
+        if (false === $count) {
+            // Check if any items have the old meta field but no taxonomy term
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Migration check with caching
+            $count = $wpdb->get_var($wpdb->prepare("
+                SELECT COUNT(DISTINCT p.ID)
+                FROM {$wpdb->posts} p
+                INNER JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id
+                LEFT JOIN {$wpdb->term_relationships} tr ON p.ID = tr.object_id
+                LEFT JOIN {$wpdb->term_taxonomy} tt ON tr.term_taxonomy_id = tt.term_taxonomy_id AND tt.taxonomy = %s
+                WHERE p.post_type = %s
+                AND pm.meta_key = %s
+                AND tt.term_taxonomy_id IS NULL
+            ", 'roadmap_product', 'roadmap_item', '_roadmap_product'));
+            
+            wp_cache_set($cache_key, $count, 'roadmap', 300); // Cache for 5 minutes
+        }
         
         return $count > 0;
     }

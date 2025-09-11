@@ -146,8 +146,8 @@ This will:
 1. Build production assets
 2. Create a `releases` directory
 3. Generate two zip files:
-   - `roadmap-plugin-{version}.zip` - Free version
-   - `roadmap-plugin-pro-{version}.zip` - Pro version with all features
+   - `product-roadmap-{version}.zip` - Free version
+   - `product-roadmap-pro-{version}.zip` - Pro version with all features
 
 ### Development Mode
 

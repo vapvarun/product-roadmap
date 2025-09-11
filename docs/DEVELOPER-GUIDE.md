@@ -17,7 +17,7 @@
 
 ### Plugin Structure
 ```
-roadmap-plugin/
+product-roadmap/
 ├── includes/
 │   ├── class-roadmap-admin.php       # Admin interface
 │   ├── class-roadmap-api.php         # REST API endpoints
@@ -34,7 +34,7 @@ roadmap-plugin/
 ├── vue-app/                          # Vue.js application
 ├── assets/                           # CSS and JS files
 ├── templates/                        # PHP templates
-└── roadmap-plugin.php               # Main plugin file
+└── product-roadmap.php              # Main plugin file
 ```
 
 ### Key Classes

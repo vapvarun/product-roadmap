@@ -32,12 +32,13 @@ class Roadmap_Setup_Wizard {
      */
     public function handle_start_over() {
         // Only process on our setup wizard page
-        if (!isset($_GET['page']) || $_GET['page'] !== 'roadmap-setup-wizard') {
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Checking page parameter before nonce verification
+        if (!isset($_GET['page']) || sanitize_text_field(wp_unslash($_GET['page'])) !== 'roadmap-setup-wizard') {
             return;
         }
         
         // Handle start over action
-        if (isset($_GET['start_over']) && $_GET['start_over'] == '1' && isset($_GET['_wpnonce']) && wp_verify_nonce($_GET['_wpnonce'], 'roadmap_start_over')) {
+        if (isset($_GET['start_over']) && sanitize_text_field(wp_unslash($_GET['start_over'])) == '1' && isset($_GET['_wpnonce']) && wp_verify_nonce(sanitize_text_field(wp_unslash($_GET['_wpnonce'])), 'roadmap_start_over')) {
             delete_option('roadmap_wizard_completed');
             wp_redirect(admin_url('admin.php?page=roadmap-setup-wizard'));
             exit;
@@ -51,8 +52,8 @@ class Roadmap_Setup_Wizard {
         // Add as submenu under Roadmap
         add_submenu_page(
             'roadmap-dashboard',
-            __('Setup Wizard', 'roadmap'),
-            __('Setup Wizard', 'roadmap'),
+            __('Setup Wizard', 'product-roadmap'),
+            __('Setup Wizard', 'product-roadmap'),
             'manage_options',
             'roadmap-setup-wizard',
             array($this, 'render_setup_page')
@@ -63,6 +64,7 @@ class Roadmap_Setup_Wizard {
      * Render the setup page
      */
     public function render_setup_page() {
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Just viewing page, not processing data
         $current_step = isset($_GET['step']) ? intval($_GET['step']) : 1;
         $wizard_completed = get_option('roadmap_wizard_completed');
         ?>
@@ -123,11 +125,11 @@ class Roadmap_Setup_Wizard {
             </style>
             
             <div class="roadmap-setup-header">
-                <h1><?php _e('Welcome to Product Roadmap Setup', 'roadmap'); ?></h1>
+                <h1><?php esc_html_e('Welcome to Product Roadmap Setup', 'product-roadmap'); ?></h1>
                 <?php if ($wizard_completed && $current_step == 1): ?>
                     <div class="notice notice-info" style="max-width: 600px; margin: 20px auto;">
                         <p>
-                            <?php _e('You have already completed the setup wizard. You can review or update your settings below.', 'roadmap'); ?>
+                            <?php esc_html_e('You have already completed the setup wizard. You can review or update your settings below.', 'product-roadmap'); ?>
                             <?php 
                             $start_over_url = wp_nonce_url(
                                 admin_url('admin.php?page=roadmap-setup-wizard&start_over=1'),
@@ -135,8 +137,8 @@ class Roadmap_Setup_Wizard {
                             );
                             ?>
                             <a href="<?php echo esc_url($start_over_url); ?>" class="button" 
-                               onclick="return confirm('<?php _e('This will reset the wizard. Your existing roadmap items will not be affected. Continue?', 'roadmap'); ?>');">
-                                <?php _e('Start Over', 'roadmap'); ?>
+                               onclick="return confirm('<?php esc_html_e('This will reset the wizard. Your existing roadmap items will not be affected. Continue?', 'product-roadmap'); ?>');">
+                                <?php esc_html_e('Start Over', 'product-roadmap'); ?>
                             </a>
                         </p>
                     </div>
@@ -144,17 +146,17 @@ class Roadmap_Setup_Wizard {
             </div>
             
             <ul class="roadmap-setup-steps">
-                <li class="<?php echo $current_step == 1 ? 'active' : ($current_step > 1 ? 'completed' : ''); ?>">
-                    <?php _e('Product Info', 'roadmap'); ?>
+                <li class="<?php echo esc_attr($current_step == 1 ? 'active' : ($current_step > 1 ? 'completed' : '')); ?>">
+                    <?php esc_html_e('Product Info', 'product-roadmap'); ?>
                 </li>
-                <li class="<?php echo $current_step == 2 ? 'active' : ($current_step > 2 ? 'completed' : ''); ?>">
-                    <?php _e('Settings', 'roadmap'); ?>
+                <li class="<?php echo esc_attr($current_step == 2 ? 'active' : ($current_step > 2 ? 'completed' : '')); ?>">
+                    <?php esc_html_e('Settings', 'product-roadmap'); ?>
                 </li>
-                <li class="<?php echo $current_step == 3 ? 'active' : ($current_step > 3 ? 'completed' : ''); ?>">
-                    <?php _e('Import Demo', 'roadmap'); ?>
+                <li class="<?php echo esc_attr($current_step == 3 ? 'active' : ($current_step > 3 ? 'completed' : '')); ?>">
+                    <?php esc_html_e('Import Demo', 'product-roadmap'); ?>
                 </li>
-                <li class="<?php echo $current_step == 4 ? 'active' : ''; ?>">
-                    <?php _e('Finish', 'roadmap'); ?>
+                <li class="<?php echo esc_attr($current_step == 4 ? 'active' : ''); ?>">
+                    <?php esc_html_e('Finish', 'product-roadmap'); ?>
                 </li>
             </ul>
             
@@ -188,8 +190,8 @@ class Roadmap_Setup_Wizard {
         $item_singular = get_option('roadmap_item_singular_label', 'Feature');
         $item_plural = get_option('roadmap_item_plural_label', 'Features');
         ?>
-        <h2><?php _e('Configure Your Product', 'roadmap'); ?></h2>
-        <p><?php _e('Let\'s personalize your roadmap. In the free version, you can manage one product roadmap.', 'roadmap'); ?></p>
+        <h2><?php esc_html_e('Configure Your Product', 'product-roadmap'); ?></h2>
+        <p><?php esc_html_e('Let\'s personalize your roadmap. In the free version, you can manage one product roadmap.', 'product-roadmap'); ?></p>
         
         <form method="post" action="">
             <?php wp_nonce_field('roadmap_setup_step_1'); ?>
@@ -198,47 +200,47 @@ class Roadmap_Setup_Wizard {
             <table class="form-table">
                 <tr>
                     <th scope="row">
-                        <label for="product_name"><?php _e('Product Name', 'roadmap'); ?></label>
+                        <label for="product_name"><?php esc_html_e('Product Name', 'product-roadmap'); ?></label>
                     </th>
                     <td>
                         <input type="text" id="product_name" name="product_name" 
                                value="<?php echo esc_attr($product_name); ?>" 
                                class="regular-text" required />
                         <p class="description">
-                            <?php _e('The name of your product or project (e.g., "My App", "WordPress Plugin")', 'roadmap'); ?>
+                            <?php esc_html_e('The name of your product or project (e.g., "My App", "WordPress Plugin")', 'product-roadmap'); ?>
                         </p>
                     </td>
                 </tr>
                 <tr>
-                    <th scope="row"><?php _e('Item Labels', 'roadmap'); ?></th>
+                    <th scope="row"><?php esc_html_e('Item Labels', 'product-roadmap'); ?></th>
                     <td>
-                        <p><?php _e('Customize how roadmap items are labeled:', 'roadmap'); ?></p>
+                        <p><?php esc_html_e('Customize how roadmap items are labeled:', 'product-roadmap'); ?></p>
                         <p>
-                            <label><?php _e('Singular:', 'roadmap'); ?></label><br>
+                            <label><?php esc_html_e('Singular:', 'product-roadmap'); ?></label><br>
                             <input type="text" name="item_singular" 
                                    value="<?php echo esc_attr($item_singular); ?>" 
                                    class="regular-text" style="width: 200px;" />
-                            <span class="description"><?php _e('(e.g., Feature, Task, Story)', 'roadmap'); ?></span>
+                            <span class="description"><?php esc_html_e('(e.g., Feature, Task, Story)', 'product-roadmap'); ?></span>
                         </p>
                         <p>
-                            <label><?php _e('Plural:', 'roadmap'); ?></label><br>
+                            <label><?php esc_html_e('Plural:', 'product-roadmap'); ?></label><br>
                             <input type="text" name="item_plural" 
                                    value="<?php echo esc_attr($item_plural); ?>" 
                                    class="regular-text" style="width: 200px;" />
-                            <span class="description"><?php _e('(e.g., Features, Tasks, Stories)', 'roadmap'); ?></span>
+                            <span class="description"><?php esc_html_e('(e.g., Features, Tasks, Stories)', 'product-roadmap'); ?></span>
                         </p>
                     </td>
                 </tr>
             </table>
             
             <div class="roadmap-pro-tip">
-                <strong><?php _e('Pro Tip:', 'roadmap'); ?></strong> 
-                <?php _e('Need multiple products? The Pro version allows unlimited products with separate roadmaps for each.', 'roadmap'); ?>
+                <strong><?php esc_html_e('Pro Tip:', 'product-roadmap'); ?></strong> 
+                <?php esc_html_e('Need multiple products? The Pro version allows unlimited products with separate roadmaps for each.', 'product-roadmap'); ?>
             </div>
             
             <div class="roadmap-setup-actions">
                 <input type="submit" class="button button-primary button-large" 
-                       value="<?php _e('Save & Continue', 'roadmap'); ?>" />
+                       value="<?php esc_attr_e('Save & Continue', 'product-roadmap'); ?>" />
             </div>
         </form>
         <?php
@@ -252,8 +254,8 @@ class Roadmap_Setup_Wizard {
         $comments_enabled = get_option('roadmap_enable_comments', 'yes');
         $guest_voting = get_option('roadmap_allow_guest_voting', 'yes');
         ?>
-        <h2><?php _e('Basic Settings', 'roadmap'); ?></h2>
-        <p><?php _e('Configure how users can interact with your roadmap.', 'roadmap'); ?></p>
+        <h2><?php esc_html_e('Basic Settings', 'product-roadmap'); ?></h2>
+        <p><?php esc_html_e('Configure how users can interact with your roadmap.', 'product-roadmap'); ?></p>
         
         <form method="post" action="">
             <?php wp_nonce_field('roadmap_setup_step_2'); ?>
@@ -261,42 +263,42 @@ class Roadmap_Setup_Wizard {
             
             <table class="form-table">
                 <tr>
-                    <th scope="row"><?php _e('Enable Voting', 'roadmap'); ?></th>
+                    <th scope="row"><?php esc_html_e('Enable Voting', 'product-roadmap'); ?></th>
                     <td>
                         <label>
                             <input type="checkbox" name="voting_enabled" value="yes" 
                                    <?php checked($voting_enabled, 'yes'); ?> />
-                            <?php _e('Allow users to vote on roadmap items', 'roadmap'); ?>
+                            <?php esc_html_e('Allow users to vote on roadmap items', 'product-roadmap'); ?>
                         </label>
                     </td>
                 </tr>
                 <tr>
-                    <th scope="row"><?php _e('Guest Voting', 'roadmap'); ?></th>
+                    <th scope="row"><?php esc_html_e('Guest Voting', 'product-roadmap'); ?></th>
                     <td>
                         <label>
                             <input type="checkbox" name="guest_voting" value="yes" 
                                    <?php checked($guest_voting, 'yes'); ?> />
-                            <?php _e('Allow non-logged in users to vote', 'roadmap'); ?>
+                            <?php esc_html_e('Allow non-logged in users to vote', 'product-roadmap'); ?>
                         </label>
                     </td>
                 </tr>
                 <tr>
-                    <th scope="row"><?php _e('Enable Comments', 'roadmap'); ?></th>
+                    <th scope="row"><?php esc_html_e('Enable Comments', 'product-roadmap'); ?></th>
                     <td>
                         <label>
                             <input type="checkbox" name="comments_enabled" value="yes" 
                                    <?php checked($comments_enabled, 'yes'); ?> />
-                            <?php _e('Allow users to comment on roadmap items', 'roadmap'); ?>
+                            <?php esc_html_e('Allow users to comment on roadmap items', 'product-roadmap'); ?>
                         </label>
                     </td>
                 </tr>
             </table>
             
             <div class="roadmap-setup-actions">
-                <a href="<?php echo admin_url('admin.php?page=roadmap-setup-wizard&step=1'); ?>" 
-                   class="button button-large"><?php _e('← Back', 'roadmap'); ?></a>
+                <a href="<?php echo esc_url(admin_url('admin.php?page=roadmap-setup-wizard&step=1')); ?>" 
+                   class="button button-large"><?php esc_html_e('← Back', 'product-roadmap'); ?></a>
                 <input type="submit" class="button button-primary button-large" 
-                       value="<?php _e('Save & Continue', 'roadmap'); ?>" />
+                       value="<?php esc_attr_e('Save & Continue', 'product-roadmap'); ?>" />
             </div>
         </form>
         <?php
@@ -310,49 +312,55 @@ class Roadmap_Setup_Wizard {
         $existing_page_id = get_option('roadmap_page_id');
         $has_existing_page = $existing_page_id && get_post($existing_page_id);
         ?>
-        <h2><?php _e('Import Demo Content', 'roadmap'); ?></h2>
-        <p><?php printf(__('Would you like to import demo content for "%s"? This helps you see how the roadmap works.', 'roadmap'), esc_html($product_name)); ?></p>
+        <h2><?php esc_html_e('Import Demo Content', 'product-roadmap'); ?></h2>
+        <p><?php 
+        /* translators: %s: Product name */
+        printf(esc_html__('Would you like to import demo content for "%s"? This helps you see how the roadmap works.', 'product-roadmap'), esc_html($product_name)); 
+        ?></p>
         
         <form method="post" action="">
             <?php wp_nonce_field('roadmap_setup_step_3'); ?>
             <input type="hidden" name="roadmap_setup_step" value="3">
             
             <div style="background: #f9f9f9; padding: 20px; margin: 20px 0;">
-                <h3 style="margin-top: 0;"><?php _e('Demo content includes:', 'roadmap'); ?></h3>
+                <h3 style="margin-top: 0;"><?php esc_html_e('Demo content includes:', 'product-roadmap'); ?></h3>
                 <ul style="list-style: disc; margin-left: 20px;">
-                    <li><?php _e('10 sample roadmap items with different statuses', 'roadmap'); ?></li>
-                    <li><?php _e('Various priority levels and categories', 'roadmap'); ?></li>
-                    <li><?php _e('Example votes and comments', 'roadmap'); ?></li>
+                    <li><?php esc_html_e('10 sample roadmap items with different statuses', 'product-roadmap'); ?></li>
+                    <li><?php esc_html_e('Various priority levels and categories', 'product-roadmap'); ?></li>
+                    <li><?php esc_html_e('Example votes and comments', 'product-roadmap'); ?></li>
                 </ul>
                 <label>
                     <input type="checkbox" name="import_demo" value="yes" checked />
-                    <strong><?php _e('Yes, import demo content', 'roadmap'); ?></strong>
+                    <strong><?php esc_html_e('Yes, import demo content', 'product-roadmap'); ?></strong>
                 </label>
             </div>
             
             <?php if ($has_existing_page): ?>
                 <div style="background: #f0f6fc; border-left: 4px solid #2271b1; padding: 12px; margin: 20px 0;">
                     <p style="margin: 0;">
-                        <strong><?php _e('Note:', 'roadmap'); ?></strong> 
-                        <?php _e('A roadmap page already exists. The setup will use the existing page.', 'roadmap'); ?>
-                        <a href="<?php echo get_permalink($existing_page_id); ?>" target="_blank"><?php _e('View existing page', 'roadmap'); ?></a>
+                        <strong><?php esc_html_e('Note:', 'product-roadmap'); ?></strong> 
+                        <?php esc_html_e('A roadmap page already exists. The setup will use the existing page.', 'product-roadmap'); ?>
+                        <a href="<?php echo esc_url(get_permalink($existing_page_id)); ?>" target="_blank"><?php esc_html_e('View existing page', 'product-roadmap'); ?></a>
                     </p>
                 </div>
             <?php else: ?>
                 <div style="background: #f0f9ff; border: 1px solid #0073aa; padding: 12px; margin: 20px 0;">
                     <p style="margin: 0;">
-                        <?php printf(__('After this step, we\'ll create a "%s Roadmap" page with the [roadmap] shortcode.', 'roadmap'), esc_html($product_name)); ?>
+                        <?php 
+                        /* translators: %s: Product name */
+                        printf(esc_html__('After this step, we\'ll create a "%s Roadmap" page with the [roadmap] shortcode.', 'product-roadmap'), esc_html($product_name)); 
+                        ?>
                     </p>
                 </div>
             <?php endif; ?>
             
             <div class="roadmap-setup-actions">
-                <a href="<?php echo admin_url('admin.php?page=roadmap-setup-wizard&step=2'); ?>" 
-                   class="button button-large"><?php _e('← Back', 'roadmap'); ?></a>
+                <a href="<?php echo esc_url(admin_url('admin.php?page=roadmap-setup-wizard&step=2')); ?>" 
+                   class="button button-large"><?php esc_html_e('← Back', 'product-roadmap'); ?></a>
                 <input type="submit" class="button button-primary button-large" 
-                       value="<?php _e('Import & Continue', 'roadmap'); ?>" />
-                <a href="<?php echo admin_url('admin.php?page=roadmap-setup-wizard&step=4'); ?>" 
-                   class="button button-large"><?php _e('Skip', 'roadmap'); ?></a>
+                       value="<?php esc_html_e('Import & Continue', 'product-roadmap'); ?>" />
+                <a href="<?php echo esc_url(admin_url('admin.php?page=roadmap-setup-wizard&step=4')); ?>" 
+                   class="button button-large"><?php esc_html_e('Skip', 'product-roadmap'); ?></a>
             </div>
         </form>
         <?php
@@ -367,61 +375,64 @@ class Roadmap_Setup_Wizard {
         $product_name = get_option('roadmap_product_name', 'Product');
         $roadmap_page_id = get_option('roadmap_page_id');
         ?>
-        <h2><?php _e('🎉 Setup Complete!', 'roadmap'); ?></h2>
-        <p><?php printf(__('Your %s roadmap is ready to use!', 'roadmap'), esc_html($product_name)); ?></p>
+        <h2><?php esc_html_e('🎉 Setup Complete!', 'product-roadmap'); ?></h2>
+        <p><?php 
+        /* translators: %s: Product name */
+        printf(esc_html__('Your %s roadmap is ready to use!', 'product-roadmap'), esc_html($product_name)); 
+        ?></p>
         
         <?php if ($roadmap_page_id && get_post($roadmap_page_id)): ?>
             <div style="background: #d4f4dd; border: 1px solid #00a32a; padding: 20px; margin: 20px 0; text-align: center;">
-                <h3 style="margin-top: 0; color: #00a32a;"><?php _e('Your Roadmap Page is Ready!', 'roadmap'); ?></h3>
-                <p><?php _e('We\'ve created a page with your roadmap. You can view it now:', 'roadmap'); ?></p>
+                <h3 style="margin-top: 0; color: #00a32a;"><?php esc_html_e('Your Roadmap Page is Ready!', 'product-roadmap'); ?></h3>
+                <p><?php esc_html_e('We\'ve created a page with your roadmap. You can view it now:', 'product-roadmap'); ?></p>
                 <p>
-                    <a href="<?php echo get_permalink($roadmap_page_id); ?>" class="button button-primary button-hero" target="_blank">
-                        <?php _e('View Your Roadmap', 'roadmap'); ?> →
+                    <a href="<?php echo esc_url(get_permalink($roadmap_page_id)); ?>" class="button button-primary button-hero" target="_blank">
+                        <?php esc_html_e('View Your Roadmap', 'product-roadmap'); ?> →
                     </a>
                 </p>
                 <p style="margin-top: 10px;">
-                    <a href="<?php echo admin_url('post.php?post=' . $roadmap_page_id . '&action=edit'); ?>">
-                        <?php _e('Edit Page', 'roadmap'); ?>
+                    <a href="<?php echo esc_url(admin_url('post.php?post=' . $roadmap_page_id . '&action=edit')); ?>">
+                        <?php esc_html_e('Edit Page', 'product-roadmap'); ?>
                     </a>
                 </p>
             </div>
         <?php else: ?>
             <div style="background: #f0f9ff; border: 1px solid #0073aa; padding: 20px; margin: 20px 0;">
-                <h3 style="margin-top: 0;"><?php _e('Quick Start:', 'roadmap'); ?></h3>
-                <p><?php _e('Add this shortcode to any page or post to display your roadmap:', 'roadmap'); ?></p>
+                <h3 style="margin-top: 0;"><?php esc_html_e('Quick Start:', 'product-roadmap'); ?></h3>
+                <p><?php esc_html_e('Add this shortcode to any page or post to display your roadmap:', 'product-roadmap'); ?></p>
                 <p style="font-size: 18px; font-family: monospace; background: #fff; padding: 10px; border: 1px solid #ddd;">
                     [roadmap product="main"]
                 </p>
             </div>
         <?php endif; ?>
         
-        <h3><?php _e('What\'s Next?', 'roadmap'); ?></h3>
+        <h3><?php esc_html_e('What\'s Next?', 'product-roadmap'); ?></h3>
         <ul style="list-style: disc; margin-left: 20px; line-height: 2;">
             <li>
-                <a href="<?php echo admin_url('post-new.php?post_type=page'); ?>">
-                    <?php _e('Create a new page and add the [roadmap product="main"] shortcode', 'roadmap'); ?>
+                <a href="<?php echo esc_url(admin_url('post-new.php?post_type=page')); ?>">
+                    <?php esc_html_e('Create a new page and add the [roadmap product="main"] shortcode', 'product-roadmap'); ?>
                 </a>
             </li>
             <li>
-                <a href="<?php echo admin_url('post-new.php?post_type=roadmap_item'); ?>">
-                    <?php _e('Add your first real roadmap item', 'roadmap'); ?>
+                <a href="<?php echo esc_url(admin_url('post-new.php?post_type=roadmap_item')); ?>">
+                    <?php esc_html_e('Add your first real roadmap item', 'product-roadmap'); ?>
                 </a>
             </li>
             <li>
-                <a href="<?php echo admin_url('edit.php?post_type=roadmap_item&page=roadmap-settings'); ?>">
-                    <?php _e('Configure advanced settings', 'roadmap'); ?>
+                <a href="<?php echo esc_url(admin_url('edit.php?post_type=roadmap_item&page=roadmap-settings')); ?>">
+                    <?php esc_html_e('Configure advanced settings', 'product-roadmap'); ?>
                 </a>
             </li>
         </ul>
         
         <div class="roadmap-setup-actions">
-            <a href="<?php echo admin_url('edit.php?post_type=roadmap_item'); ?>" 
+            <a href="<?php echo esc_url(admin_url('edit.php?post_type=roadmap_item')); ?>" 
                class="button button-primary button-large">
-                <?php _e('Go to Roadmap Dashboard', 'roadmap'); ?>
+                <?php esc_html_e('Go to Roadmap Dashboard', 'product-roadmap'); ?>
             </a>
             <?php if ($was_completed): ?>
                 <p style="margin-top: 20px; color: #666;">
-                    <?php _e('You can access this setup wizard anytime from the Roadmap menu.', 'roadmap'); ?>
+                    <?php esc_html_e('You can access this setup wizard anytime from the Roadmap menu.', 'product-roadmap'); ?>
                 </p>
             <?php endif; ?>
         </div>
@@ -436,24 +447,28 @@ class Roadmap_Setup_Wizard {
             return;
         }
         
-        $step = intval($_POST['roadmap_setup_step']);
+        $step = isset($_POST['roadmap_setup_step']) ? intval($_POST['roadmap_setup_step']) : 0;
         
         switch ($step) {
             case 1:
-                if (!wp_verify_nonce($_POST['_wpnonce'], 'roadmap_setup_step_1')) {
+                if (!isset($_POST['_wpnonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['_wpnonce'])), 'roadmap_setup_step_1')) {
                     return;
                 }
                 
                 // Save product info
-                update_option('roadmap_product_name', sanitize_text_field($_POST['product_name']));
-                update_option('roadmap_item_singular_label', sanitize_text_field($_POST['item_singular']));
-                update_option('roadmap_item_plural_label', sanitize_text_field($_POST['item_plural']));
+                $product_name = isset($_POST['product_name']) ? sanitize_text_field(wp_unslash($_POST['product_name'])) : '';
+                $item_singular = isset($_POST['item_singular']) ? sanitize_text_field(wp_unslash($_POST['item_singular'])) : 'Feature';
+                $item_plural = isset($_POST['item_plural']) ? sanitize_text_field(wp_unslash($_POST['item_plural'])) : 'Features';
+                
+                update_option('roadmap_product_name', $product_name);
+                update_option('roadmap_item_singular_label', $item_singular);
+                update_option('roadmap_item_plural_label', $item_plural);
                 
                 wp_redirect(admin_url('admin.php?page=roadmap-setup-wizard&step=2'));
                 exit;
                 
             case 2:
-                if (!wp_verify_nonce($_POST['_wpnonce'], 'roadmap_setup_step_2')) {
+                if (!isset($_POST['_wpnonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['_wpnonce'])), 'roadmap_setup_step_2')) {
                     return;
                 }
                 
@@ -466,12 +481,12 @@ class Roadmap_Setup_Wizard {
                 exit;
                 
             case 3:
-                if (!wp_verify_nonce($_POST['_wpnonce'], 'roadmap_setup_step_3')) {
+                if (!isset($_POST['_wpnonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['_wpnonce'])), 'roadmap_setup_step_3')) {
                     return;
                 }
                 
                 // Import demo content if requested
-                if (isset($_POST['import_demo']) && $_POST['import_demo'] === 'yes') {
+                if (isset($_POST['import_demo']) && sanitize_text_field(wp_unslash($_POST['import_demo'])) === 'yes') {
                     // Ensure CPT and taxonomies are loaded
                     Roadmap_CPT::get_instance();
                     
@@ -521,7 +536,11 @@ class Roadmap_Setup_Wizard {
         
         // Create a new page with the roadmap shortcode
         $page_data = array(
-            'post_title' => sprintf(__('%s Roadmap', 'roadmap'), $product_name),
+            'post_title' => sprintf(
+                /* translators: %s: Product name */
+                __('%s Roadmap', 'product-roadmap'),
+                $product_name
+            ),
             'post_content' => '[roadmap product="main"]',
             'post_status' => 'publish',
             'post_type' => 'page',

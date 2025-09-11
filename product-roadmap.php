@@ -8,7 +8,7 @@
  * Author URI: https://wbcomdesigns.com/
  * License: GPL v2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain: roadmap-plugin
+ * Text Domain: product-roadmap
  * Domain Path: /languages
  * Requires at least: 5.8
  * Requires PHP: 7.4
@@ -61,7 +61,6 @@ class RoadmapPlugin {
         register_deactivation_hook(__FILE__, [$this, 'deactivate']);
         
         add_action('init', [$this, 'init']);
-        add_action('plugins_loaded', [$this, 'load_textdomain']);
         
         // Initialize components
         Roadmap_CPT::get_instance();
@@ -103,14 +102,12 @@ class RoadmapPlugin {
             
             // Log migration result
             if ($result['errors'] === 0) {
-                update_option('roadmap_migration_completed', time());
+                update_option('roadmap_migration_completed', current_time('timestamp'));
             }
         }
     }
     
-    public function load_textdomain() {
-        load_plugin_textdomain('roadmap-plugin', false, dirname(plugin_basename(__FILE__)) . '/languages');
-    }
+    // Text domain loading is handled automatically by WordPress.org since WP 4.6
     
     public function activate() {
         // Create database tables if needed

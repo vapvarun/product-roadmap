@@ -19,7 +19,7 @@ This guide provides technical documentation for developers working with the Prod
 The Product Roadmap plugin follows WordPress best practices with a modular architecture:
 
 ```
-roadmap-plugin/
+product-roadmap/
 ├── includes/           # PHP classes and core functionality
 ├── vue-app/           # Vue.js frontend application
 ├── assets/            # CSS, JS, and images
@@ -153,8 +153,8 @@ The release build script:
 3. Copies all plugin files
 4. Removes development files
 5. Generates two zip packages:
-   - Free version: `roadmap-plugin-{version}.zip`
-   - Pro version: `roadmap-plugin-pro-{version}.zip`
+   - Free version: `product-roadmap-{version}.zip`
+   - Pro version: `product-roadmap-pro-{version}.zip`
 
 ### Files excluded from release:
 - `.git`, `.gitignore`

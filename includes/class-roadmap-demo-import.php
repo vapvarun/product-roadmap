@@ -52,15 +52,15 @@ class Roadmap_Demo_Import {
         ?>
         <div class="notice notice-info is-dismissible" id="roadmap-setup-notice">
             <p>
-                <strong><?php _e('Welcome to Product Roadmap!', 'roadmap'); ?></strong>
-                <?php _e('Get started quickly by importing demo content to see how the plugin works.', 'roadmap'); ?>
+                <strong><?php esc_html_e('Welcome to Product Roadmap!', 'product-roadmap'); ?></strong>
+                <?php esc_html_e('Get started quickly by importing demo content to see how the plugin works.', 'product-roadmap'); ?>
             </p>
             <p>
-                <a href="<?php echo admin_url('admin.php?page=roadmap-setup-wizard'); ?>" class="button button-primary">
-                    <?php _e('Run Setup Wizard', 'roadmap'); ?>
+                <a href="<?php echo esc_url(admin_url('admin.php?page=roadmap-setup-wizard')); ?>" class="button button-primary">
+                    <?php esc_html_e('Run Setup Wizard', 'product-roadmap'); ?>
                 </a>
                 <a href="#" class="button" onclick="roadmapDismissSetupNotice(); return false;">
-                    <?php _e('Dismiss', 'roadmap'); ?>
+                    <?php esc_html_e('Dismiss', 'product-roadmap'); ?>
                 </a>
             </p>
         </div>
@@ -68,7 +68,7 @@ class Roadmap_Demo_Import {
         function roadmapDismissSetupNotice() {
             jQuery.post(ajaxurl, {
                 action: 'roadmap_dismiss_setup_notice',
-                nonce: '<?php echo wp_create_nonce('roadmap_dismiss_notice'); ?>'
+                nonce: '<?php echo esc_js(wp_create_nonce('roadmap_dismiss_notice')); ?>'
             });
             jQuery('#roadmap-setup-notice').fadeOut();
         }
@@ -124,10 +124,10 @@ class Roadmap_Demo_Import {
         
         // Create categories first
         $categories = array(
-            'Features' => __('New features and enhancements', 'roadmap'),
-            'Improvements' => __('Improvements to existing functionality', 'roadmap'),
-            'Bug Fixes' => __('Bug fixes and issues', 'roadmap'),
-            'Infrastructure' => __('Backend and infrastructure updates', 'roadmap')
+            'Features' => __('New features and enhancements', 'product-roadmap'),
+            'Improvements' => __('Improvements to existing functionality', 'product-roadmap'),
+            'Bug Fixes' => __('Bug fixes and issues', 'product-roadmap'),
+            'Infrastructure' => __('Backend and infrastructure updates', 'product-roadmap')
         );
         
         $category_ids = array();
@@ -149,91 +149,91 @@ class Roadmap_Demo_Import {
         // Demo roadmap items
         $demo_items = array(
             array(
-                'title' => __('Dark Mode Support', 'roadmap'),
-                'content' => __('Add a dark mode toggle to provide users with a comfortable viewing experience in low-light environments. This feature will include automatic theme switching based on system preferences and a manual toggle in the user interface.', 'roadmap'),
+                'title' => __('Dark Mode Support', 'product-roadmap'),
+                'content' => __('Add a dark mode toggle to provide users with a comfortable viewing experience in low-light environments. This feature will include automatic theme switching based on system preferences and a manual toggle in the user interface.', 'product-roadmap'),
                 'status' => 'planned',
                 'priority' => 'high',
                 'category' => 'Features',
                 'votes' => 45,
-                'target_date' => date('Y-m-d', strtotime('+3 months'))
+                'target_date' => gmdate('Y-m-d', strtotime('+3 months'))
             ),
             array(
-                'title' => __('Mobile App Development', 'roadmap'),
-                'content' => __('Develop native mobile applications for iOS and Android platforms. The apps will provide core functionality with offline support and push notifications for important updates.', 'roadmap'),
+                'title' => __('Mobile App Development', 'product-roadmap'),
+                'content' => __('Develop native mobile applications for iOS and Android platforms. The apps will provide core functionality with offline support and push notifications for important updates.', 'product-roadmap'),
                 'status' => 'planned',
                 'priority' => 'medium',
                 'category' => 'Features',
                 'votes' => 38
             ),
             array(
-                'title' => __('Advanced Search Filters', 'roadmap'),
-                'content' => __('Implement advanced search capabilities with filters for date ranges, categories, tags, and custom fields. Include saved search functionality for frequently used queries.', 'roadmap'),
+                'title' => __('Advanced Search Filters', 'product-roadmap'),
+                'content' => __('Implement advanced search capabilities with filters for date ranges, categories, tags, and custom fields. Include saved search functionality for frequently used queries.', 'product-roadmap'),
                 'status' => 'in-progress',
                 'priority' => 'high',
                 'category' => 'Features',
                 'votes' => 52,
-                'target_date' => date('Y-m-d', strtotime('+1 month'))
+                'target_date' => gmdate('Y-m-d', strtotime('+1 month'))
             ),
             array(
-                'title' => __('Performance Optimization', 'roadmap'),
-                'content' => __('Optimize database queries and implement caching strategies to improve page load times. Target is to achieve 50% faster load times for large datasets.', 'roadmap'),
+                'title' => __('Performance Optimization', 'product-roadmap'),
+                'content' => __('Optimize database queries and implement caching strategies to improve page load times. Target is to achieve 50% faster load times for large datasets.', 'product-roadmap'),
                 'status' => 'in-progress',
                 'priority' => 'high',
                 'category' => 'Improvements',
                 'votes' => 31,
-                'target_date' => date('Y-m-d', strtotime('+2 weeks'))
+                'target_date' => gmdate('Y-m-d', strtotime('+2 weeks'))
             ),
             array(
-                'title' => __('Email Notification System', 'roadmap'),
-                'content' => __('Build a comprehensive email notification system that allows users to subscribe to updates for specific items or categories. Include customizable email templates and frequency settings.', 'roadmap'),
+                'title' => __('Email Notification System', 'product-roadmap'),
+                'content' => __('Build a comprehensive email notification system that allows users to subscribe to updates for specific items or categories. Include customizable email templates and frequency settings.', 'product-roadmap'),
                 'status' => 'completed',
                 'priority' => 'medium',
                 'category' => 'Features',
                 'votes' => 67
             ),
             array(
-                'title' => __('Fix Export Function Memory Issue', 'roadmap'),
-                'content' => __('Resolve the memory exhaustion error that occurs when exporting large datasets. Implement chunked processing to handle exports of any size.', 'roadmap'),
+                'title' => __('Fix Export Function Memory Issue', 'product-roadmap'),
+                'content' => __('Resolve the memory exhaustion error that occurs when exporting large datasets. Implement chunked processing to handle exports of any size.', 'product-roadmap'),
                 'status' => 'completed',
                 'priority' => 'high',
                 'category' => 'Bug Fixes',
                 'votes' => 23
             ),
             array(
-                'title' => __('API Rate Limiting', 'roadmap'),
-                'content' => __('Implement rate limiting for API endpoints to prevent abuse and ensure fair usage. Include configurable limits per user and IP address.', 'roadmap'),
+                'title' => __('API Rate Limiting', 'product-roadmap'),
+                'content' => __('Implement rate limiting for API endpoints to prevent abuse and ensure fair usage. Include configurable limits per user and IP address.', 'product-roadmap'),
                 'status' => 'under-review',
                 'priority' => 'medium',
                 'category' => 'Infrastructure',
                 'votes' => 18
             ),
             array(
-                'title' => __('Multi-language Support', 'roadmap'),
-                'content' => __('Add full internationalization support with translations for major languages. Include RTL language support and locale-specific formatting.', 'roadmap'),
+                'title' => __('Multi-language Support', 'product-roadmap'),
+                'content' => __('Add full internationalization support with translations for major languages. Include RTL language support and locale-specific formatting.', 'product-roadmap'),
                 'status' => 'on-hold',
                 'priority' => 'low',
                 'category' => 'Features',
                 'votes' => 29
             ),
             array(
-                'title' => __('Dashboard Widgets', 'roadmap'),
-                'content' => __('Create customizable dashboard widgets showing roadmap statistics, recent updates, and voting trends. Allow users to arrange and configure widgets to their preference.', 'roadmap'),
+                'title' => __('Dashboard Widgets', 'product-roadmap'),
+                'content' => __('Create customizable dashboard widgets showing roadmap statistics, recent updates, and voting trends. Allow users to arrange and configure widgets to their preference.', 'product-roadmap'),
                 'status' => 'in-progress',
                 'priority' => 'medium',
                 'category' => 'Features',
                 'votes' => 41
             ),
             array(
-                'title' => __('Backup and Restore', 'roadmap'),
-                'content' => __('Implement automated backup functionality with scheduled backups and one-click restore options. Include selective backup for specific data types.', 'roadmap'),
+                'title' => __('Backup and Restore', 'product-roadmap'),
+                'content' => __('Implement automated backup functionality with scheduled backups and one-click restore options. Include selective backup for specific data types.', 'product-roadmap'),
                 'status' => 'under-review',
                 'priority' => 'high',
                 'category' => 'Infrastructure',
                 'votes' => 55
             ),
             array(
-                'title' => __('Social Media Integration', 'roadmap'),
-                'content' => __('Add social media sharing capabilities and integration with major platforms. Allow users to share roadmap items and updates on Twitter, LinkedIn, and Facebook.', 'roadmap'),
+                'title' => __('Social Media Integration', 'product-roadmap'),
+                'content' => __('Add social media sharing capabilities and integration with major platforms. Allow users to share roadmap items and updates on Twitter, LinkedIn, and Facebook.', 'product-roadmap'),
                 'status' => 'on-hold',
                 'priority' => 'low',
                 'category' => 'Features',
@@ -311,8 +311,8 @@ class Roadmap_Demo_Import {
                 if ($item['votes'] > 40) {
                     $comment_data = array(
                         'comment_post_ID' => $post_id,
-                        'comment_content' => __('This would be a great addition! Looking forward to seeing this implemented.', 'roadmap'),
-                        'comment_author' => __('Demo User', 'roadmap'),
+                        'comment_content' => __('This would be a great addition! Looking forward to seeing this implemented.', 'product-roadmap'),
+                        'comment_author' => __('Demo User', 'product-roadmap'),
                         'comment_author_email' => 'demo@example.com',
                         'comment_approved' => 1
                     );
@@ -377,11 +377,11 @@ class Roadmap_Demo_Import {
         }
         
         $default_statuses = array(
-            'planned' => __('Planned', 'roadmap'),
-            'in-progress' => __('In Progress', 'roadmap'),
-            'completed' => __('Completed', 'roadmap'),
-            'on-hold' => __('On Hold', 'roadmap'),
-            'under-review' => __('Under Review', 'roadmap')
+            'planned' => __('Planned', 'product-roadmap'),
+            'in-progress' => __('In Progress', 'product-roadmap'),
+            'completed' => __('Completed', 'product-roadmap'),
+            'on-hold' => __('On Hold', 'product-roadmap'),
+            'under-review' => __('Under Review', 'product-roadmap')
         );
         
         foreach ($default_statuses as $slug => $name) {

@@ -35,8 +35,8 @@ class Roadmap_Settings {
     public function add_menu_pages() {
         // Add main Roadmap menu
         add_menu_page(
-            __('Roadmap', 'roadmap-plugin'),
-            __('Roadmap', 'roadmap-plugin'),
+            __('Roadmap', 'product-roadmap'),
+            __('Roadmap', 'product-roadmap'),
             'edit_posts',
             'roadmap-dashboard',
             [$this, 'render_dashboard_page'],
@@ -47,8 +47,8 @@ class Roadmap_Settings {
         // Add Dashboard submenu (rename the first item)
         add_submenu_page(
             'roadmap-dashboard',
-            __('Dashboard', 'roadmap-plugin'),
-            __('Dashboard', 'roadmap-plugin'),
+            __('Dashboard', 'product-roadmap'),
+            __('Dashboard', 'product-roadmap'),
             'edit_posts',
             'roadmap-dashboard',
             [$this, 'render_dashboard_page']
@@ -58,8 +58,8 @@ class Roadmap_Settings {
         if (defined('ROADMAP_PRO_ACTIVE') && ROADMAP_PRO_ACTIVE) {
             add_submenu_page(
                 'roadmap-dashboard',
-                __('Products', 'roadmap-plugin'),
-                __('Products', 'roadmap-plugin'),
+                __('Products', 'product-roadmap'),
+                __('Products', 'product-roadmap'),
                 'manage_options',
                 'roadmap-products',
                 [$this, 'render_products_page']
@@ -69,8 +69,8 @@ class Roadmap_Settings {
         // Add All Items submenu
         add_submenu_page(
             'roadmap-dashboard',
-            __('All Items', 'roadmap-plugin'),
-            __('All Items', 'roadmap-plugin'),
+            __('All Items', 'product-roadmap'),
+            __('All Items', 'product-roadmap'),
             'edit_posts',
             'edit.php?post_type=roadmap_item'
         );
@@ -78,8 +78,8 @@ class Roadmap_Settings {
         // Add New Item submenu
         add_submenu_page(
             'roadmap-dashboard',
-            __('Add New Item', 'roadmap-plugin'),
-            __('Add New Item', 'roadmap-plugin'),
+            __('Add New Item', 'product-roadmap'),
+            __('Add New Item', 'product-roadmap'),
             'edit_posts',
             'post-new.php?post_type=roadmap_item'
         );
@@ -87,8 +87,8 @@ class Roadmap_Settings {
         // Add Statuses submenu
         add_submenu_page(
             'roadmap-dashboard',
-            __('Statuses', 'roadmap-plugin'),
-            __('Statuses', 'roadmap-plugin'),
+            __('Statuses', 'product-roadmap'),
+            __('Statuses', 'product-roadmap'),
             'manage_options',
             'edit-tags.php?taxonomy=roadmap_status&post_type=roadmap_item'
         );
@@ -96,8 +96,8 @@ class Roadmap_Settings {
         // Add Categories submenu
         add_submenu_page(
             'roadmap-dashboard',
-            __('Categories', 'roadmap-plugin'),
-            __('Categories', 'roadmap-plugin'),
+            __('Categories', 'product-roadmap'),
+            __('Categories', 'product-roadmap'),
             'manage_options',
             'edit-tags.php?taxonomy=roadmap_category&post_type=roadmap_item'
         );
@@ -105,8 +105,8 @@ class Roadmap_Settings {
         // Add Settings submenu
         add_submenu_page(
             'roadmap-dashboard',
-            __('Settings', 'roadmap-plugin'),
-            __('Settings', 'roadmap-plugin'),
+            __('Settings', 'product-roadmap'),
+            __('Settings', 'product-roadmap'),
             'manage_options',
             'roadmap-settings',
             [$this, 'render_settings_page']
@@ -134,13 +134,33 @@ class Roadmap_Settings {
         ]);
         
         // Product name and labels
-        register_setting('roadmap_global', 'roadmap_product_name');
-        register_setting('roadmap_global', 'roadmap_item_singular_label');
-        register_setting('roadmap_global', 'roadmap_item_plural_label');
+        register_setting('roadmap_global', 'roadmap_product_name', [
+            'type' => 'string',
+            'sanitize_callback' => 'sanitize_text_field',
+            'default' => ''
+        ]);
+        register_setting('roadmap_global', 'roadmap_item_singular_label', [
+            'type' => 'string',
+            'sanitize_callback' => 'sanitize_text_field',
+            'default' => 'Feature'
+        ]);
+        register_setting('roadmap_global', 'roadmap_item_plural_label', [
+            'type' => 'string',
+            'sanitize_callback' => 'sanitize_text_field',
+            'default' => 'Features'
+        ]);
         
         // Advanced settings
-        register_setting('roadmap_global', 'roadmap_allow_guest_voting');
-        register_setting('roadmap_global', 'roadmap_cache_expiry');
+        register_setting('roadmap_global', 'roadmap_allow_guest_voting', [
+            'type' => 'string',
+            'sanitize_callback' => [$this, 'sanitize_yes_no'],
+            'default' => 'yes'
+        ]);
+        register_setting('roadmap_global', 'roadmap_cache_expiry', [
+            'type' => 'integer',
+            'sanitize_callback' => 'absint',
+            'default' => 3600
+        ]);
         
         // Product-specific settings
         register_setting('roadmap_products', 'roadmap_product_settings', [
@@ -196,32 +216,33 @@ class Roadmap_Settings {
         ]);
         ?>
         <div class="wrap">
-            <h1><?php _e('Roadmap Dashboard', 'roadmap-plugin'); ?></h1>
+            <h1><?php esc_html_e('Roadmap Dashboard', 'product-roadmap'); ?></h1>
             
             <div class="roadmap-dashboard-grid">
                 <!-- Stats Cards -->
                 <div class="roadmap-stat-card">
-                    <h3><?php _e('Total Items', 'roadmap-plugin'); ?></h3>
-                    <p class="roadmap-stat-number"><?php echo $total_items->publish; ?></p>
+                    <h3><?php esc_html_e('Total Items', 'product-roadmap'); ?></h3>
+                    <p class="roadmap-stat-number"><?php echo esc_html($total_items->publish); ?></p>
                 </div>
                 
                 <div class="roadmap-stat-card">
-                    <h3><?php _e('Products', 'roadmap-plugin'); ?></h3>
+                    <h3><?php esc_html_e('Products', 'product-roadmap'); ?></h3>
                     <p class="roadmap-stat-number"><?php echo count($products); ?></p>
                     <?php if (!defined('ROADMAP_PRO_ACTIVE') || !ROADMAP_PRO_ACTIVE): ?>
                         <p style="font-size: 12px; color: #666; margin-top: 10px;">
-                            <?php _e('Pro feature', 'roadmap-plugin'); ?>
+                            <?php esc_html_e('Pro feature', 'product-roadmap'); ?>
                         </p>
                     <?php endif; ?>
                 </div>
                 
                 <div class="roadmap-stat-card">
-                    <h3><?php _e('In Progress', 'roadmap-plugin'); ?></h3>
+                    <h3><?php esc_html_e('In Progress', 'product-roadmap'); ?></h3>
                     <p class="roadmap-stat-number">
                         <?php 
                         $in_progress = get_posts([
                             'post_type' => 'roadmap_item',
                             'posts_per_page' => -1,
+                            // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- Dashboard statistics query
                             'tax_query' => [
                                 [
                                     'taxonomy' => 'roadmap_status',
@@ -238,41 +259,41 @@ class Roadmap_Settings {
             
             <div class="roadmap-dashboard-sections">
                 <div class="roadmap-dashboard-section">
-                    <h2><?php _e('Recent Items', 'roadmap-plugin'); ?></h2>
+                    <h2><?php esc_html_e('Recent Items', 'product-roadmap'); ?></h2>
                     <?php if ($recent_items): ?>
                         <ul class="roadmap-recent-list">
                             <?php foreach ($recent_items as $item): ?>
                                 <li>
-                                    <a href="<?php echo get_edit_post_link($item->ID); ?>">
+                                    <a href="<?php echo esc_url(get_edit_post_link($item->ID)); ?>">
                                         <?php echo esc_html($item->post_title); ?>
                                     </a>
                                     <span class="roadmap-item-date">
-                                        <?php echo human_time_diff(strtotime($item->post_date), current_time('timestamp')) . ' ago'; ?>
+                                        <?php echo esc_html(human_time_diff(strtotime($item->post_date), current_time('timestamp')) . ' ago'); ?>
                                     </span>
                                 </li>
                             <?php endforeach; ?>
                         </ul>
                     <?php else: ?>
-                        <p><?php _e('No items yet.', 'roadmap-plugin'); ?></p>
+                        <p><?php esc_html_e('No items yet.', 'product-roadmap'); ?></p>
                     <?php endif; ?>
                 </div>
                 
                 <div class="roadmap-dashboard-section">
-                    <h2><?php _e('Quick Actions', 'roadmap-plugin'); ?></h2>
+                    <h2><?php esc_html_e('Quick Actions', 'product-roadmap'); ?></h2>
                     <p>
-                        <a href="<?php echo admin_url('post-new.php?post_type=roadmap_item'); ?>" 
-                           class="button button-primary"><?php _e('Add New Item', 'roadmap-plugin'); ?></a>
+                        <a href="<?php echo esc_url(admin_url('post-new.php?post_type=roadmap_item')); ?>" 
+                           class="button button-primary"><?php esc_html_e('Add New Item', 'product-roadmap'); ?></a>
                         <?php if (defined('ROADMAP_PRO_ACTIVE') && ROADMAP_PRO_ACTIVE): ?>
-                            <a href="<?php echo admin_url('admin.php?page=roadmap-products'); ?>" 
-                               class="button"><?php _e('Manage Products', 'roadmap-plugin'); ?></a>
+                            <a href="<?php echo esc_url(admin_url('admin.php?page=roadmap-products')); ?>" 
+                               class="button"><?php esc_html_e('Manage Products', 'product-roadmap'); ?></a>
                         <?php else: ?>
                             <a href="#" class="button" disabled style="opacity: 0.6; cursor: not-allowed;" 
-                               title="<?php _e('Upgrade to Pro to manage multiple products', 'roadmap-plugin'); ?>">
-                                <?php _e('Manage Products (Pro)', 'roadmap-plugin'); ?>
+                               title="<?php esc_html_e('Upgrade to Pro to manage multiple products', 'product-roadmap'); ?>">
+                                <?php esc_html_e('Manage Products (Pro)', 'product-roadmap'); ?>
                             </a>
                         <?php endif; ?>
-                        <a href="<?php echo admin_url('admin.php?page=roadmap-settings'); ?>" 
-                           class="button"><?php _e('Settings', 'roadmap-plugin'); ?></a>
+                        <a href="<?php echo esc_url(admin_url('admin.php?page=roadmap-settings')); ?>" 
+                           class="button"><?php esc_html_e('Settings', 'product-roadmap'); ?></a>
                     </p>
                 </div>
             </div>
@@ -367,14 +388,15 @@ class Roadmap_Settings {
             return;
         }
         
-        $active_tab = isset($_GET['tab']) ? $_GET['tab'] : 'general';
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reading tab parameter for display only
+        $active_tab = isset($_GET['tab']) ? sanitize_text_field(wp_unslash($_GET['tab'])) : 'general';
         $global_settings = get_option('roadmap_global_settings', $this->get_default_global_settings());
         ?>
         <div class="wrap roadmap-settings-wrap">
             <div class="roadmap-settings-header">
-                <h1><?php _e('Roadmap Settings', 'roadmap-plugin'); ?></h1>
+                <h1><?php esc_html_e('Roadmap Settings', 'product-roadmap'); ?></h1>
                 <p class="roadmap-settings-description">
-                    <?php _e('Configure your roadmap settings to match your workflow and requirements.', 'roadmap-plugin'); ?>
+                    <?php esc_html_e('Configure your roadmap settings to match your workflow and requirements.', 'product-roadmap'); ?>
                 </p>
             </div>
             
@@ -383,16 +405,16 @@ class Roadmap_Settings {
                     <ul class="roadmap-settings-nav">
                         <li>
                             <a href="?page=roadmap-settings&tab=general" 
-                               class="roadmap-nav-item <?php echo $active_tab === 'general' ? 'active' : ''; ?>">
+                               class="roadmap-nav-item <?php echo esc_attr($active_tab === 'general' ? 'active' : ''); ?>">
                                 <i class="dashicons dashicons-admin-settings"></i>
-                                <span><?php _e('General', 'roadmap-plugin'); ?></span>
+                                <span><?php esc_html_e('General', 'product-roadmap'); ?></span>
                             </a>
                         </li>
                         <li>
                             <a href="?page=roadmap-settings&tab=notifications" 
-                               class="roadmap-nav-item <?php echo $active_tab === 'notifications' ? 'active' : ''; ?>">
+                               class="roadmap-nav-item <?php echo esc_attr($active_tab === 'notifications' ? 'active' : ''); ?>">
                                 <i class="dashicons dashicons-email"></i>
-                                <span><?php _e('Notifications', 'roadmap-plugin'); ?></span>
+                                <span><?php esc_html_e('Notifications', 'product-roadmap'); ?></span>
                             </a>
                         </li>
                         <?php
@@ -404,7 +426,7 @@ class Roadmap_Settings {
                             ?>
                             <li>
                                 <a href="?page=roadmap-settings&tab=<?php echo esc_attr($tab_key); ?>" 
-                                   class="roadmap-nav-item <?php echo $active_tab === $tab_key ? 'active' : ''; ?>">
+                                   class="roadmap-nav-item <?php echo esc_attr($active_tab === $tab_key ? 'active' : ''); ?>">
                                     <i class="dashicons <?php echo esc_attr($icon); ?>"></i>
                                     <span><?php echo esc_html($label); ?></span>
                                 </a>
@@ -416,10 +438,10 @@ class Roadmap_Settings {
                     
                     <?php if (!defined('ROADMAP_PRO_ACTIVE') || !ROADMAP_PRO_ACTIVE): ?>
                     <div class="roadmap-pro-cta">
-                        <h3><?php _e('Upgrade to Pro', 'roadmap-plugin'); ?></h3>
-                        <p><?php _e('Unlock advanced features like multiple products, timeline view, and more.', 'roadmap-plugin'); ?></p>
+                        <h3><?php esc_html_e('Upgrade to Pro', 'product-roadmap'); ?></h3>
+                        <p><?php esc_html_e('Unlock advanced features like multiple products, timeline view, and more.', 'product-roadmap'); ?></p>
                         <a href="https://wbcomdesigns.com/downloads/product-roadmap-pro/" class="button button-primary" target="_blank">
-                            <?php _e('Get Pro Version', 'roadmap-plugin'); ?>
+                            <?php esc_html_e('Get Pro Version', 'product-roadmap'); ?>
                         </a>
                     </div>
                     <?php endif; ?>
@@ -452,13 +474,16 @@ class Roadmap_Settings {
                     if ($needs_form) {
                         ?>
                         <div class="roadmap-settings-footer">
-                            <?php submit_button(__('Save Settings', 'roadmap-plugin'), 'primary', 'submit', false); ?>
+                            <?php submit_button(__('Save Settings', 'product-roadmap'), 'primary', 'submit', false); ?>
                             <span class="roadmap-settings-saved" style="display: none;">
-                                <i class="dashicons dashicons-yes-alt"></i> <?php _e('Settings saved', 'roadmap-plugin'); ?>
+                                <i class="dashicons dashicons-yes-alt"></i> <?php esc_html_e('Settings saved', 'product-roadmap'); ?>
                             </span>
                         </div>
                         
-                        <?php if (isset($_GET['settings-updated']) && $_GET['settings-updated']) : ?>
+                        <?php 
+                        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reading settings-updated parameter for display notification only
+                        if (isset($_GET['settings-updated']) && sanitize_text_field(wp_unslash($_GET['settings-updated']))) : 
+                        ?>
                         <script>
                             jQuery(document).ready(function($) {
                                 $(".roadmap-settings-saved").show();
@@ -492,36 +517,36 @@ class Roadmap_Settings {
         $item_plural = get_option('roadmap_item_plural_label', 'Features');
         ?>
         <div class="roadmap-settings-section">
-            <h2><?php _e('General Settings', 'roadmap-plugin'); ?></h2>
+            <h2><?php esc_html_e('General Settings', 'product-roadmap'); ?></h2>
             <p class="section-description">
-                <?php _e('Configure the basic settings for your roadmap.', 'roadmap-plugin'); ?>
+                <?php esc_html_e('Configure the basic settings for your roadmap.', 'product-roadmap'); ?>
             </p>
             
             <!-- Product Configuration Card -->
             <div class="roadmap-settings-card">
                 <div class="card-header">
-                    <h3><i class="dashicons dashicons-portfolio"></i> <?php _e('Product Configuration', 'roadmap-plugin'); ?></h3>
+                    <h3><i class="dashicons dashicons-portfolio"></i> <?php esc_html_e('Product Configuration', 'product-roadmap'); ?></h3>
                 </div>
                 <div class="card-body">
                     <div class="form-row">
-                        <label for="product_name"><?php _e('Product Name', 'roadmap-plugin'); ?></label>
+                        <label for="product_name"><?php esc_html_e('Product Name', 'product-roadmap'); ?></label>
                         <input type="text" name="roadmap_product_name" id="product_name" 
                                value="<?php echo esc_attr($product_name); ?>" class="regular-text" />
-                        <p class="description"><?php _e('The name of your product or project.', 'roadmap-plugin'); ?></p>
+                        <p class="description"><?php esc_html_e('The name of your product or project.', 'product-roadmap'); ?></p>
                     </div>
                     
                     <div class="form-row-group">
                         <div class="form-row half">
-                            <label for="item_singular"><?php _e('Item Label (Singular)', 'roadmap-plugin'); ?></label>
+                            <label for="item_singular"><?php esc_html_e('Item Label (Singular)', 'product-roadmap'); ?></label>
                             <input type="text" name="roadmap_item_singular_label" id="item_singular" 
                                    value="<?php echo esc_attr($item_singular); ?>" />
-                            <p class="description"><?php _e('e.g., Feature, Task, Story', 'roadmap-plugin'); ?></p>
+                            <p class="description"><?php esc_html_e('e.g., Feature, Task, Story', 'product-roadmap'); ?></p>
                         </div>
                         <div class="form-row half">
-                            <label for="item_plural"><?php _e('Item Label (Plural)', 'roadmap-plugin'); ?></label>
+                            <label for="item_plural"><?php esc_html_e('Item Label (Plural)', 'product-roadmap'); ?></label>
                             <input type="text" name="roadmap_item_plural_label" id="item_plural" 
                                    value="<?php echo esc_attr($item_plural); ?>" />
-                            <p class="description"><?php _e('e.g., Features, Tasks, Stories', 'roadmap-plugin'); ?></p>
+                            <p class="description"><?php esc_html_e('e.g., Features, Tasks, Stories', 'product-roadmap'); ?></p>
                         </div>
                     </div>
                 </div>
@@ -530,12 +555,12 @@ class Roadmap_Settings {
             <!-- Display Settings Card -->
             <div class="roadmap-settings-card">
                 <div class="card-header">
-                    <h3><i class="dashicons dashicons-layout"></i> <?php _e('Display Settings', 'roadmap-plugin'); ?></h3>
+                    <h3><i class="dashicons dashicons-layout"></i> <?php esc_html_e('Display Settings', 'product-roadmap'); ?></h3>
                 </div>
                 <div class="card-body">
                     <div class="form-row-group">
                         <div class="form-row half">
-                            <label for="default_status"><?php _e('Default Status', 'roadmap-plugin'); ?></label>
+                            <label for="default_status"><?php esc_html_e('Default Status', 'product-roadmap'); ?></label>
                             <select name="roadmap_global_settings[default_status]" id="default_status">
                                 <?php foreach ($statuses as $status): ?>
                                     <option value="<?php echo esc_attr($status->slug); ?>" 
@@ -544,15 +569,15 @@ class Roadmap_Settings {
                                     </option>
                                 <?php endforeach; ?>
                             </select>
-                            <p class="description"><?php _e('Default status for new items.', 'roadmap-plugin'); ?></p>
+                            <p class="description"><?php esc_html_e('Default status for new items.', 'product-roadmap'); ?></p>
                         </div>
                         
                         <div class="form-row half">
-                            <label for="items_per_page"><?php _e('Items Per Page', 'roadmap-plugin'); ?></label>
+                            <label for="items_per_page"><?php esc_html_e('Items Per Page', 'product-roadmap'); ?></label>
                             <input type="number" name="roadmap_global_settings[items_per_page]" 
                                    id="items_per_page" value="<?php echo esc_attr($settings['items_per_page']); ?>" 
                                    min="5" max="100" />
-                            <p class="description"><?php _e('Items to show per page.', 'roadmap-plugin'); ?></p>
+                            <p class="description"><?php esc_html_e('Items to show per page.', 'product-roadmap'); ?></p>
                         </div>
                     </div>
                 </div>
@@ -561,33 +586,33 @@ class Roadmap_Settings {
             <!-- Permissions & Access Card -->
             <div class="roadmap-settings-card">
                 <div class="card-header">
-                    <h3><i class="dashicons dashicons-admin-users"></i> <?php _e('Permissions & Access', 'roadmap-plugin'); ?></h3>
+                    <h3><i class="dashicons dashicons-admin-users"></i> <?php esc_html_e('Permissions & Access', 'product-roadmap'); ?></h3>
                 </div>
                 <div class="card-body">
                     <div class="form-row">
-                        <label for="who_can_vote"><?php _e('Who Can Vote', 'roadmap-plugin'); ?></label>
+                        <label for="who_can_vote"><?php esc_html_e('Who Can Vote', 'product-roadmap'); ?></label>
                         <select name="roadmap_allow_guest_voting" id="who_can_vote">
                             <option value="yes" <?php selected(get_option('roadmap_allow_guest_voting', 'yes'), 'yes'); ?>>
-                                <?php _e('Anyone (including guests)', 'roadmap-plugin'); ?>
+                                <?php esc_html_e('Anyone (including guests)', 'product-roadmap'); ?>
                             </option>
                             <option value="no" <?php selected(get_option('roadmap_allow_guest_voting', 'yes'), 'no'); ?>>
-                                <?php _e('Logged in users only', 'roadmap-plugin'); ?>
+                                <?php esc_html_e('Logged in users only', 'product-roadmap'); ?>
                             </option>
                         </select>
-                        <p class="description"><?php _e('Control who can vote on roadmap items.', 'roadmap-plugin'); ?></p>
+                        <p class="description"><?php esc_html_e('Control who can vote on roadmap items.', 'product-roadmap'); ?></p>
                     </div>
                     
                     <div class="form-row">
-                        <label for="who_can_suggest"><?php _e('Who Can Suggest Ideas', 'roadmap-plugin'); ?></label>
+                        <label for="who_can_suggest"><?php esc_html_e('Who Can Suggest Ideas', 'product-roadmap'); ?></label>
                         <select name="roadmap_global_settings[suggestion_requires_login]" id="who_can_suggest">
                             <option value="0" <?php selected($settings['suggestion_requires_login'] ?? true, false); ?>>
-                                <?php _e('Anyone (including guests)', 'roadmap-plugin'); ?>
+                                <?php esc_html_e('Anyone (including guests)', 'product-roadmap'); ?>
                             </option>
                             <option value="1" <?php selected($settings['suggestion_requires_login'] ?? true, true); ?>>
-                                <?php _e('Logged in users only', 'roadmap-plugin'); ?>
+                                <?php esc_html_e('Logged in users only', 'product-roadmap'); ?>
                             </option>
                         </select>
-                        <p class="description"><?php _e('Control who can submit new ideas.', 'roadmap-plugin'); ?></p>
+                        <p class="description"><?php esc_html_e('Control who can submit new ideas.', 'product-roadmap'); ?></p>
                     </div>
                 </div>
             </div>
@@ -595,7 +620,7 @@ class Roadmap_Settings {
             <!-- Features Card -->
             <div class="roadmap-settings-card">
                 <div class="card-header">
-                    <h3><i class="dashicons dashicons-admin-generic"></i> <?php _e('Features', 'roadmap-plugin'); ?></h3>
+                    <h3><i class="dashicons dashicons-admin-generic"></i> <?php esc_html_e('Features', 'product-roadmap'); ?></h3>
                 </div>
                 <div class="card-body">
                     <div class="features-grid">
@@ -606,8 +631,8 @@ class Roadmap_Settings {
                                 <span class="toggle-slider"></span>
                             </label>
                             <div class="feature-info">
-                                <h4><?php _e('Enable Voting', 'roadmap-plugin'); ?></h4>
-                                <p><?php _e('Allow users to vote on roadmap items.', 'roadmap-plugin'); ?></p>
+                                <h4><?php esc_html_e('Enable Voting', 'product-roadmap'); ?></h4>
+                                <p><?php esc_html_e('Allow users to vote on roadmap items.', 'product-roadmap'); ?></p>
                             </div>
                         </div>
                         
@@ -618,8 +643,8 @@ class Roadmap_Settings {
                                 <span class="toggle-slider"></span>
                             </label>
                             <div class="feature-info">
-                                <h4><?php _e('Enable Comments', 'roadmap-plugin'); ?></h4>
-                                <p><?php _e('Allow users to comment on items.', 'roadmap-plugin'); ?></p>
+                                <h4><?php esc_html_e('Enable Comments', 'product-roadmap'); ?></h4>
+                                <p><?php esc_html_e('Allow users to comment on items.', 'product-roadmap'); ?></p>
                             </div>
                         </div>
                         
@@ -630,15 +655,15 @@ class Roadmap_Settings {
                                 <span class="toggle-slider"></span>
                             </label>
                             <div class="feature-info">
-                                <h4><?php _e('User Suggestions', 'roadmap-plugin'); ?></h4>
-                                <p><?php _e('Let users submit feature ideas.', 'roadmap-plugin'); ?></p>
+                                <h4><?php esc_html_e('User Suggestions', 'product-roadmap'); ?></h4>
+                                <p><?php esc_html_e('Let users submit feature ideas.', 'product-roadmap'); ?></p>
                             </div>
                         </div>
                     </div>
                     
                     <?php if ($settings['enable_suggestions']): ?>
                     <div class="form-row" style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee;">
-                        <label for="suggestion_default_status"><?php _e('Default Status for Suggestions', 'roadmap-plugin'); ?></label>
+                        <label for="suggestion_default_status"><?php esc_html_e('Default Status for Suggestions', 'product-roadmap'); ?></label>
                         <select name="roadmap_global_settings[suggestion_default_status]" id="suggestion_default_status">
                             <?php foreach ($statuses as $status): ?>
                                 <option value="<?php echo esc_attr($status->slug); ?>" 
@@ -647,7 +672,7 @@ class Roadmap_Settings {
                                 </option>
                             <?php endforeach; ?>
                         </select>
-                        <p class="description"><?php _e('Status assigned to user-submitted suggestions.', 'roadmap-plugin'); ?></p>
+                        <p class="description"><?php esc_html_e('Status assigned to user-submitted suggestions.', 'product-roadmap'); ?></p>
                     </div>
                     <?php endif; ?>
                 </div>
@@ -664,15 +689,15 @@ class Roadmap_Settings {
     private function render_notifications_settings_modern($settings) {
         ?>
         <div class="roadmap-settings-section">
-            <h2><?php _e('Email Notifications', 'roadmap-plugin'); ?></h2>
+            <h2><?php esc_html_e('Email Notifications', 'product-roadmap'); ?></h2>
             <p class="section-description">
-                <?php _e('Configure email notifications to stay informed about roadmap activity.', 'roadmap-plugin'); ?>
+                <?php esc_html_e('Configure email notifications to stay informed about roadmap activity.', 'product-roadmap'); ?>
             </p>
             
             <!-- Email Configuration Card -->
             <div class="roadmap-settings-card">
                 <div class="card-header">
-                    <h3><i class="dashicons dashicons-email-alt"></i> <?php _e('Email Configuration', 'roadmap-plugin'); ?></h3>
+                    <h3><i class="dashicons dashicons-email-alt"></i> <?php esc_html_e('Email Configuration', 'product-roadmap'); ?></h3>
                 </div>
                 <div class="card-body">
                     <div class="feature-toggle large">
@@ -683,17 +708,17 @@ class Roadmap_Settings {
                             <span class="toggle-slider"></span>
                         </label>
                         <div class="feature-info">
-                            <h4><?php _e('Enable Email Notifications', 'roadmap-plugin'); ?></h4>
-                            <p><?php _e('Receive email alerts for roadmap activity.', 'roadmap-plugin'); ?></p>
+                            <h4><?php esc_html_e('Enable Email Notifications', 'product-roadmap'); ?></h4>
+                            <p><?php esc_html_e('Receive email alerts for roadmap activity.', 'product-roadmap'); ?></p>
                         </div>
                     </div>
                     
                     <div class="form-row" style="margin-top: 20px;">
-                        <label for="notification_email"><?php _e('Notification Email Address', 'roadmap-plugin'); ?></label>
+                        <label for="notification_email"><?php esc_html_e('Notification Email Address', 'product-roadmap'); ?></label>
                         <input type="email" name="roadmap_global_settings[notification_email]" 
                                id="notification_email" value="<?php echo esc_attr($settings['notification_email']); ?>" 
                                class="regular-text" placeholder="admin@example.com" />
-                        <p class="description"><?php _e('Where notification emails should be sent.', 'roadmap-plugin'); ?></p>
+                        <p class="description"><?php esc_html_e('Where notification emails should be sent.', 'product-roadmap'); ?></p>
                     </div>
                 </div>
             </div>
@@ -701,10 +726,10 @@ class Roadmap_Settings {
             <!-- Notification Events Card -->
             <div class="roadmap-settings-card">
                 <div class="card-header">
-                    <h3><i class="dashicons dashicons-bell"></i> <?php _e('Notification Events', 'roadmap-plugin'); ?></h3>
+                    <h3><i class="dashicons dashicons-bell"></i> <?php esc_html_e('Notification Events', 'product-roadmap'); ?></h3>
                 </div>
                 <div class="card-body">
-                    <p class="card-description"><?php _e('Choose which events trigger email notifications.', 'roadmap-plugin'); ?></p>
+                    <p class="card-description"><?php esc_html_e('Choose which events trigger email notifications.', 'product-roadmap'); ?></p>
                     
                     <div class="notification-events">
                         <div class="notification-event">
@@ -712,8 +737,8 @@ class Roadmap_Settings {
                                 <input type="checkbox" name="roadmap_global_settings[notify_on_vote]" value="1" 
                                        <?php checked($settings['notify_on_vote'] ?? false, true); ?> />
                                 <span class="checkbox-text">
-                                    <strong><?php _e('New Votes', 'roadmap-plugin'); ?></strong>
-                                    <small><?php _e('When users vote on roadmap items', 'roadmap-plugin'); ?></small>
+                                    <strong><?php esc_html_e('New Votes', 'product-roadmap'); ?></strong>
+                                    <small><?php esc_html_e('When users vote on roadmap items', 'product-roadmap'); ?></small>
                                 </span>
                             </label>
                         </div>
@@ -723,8 +748,8 @@ class Roadmap_Settings {
                                 <input type="checkbox" name="roadmap_global_settings[notify_on_comment]" value="1" 
                                        <?php checked($settings['notify_on_comment'], true); ?> />
                                 <span class="checkbox-text">
-                                    <strong><?php _e('New Comments', 'roadmap-plugin'); ?></strong>
-                                    <small><?php _e('When users comment on items', 'roadmap-plugin'); ?></small>
+                                    <strong><?php esc_html_e('New Comments', 'product-roadmap'); ?></strong>
+                                    <small><?php esc_html_e('When users comment on items', 'product-roadmap'); ?></small>
                                 </span>
                             </label>
                         </div>
@@ -734,8 +759,8 @@ class Roadmap_Settings {
                                 <input type="checkbox" name="roadmap_global_settings[notify_on_suggestion]" value="1" 
                                        <?php checked($settings['notify_on_suggestion'], true); ?> />
                                 <span class="checkbox-text">
-                                    <strong><?php _e('New Suggestions', 'roadmap-plugin'); ?></strong>
-                                    <small><?php _e('When users submit feature suggestions', 'roadmap-plugin'); ?></small>
+                                    <strong><?php esc_html_e('New Suggestions', 'product-roadmap'); ?></strong>
+                                    <small><?php esc_html_e('When users submit feature suggestions', 'product-roadmap'); ?></small>
                                 </span>
                             </label>
                         </div>
@@ -747,18 +772,18 @@ class Roadmap_Settings {
             <!-- Pro Features Preview -->
             <div class="roadmap-settings-card pro-preview">
                 <div class="card-header">
-                    <h3><i class="dashicons dashicons-star-filled"></i> <?php _e('Pro Notification Features', 'roadmap-plugin'); ?></h3>
+                    <h3><i class="dashicons dashicons-star-filled"></i> <?php esc_html_e('Pro Notification Features', 'product-roadmap'); ?></h3>
                     <span class="pro-badge">PRO</span>
                 </div>
                 <div class="card-body">
                     <ul class="pro-features-list">
-                        <li><i class="dashicons dashicons-yes"></i> <?php _e('Custom email templates', 'roadmap-plugin'); ?></li>
-                        <li><i class="dashicons dashicons-yes"></i> <?php _e('Multiple notification recipients', 'roadmap-plugin'); ?></li>
-                        <li><i class="dashicons dashicons-yes"></i> <?php _e('Digest emails (daily/weekly)', 'roadmap-plugin'); ?></li>
-                        <li><i class="dashicons dashicons-yes"></i> <?php _e('User notification preferences', 'roadmap-plugin'); ?></li>
+                        <li><i class="dashicons dashicons-yes"></i> <?php esc_html_e('Custom email templates', 'product-roadmap'); ?></li>
+                        <li><i class="dashicons dashicons-yes"></i> <?php esc_html_e('Multiple notification recipients', 'product-roadmap'); ?></li>
+                        <li><i class="dashicons dashicons-yes"></i> <?php esc_html_e('Digest emails (daily/weekly)', 'product-roadmap'); ?></li>
+                        <li><i class="dashicons dashicons-yes"></i> <?php esc_html_e('User notification preferences', 'product-roadmap'); ?></li>
                     </ul>
                     <a href="https://wbcomdesigns.com/downloads/product-roadmap-pro/" class="button button-primary" target="_blank">
-                        <?php _e('Upgrade to Pro', 'roadmap-plugin'); ?>
+                        <?php esc_html_e('Upgrade to Pro', 'product-roadmap'); ?>
                     </a>
                 </div>
             </div>
@@ -773,21 +798,22 @@ class Roadmap_Settings {
         }
         
         $products = get_terms(['taxonomy' => 'roadmap_product', 'hide_empty' => false]);
-        $selected_product = isset($_GET['product']) ? $_GET['product'] : '';
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reading product parameter for display only
+        $selected_product = isset($_GET['product']) ? sanitize_text_field(wp_unslash($_GET['product'])) : '';
         ?>
         <div class="wrap">
             <h1>
-                <?php _e('Roadmap Products', 'roadmap-plugin'); ?>
-                <a href="<?php echo admin_url('edit-tags.php?taxonomy=roadmap_product&post_type=roadmap_item'); ?>" 
-                   class="page-title-action"><?php _e('Manage Products', 'roadmap-plugin'); ?></a>
+                <?php esc_html_e('Roadmap Products', 'product-roadmap'); ?>
+                <a href="<?php echo esc_url(admin_url('edit-tags.php?taxonomy=roadmap_product&post_type=roadmap_item')); ?>" 
+                   class="page-title-action"><?php esc_html_e('Manage Products', 'product-roadmap'); ?></a>
             </h1>
             
             <?php if (empty($products)): ?>
                 <div class="notice notice-info">
-                    <p><?php _e('No products found. Create your first product to get started.', 'roadmap-plugin'); ?></p>
+                    <p><?php esc_html_e('No products found. Create your first product to get started.', 'product-roadmap'); ?></p>
                     <p>
-                        <a href="<?php echo admin_url('edit-tags.php?taxonomy=roadmap_product&post_type=roadmap_item'); ?>" 
-                           class="button button-primary"><?php _e('Create Product', 'roadmap-plugin'); ?></a>
+                        <a href="<?php echo esc_url(admin_url('edit-tags.php?taxonomy=roadmap_product&post_type=roadmap_item')); ?>" 
+                           class="button button-primary"><?php esc_html_e('Create Product', 'product-roadmap'); ?></a>
                     </p>
                 </div>
             <?php else: ?>
@@ -802,8 +828,8 @@ class Roadmap_Settings {
                             
                             <div class="product-stats">
                                 <span class="stat-item">
-                                    <strong><?php echo $item_count; ?></strong> 
-                                    <?php echo _n('Item', 'Items', $item_count, 'roadmap-plugin'); ?>
+                                    <strong><?php echo esc_html($item_count); ?></strong> 
+                                    <?php echo esc_html(_n('Item', 'Items', $item_count, 'product-roadmap')); ?>
                                 </span>
                             </div>
                             
@@ -813,11 +839,11 @@ class Roadmap_Settings {
                             
                             <div class="product-actions">
                                 <a href="#" class="button" onclick="editProductSettings('<?php echo esc_attr($product->term_id); ?>')">
-                                    <?php _e('Settings', 'roadmap-plugin'); ?>
+                                    <?php esc_html_e('Settings', 'product-roadmap'); ?>
                                 </a>
-                                <a href="<?php echo admin_url('edit.php?post_type=roadmap_item&roadmap_product=' . $product->slug); ?>" 
+                                <a href="<?php echo esc_url(admin_url('edit.php?post_type=roadmap_item&roadmap_product=' . $product->slug)); ?>" 
                                    class="button">
-                                    <?php _e('View Items', 'roadmap-plugin'); ?>
+                                    <?php esc_html_e('View Items', 'product-roadmap'); ?>
                                 </a>
                             </div>
                         </div>
@@ -828,7 +854,7 @@ class Roadmap_Settings {
                 <div id="product-settings-modal" class="roadmap-modal" style="display: none;">
                     <div class="roadmap-modal-content">
                         <span class="roadmap-modal-close">&times;</span>
-                        <h2><?php _e('Product Settings', 'roadmap-plugin'); ?></h2>
+                        <h2><?php esc_html_e('Product Settings', 'product-roadmap'); ?></h2>
                         <form id="product-settings-form">
                             <input type="hidden" id="product_id" name="product_id" value="">
                             <?php wp_nonce_field('roadmap_product_settings', 'roadmap_nonce'); ?>
@@ -836,7 +862,7 @@ class Roadmap_Settings {
                             <table class="form-table">
                                 <tr>
                                     <th scope="row">
-                                        <label for="product_default_status"><?php _e('Default Status', 'roadmap-plugin'); ?></label>
+                                        <label for="product_default_status"><?php esc_html_e('Default Status', 'product-roadmap'); ?></label>
                                     </th>
                                     <td>
                                         <select name="default_status" id="product_default_status">
@@ -852,28 +878,28 @@ class Roadmap_Settings {
                                 </tr>
                                 
                                 <tr>
-                                    <th scope="row"><?php _e('Features', 'roadmap-plugin'); ?></th>
+                                    <th scope="row"><?php esc_html_e('Features', 'product-roadmap'); ?></th>
                                     <td>
                                         <label>
                                             <input type="checkbox" name="enable_voting" value="1" checked>
-                                            <?php _e('Enable Voting', 'roadmap-plugin'); ?>
+                                            <?php esc_html_e('Enable Voting', 'product-roadmap'); ?>
                                         </label><br>
                                         
                                         <label>
                                             <input type="checkbox" name="enable_comments" value="1" checked>
-                                            <?php _e('Enable Comments', 'roadmap-plugin'); ?>
+                                            <?php esc_html_e('Enable Comments', 'product-roadmap'); ?>
                                         </label><br>
                                         
                                         <label>
                                             <input type="checkbox" name="enable_suggestions" value="1" checked>
-                                            <?php _e('Enable Suggestions', 'roadmap-plugin'); ?>
+                                            <?php esc_html_e('Enable Suggestions', 'product-roadmap'); ?>
                                         </label>
                                     </td>
                                 </tr>
                                 
                                 <tr>
                                     <th scope="row">
-                                        <label for="product_theme_color"><?php _e('Theme Color', 'roadmap-plugin'); ?></label>
+                                        <label for="product_theme_color"><?php esc_html_e('Theme Color', 'product-roadmap'); ?></label>
                                     </th>
                                     <td>
                                         <input type="color" name="theme_color" id="product_theme_color" value="#2271b1">
@@ -882,7 +908,7 @@ class Roadmap_Settings {
                             </table>
                             
                             <p class="submit">
-                                <button type="submit" class="button button-primary"><?php _e('Save Settings', 'roadmap-plugin'); ?></button>
+                                <button type="submit" class="button button-primary"><?php esc_html_e('Save Settings', 'product-roadmap'); ?></button>
                             </p>
                         </form>
                     </div>
@@ -971,7 +997,7 @@ class Roadmap_Settings {
             jQuery.post(ajaxurl, {
                 action: 'roadmap_get_product_settings',
                 product_id: productId,
-                nonce: '<?php echo wp_create_nonce('roadmap_product_settings'); ?>'
+                nonce: '<?php echo esc_js(wp_create_nonce('roadmap_product_settings')); ?>'
             }, function(response) {
                 if (response.success) {
                     // Populate form with existing settings
@@ -1017,13 +1043,13 @@ class Roadmap_Settings {
             wp_die();
         }
         
-        $product_id = intval($_POST['product_id']);
+        $product_id = isset($_POST['product_id']) ? intval($_POST['product_id']) : 0;
         $settings = [
-            'default_status' => sanitize_text_field($_POST['default_status']),
+            'default_status' => isset($_POST['default_status']) ? sanitize_text_field(wp_unslash($_POST['default_status'])) : '',
             'enable_voting' => !empty($_POST['enable_voting']),
             'enable_comments' => !empty($_POST['enable_comments']),
             'enable_suggestions' => !empty($_POST['enable_suggestions']),
-            'theme_color' => sanitize_hex_color($_POST['theme_color']),
+            'theme_color' => isset($_POST['theme_color']) ? sanitize_hex_color(wp_unslash($_POST['theme_color'])) : '',
         ];
         
         update_term_meta($product_id, 'roadmap_product_settings', $settings);
@@ -1046,10 +1072,17 @@ class Roadmap_Settings {
             wp_die();
         }
         
-        $product_id = intval($_POST['product_id']);
+        $product_id = isset($_POST['product_id']) ? intval($_POST['product_id']) : 0;
         $settings = $this->get_product_settings($product_id);
         
         wp_send_json_success($settings);
+    }
+    
+    /**
+     * Sanitize yes/no option
+     */
+    public function sanitize_yes_no($input) {
+        return ($input === 'yes') ? 'yes' : 'no';
     }
     
     public function sanitize_global_settings($input) {
@@ -1120,7 +1153,7 @@ class Roadmap_Settings {
             
             // Add shortcode column after name
             if ($key === 'name') {
-                $new_columns['shortcode'] = __('Shortcode', 'roadmap-plugin');
+                $new_columns['shortcode'] = __('Shortcode', 'product-roadmap');
             }
         }
         
@@ -1200,33 +1233,33 @@ class Roadmap_Settings {
     private function render_templates_tab($settings) {
         ?>
         <div class="roadmap-settings-section">
-            <h2><?php _e('Template Settings', 'roadmap-plugin'); ?></h2>
+            <h2><?php esc_html_e('Template Settings', 'product-roadmap'); ?></h2>
             <p class="section-description">
-                <?php _e('Customize the appearance and layout of your roadmap.', 'roadmap-plugin'); ?>
+                <?php esc_html_e('Customize the appearance and layout of your roadmap.', 'product-roadmap'); ?>
             </p>
             
             <?php if (!defined('ROADMAP_PRO_ACTIVE') || !ROADMAP_PRO_ACTIVE): ?>
             <!-- Pro Feature Notice -->
             <div class="roadmap-settings-card pro-preview">
                 <div class="card-header">
-                    <h3><i class="dashicons dashicons-layout"></i> <?php _e('Template Options', 'roadmap-plugin'); ?></h3>
+                    <h3><i class="dashicons dashicons-layout"></i> <?php esc_html_e('Template Options', 'product-roadmap'); ?></h3>
                     <span class="pro-badge">PRO</span>
                 </div>
                 <div class="card-body">
                     <div class="roadmap-empty-state">
                         <i class="dashicons dashicons-star-filled"></i>
-                        <h3><?php _e('Pro Feature', 'roadmap-plugin'); ?></h3>
-                        <p><?php _e('Unlock multiple template layouts and customization options with the Pro version.', 'roadmap-plugin'); ?></p>
+                        <h3><?php esc_html_e('Pro Feature', 'product-roadmap'); ?></h3>
+                        <p><?php esc_html_e('Unlock multiple template layouts and customization options with the Pro version.', 'product-roadmap'); ?></p>
                         <ul class="pro-features-list" style="text-align: left; max-width: 400px; margin: 20px auto;">
-                            <li><i class="dashicons dashicons-yes"></i> <?php _e('Timeline view template', 'roadmap-plugin'); ?></li>
-                            <li><i class="dashicons dashicons-yes"></i> <?php _e('Grid view template', 'roadmap-plugin'); ?></li>
-                            <li><i class="dashicons dashicons-yes"></i> <?php _e('Kanban board template', 'roadmap-plugin'); ?></li>
-                            <li><i class="dashicons dashicons-yes"></i> <?php _e('Compact list template', 'roadmap-plugin'); ?></li>
-                            <li><i class="dashicons dashicons-yes"></i> <?php _e('Custom CSS editor', 'roadmap-plugin'); ?></li>
-                            <li><i class="dashicons dashicons-yes"></i> <?php _e('Dark mode support', 'roadmap-plugin'); ?></li>
+                            <li><i class="dashicons dashicons-yes"></i> <?php esc_html_e('Timeline view template', 'product-roadmap'); ?></li>
+                            <li><i class="dashicons dashicons-yes"></i> <?php esc_html_e('Grid view template', 'product-roadmap'); ?></li>
+                            <li><i class="dashicons dashicons-yes"></i> <?php esc_html_e('Kanban board template', 'product-roadmap'); ?></li>
+                            <li><i class="dashicons dashicons-yes"></i> <?php esc_html_e('Compact list template', 'product-roadmap'); ?></li>
+                            <li><i class="dashicons dashicons-yes"></i> <?php esc_html_e('Custom CSS editor', 'product-roadmap'); ?></li>
+                            <li><i class="dashicons dashicons-yes"></i> <?php esc_html_e('Dark mode support', 'product-roadmap'); ?></li>
                         </ul>
                         <a href="https://wbcomdesigns.com/downloads/product-roadmap-pro/" class="button button-primary" target="_blank">
-                            <?php _e('Get Pro Version', 'roadmap-plugin'); ?>
+                            <?php esc_html_e('Get Pro Version', 'product-roadmap'); ?>
                         </a>
                     </div>
                 </div>
@@ -1242,23 +1275,23 @@ class Roadmap_Settings {
     private function render_advanced_tab($settings) {
         ?>
         <div class="roadmap-settings-section">
-            <h2><?php _e('Advanced Settings', 'roadmap-plugin'); ?></h2>
+            <h2><?php esc_html_e('Advanced Settings', 'product-roadmap'); ?></h2>
             <p class="section-description">
-                <?php _e('Fine-tune your roadmap with advanced configuration options.', 'roadmap-plugin'); ?>
+                <?php esc_html_e('Fine-tune your roadmap with advanced configuration options.', 'product-roadmap'); ?>
             </p>
             
             <!-- Cache Settings Card -->
             <div class="roadmap-settings-card">
                 <div class="card-header">
-                    <h3><i class="dashicons dashicons-performance"></i> <?php _e('Performance Settings', 'roadmap-plugin'); ?></h3>
+                    <h3><i class="dashicons dashicons-performance"></i> <?php esc_html_e('Performance Settings', 'product-roadmap'); ?></h3>
                 </div>
                 <div class="card-body">
                     <div class="form-row">
-                        <label for="cache_expiry"><?php _e('Cache Expiry (seconds)', 'roadmap-plugin'); ?></label>
+                        <label for="cache_expiry"><?php esc_html_e('Cache Expiry (seconds)', 'product-roadmap'); ?></label>
                         <input type="number" name="roadmap_cache_expiry" id="cache_expiry" 
                                value="<?php echo esc_attr(get_option('roadmap_cache_expiry', '3600')); ?>" 
                                min="0" max="86400" />
-                        <p class="description"><?php _e('How long to cache roadmap data. Set to 0 to disable caching.', 'roadmap-plugin'); ?></p>
+                        <p class="description"><?php esc_html_e('How long to cache roadmap data. Set to 0 to disable caching.', 'product-roadmap'); ?></p>
                     </div>
                 </div>
             </div>
@@ -1267,23 +1300,23 @@ class Roadmap_Settings {
             <!-- Pro Feature Notice -->
             <div class="roadmap-settings-card pro-preview">
                 <div class="card-header">
-                    <h3><i class="dashicons dashicons-admin-tools"></i> <?php _e('More Advanced Options', 'roadmap-plugin'); ?></h3>
+                    <h3><i class="dashicons dashicons-admin-tools"></i> <?php esc_html_e('More Advanced Options', 'product-roadmap'); ?></h3>
                     <span class="pro-badge">PRO</span>
                 </div>
                 <div class="card-body">
                     <div class="roadmap-empty-state">
                         <i class="dashicons dashicons-star-filled"></i>
-                        <h3><?php _e('Pro Features', 'roadmap-plugin'); ?></h3>
-                        <p><?php _e('Access more advanced settings and customization options with the Pro version.', 'roadmap-plugin'); ?></p>
+                        <h3><?php esc_html_e('Pro Features', 'product-roadmap'); ?></h3>
+                        <p><?php esc_html_e('Access more advanced settings and customization options with the Pro version.', 'product-roadmap'); ?></p>
                         <ul class="pro-features-list" style="text-align: left; max-width: 400px; margin: 20px auto;">
-                            <li><i class="dashicons dashicons-yes"></i> <?php _e('Custom post type slug', 'roadmap-plugin'); ?></li>
-                            <li><i class="dashicons dashicons-yes"></i> <?php _e('Advanced permissions', 'roadmap-plugin'); ?></li>
-                            <li><i class="dashicons dashicons-yes"></i> <?php _e('API access control', 'roadmap-plugin'); ?></li>
-                            <li><i class="dashicons dashicons-yes"></i> <?php _e('Export/Import settings', 'roadmap-plugin'); ?></li>
-                            <li><i class="dashicons dashicons-yes"></i> <?php _e('Database optimization', 'roadmap-plugin'); ?></li>
+                            <li><i class="dashicons dashicons-yes"></i> <?php esc_html_e('Custom post type slug', 'product-roadmap'); ?></li>
+                            <li><i class="dashicons dashicons-yes"></i> <?php esc_html_e('Advanced permissions', 'product-roadmap'); ?></li>
+                            <li><i class="dashicons dashicons-yes"></i> <?php esc_html_e('API access control', 'product-roadmap'); ?></li>
+                            <li><i class="dashicons dashicons-yes"></i> <?php esc_html_e('Export/Import settings', 'product-roadmap'); ?></li>
+                            <li><i class="dashicons dashicons-yes"></i> <?php esc_html_e('Database optimization', 'product-roadmap'); ?></li>
                         </ul>
                         <a href="https://wbcomdesigns.com/downloads/product-roadmap-pro/" class="button button-primary" target="_blank">
-                            <?php _e('Get Pro Version', 'roadmap-plugin'); ?>
+                            <?php esc_html_e('Get Pro Version', 'product-roadmap'); ?>
                         </a>
                     </div>
                 </div>

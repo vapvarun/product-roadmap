@@ -2,7 +2,7 @@
 Contributors: wbcomdesigns, vapvarun
 Tags: roadmap, product roadmap, feature voting, user feedback, product management
 Requires at least: 5.8
-Tested up to: 6.4
+Tested up to: 6.8
 Stable tag: 1.0.1
 Requires PHP: 7.4
 License: GPLv2 or later
