@@ -463,13 +463,6 @@ class Roadmap_CPT {
                            <?php echo esc_attr($readonly); ?>>
                     <span class="roadmap-range-value"><?php echo esc_html($value); ?>%</span>
                 </div>
-                <script>
-                    jQuery(document).ready(function($) {
-                        $('#<?php echo esc_js($field['id']); ?>').on('input', function() {
-                            $(this).next('.roadmap-range-value').text($(this).val() + '%');
-                        });
-                    });
-                </script>
                 <?php
                 break;
                 
@@ -597,7 +590,15 @@ class Roadmap_CPT {
             true
         );
         
-        // Enqueue meta box styles
+        // Enqueue meta box scripts and styles
+        wp_enqueue_script(
+            'roadmap-meta-box',
+            ROADMAP_PLUGIN_URL . 'assets/js/roadmap-meta-box.js',
+            ['jquery'],
+            ROADMAP_VERSION,
+            true
+        );
+
         wp_enqueue_style(
             'roadmap-meta-box',
             ROADMAP_PLUGIN_URL . 'assets/css/meta-box.css',

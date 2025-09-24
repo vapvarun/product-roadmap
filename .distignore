@@ -1,0 +1,61 @@
+# Files and folders to exclude from distribution
+# This file is used by wp dist-archive command
+
+# Version control
+.git
+.gitignore
+.github
+
+# Development files
+node_modules
+vue-app/node_modules
+
+# Backup files - CRITICAL to exclude
+*.bak
+*~
+*.backup
+*.tmp
+*.log
+*.swp
+.DS_Store
+Thumbs.db
+
+# Test files
+tests
+test-*.html
+test-*.php
+phpunit.xml
+phpunit.xml.dist
+
+# Build files we don't need in distribution
+*.map
+*.scss.map
+
+# Documentation files (keep README.md for transparency)
+MARKETING-IMAGES.md
+SNEAK-PEEK.md
+sales-page-*.html
+
+# Development configs that users don't need
+.editorconfig
+.eslintrc
+.eslintrc.js
+.eslintignore
+.prettierrc
+.stylelintrc
+.babelrc
+.browserslistrc
+phpcs.xml
+phpcs.xml.dist
+
+# IDE files
+.idea
+.vscode
+*.sublime-project
+*.sublime-workspace
+
+# Keep these files for WordPress compliance:
+# - vue-app/src (source files)
+# - build.sh (build instructions)
+# - package.json (dependencies)
+# - README.md (documentation)

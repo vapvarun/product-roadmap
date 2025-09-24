@@ -1,8 +1,21 @@
 #!/bin/bash
 
 # Build script for Product Roadmap Plugin
+# This script builds the Vue app, generates RTL CSS files, creates translation files, and cleans up
 
+echo "========================================="
 echo "Building Product Roadmap Plugin..."
+echo "========================================="
+
+# Step 1: Clean up backup files and unwanted files
+echo ""
+echo "Step 1: Cleaning up backup and temporary files..."
+find . -name "*.bak" -type f -delete 2>/dev/null
+find . -name "*~" -type f -delete 2>/dev/null
+find . -name "*.backup" -type f -delete 2>/dev/null
+find . -name "*.tmp" -type f -delete 2>/dev/null
+find . -name ".DS_Store" -type f -delete 2>/dev/null
+echo "✓ Backup and temporary files removed"
 
 # Navigate to Vue app directory
 cd vue-app
@@ -48,11 +61,41 @@ cd ..
 
 # Generate RTL CSS for static files
 echo ""
-echo "Generating RTL CSS for static files..."
+echo "Step 2: Generating RTL CSS for static files..."
 if [ -f "build-rtl.js" ]; then
     node build-rtl.js
 else
     echo "✗ Warning: build-rtl.js not found, skipping RTL generation for static files"
+fi
+
+# Generate POT file for translations
+echo ""
+echo "Step 3: Generating translation template (POT file)..."
+if command -v wp &> /dev/null; then
+    # Use WP-CLI if available
+    wp i18n make-pot . languages/product-roadmap.pot --domain=product-roadmap --exclude=node_modules,vue-app/node_modules,tests,docs
+    echo "✓ POT file generated using WP-CLI"
+elif [ -f "languages/product-roadmap.pot" ]; then
+    echo "✓ POT file already exists"
+else
+    # Create a basic POT file if WP-CLI is not available
+    cat > languages/product-roadmap.pot << 'EOF'
+# Product Roadmap Plugin
+# Copyright (C) 2024 WBComDesigns
+# This file is distributed under the GPLv2 or later.
+msgid ""
+msgstr ""
+"Project-Id-Version: Product Roadmap 1.0.1\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/product-roadmap\n"
+"POT-Creation-Date: 2024-09-24 00:00:00+00:00\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+EOF
+    echo "✓ Basic POT file created"
 fi
 
 # Create minified versions (optional, for better performance)

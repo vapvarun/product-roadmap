@@ -105,6 +105,63 @@ Multiple product roadmaps are available in the Pro version. Free version support
 6. Feature suggestion form for customers
 7. Individual roadmap item with voting and comments
 
+== Developer Information ==
+
+= Build Process =
+
+This plugin uses modern JavaScript build tools for optimal performance and maintainability. **All source files are included in the distribution** to comply with WordPress.org guidelines.
+
+**Source Code Structure:**
+- `/vue-app/src/` - Vue 3 source files for the roadmap interface
+- `/assets/js/` - Compiled JavaScript files and additional scripts
+- `/assets/css/` - Stylesheets (both source and compiled)
+- `/build.sh` - Build script for compiling assets
+- `/package.json` - NPM dependencies and build scripts
+
+**JavaScript Files:**
+- `assets/js/roadmap-app.js` - Compiled from `/vue-app/src/` using Vite
+- `assets/js/index.js` - Compiled from `/vue-app/src/` using Vite
+- Source files are located in `/vue-app/src/` directory
+
+**Building from Source:**
+```bash
+# Install dependencies
+npm install
+cd vue-app && npm install && cd ..
+
+# Development mode
+npm run dev
+
+# Production build
+npm run build
+
+# Build all assets including RTL
+npm run build:all
+```
+
+**Build Tools & Technologies:**
+- Vue 3 - Interactive roadmap interface
+- Vite - Module bundler and build tool
+- PostCSS - CSS processing
+- RTLcss - Right-to-left language support
+- Terser - JavaScript minification
+
+**Why We Include Source Files:**
+In compliance with WordPress.org guidelines (Section 4 - Human Readable Code), we include all source files in our distribution. This allows developers to:
+- Review the original source code
+- Understand how the plugin works
+- Contribute improvements
+- Fork and modify the code
+- Build the assets themselves
+
+**File Types Included:**
+- All Vue source files (`/vue-app/src/`)
+- Build configuration files (`vite.config.js`, `package.json`)
+- Build scripts (`build.sh`, `build-all.sh`, `build-rtl.js`)
+- Documentation (`README.md`)
+
+The full uncompiled source code is available in the plugin directory for complete transparency and open-source collaboration.
+
 == Changelog ==
 
 = 1.0.1 =

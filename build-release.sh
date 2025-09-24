@@ -53,28 +53,62 @@ cp -r assets "$FREE_DIR/"
 cp -r includes "$FREE_DIR/"
 cp -r languages "$FREE_DIR/"
 cp -r templates "$FREE_DIR/"
+cp -r vue-app "$FREE_DIR/"  # Include Vue source files for WordPress compliance
 cp product-roadmap.php "$FREE_DIR/"
 cp readme.txt "$FREE_DIR/"
 cp LICENSE "$FREE_DIR/" 2>/dev/null || true
+cp package.json "$FREE_DIR/"  # Include package.json for build instructions
+cp package-lock.json "$FREE_DIR/" 2>/dev/null || true
+cp build.sh "$FREE_DIR/"  # Include build scripts for transparency
+cp build-all.sh "$FREE_DIR/" 2>/dev/null || true
+cp build-rtl.js "$FREE_DIR/" 2>/dev/null || true
 
-# Remove development files
-echo "Cleaning up development files..."
-find "$FREE_DIR" -name "*.scss" -delete 2>/dev/null || true
-find "$FREE_DIR" -name "*.map" -delete 2>/dev/null || true
+# Remove only truly unnecessary files
+echo "Cleaning up unnecessary files..."
+
+# Remove backup files - CRITICAL for WordPress.org compliance
+find "$FREE_DIR" -name "*.bak" -delete 2>/dev/null || true
+find "$FREE_DIR" -name "*~" -delete 2>/dev/null || true
+find "$FREE_DIR" -name "*.backup" -delete 2>/dev/null || true
+find "$FREE_DIR" -name "*.tmp" -delete 2>/dev/null || true
+find "$FREE_DIR" -name "*.log" -delete 2>/dev/null || true
 find "$FREE_DIR" -name ".DS_Store" -delete 2>/dev/null || true
 
-# Remove Vue app source (only keep built files)
-rm -rf "$FREE_DIR/vue-app" 2>/dev/null || true
-rm -f "$FREE_DIR/build.sh" 2>/dev/null || true
-rm -f "$FREE_DIR/build-all.sh" 2>/dev/null || true
-rm -f "$FREE_DIR/build-rtl.js" 2>/dev/null || true
-rm -f "$FREE_DIR/package.json" 2>/dev/null || true
-rm -f "$FREE_DIR/package-lock.json" 2>/dev/null || true
+# Remove source maps (optional, but usually not needed in distribution)
+find "$FREE_DIR" -name "*.map" -delete 2>/dev/null || true
+
+# Remove node_modules (these can be reinstalled from package.json)
 rm -rf "$FREE_DIR/node_modules" 2>/dev/null || true
-rm -rf "$FREE_DIR/docs" 2>/dev/null || true
-rm -f "$FREE_DIR/*.md" 2>/dev/null || true
+rm -rf "$FREE_DIR/vue-app/node_modules" 2>/dev/null || true
+
+# Remove test files
 rm -f "$FREE_DIR/test-*.html" 2>/dev/null || true
 rm -f "$FREE_DIR/test-*.php" 2>/dev/null || true
+rm -rf "$FREE_DIR/tests" 2>/dev/null || true
+
+# Remove unnecessary markdown files but keep README
+rm -f "$FREE_DIR/MARKETING-IMAGES.md" 2>/dev/null || true
+rm -f "$FREE_DIR/SNEAK-PEEK.md" 2>/dev/null || true
+rm -f "$FREE_DIR/BUILD.md" 2>/dev/null || true
+rm -f "$FREE_DIR/DEVELOPER.md" 2>/dev/null || true
+
+# Keep README.md for transparency
+cp README.md "$FREE_DIR/" 2>/dev/null || true
+
+# Verify POT file exists
+if [ ! -f "$FREE_DIR/languages/product-roadmap.pot" ]; then
+    echo "Warning: POT file not found. Generating..."
+    mkdir -p "$FREE_DIR/languages"
+    touch "$FREE_DIR/languages/product-roadmap.pot"
+fi
+
+# Final verification - ensure no backup files remain
+BACKUP_COUNT=$(find "$FREE_DIR" -name "*.bak" -o -name "*~" -o -name "*.backup" | wc -l)
+if [ $BACKUP_COUNT -gt 0 ]; then
+    echo "✗ ERROR: Backup files still exist in distribution!"
+    find "$FREE_DIR" -name "*.bak" -o -name "*~" -o -name "*.backup"
+    exit 1
+fi
 
 # Create free version zip
 echo "Creating free version zip..."

@@ -303,83 +303,6 @@ class Roadmap_Settings {
             do_action('roadmap_dashboard_after_sections');
             ?>
         </div>
-        
-        <style>
-        .roadmap-dashboard-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin: 20px 0;
-        }
-        
-        .roadmap-stat-card {
-            background: #fff;
-            border: 1px solid #ccd0d4;
-            padding: 20px;
-            text-align: center;
-            box-shadow: 0 1px 1px rgba(0,0,0,.04);
-        }
-        
-        .roadmap-stat-card h3 {
-            margin: 0 0 10px;
-            font-size: 14px;
-            color: #666;
-        }
-        
-        .roadmap-stat-number {
-            font-size: 32px;
-            font-weight: 600;
-            margin: 0;
-            color: #2271b1;
-        }
-        
-        .roadmap-dashboard-sections {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-top: 30px;
-        }
-        
-        .roadmap-dashboard-section {
-            background: #fff;
-            border: 1px solid #ccd0d4;
-            padding: 20px;
-            box-shadow: 0 1px 1px rgba(0,0,0,.04);
-        }
-        
-        .roadmap-dashboard-section h2 {
-            margin-top: 0;
-        }
-        
-        .roadmap-recent-list {
-            margin: 0;
-            padding: 0;
-            list-style: none;
-        }
-        
-        .roadmap-recent-list li {
-            padding: 8px 0;
-            border-bottom: 1px solid #eee;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .roadmap-recent-list li:last-child {
-            border-bottom: none;
-        }
-        
-        .roadmap-item-date {
-            font-size: 12px;
-            color: #666;
-        }
-        
-        @media (max-width: 782px) {
-            .roadmap-dashboard-sections {
-                grid-template-columns: 1fr;
-            }
-        }
-        </style>
         <?php
     }
     
@@ -480,19 +403,9 @@ class Roadmap_Settings {
                             </span>
                         </div>
                         
-                        <?php 
-                        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reading settings-updated parameter for display notification only
-                        if (isset($_GET['settings-updated']) && sanitize_text_field(wp_unslash($_GET['settings-updated']))) : 
+                        <?php
+                        // Settings saved notification handled in roadmap-admin.js
                         ?>
-                        <script>
-                            jQuery(document).ready(function($) {
-                                $(".roadmap-settings-saved").show();
-                                setTimeout(function() {
-                                    $(".roadmap-settings-saved").fadeOut();
-                                }, 3000);
-                            });
-                        </script>
-                        <?php endif; ?>
                         </form>
                         <?php
                     }
@@ -500,8 +413,6 @@ class Roadmap_Settings {
                 </div>
             </div>
         </div>
-        
-        <?php $this->render_settings_styles(); ?>
         <?php
     }
     
@@ -915,124 +826,6 @@ class Roadmap_Settings {
                 </div>
             <?php endif; ?>
         </div>
-        
-        <style>
-        .roadmap-products-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
-        }
-        
-        .roadmap-product-card {
-            background: #fff;
-            border: 1px solid #ccd0d4;
-            padding: 20px;
-            box-shadow: 0 1px 1px rgba(0,0,0,.04);
-        }
-        
-        .roadmap-product-card h3 {
-            margin-top: 0;
-        }
-        
-        .product-stats {
-            margin: 15px 0;
-            padding: 10px 0;
-            border-top: 1px solid #eee;
-            border-bottom: 1px solid #eee;
-        }
-        
-        .product-shortcode {
-            margin: 15px 0;
-            padding: 10px;
-            background: #f1f1f1;
-            border-radius: 3px;
-        }
-        
-        .product-actions {
-            display: flex;
-            gap: 10px;
-        }
-        
-        .roadmap-modal {
-            display: none;
-            position: fixed;
-            z-index: 100000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.5);
-        }
-        
-        .roadmap-modal-content {
-            background-color: #fefefe;
-            margin: 5% auto;
-            padding: 20px;
-            border: 1px solid #888;
-            width: 80%;
-            max-width: 600px;
-        }
-        
-        .roadmap-modal-close {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-        
-        .roadmap-modal-close:hover,
-        .roadmap-modal-close:focus {
-            color: black;
-        }
-        </style>
-        
-        <script>
-        function editProductSettings(productId) {
-            document.getElementById('product_id').value = productId;
-            document.getElementById('product-settings-modal').style.display = 'block';
-            
-            // Load existing settings
-            jQuery.post(ajaxurl, {
-                action: 'roadmap_get_product_settings',
-                product_id: productId,
-                nonce: '<?php echo esc_js(wp_create_nonce('roadmap_product_settings')); ?>'
-            }, function(response) {
-                if (response.success) {
-                    // Populate form with existing settings
-                    var settings = response.data;
-                    jQuery('#product_default_status').val(settings.default_status);
-                    jQuery('input[name="enable_voting"]').prop('checked', settings.enable_voting);
-                    jQuery('input[name="enable_comments"]').prop('checked', settings.enable_comments);
-                    jQuery('input[name="enable_suggestions"]').prop('checked', settings.enable_suggestions);
-                    jQuery('#product_theme_color').val(settings.theme_color);
-                }
-            });
-        }
-        
-        jQuery(document).ready(function($) {
-            $('.roadmap-modal-close').click(function() {
-                $('#product-settings-modal').hide();
-            });
-            
-            $('#product-settings-form').submit(function(e) {
-                e.preventDefault();
-                
-                var formData = $(this).serialize();
-                formData += '&action=roadmap_save_product_settings';
-                
-                $.post(ajaxurl, formData, function(response) {
-                    if (response.success) {
-                        alert('Settings saved successfully!');
-                        $('#product-settings-modal').hide();
-                    } else {
-                        alert('Error saving settings: ' + response.data);
-                    }
-                });
-            });
-        });
-        </script>
         <?php
     }
     
@@ -1113,36 +906,26 @@ class Roadmap_Settings {
         if (strpos($hook, 'roadmap') === false) {
             return;
         }
-        
+
         // Enqueue modern admin CSS
         wp_enqueue_style('roadmap-admin', ROADMAP_PLUGIN_URL . 'assets/css/roadmap-admin.css', [], ROADMAP_VERSION);
-        
+
+        // Enqueue admin JavaScript
+        wp_enqueue_script('roadmap-admin', ROADMAP_PLUGIN_URL . 'assets/js/roadmap-admin.js', ['jquery'], ROADMAP_VERSION, true);
+
+        // Localize script for AJAX and translations
+        wp_localize_script('roadmap-admin', 'roadmap_admin', [
+            'ajax_url' => admin_url('admin-ajax.php'),
+            'nonce' => wp_create_nonce('roadmap_admin_nonce'),
+            'confirm_demo_import' => __('Are you sure you want to import demo data? This will create sample roadmap items.', 'product-roadmap'),
+            'importing_text' => __('Importing...', 'product-roadmap'),
+            'import_success' => __('Demo data imported successfully!', 'product-roadmap'),
+            'import_error' => __('Error importing demo data. Please try again.', 'product-roadmap'),
+            'import_demo_text' => __('Import Demo Data', 'product-roadmap')
+        ]);
+
         wp_enqueue_style('wp-color-picker');
         wp_enqueue_script('wp-color-picker');
-        
-        // Add settings page script
-        if ($hook === 'roadmap_page_roadmap-settings') {
-            wp_add_inline_script('jquery', '
-                jQuery(document).ready(function($) {
-                    // Show saved message on form submit
-                    $(".roadmap-settings-form").on("submit", function() {
-                        // This will be handled by WordPress options.php
-                        // Just prepare for showing saved message on reload
-                    });
-                    
-                    // Show saved message if redirected after save
-                    if (window.location.href.indexOf("settings-updated=true") > -1) {
-                        $(".roadmap-settings-saved").show();
-                        setTimeout(function() {
-                            $(".roadmap-settings-saved").fadeOut();
-                        }, 3000);
-                    }
-                    
-                    // Initialize color picker
-                    $(".color-field").wpColorPicker();
-                });
-            ');
-        }
     }
     
     public function add_product_columns($columns) {
@@ -1328,10 +1111,10 @@ class Roadmap_Settings {
         </div>
         <?php
     }
-    
+
     private function render_settings_styles() {
-        ?>
-        <style>
+        // Styles moved to assets/css/roadmap-admin.css
+        return;
         /* Main Container */
         .roadmap-settings-wrap {
             margin-top: 20px;
@@ -1770,8 +1553,6 @@ class Roadmap_Settings {
                 grid-template-columns: 1fr;
             }
         }
-        </style>
-        <?php
     }
 }
 

@@ -12,6 +12,9 @@ if (!$product_term) {
     wp_redirect(home_url());
     exit;
 }
+
+// Enqueue archive styles
+wp_enqueue_style('roadmap-archive', ROADMAP_PLUGIN_URL . 'assets/css/roadmap-archive.css', [], ROADMAP_VERSION);
 ?>
 
 <div class="roadmap-archive">
@@ -30,34 +33,6 @@ if (!$product_term) {
         <p><a href="<?php echo esc_url(home_url()); ?>">&laquo; Back to Home</a></p>
     </div>
 </div>
-
-<style>
-.roadmap-archive {
-    max-width: 1200px;
-    margin: 40px auto;
-    padding: 0 20px;
-}
-
-.roadmap-archive-header {
-    text-align: center;
-    margin-bottom: 40px;
-}
-
-.roadmap-archive-header h1 {
-    font-size: 2.5em;
-    margin-bottom: 10px;
-}
-
-.roadmap-product-description {
-    font-size: 1.2em;
-    color: #666;
-}
-
-.roadmap-archive-footer {
-    margin-top: 40px;
-    text-align: center;
-}
-</style>
 
 <?php
 get_footer();

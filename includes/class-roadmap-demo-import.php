@@ -59,20 +59,11 @@ class Roadmap_Demo_Import {
                 <a href="<?php echo esc_url(admin_url('admin.php?page=roadmap-setup-wizard')); ?>" class="button button-primary">
                     <?php esc_html_e('Run Setup Wizard', 'product-roadmap'); ?>
                 </a>
-                <a href="#" class="button" onclick="roadmapDismissSetupNotice(); return false;">
+                <a href="#" class="button roadmap-dismiss-setup-notice" data-nonce="<?php echo esc_attr(wp_create_nonce('roadmap_dismiss_notice')); ?>">
                     <?php esc_html_e('Dismiss', 'product-roadmap'); ?>
                 </a>
             </p>
         </div>
-        <script>
-        function roadmapDismissSetupNotice() {
-            jQuery.post(ajaxurl, {
-                action: 'roadmap_dismiss_setup_notice',
-                nonce: '<?php echo esc_js(wp_create_nonce('roadmap_dismiss_notice')); ?>'
-            });
-            jQuery('#roadmap-setup-notice').fadeOut();
-        }
-        </script>
         <?php
     }
     
