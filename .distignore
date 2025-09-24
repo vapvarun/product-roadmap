@@ -30,11 +30,18 @@ phpunit.xml.dist
 # Build files we don't need in distribution
 *.map
 *.scss.map
+build.sh
+build-all.sh
+build-rtl.js
+build-release.sh
+verify-compliance.sh
 
 # Documentation files (keep README.md for transparency)
 MARKETING-IMAGES.md
 SNEAK-PEEK.md
 sales-page-*.html
+BUILD.md
+WORDPRESS-COMPLIANCE.md
 
 # Development configs that users don't need
 .editorconfig

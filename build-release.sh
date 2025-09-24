@@ -59,9 +59,9 @@ cp readme.txt "$FREE_DIR/"
 cp LICENSE "$FREE_DIR/" 2>/dev/null || true
 cp package.json "$FREE_DIR/"  # Include package.json for build instructions
 cp package-lock.json "$FREE_DIR/" 2>/dev/null || true
-cp build.sh "$FREE_DIR/"  # Include build scripts for transparency
-cp build-all.sh "$FREE_DIR/" 2>/dev/null || true
-cp build-rtl.js "$FREE_DIR/" 2>/dev/null || true
+
+# Note: Build scripts (.sh files) and build-rtl.js are NOT included in distribution
+# They remain in the repository for developers but are excluded from WordPress.org package
 
 # Remove only truly unnecessary files
 echo "Cleaning up unnecessary files..."
@@ -86,11 +86,21 @@ rm -f "$FREE_DIR/test-*.html" 2>/dev/null || true
 rm -f "$FREE_DIR/test-*.php" 2>/dev/null || true
 rm -rf "$FREE_DIR/tests" 2>/dev/null || true
 
+# Remove build scripts and internal files
+rm -f "$FREE_DIR"/*.sh 2>/dev/null || true
+rm -f "$FREE_DIR/build-rtl.js" 2>/dev/null || true
+rm -f "$FREE_DIR/verify-compliance.sh" 2>/dev/null || true
+rm -f "$FREE_DIR/build-release.sh" 2>/dev/null || true
+
 # Remove unnecessary markdown files but keep README
 rm -f "$FREE_DIR/MARKETING-IMAGES.md" 2>/dev/null || true
 rm -f "$FREE_DIR/SNEAK-PEEK.md" 2>/dev/null || true
 rm -f "$FREE_DIR/BUILD.md" 2>/dev/null || true
 rm -f "$FREE_DIR/DEVELOPER.md" 2>/dev/null || true
+rm -f "$FREE_DIR/WORDPRESS-COMPLIANCE.md" 2>/dev/null || true
+
+# Remove sales pages
+rm -f "$FREE_DIR"/sales-page-*.html 2>/dev/null || true
 
 # Keep README.md for transparency
 cp README.md "$FREE_DIR/" 2>/dev/null || true
