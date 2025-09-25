@@ -111,12 +111,22 @@ Enable frontend editing for authorized users:
 
 ## Documentation
 
-- **[User Guide](docs/USER-GUIDE.md)** - Complete guide for using the plugin
-- **[Developer Guide](DEVELOPER.md)** - Hooks, filters, and API reference  
-- **[Product System](docs/PRODUCT-SYSTEM.md)** - Multi-product roadmap documentation
+### 📚 Quick Start Guides (5-10 minute reads)
+- **[Getting Started](docs/guides/getting-started.md)** - Install and setup in 5 minutes
+- **[Creating Items](docs/guides/creating-items.md)** - Add and manage roadmap items
+- **[Voting & Comments](docs/guides/voting-comments.md)** - Enable user engagement
+- **[Displaying Roadmap](docs/guides/displaying-roadmap.md)** - Show on your site
+
+### 📖 Complete Documentation
+- **[Documentation Index](docs/README.md)** - All guides organized by topic
+- **[Complete User Guide](docs/USER-GUIDE.md)** - Full reference documentation
+
+### 🛠️ Technical Documentation
+- **[Developer Guide](DEVELOPER.md)** - Hooks, filters, and API reference
+- **[Product System](docs/PRODUCT-SYSTEM.md)** - Multi-product architecture
 - **[Settings Guide](docs/SETTINGS-GUIDE.md)** - Configuration options
-- **[Build Instructions](BUILD.md)** - Development setup and release process
-- **[Setup Wizard Guide](docs/SETUP-WIZARD.md)** - Detailed setup wizard documentation
+- **[Setup Wizard](docs/SETUP-WIZARD.md)** - Wizard details
+- **[Build Instructions](BUILD.md)** - Development setup
 
 ## Development
 
