@@ -3,7 +3,7 @@ Contributors: wbcomdesigns, vapvarun
 Tags: roadmap, product roadmap, feature voting, user feedback, product management
 Requires at least: 5.8
 Tested up to: 6.8
-Stable tag: 1.0.2
+Stable tag: 1.1.0
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -164,6 +164,19 @@ The full uncompiled source code is available in the plugin directory for complet
 
 == Changelog ==
 
+= 1.1.0 =
+* New: Auto-approval option for user suggestions in settings
+* New: Copy to clipboard functionality for shortcodes
+* New: Shortcode copy buttons in product listings
+* Enhancement: Improved admin UI with modern animations and transitions
+* Enhancement: Better shortcode display with visual copy buttons
+* Enhancement: Enhanced settings page with auto-approve toggle
+* Enhancement: Added visual feedback for all copy actions
+* Enhancement: Improved product taxonomy display
+* Enhancement: Better responsive design for all screen sizes
+* Fix: Improved CSS enqueue conditions for better compatibility
+* Fix: Settings page JavaScript optimizations
+
 = 1.0.2 =
 * Fix: Resolved settings page tab navigation issue preventing clicks
 * Fix: Added missing CSS styles for settings page layout
@@ -190,6 +203,9 @@ The full uncompiled source code is available in the plugin directory for complet
 * Shortcode support
 
 == Upgrade Notice ==
+
+= 1.1.0 =
+Major update! New auto-approval for suggestions, copy-to-clipboard for shortcodes, Gutenberg block support in Pro version, and improved admin UI. Recommended update for all users.
 
 = 1.0.2 =
 Important fixes for settings page navigation and UI improvements. Enhanced visual design with better responsive layout. Resolves tab clicking issues and Pro version compatibility.
