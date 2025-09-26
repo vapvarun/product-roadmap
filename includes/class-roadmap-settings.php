@@ -903,7 +903,14 @@ class Roadmap_Settings {
     }
     
     public function enqueue_admin_assets($hook) {
-        if (strpos($hook, 'roadmap') === false) {
+        // Check if we're on a roadmap admin page
+        $is_roadmap_page = (
+            strpos($hook, 'roadmap') !== false ||
+            strpos($hook, 'roadmap_item') !== false ||
+            (isset($_GET['page']) && strpos($_GET['page'], 'roadmap') !== false)
+        );
+
+        if (!$is_roadmap_page) {
             return;
         }
 

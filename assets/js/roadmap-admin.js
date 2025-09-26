@@ -78,29 +78,8 @@
                 $('.roadmap-color-picker').wpColorPicker();
             }
 
-            // Settings tab navigation
-            $('.roadmap-settings-nav a').on('click', function(e) {
-                e.preventDefault();
-                var tab = $(this).data('tab');
-
-                // Update active states
-                $('.roadmap-settings-nav a').removeClass('active');
-                $(this).addClass('active');
-
-                // Show/hide tab content
-                $('.roadmap-settings-tabs').removeClass('active');
-                $('#tab-' + tab).addClass('active');
-
-                // Update URL without reload
-                if (window.history && window.history.pushState) {
-                    window.history.pushState(null, null, '?page=roadmap-settings&tab=' + tab);
-                }
-            });
-
-            // Initialize active tab from URL
-            var urlParams = new URLSearchParams(window.location.search);
-            var activeTab = urlParams.get('tab') || 'general';
-            $('.roadmap-settings-nav a[data-tab="' + activeTab + '"]').trigger('click');
+            // Settings tab navigation - removed as tabs use regular links
+            // The PHP handles tab switching via URL parameters
         }
 
         // Initialize on page load
