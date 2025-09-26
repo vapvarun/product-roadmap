@@ -3,7 +3,7 @@ Contributors: wbcomdesigns, vapvarun
 Tags: roadmap, product roadmap, feature voting, user feedback, product management
 Requires at least: 5.8
 Tested up to: 6.8
-Stable tag: 1.0.1
+Stable tag: 1.0.2
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -164,6 +164,16 @@ The full uncompiled source code is available in the plugin directory for complet
 
 == Changelog ==
 
+= 1.0.2 =
+* Fix: Resolved settings page tab navigation issue preventing clicks
+* Fix: Added missing CSS styles for settings page layout
+* Enhancement: Improved visual design with modern animations and transitions
+* Enhancement: Added better responsive design for mobile and tablet views
+* Enhancement: Enhanced Pro version UI with premium visual elements
+* Fix: Fixed JavaScript conflicts between free and Pro versions
+* Enhancement: Improved Pro CTA section with gradient design
+* Enhancement: Added visual indicators for pending roadmap suggestions
+
 = 1.0.1 =
 * Fix: Changed default items per page from 20 to 100
 * Fix: Made items per page configurable via settings
@@ -180,6 +190,9 @@ The full uncompiled source code is available in the plugin directory for complet
 * Shortcode support
 
 == Upgrade Notice ==
+
+= 1.0.2 =
+Important fixes for settings page navigation and UI improvements. Enhanced visual design with better responsive layout. Resolves tab clicking issues and Pro version compatibility.
 
 = 1.0.1 =
 Important fix: Roadmap now displays up to 100 items by default (configurable in settings) instead of being limited to 20.

@@ -5,6 +5,56 @@
     'use strict';
 
     $(document).ready(function() {
+        // Copy shortcode functionality
+        $(document).on('click', '.copy-shortcode', function(e) {
+            e.preventDefault();
+            var button = $(this);
+            var shortcode = button.data('shortcode');
+            var originalText = button.find('.copy-text').text();
+
+            // Create temporary textarea for copying
+            var tempInput = $('<textarea>');
+            $('body').append(tempInput);
+            tempInput.val(shortcode).select();
+
+            try {
+                // Try modern clipboard API first
+                if (navigator.clipboard && window.isSecureContext) {
+                    navigator.clipboard.writeText(shortcode).then(function() {
+                        // Success feedback
+                        button.addClass('copied');
+                        button.find('.copy-text').text('Copied!');
+                        button.find('.dashicons').removeClass('dashicons-clipboard').addClass('dashicons-yes');
+
+                        // Reset after 2 seconds
+                        setTimeout(function() {
+                            button.removeClass('copied');
+                            button.find('.copy-text').text(originalText);
+                            button.find('.dashicons').removeClass('dashicons-yes').addClass('dashicons-clipboard');
+                        }, 2000);
+                    });
+                } else {
+                    // Fallback for older browsers
+                    document.execCommand('copy');
+
+                    // Success feedback
+                    button.addClass('copied');
+                    button.find('.copy-text').text('Copied!');
+                    button.find('.dashicons').removeClass('dashicons-clipboard').addClass('dashicons-yes');
+
+                    setTimeout(function() {
+                        button.removeClass('copied');
+                        button.find('.copy-text').text(originalText);
+                        button.find('.dashicons').removeClass('dashicons-yes').addClass('dashicons-clipboard');
+                    }, 2000);
+                }
+            } catch (err) {
+                console.error('Failed to copy:', err);
+                alert('Failed to copy shortcode. Please select and copy manually.');
+            } finally {
+                tempInput.remove();
+            }
+        });
         // Dismiss setup notice
         $('.roadmap-dismiss-setup-notice').on('click', function(e) {
             e.preventDefault();

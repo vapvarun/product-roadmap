@@ -178,6 +178,7 @@ class Roadmap_Settings {
             'enable_comments' => true,
             'enable_suggestions' => true,
             'suggestion_requires_login' => true,
+            'auto_approve_suggestions' => false,
             'suggestion_default_status' => 'under-review',
             'enable_notifications' => true,
             'notification_email' => get_option('admin_email'),
@@ -574,16 +575,25 @@ class Roadmap_Settings {
                     
                     <?php if ($settings['enable_suggestions']): ?>
                     <div class="form-row" style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee;">
+                        <label>
+                            <input type="checkbox" name="roadmap_global_settings[auto_approve_suggestions]" value="1"
+                                   <?php checked($settings['auto_approve_suggestions'] ?? false, true); ?> />
+                            <?php esc_html_e('Auto-approve user suggestions', 'product-roadmap'); ?>
+                        </label>
+                        <p class="description"><?php esc_html_e('Automatically publish user suggestions without manual review. Use with caution.', 'product-roadmap'); ?></p>
+                    </div>
+
+                    <div class="form-row" style="margin-top: 15px;">
                         <label for="suggestion_default_status"><?php esc_html_e('Default Status for Suggestions', 'product-roadmap'); ?></label>
                         <select name="roadmap_global_settings[suggestion_default_status]" id="suggestion_default_status">
                             <?php foreach ($statuses as $status): ?>
-                                <option value="<?php echo esc_attr($status->slug); ?>" 
+                                <option value="<?php echo esc_attr($status->slug); ?>"
                                     <?php selected($settings['suggestion_default_status'] ?? 'under-review', $status->slug); ?>>
                                     <?php echo esc_html($status->name); ?>
                                 </option>
                             <?php endforeach; ?>
                         </select>
-                        <p class="description"><?php esc_html_e('Status assigned to user-submitted suggestions.', 'product-roadmap'); ?></p>
+                        <p class="description"><?php esc_html_e('Status assigned to user-submitted suggestions (when auto-approve is enabled).', 'product-roadmap'); ?></p>
                     </div>
                     <?php endif; ?>
                 </div>
@@ -745,7 +755,15 @@ class Roadmap_Settings {
                             </div>
                             
                             <div class="product-shortcode">
-                                <code>[roadmap product="<?php echo esc_attr($product->slug); ?>"]</code>
+                                <div class="shortcode-wrapper">
+                                    <code class="shortcode-text">[roadmap product="<?php echo esc_attr($product->slug); ?>"]</code>
+                                    <button type="button" class="button button-small copy-shortcode"
+                                            data-shortcode='[roadmap product="<?php echo esc_attr($product->slug); ?>"]'
+                                            title="<?php esc_attr_e('Copy to clipboard', 'product-roadmap'); ?>">
+                                        <span class="dashicons dashicons-clipboard"></span>
+                                        <span class="copy-text"><?php esc_html_e('Copy', 'product-roadmap'); ?></span>
+                                    </button>
+                                </div>
                             </div>
                             
                             <div class="product-actions">
@@ -887,6 +905,7 @@ class Roadmap_Settings {
         $sanitized['enable_comments'] = !empty($input['enable_comments']);
         $sanitized['enable_suggestions'] = !empty($input['enable_suggestions']);
         $sanitized['suggestion_requires_login'] = !empty($input['suggestion_requires_login']);
+        $sanitized['auto_approve_suggestions'] = !empty($input['auto_approve_suggestions']);
         $sanitized['suggestion_default_status'] = sanitize_text_field($input['suggestion_default_status'] ?? 'under-review');
         $sanitized['enable_notifications'] = !empty($input['enable_notifications']);
         $sanitized['notification_email'] = sanitize_email($input['notification_email'] ?? '');
@@ -955,10 +974,17 @@ class Roadmap_Settings {
             $term = get_term($term_id, 'roadmap_product');
             if ($term && !is_wp_error($term)) {
                 $shortcode = '[roadmap product="' . esc_attr($term->slug) . '"]';
-                $content = '<code style="user-select: all; cursor: pointer;" onclick="navigator.clipboard.writeText(this.textContent).then(() => { this.style.background = \'#d4edda\'; setTimeout(() => this.style.background = \'\', 1000); })" title="Click to copy">' . $shortcode . '</code>';
+                $content = '<div class="shortcode-wrapper inline-shortcode">';
+                $content .= '<code class="shortcode-text" style="user-select: all;">' . $shortcode . '</code>';
+                $content .= '<button type="button" class="button button-small copy-shortcode" ';
+                $content .= 'data-shortcode="' . esc_attr($shortcode) . '" ';
+                $content .= 'title="' . esc_attr__('Copy to clipboard', 'product-roadmap') . '">';
+                $content .= '<span class="dashicons dashicons-clipboard"></span>';
+                $content .= '</button>';
+                $content .= '</div>';
             }
         }
-        
+
         return $content;
     }
     

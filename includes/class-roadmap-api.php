@@ -410,20 +410,26 @@ class Roadmap_API {
         $description = $request->get_param('description');
         $category = $request->get_param('category');
         $user_id = get_current_user_id();
-        
+
+        // Check if auto-approve is enabled
+        $global_settings = get_option('roadmap_global_settings', []);
+        $auto_approve = !empty($global_settings['auto_approve_suggestions']);
+        $post_status = $auto_approve ? 'publish' : 'pending';
+
         $post_data = [
             'post_title' => $title,
             'post_content' => $description,
             'post_type' => 'roadmap_item',
-            'post_status' => 'pending',
+            'post_status' => $post_status,
             'post_author' => $user_id,
         ];
         
         $post_id = wp_insert_post($post_data);
         
         if ($post_id && !is_wp_error($post_id)) {
-            // Set default status to "planned"
-            wp_set_object_terms($post_id, 'planned', 'roadmap_status');
+            // Set status based on settings
+            $default_status = $auto_approve ? ($global_settings['suggestion_default_status'] ?? 'planned') : 'planned';
+            wp_set_object_terms($post_id, $default_status, 'roadmap_status');
             
             // Set category if provided
             if ($category) {
