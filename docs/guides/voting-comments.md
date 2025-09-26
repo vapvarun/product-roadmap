@@ -455,10 +455,10 @@ You'll receive email with:
 
 ## Next Steps
 
-- **[Configure Settings](settings-overview.md)** - Fine-tune all options
-- **[Display Roadmap](displaying-roadmap.md)** - Show to users
-- **[Analyze Data](analyzing-feedback.md)** - Use votes to prioritize
+- **Configure Settings** - Fine-tune all options
+- **Display Roadmap** - Show to users
+- **Analyze Data** - Use votes to prioritize
 
 ---
 
-← [Statuses & Categories](statuses-categories.md) | **[Displaying Roadmap](displaying-roadmap.md)** →
+← Statuses & Categories | **Displaying Roadmap** →

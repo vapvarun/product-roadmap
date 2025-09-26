@@ -6,28 +6,28 @@ Welcome to Product Roadmap! This documentation will help you get the most out of
 
 **New to Product Roadmap? Start here:**
 
-### 1. [Getting Started](guides/getting-started.md) ⭐
+### 1. Getting Started ⭐
 Install the plugin and create your first roadmap in 5 minutes.
 - Installation steps
 - Setup wizard walkthrough
 - Creating your first item
 - Viewing your roadmap
 
-### 2. [Creating Roadmap Items](guides/creating-items.md)
+### 2. Creating Roadmap Items
 Learn how to create and manage roadmap items effectively.
 - All fields explained
 - Best practices for titles and descriptions
 - Setting priorities and progress
 - Quick editing tips
 
-### 3. [Voting and Comments](guides/voting-comments.md)
+### 3. Voting and Comments
 Enable user engagement through voting and discussions.
 - Setting up voting
 - Managing comments
 - Feature suggestions
 - Engagement best practices
 
-### 4. [Displaying Your Roadmap](guides/displaying-roadmap.md)
+### 4. Displaying Your Roadmap
 Show your roadmap to users on your website.
 - Using shortcodes
 - Page builder integration
@@ -38,23 +38,23 @@ Show your roadmap to users on your website.
 
 **For comprehensive information:**
 
-### [Complete User Guide](USER-GUIDE.md)
+### Complete User Guide
 Full documentation covering all features, settings, and workflows. Reference guide for all plugin capabilities.
 
 ## 🛠️ Technical Documentation
 
 **For developers and advanced users:**
 
-### [Developer Guide](DEVELOPER-GUIDE.md)
+### Developer Guide
 Hooks, filters, REST API, and extending the plugin.
 
-### [Product System](PRODUCT-SYSTEM.md)
+### Product System
 Understanding product architecture and multi-product support.
 
-### [Setup Wizard Guide](SETUP-WIZARD.md)
+### Setup Wizard Guide
 Detailed documentation of the setup wizard.
 
-### [Settings Guide](SETTINGS-GUIDE.md)
+### Settings Guide
 Configuration options and advanced settings.
 
 ## 🎯 By Feature
@@ -62,31 +62,31 @@ Configuration options and advanced settings.
 Choose what you want to learn:
 
 ### Setup & Installation
-- [Getting Started Guide](guides/getting-started.md) - First-time setup
-- [Setup Wizard](SETUP-WIZARD.md) - Wizard details
+- Getting Started Guide - First-time setup
+- Setup Wizard - Wizard details
 
 ### Managing Content
-- [Creating Items](guides/creating-items.md) - Add and edit items
-- [Statuses & Categories](USER-GUIDE.md#categories--statuses) - Organize items
-- [Progress Tracking](USER-GUIDE.md#progress-tracking) - Track completion
+- Creating Items - Add and edit items
+- Statuses & Categories - Organize items
+- Progress Tracking - Track completion
 
 ### User Engagement
-- [Voting & Comments](guides/voting-comments.md) - Enable feedback
-- [Feature Suggestions](USER-GUIDE.md#feature-suggestions) - Collect ideas
+- Voting & Comments - Enable feedback
+- Feature Suggestions - Collect ideas
 
 ### Display & Customization
-- [Displaying Roadmap](guides/displaying-roadmap.md) - Show on site
-- [Shortcode Reference](guides/displaying-roadmap.md#shortcode-parameters) - All parameters
-- [Customization](USER-GUIDE.md#best-practices) - Styling tips
+- Displaying Roadmap - Show on site
+- Shortcode Reference - All parameters
+- Customization - Styling tips
 
 ### Settings & Configuration
-- [Settings Overview](USER-GUIDE.md#settings-configuration) - All settings
-- [Advanced Settings](SETTINGS-GUIDE.md) - Advanced options
+- Settings Overview - All settings
+- Advanced Settings - Advanced options
 
 ### Development
-- [Developer Guide](DEVELOPER-GUIDE.md) - Extend the plugin
-- [Hooks Reference](DEVELOPER-GUIDE.md#hooks-reference) - Available hooks
-- [REST API](DEVELOPER-GUIDE.md#rest-api-endpoints) - API documentation
+- Developer Guide - Extend the plugin
+- Hooks Reference - Available hooks
+- REST API - API documentation
 
 ## 🚀 Pro Version
 
@@ -99,21 +99,19 @@ Upgrade to Pro for advanced features:
 - **Import/Export** - CSV data management
 - **Advanced Filtering** - More display options
 
-**[View Pro Documentation →](../../roadmap-pro-addon/docs/PRO-USER-GUIDE.md)**
-
 ## 🆘 Getting Help
 
 ### Quick Answers
-- [Troubleshooting](USER-GUIDE.md#troubleshooting) - Common issues
-- [FAQ](USER-GUIDE.md#frequently-asked-questions) - Frequently asked questions
+- Troubleshooting - Common issues
+- FAQ - Frequently asked questions
 
 ### Support
 - [WordPress.org Forum](https://wordpress.org/support/plugin/product-roadmap/) - Community support
 - [Report a Bug](https://github.com/wbcomdesigns/product-roadmap/issues) - GitHub issues
 
 ### Learn More
-- [Best Practices](USER-GUIDE.md#best-practices) - Tips for success
-- [Code Examples](DEVELOPER-GUIDE.md#code-examples) - Developer examples
+- Best Practices - Tips for success
+- Code Examples - Developer examples
 
 ## 📋 Documentation Structure
 
@@ -144,27 +142,27 @@ Last updated: September 2025
 ## 💡 Quick Tips
 
 **First time user?**
-1. Read [Getting Started](guides/getting-started.md)
+1. Read Getting Started
 2. Run the setup wizard
 3. Create 3-5 test items
 4. Share roadmap with team
 
 **Looking for something specific?**
 - Use browser search (Ctrl/Cmd + F)
-- Check the [Complete Guide](USER-GUIDE.md)
-- Browse [by feature](#by-feature)
+- Check the Complete Guide
+- Browse by feature
 
 **Want to customize?**
-- Check [Developer Guide](DEVELOPER-GUIDE.md)
-- See [customization examples](USER-GUIDE.md#best-practices)
+- Check Developer Guide
+- See customization examples
 - Use hooks and filters
 
 **Need Pro features?**
-- View [Pro documentation](../../roadmap-pro-addon/docs/PRO-USER-GUIDE.md)
-- Compare [free vs pro features](../README.md#pro-version---scale-your-feedback)
+- View Pro documentation
+- Compare free vs pro features
 
 ---
 
-**Ready to get started?** → [Install the plugin](guides/getting-started.md) and build your first roadmap!
+**Ready to get started?** → Install the plugin and build your first roadmap!
 
-Have questions? Check the [support forum](https://wordpress.org/support/plugin/product-roadmap/) or [complete guide](USER-GUIDE.md).
+Have questions? Check the [support forum](https://wordpress.org/support/plugin/product-roadmap/) or complete guide.

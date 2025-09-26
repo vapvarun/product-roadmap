@@ -395,9 +395,9 @@ Speed up your workflow:
 
 ## Next Steps
 
-- **[Manage Statuses & Categories](statuses-categories.md)** - Customize workflow
-- **[Display Your Roadmap](displaying-roadmap.md)** - Show items to users
-- **[Enable User Engagement](voting-comments.md)** - Get feedback
+- **Manage Statuses & Categories** - Customize workflow
+- **Display Your Roadmap** - Show items to users
+- **Enable User Engagement** - Get feedback
 
 ## Need Help?
 
@@ -408,4 +408,4 @@ Speed up your workflow:
 
 ---
 
-← [Getting Started](getting-started.md) | **[Statuses & Categories](statuses-categories.md)** →
+← Getting Started | **Statuses & Categories** →

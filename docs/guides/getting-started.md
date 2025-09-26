@@ -129,10 +129,10 @@ Your roadmap shows:
 
 Now that your roadmap is set up:
 
-1. **[Create More Items](creating-items.md)** - Add your product plans
-2. **[Manage Statuses](statuses-categories.md)** - Customize your workflow
-3. **[Configure Settings](settings-overview.md)** - Fine-tune options
-4. **[Share Your Roadmap](displaying-roadmap.md)** - Let users see it
+1. **Create More Items** - Add your product plans
+2. **Manage Statuses** - Customize your workflow
+3. **Configure Settings** - Fine-tune options
+4. **Share Your Roadmap** - Let users see it
 
 ## Quick Tips
 
@@ -143,10 +143,10 @@ Now that your roadmap is set up:
 
 ## Need Help?
 
-- 📖 [All Guides](../USER-GUIDE.md)
-- ❓ [Troubleshooting](troubleshooting.md)
+- 📖 All Guides
+- ❓ Troubleshooting
 - 💬 [Support Forum](https://wordpress.org/support/plugin/product-roadmap)
 
 ---
 
-**Next Guide**: [Creating Roadmap Items](creating-items.md) →
+**Next Guide**: Creating Roadmap Items →

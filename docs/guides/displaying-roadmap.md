@@ -498,10 +498,10 @@ If items have images in descriptions:
 
 ## Next Steps
 
-- **[Configure Settings](settings-overview.md)** - Fine-tune display options
-- **[Customize Styles](customization.md)** - Match your brand
-- **[Pro Features](../../../roadmap-pro-addon/docs/PRO-USER-GUIDE.md)** - Upgrade for more templates
+- **Configure Settings** - Fine-tune display options
+- **Customize Styles** - Match your brand
+- **Pro Features** - Upgrade for more templates
 
 ---
 
-← [Voting & Comments](voting-comments.md) | **[Settings Overview](settings-overview.md)** →
+← Voting & Comments | **Settings Overview** →
