@@ -98,12 +98,13 @@ Multiple product roadmaps are available in the Pro version. Free version support
 == Screenshots ==
 
 1. Public roadmap view where customers can see and vote on upcoming features
-2. Admin dashboard showing roadmap statistics and recent activity
-3. Adding a new roadmap item from the WordPress admin
-4. Settings page to configure voting, comments, and suggestions
-5. Mobile responsive view of the roadmap
-6. Feature suggestion form for customers
-7. Individual roadmap item with voting and comments
+2. Admin dashboard with enhanced UI showing roadmap statistics and recent activity
+3. Settings page with auto-approval toggle and copy shortcode buttons (v1.1.0)
+4. Product listing showing copy shortcode functionality (v1.1.0)
+5. Adding a new roadmap item from the WordPress admin
+6. Feature suggestion form with auto-approval option enabled
+7. Mobile responsive view of the roadmap
+8. Individual roadmap item with voting and comments
 
 == Developer Information ==
 

@@ -412,6 +412,18 @@ Filter items by product in admin:
 
 The `product` parameter is mandatory. Use "main" for the default product.
 
+### Copy Shortcode Feature (v1.1.0)
+
+**Easy shortcode copying:**
+- Look for the copy button (📋) next to shortcodes in admin
+- Click to copy instantly to clipboard
+- Visual feedback confirms successful copy
+- Available in:
+  - Product listings
+  - Category pages
+  - Settings page
+  - Quick reference areas
+
 ### Shortcode Parameters
 
 **Full example with all parameters:**
@@ -602,9 +614,18 @@ Let users submit feature ideas that become roadmap items.
 2. Check **Enable Feature Suggestions**
 3. Configure:
    - **Require Login**: Make users log in to suggest
+   - **Auto-approve** (v1.1.0): Automatically publish suggestions without review
    - **Default Status**: Status for new suggestions (default: "Under Review")
    - **Notification Email**: Get notified of new suggestions
 4. Save settings
+
+**Auto-Approval Feature (v1.1.0):**
+- **Enable**: Toggle "Auto-approve user suggestions" in settings
+- **When Enabled**: Suggestions publish immediately
+- **Default Status**: Applied automatically (e.g., "Planned" or "Idea")
+- **No Manual Review**: Bypasses moderation queue
+- **Use Cases**: Trusted communities, internal teams
+- **Caution**: Enable only if spam is not a concern
 
 **How It Works:**
 1. **Suggest Button** appears on roadmap
