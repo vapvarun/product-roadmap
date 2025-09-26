@@ -126,14 +126,15 @@ cd "$TEMP_DIR"
 zip -r "$RELEASES_DIR/${PLUGIN_SLUG}-${VERSION}.zip" "$PLUGIN_SLUG" -q
 echo "✓ Free version package created: ${PLUGIN_SLUG}-${VERSION}.zip"
 
-# Build and package pro version if it exists
+# Build and package pro addon separately if it exists
+# Pro addon is in the same plugins directory
 PRO_ADDON_PATH="$CURRENT_DIR/../$PRO_SLUG"
 if [ -d "$PRO_ADDON_PATH" ]; then
     echo ""
     echo "3. Building Pro Addon..."
     echo "-------------------------------------"
     cd "$PRO_ADDON_PATH"
-    
+
     # Get pro version
     if [ -f "roadmap-pro-addon.php" ]; then
         PRO_VERSION=$(grep -i "Version:" roadmap-pro-addon.php | sed 's/.*Version: *//' | tr -d '\r\n' | awk '{print $1}')
@@ -141,56 +142,54 @@ if [ -d "$PRO_ADDON_PATH" ]; then
     else
         PRO_VERSION=$VERSION
     fi
-    
+
     # Build pro addon
     if [ -f "build.sh" ]; then
         ./build.sh
     else
         echo "✗ Warning: build.sh not found in pro addon"
     fi
-    
+
     echo ""
-    echo "4. Creating Pro Version Package..."
+    echo "4. Creating Pro Addon Package (Separate)..."
     echo "-------------------------------------"
-    
-    # Create pro package directory
-    PRO_PACKAGE_DIR="$TEMP_DIR/${PLUGIN_SLUG}-pro"
-    mkdir -p "$PRO_PACKAGE_DIR/$PLUGIN_SLUG"
-    mkdir -p "$PRO_PACKAGE_DIR/$PRO_SLUG"
-    
-    # Copy free version files to pro package
-    echo "Copying free plugin files..."
-    cp -r "$FREE_DIR/"* "$PRO_PACKAGE_DIR/$PLUGIN_SLUG/"
-    
-    # Copy pro addon files
+
+    # Create pro addon package directory
+    PRO_PACKAGE_DIR="$TEMP_DIR/$PRO_SLUG"
+    mkdir -p "$PRO_PACKAGE_DIR"
+
+    # Copy pro addon files only (not the free version)
     echo "Copying pro addon files..."
-    cp -r assets "$PRO_PACKAGE_DIR/$PRO_SLUG/"
-    cp -r includes "$PRO_PACKAGE_DIR/$PRO_SLUG/"
-    cp -r languages "$PRO_PACKAGE_DIR/$PRO_SLUG/" 2>/dev/null || true
-    cp roadmap-pro-addon.php "$PRO_PACKAGE_DIR/$PRO_SLUG/"
-    cp readme.txt "$PRO_PACKAGE_DIR/$PRO_SLUG/"
-    cp LICENSE "$PRO_PACKAGE_DIR/$PRO_SLUG/" 2>/dev/null || true
-    
-    # Clean up pro addon files
+    cp -r assets "$PRO_PACKAGE_DIR/"
+    cp -r includes "$PRO_PACKAGE_DIR/"
+    cp -r languages "$PRO_PACKAGE_DIR/" 2>/dev/null || true
+    [ -d "blocks" ] && cp -r blocks "$PRO_PACKAGE_DIR/"
+    [ -d "templates" ] && cp -r templates "$PRO_PACKAGE_DIR/"
+    cp roadmap-pro-addon.php "$PRO_PACKAGE_DIR/"
+    cp readme.txt "$PRO_PACKAGE_DIR/"
+    cp LICENSE "$PRO_PACKAGE_DIR/" 2>/dev/null || true
+
+    # Clean up pro addon development files
     echo "Cleaning up pro addon development files..."
-    find "$PRO_PACKAGE_DIR/$PRO_SLUG" -name "*.scss" -delete 2>/dev/null || true
-    find "$PRO_PACKAGE_DIR/$PRO_SLUG" -name "*.map" -delete 2>/dev/null || true
-    find "$PRO_PACKAGE_DIR/$PRO_SLUG" -name ".DS_Store" -delete 2>/dev/null || true
-    rm -f "$PRO_PACKAGE_DIR/$PRO_SLUG/build.sh" 2>/dev/null || true
-    rm -f "$PRO_PACKAGE_DIR/$PRO_SLUG/package.json" 2>/dev/null || true
-    rm -f "$PRO_PACKAGE_DIR/$PRO_SLUG/package-lock.json" 2>/dev/null || true
-    rm -rf "$PRO_PACKAGE_DIR/$PRO_SLUG/node_modules" 2>/dev/null || true
-    rm -rf "$PRO_PACKAGE_DIR/$PRO_SLUG/docs" 2>/dev/null || true
-    rm -f "$PRO_PACKAGE_DIR/$PRO_SLUG/*.md" 2>/dev/null || true
-    
-    # Create pro version zip
-    echo "Creating pro version zip..."
+    find "$PRO_PACKAGE_DIR" -name "*.scss" -delete 2>/dev/null || true
+    find "$PRO_PACKAGE_DIR" -name "*.map" -delete 2>/dev/null || true
+    find "$PRO_PACKAGE_DIR" -name ".DS_Store" -delete 2>/dev/null || true
+    find "$PRO_PACKAGE_DIR" -name "*.sh" -delete 2>/dev/null || true
+    find "$PRO_PACKAGE_DIR" -name "package.json" -delete 2>/dev/null || true
+    find "$PRO_PACKAGE_DIR" -name "package-lock.json" -delete 2>/dev/null || true
+    rm -rf "$PRO_PACKAGE_DIR/node_modules" 2>/dev/null || true
+    rm -rf "$PRO_PACKAGE_DIR/docs" 2>/dev/null || true
+    rm -f "$PRO_PACKAGE_DIR/*.md" 2>/dev/null || true
+
+    # Create pro addon zip (standalone, requires free version)
+    echo "Creating pro addon zip..."
     cd "$TEMP_DIR"
-    zip -r "$RELEASES_DIR/${PLUGIN_SLUG}-pro-${VERSION}.zip" "${PLUGIN_SLUG}-pro" -q
-    echo "✓ Pro version package created: ${PLUGIN_SLUG}-pro-${VERSION}.zip"
+    zip -r "$RELEASES_DIR/${PRO_SLUG}-${PRO_VERSION}.zip" "$PRO_SLUG" -q
+    echo "✓ Pro addon package created: ${PRO_SLUG}-${PRO_VERSION}.zip"
+    echo "  Note: This addon requires the free version to be installed first"
 else
     echo ""
-    echo "3. Pro addon not found - skipping pro package"
+    echo "3. Pro addon not found - skipping pro addon package"
 fi
 
 # Clean up
@@ -209,11 +208,11 @@ echo ""
 echo "Packages created in: $RELEASES_DIR"
 echo ""
 echo "Free version:"
-echo "  - ${PLUGIN_SLUG}-${VERSION}.zip"
+echo "  - ${PLUGIN_SLUG}-${VERSION}.zip (WordPress.org compatible)"
 if [ -d "$PRO_ADDON_PATH" ]; then
     echo ""
-    echo "Pro version:"
-    echo "  - ${PLUGIN_SLUG}-pro-${VERSION}.zip (complete package with both plugins)"
+    echo "Pro addon:"
+    echo "  - ${PRO_SLUG}-${PRO_VERSION}.zip (Requires free version installed)"
 fi
 echo ""
 echo "These packages are ready for distribution!"
