@@ -30,6 +30,31 @@
             ></textarea>
           </div>
           
+          <!-- Guest fields for Pro version - ONLY for non-logged-in users -->
+          <template v-if="isGuest && isPro && guestSuggestionsEnabled">
+            <div class="roadmap-form-group">
+              <label class="roadmap-form-label">Your Name</label>
+              <input
+                v-model="form.guest_name"
+                type="text"
+                class="roadmap-form-control"
+                required
+                placeholder="Enter your name"
+              >
+            </div>
+
+            <div class="roadmap-form-group">
+              <label class="roadmap-form-label">Your Email</label>
+              <input
+                v-model="form.guest_email"
+                type="email"
+                class="roadmap-form-control"
+                required
+                placeholder="Enter your email address"
+              >
+            </div>
+          </template>
+
           <div class="roadmap-form-group">
             <label class="roadmap-form-label">Category (Optional)</label>
             <select v-model="form.category" class="roadmap-form-control">
@@ -80,7 +105,7 @@
 </template>
 
 <script setup>
-import { reactive, inject } from 'vue'
+import { reactive, inject, computed } from 'vue'
 
 const props = defineProps({
   categories: Array
@@ -91,12 +116,19 @@ const emit = defineEmits(['submit', 'close'])
 const config = inject('$roadmapConfig')
 const i18n = config?.i18n || {}
 
+// Check if user is guest and if Pro features are enabled
+const isGuest = computed(() => !config?.user || !config?.user?.ID)
+const isPro = computed(() => config?.is_pro || false)
+const guestSuggestionsEnabled = computed(() => config?.settings?.enable_guest_suggestions || false)
+
 const form = reactive({
   title: '',
   description: '',
   category: '',
   priority: '',
-  external_link: ''
+  external_link: '',
+  guest_name: '',
+  guest_email: ''
 })
 
 const handleSubmit = () => {

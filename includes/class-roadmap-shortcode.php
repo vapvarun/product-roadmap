@@ -67,6 +67,8 @@ class Roadmap_Shortcode {
         $this->enqueue_assets();
         
         // Prepare data for Vue app
+        $global_settings = get_option('roadmap_global_settings', []);
+
         $app_data = [
             'api_url' => rest_url('roadmap/v1'),
             'nonce' => wp_create_nonce('wp_rest'),
@@ -77,11 +79,11 @@ class Roadmap_Shortcode {
             'default_sort' => $atts['sort'],
             'is_pro' => (defined('ROADMAP_PRO_ACTIVE') && ROADMAP_PRO_ACTIVE),
             'settings' => [
-                'enable_voting' => get_option('roadmap_enable_voting', 'yes') === 'yes',
-                'allow_guest_voting' => get_option('roadmap_allow_guest_voting', 'yes') === 'yes',
-                'enable_comments' => get_option('roadmap_enable_comments', 'yes') === 'yes',
-                'enable_suggestions' => get_option('roadmap_enable_suggestions', 'yes') === 'yes',
-                'items_per_page' => (int) get_option('roadmap_items_per_page', 100),
+                'enable_voting' => $global_settings['enable_voting'] ?? (get_option('roadmap_enable_voting', 'yes') === 'yes'),
+                'allow_guest_voting' => $global_settings['allow_guest_voting'] ?? (get_option('roadmap_allow_guest_voting', 'yes') === 'yes'),
+                'enable_comments' => $global_settings['enable_comments'] ?? (get_option('roadmap_enable_comments', 'yes') === 'yes'),
+                'enable_suggestions' => $global_settings['enable_suggestions'] ?? (get_option('roadmap_enable_suggestions', 'yes') === 'yes'),
+                'items_per_page' => $global_settings['items_per_page'] ?? (int) get_option('roadmap_items_per_page', 100),
             ],
             'user' => $this->get_user_data(),
             'i18n' => $this->get_translations(),
@@ -219,14 +221,14 @@ class Roadmap_Shortcode {
         $user = wp_get_current_user();
         
         return [
-            'id' => $user->ID,
+            'ID' => $user->ID,  // Changed to uppercase to match Vue component check
+            'id' => $user->ID,  // Keep lowercase for backward compatibility
             'name' => $user->display_name,
             'email' => $user->user_email,
             'avatar' => get_avatar_url($user->ID),
-            'can_vote' => get_option('roadmap_enable_voting', 'yes') === 'yes' && 
-                          (get_option('roadmap_allow_guest_voting', 'yes') === 'yes' || is_user_logged_in()),
-            'can_comment' => get_option('roadmap_enable_comments', 'yes') === 'yes',
-            'can_suggest' => get_option('roadmap_enable_suggestions', 'yes') === 'yes',
+            'can_vote' => $this->can_user_vote(),
+            'can_comment' => $this->can_user_comment(),
+            'can_suggest' => $this->can_user_suggest(),
             'can_edit' => current_user_can('edit_posts'),
             'can_manage' => current_user_can('manage_options'),
         ];
@@ -372,5 +374,28 @@ class Roadmap_Shortcode {
             'item_plural' => $item_plural,
             'product_name' => $product_name,
         ];
+    }
+
+    private function can_user_vote() {
+        $global_settings = get_option('roadmap_global_settings', []);
+        $voting_enabled = $global_settings['enable_voting'] ?? (get_option('roadmap_enable_voting', 'yes') === 'yes');
+        $guest_voting_allowed = $global_settings['allow_guest_voting'] ?? (get_option('roadmap_allow_guest_voting', 'yes') === 'yes');
+
+        return $voting_enabled && ($guest_voting_allowed || is_user_logged_in());
+    }
+
+    private function can_user_comment() {
+        $global_settings = get_option('roadmap_global_settings', []);
+        $comments_enabled = $global_settings['enable_comments'] ?? (get_option('roadmap_enable_comments', 'yes') === 'yes');
+
+        return is_user_logged_in() && $comments_enabled;
+    }
+
+    private function can_user_suggest() {
+        $global_settings = get_option('roadmap_global_settings', []);
+        $suggestions_enabled = $global_settings['enable_suggestions'] ?? (get_option('roadmap_enable_suggestions', 'yes') === 'yes');
+        $requires_login = $global_settings['suggestion_requires_login'] ?? true;
+
+        return $suggestions_enabled && ($requires_login ? is_user_logged_in() : true);
     }
 }

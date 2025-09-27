@@ -262,7 +262,19 @@ const notification = ref({
 // Computed
 const canEdit = computed(() => props.config.user?.can_edit || false)
 const canManage = computed(() => props.config.user?.can_manage || false)
-const canSuggest = computed(() => props.config.user?.can_suggest || false)
+const canSuggest = computed(() => {
+  // Logged-in users can suggest if they have permission
+  if (props.config.user?.can_suggest) {
+    return true
+  }
+
+  // Guest users can suggest if Pro is active and guest suggestions are enabled
+  if (!props.config.user && props.config.is_pro && props.config.settings?.enable_guest_suggestions) {
+    return true
+  }
+
+  return false
+})
 
 const currentProductName = computed(() => {
   // Get the current product
@@ -525,33 +537,45 @@ const submitComment = async (commentData) => {
 
 const submitSuggestion = async (suggestionData) => {
   try {
-    // Find category ID from slug
-    let categoryIds = []
-    if (suggestionData.category) {
-      const category = categories.value.find(c => c.slug === suggestionData.category)
-      if (category) {
-        categoryIds = [category.id]
-      }
-    }
-    
-    // Create a roadmap item with "suggested" or "under-review" status
-    const itemData = {
+    // Check if user is logged in or guest
+    const isGuest = !props.config.user || !props.config.user.ID
+    const isPro = props.config.is_pro
+    const guestSuggestionsEnabled = props.config.settings?.enable_guest_suggestions
+
+    let endpoint = '/suggest'
+    let payload = {
       title: suggestionData.title,
-      content: suggestionData.description,
-      status: 'under-review', // This status already exists from our earlier setup
-      categories: categoryIds,
-      product: props.config.product || 'main',
-      priority: 'medium'
+      description: suggestionData.description,
+      category: suggestionData.category || '',
+      priority: suggestionData.priority || 'medium'
     }
-    
-    await saveItem(itemData)
-    showNotification('Your feature suggestion has been submitted!', 'success')
+
+    // If guest and Pro with guest suggestions enabled
+    if (isGuest && isPro && guestSuggestionsEnabled) {
+      endpoint = '/guest-suggest'
+      payload.guest_name = suggestionData.guest_name || ''
+      payload.guest_email = suggestionData.guest_email || ''
+      payload.product = props.config.product || 'main'
+    } else if (isGuest) {
+      // Guest but no Pro or guest suggestions not enabled
+      showNotification(props.config.i18n.login_required || 'Please login to submit suggestions', 'error')
+      return
+    }
+
+    const response = await apiCall(endpoint, {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    })
+
+    showNotification(response.message || 'Your feature suggestion has been submitted!', 'success')
     closeSuggestionModal()
-    
-    // Refresh the items to show the new suggestion
-    await fetchItems()
+
+    // Only refresh if user can view pending items (admin)
+    if (props.config.user?.can_edit) {
+      await fetchItems()
+    }
   } catch (err) {
-    showNotification(err.response?.data?.message || props.config.i18n.error, 'error')
+    showNotification(err.message || err.response?.data?.message || props.config.i18n.error, 'error')
   }
 }
 

@@ -22,11 +22,14 @@ class Roadmap_Settings {
         add_action('admin_enqueue_scripts', [$this, 'enqueue_admin_assets']);
         add_action('wp_ajax_roadmap_save_product_settings', [$this, 'ajax_save_product_settings']);
         add_action('wp_ajax_roadmap_get_product_settings', [$this, 'ajax_get_product_settings']);
-        
+
+        // Add admin notice for pending submissions
+        add_action('admin_notices', [$this, 'show_pending_submissions_notice']);
+
         // Add shortcode column to product taxonomy
         add_filter('manage_edit-roadmap_product_columns', [$this, 'add_product_columns']);
         add_filter('manage_roadmap_product_custom_column', [$this, 'fill_product_columns'], 10, 3);
-        
+
         // Menu highlighting for taxonomies
         add_filter('parent_file', [$this, 'set_taxonomy_parent_menu']);
         add_filter('submenu_file', [$this, 'set_taxonomy_submenu_active']);
@@ -150,12 +153,7 @@ class Roadmap_Settings {
             'default' => 'Features'
         ]);
         
-        // Advanced settings
-        register_setting('roadmap_global', 'roadmap_allow_guest_voting', [
-            'type' => 'string',
-            'sanitize_callback' => [$this, 'sanitize_yes_no'],
-            'default' => 'yes'
-        ]);
+        // Advanced settings (legacy - now handled in global settings)
         register_setting('roadmap_global', 'roadmap_cache_expiry', [
             'type' => 'integer',
             'sanitize_callback' => 'absint',
@@ -175,6 +173,7 @@ class Roadmap_Settings {
             'default_status' => 'planned',
             'items_per_page' => 100,
             'enable_voting' => true,
+            'allow_guest_voting' => true,
             'enable_comments' => true,
             'enable_suggestions' => true,
             'suggestion_requires_login' => true,
@@ -190,11 +189,7 @@ class Roadmap_Settings {
     
     private function get_default_product_settings() {
         return [
-            'enable_voting' => true,
-            'enable_comments' => true,
-            'enable_suggestions' => true,
             'default_status' => 'planned',
-            'items_per_page' => 100,
             'show_in_nav_menu' => true,
             'custom_slug' => '',
             'theme_color' => '#2271b1',
@@ -213,7 +208,8 @@ class Roadmap_Settings {
             'post_type' => 'roadmap_item',
             'posts_per_page' => 5,
             'orderby' => 'date',
-            'order' => 'DESC'
+            'order' => 'DESC',
+            'post_status' => ['publish', 'pending']
         ]);
         ?>
         <div class="wrap">
@@ -243,6 +239,7 @@ class Roadmap_Settings {
                         $in_progress = get_posts([
                             'post_type' => 'roadmap_item',
                             'posts_per_page' => -1,
+                            'post_status' => ['publish', 'pending'],
                             // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- Dashboard statistics query
                             'tax_query' => [
                                 [
@@ -503,11 +500,11 @@ class Roadmap_Settings {
                 <div class="card-body">
                     <div class="form-row">
                         <label for="who_can_vote"><?php esc_html_e('Who Can Vote', 'product-roadmap'); ?></label>
-                        <select name="roadmap_allow_guest_voting" id="who_can_vote">
-                            <option value="yes" <?php selected(get_option('roadmap_allow_guest_voting', 'yes'), 'yes'); ?>>
+                        <select name="roadmap_global_settings[allow_guest_voting]" id="who_can_vote">
+                            <option value="1" <?php selected($settings['allow_guest_voting'] ?? true, true); ?>>
                                 <?php esc_html_e('Anyone (including guests)', 'product-roadmap'); ?>
                             </option>
-                            <option value="no" <?php selected(get_option('roadmap_allow_guest_voting', 'yes'), 'no'); ?>>
+                            <option value="0" <?php selected($settings['allow_guest_voting'] ?? true, false); ?>>
                                 <?php esc_html_e('Logged in users only', 'product-roadmap'); ?>
                             </option>
                         </select>
@@ -516,15 +513,26 @@ class Roadmap_Settings {
                     
                     <div class="form-row">
                         <label for="who_can_suggest"><?php esc_html_e('Who Can Suggest Ideas', 'product-roadmap'); ?></label>
+                        <?php $is_pro = defined('ROADMAP_PRO_ACTIVE') && ROADMAP_PRO_ACTIVE; ?>
                         <select name="roadmap_global_settings[suggestion_requires_login]" id="who_can_suggest">
-                            <option value="0" <?php selected($settings['suggestion_requires_login'] ?? true, false); ?>>
+                            <option value="0" <?php selected($settings['suggestion_requires_login'] ?? true, false); ?> <?php echo !$is_pro ? 'disabled' : ''; ?>>
                                 <?php esc_html_e('Anyone (including guests)', 'product-roadmap'); ?>
+                                <?php if (!$is_pro) : ?>
+                                    <?php esc_html_e('(Pro)', 'product-roadmap'); ?>
+                                <?php endif; ?>
                             </option>
                             <option value="1" <?php selected($settings['suggestion_requires_login'] ?? true, true); ?>>
                                 <?php esc_html_e('Logged in users only', 'product-roadmap'); ?>
                             </option>
                         </select>
-                        <p class="description"><?php esc_html_e('Control who can submit new ideas.', 'product-roadmap'); ?></p>
+                        <?php if (!$is_pro) : ?>
+                            <p class="description">
+                                <span style="color: #d63638;"><?php esc_html_e('Guest suggestions require Pro addon.', 'product-roadmap'); ?></span>
+                                <?php esc_html_e('Currently only logged-in users can submit ideas.', 'product-roadmap'); ?>
+                            </p>
+                        <?php else : ?>
+                            <p class="description"><?php esc_html_e('Control who can submit new ideas.', 'product-roadmap'); ?></p>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
@@ -809,20 +817,9 @@ class Roadmap_Settings {
                                 <tr>
                                     <th scope="row"><?php esc_html_e('Features', 'product-roadmap'); ?></th>
                                     <td>
-                                        <label>
-                                            <input type="checkbox" name="enable_voting" value="1" checked>
-                                            <?php esc_html_e('Enable Voting', 'product-roadmap'); ?>
-                                        </label><br>
-                                        
-                                        <label>
-                                            <input type="checkbox" name="enable_comments" value="1" checked>
-                                            <?php esc_html_e('Enable Comments', 'product-roadmap'); ?>
-                                        </label><br>
-                                        
-                                        <label>
-                                            <input type="checkbox" name="enable_suggestions" value="1" checked>
-                                            <?php esc_html_e('Enable Suggestions', 'product-roadmap'); ?>
-                                        </label>
+                                        <p class="description">
+                                            <?php esc_html_e('Feature settings are controlled globally. Use the main settings page to enable/disable voting, comments, and suggestions.', 'product-roadmap'); ?>
+                                        </p>
                                     </td>
                                 </tr>
                                 
@@ -857,9 +854,6 @@ class Roadmap_Settings {
         $product_id = isset($_POST['product_id']) ? intval($_POST['product_id']) : 0;
         $settings = [
             'default_status' => isset($_POST['default_status']) ? sanitize_text_field(wp_unslash($_POST['default_status'])) : '',
-            'enable_voting' => !empty($_POST['enable_voting']),
-            'enable_comments' => !empty($_POST['enable_comments']),
-            'enable_suggestions' => !empty($_POST['enable_suggestions']),
             'theme_color' => isset($_POST['theme_color']) ? sanitize_hex_color(wp_unslash($_POST['theme_color'])) : '',
         ];
         
@@ -902,6 +896,7 @@ class Roadmap_Settings {
         $sanitized['default_status'] = sanitize_text_field($input['default_status'] ?? 'planned');
         $sanitized['items_per_page'] = absint($input['items_per_page'] ?? 100);
         $sanitized['enable_voting'] = !empty($input['enable_voting']);
+        $sanitized['allow_guest_voting'] = !empty($input['allow_guest_voting']);
         $sanitized['enable_comments'] = !empty($input['enable_comments']);
         $sanitized['enable_suggestions'] = !empty($input['enable_suggestions']);
         $sanitized['suggestion_requires_login'] = !empty($input['suggestion_requires_login']);
@@ -926,7 +921,7 @@ class Roadmap_Settings {
         $is_roadmap_page = (
             strpos($hook, 'roadmap') !== false ||
             strpos($hook, 'roadmap_item') !== false ||
-            (isset($_GET['page']) && strpos($_GET['page'], 'roadmap') !== false)
+            (isset($_GET['page']) && strpos(sanitize_text_field(wp_unslash($_GET['page'])), 'roadmap') !== false)
         );
 
         if (!$is_roadmap_page) {
@@ -1148,6 +1143,51 @@ class Roadmap_Settings {
     private function render_settings_styles() {
         // Styles moved to assets/css/roadmap-admin.css
         return;
+    }
+
+    /**
+     * Show admin notice for pending submissions
+     */
+    public function show_pending_submissions_notice() {
+        // Only show on roadmap-related admin pages
+        $screen = get_current_screen();
+        if (!$screen || strpos($screen->id, 'roadmap') === false) {
+            return;
+        }
+
+        // Check if user can edit posts
+        if (!current_user_can('edit_posts')) {
+            return;
+        }
+
+        // Count pending submissions
+        $pending_count = wp_count_posts('roadmap_item')->pending;
+
+        if ($pending_count > 0) {
+            $review_link = admin_url('edit.php?post_status=pending&post_type=roadmap_item');
+            ?>
+            <div class="notice notice-warning is-dismissible">
+                <p>
+                    <strong><?php esc_html_e('Roadmap Submissions:', 'product-roadmap'); ?></strong>
+                    <?php
+                    printf(
+                        /* translators: %s: Number of pending submissions */
+                        esc_html( _n(
+                            'You have %s pending submission awaiting review.',
+                            'You have %s pending submissions awaiting review.',
+                            $pending_count,
+                            'product-roadmap'
+                        ) ),
+                        '<strong>' . esc_html( $pending_count ) . '</strong>'
+                    );
+                    ?>
+                    <a href="<?php echo esc_url($review_link); ?>" class="button">
+                        <?php esc_html_e('Review Now', 'product-roadmap'); ?>
+                    </a>
+                </p>
+            </div>
+            <?php
+        }
     }
 }
 

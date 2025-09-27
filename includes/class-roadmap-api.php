@@ -222,12 +222,14 @@ class Roadmap_API {
             'post_type' => 'roadmap_item',
             'posts_per_page' => $params['per_page'],
             'paged' => $params['page'],
-            'post_status' => 'publish',
             // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- API endpoint requires filtering
             'meta_query' => [],
             // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- API endpoint requires filtering
             'tax_query' => [],
         ];
+
+        // Only show published posts on frontend (pending is for backend only)
+        $args['post_status'] = 'publish';
         
         // Filter by product (mandatory)
         $product_filter = $params['product'];
@@ -265,10 +267,11 @@ class Roadmap_API {
                 'terms' => $params['category'],
             ];
         }
-        
+
+        // Run the query
         $query = new WP_Query($args);
         $items = [];
-        
+
         foreach ($query->posts as $post) {
             $items[] = $this->format_item($post);
         }
@@ -326,21 +329,31 @@ class Roadmap_API {
     }
     
     private function has_user_voted($item_id) {
-        if (!is_user_logged_in()) {
-            return false;
-        }
-        
         global $wpdb;
         $table = $wpdb->prefix . 'roadmap_votes';
         $user_id = get_current_user_id();
-        
-        $vote = $wpdb->get_var($wpdb->prepare(
-            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-            "SELECT vote_value FROM {$table} WHERE user_id = %d AND item_id = %d",
-            $user_id,
-            $item_id
-        )); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table, caching not needed for single user vote check
-        
+
+        $vote = null;
+
+        if ($user_id) {
+            // Check logged in user vote
+            $vote = $wpdb->get_var($wpdb->prepare(
+                // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+                "SELECT vote_value FROM {$table} WHERE user_id = %d AND item_id = %d",
+                $user_id,
+                $item_id
+            )); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table, caching not needed for single user vote check
+        } else {
+            // Check guest vote by IP
+            $guest_ip = $this->get_user_ip();
+            $vote = $wpdb->get_var($wpdb->prepare(
+                // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+                "SELECT vote_value FROM {$table} WHERE guest_ip = %s AND item_id = %d",
+                $guest_ip,
+                $item_id
+            )); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table, caching not needed for single user vote check
+        }
+
         return $vote ? (int) $vote : false;
     }
     
@@ -348,37 +361,55 @@ class Roadmap_API {
         $item_id = $request->get_param('item_id');
         $vote_value = $request->get_param('vote_value');
         $user_id = get_current_user_id();
-        
+
         global $wpdb;
         $table = $wpdb->prefix . 'roadmap_votes';
-        
-        // Check if user already voted
-        $existing_vote = $wpdb->get_row($wpdb->prepare(
-            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-            "SELECT * FROM {$table} WHERE user_id = %d AND item_id = %d",
-            $user_id,
-            $item_id
-        )); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table, caching not needed for vote submission
-        
+
+        $existing_vote = null;
+        $insert_data = [
+            'item_id' => $item_id,
+            'vote_value' => $vote_value,
+        ];
+        $where_clause = [];
+
+        if ($user_id) {
+            // Logged in user
+            $existing_vote = $wpdb->get_row($wpdb->prepare(
+                // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+                "SELECT * FROM {$table} WHERE user_id = %d AND item_id = %d",
+                $user_id,
+                $item_id
+            )); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table, caching not needed for vote submission
+
+            $insert_data['user_id'] = $user_id;
+            $where_clause = ['user_id' => $user_id, 'item_id' => $item_id];
+        } else {
+            // Guest user
+            $guest_ip = $this->get_user_ip();
+            $existing_vote = $wpdb->get_row($wpdb->prepare(
+                // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+                "SELECT * FROM {$table} WHERE guest_ip = %s AND item_id = %d",
+                $guest_ip,
+                $item_id
+            )); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table, caching not needed for vote submission
+
+            $insert_data['guest_ip'] = $guest_ip;
+            $insert_data['user_agent'] = isset($_SERVER['HTTP_USER_AGENT']) ? sanitize_text_field(wp_unslash($_SERVER['HTTP_USER_AGENT'])) : '';
+            $where_clause = ['guest_ip' => $guest_ip, 'item_id' => $item_id];
+        }
+
         if ($existing_vote) {
             // Update existing vote
             // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table update
             $wpdb->update(
                 $table,
                 ['vote_value' => $vote_value],
-                ['user_id' => $user_id, 'item_id' => $item_id]
+                $where_clause
             );
         } else {
             // Insert new vote
             // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Custom table insert
-            $wpdb->insert(
-                $table,
-                [
-                    'user_id' => $user_id,
-                    'item_id' => $item_id,
-                    'vote_value' => $vote_value,
-                ]
-            );
+            $wpdb->insert($table, $insert_data);
         }
         
         // Update vote count
@@ -411,9 +442,10 @@ class Roadmap_API {
         $category = $request->get_param('category');
         $user_id = get_current_user_id();
 
-        // Check if auto-approve is enabled
+        // Check if auto-approve is enabled (default is false - submissions go to pending)
         $global_settings = get_option('roadmap_global_settings', []);
         $auto_approve = !empty($global_settings['auto_approve_suggestions']);
+        // IMPORTANT: Default behavior is to set posts to 'pending' for admin review
         $post_status = $auto_approve ? 'publish' : 'pending';
 
         $post_data = [
@@ -424,11 +456,11 @@ class Roadmap_API {
             'post_author' => $user_id,
         ];
         
-        $post_id = wp_insert_post($post_data);
-        
+        $post_id = wp_insert_post($post_data, true);
+
         if ($post_id && !is_wp_error($post_id)) {
-            // Set status based on settings
-            $default_status = $auto_approve ? ($global_settings['suggestion_default_status'] ?? 'planned') : 'planned';
+            // Set status based on settings - use configured default status for all suggestions
+            $default_status = $global_settings['suggestion_default_status'] ?? 'planned';
             wp_set_object_terms($post_id, $default_status, 'roadmap_status');
             
             // Set category if provided
@@ -456,6 +488,7 @@ class Roadmap_API {
             return new WP_REST_Response([
                 'success' => true,
                 'message' => __('Thank you for your suggestion!', 'product-roadmap'),
+                'id' => $post_id,
             ], 200);
         }
         
@@ -634,12 +667,13 @@ class Roadmap_API {
     }
     
     public function get_settings($request) {
+        $global_settings = get_option('roadmap_global_settings', []);
         $settings = [
-            'enable_voting' => get_option('roadmap_enable_voting', 'yes') === 'yes',
-            'allow_guest_voting' => get_option('roadmap_allow_guest_voting', 'yes') === 'yes',
-            'enable_comments' => get_option('roadmap_enable_comments', 'yes') === 'yes',
-            'enable_suggestions' => get_option('roadmap_enable_suggestions', 'yes') === 'yes',
-            'items_per_page' => (int) get_option('roadmap_items_per_page', 100),
+            'enable_voting' => $global_settings['enable_voting'] ?? (get_option('roadmap_enable_voting', 'yes') === 'yes'),
+            'allow_guest_voting' => $global_settings['allow_guest_voting'] ?? (get_option('roadmap_allow_guest_voting', 'yes') === 'yes'),
+            'enable_comments' => $global_settings['enable_comments'] ?? (get_option('roadmap_enable_comments', 'yes') === 'yes'),
+            'enable_suggestions' => $global_settings['enable_suggestions'] ?? (get_option('roadmap_enable_suggestions', 'yes') === 'yes'),
+            'items_per_page' => $global_settings['items_per_page'] ?? (int) get_option('roadmap_items_per_page', 100),
             'current_user' => $this->get_current_user_data(),
             'statuses' => $this->get_all_statuses(),
             'categories' => $this->get_all_categories(),
@@ -727,22 +761,29 @@ class Roadmap_API {
     
     public function update_settings($request) {
         $settings = $request->get_json_params();
-        
+        $global_settings = get_option('roadmap_global_settings', []);
+
         if (isset($settings['enable_voting'])) {
-            update_option('roadmap_enable_voting', $settings['enable_voting'] ? 'yes' : 'no');
+            $global_settings['enable_voting'] = (bool) $settings['enable_voting'];
         }
-        
+
+        if (isset($settings['allow_guest_voting'])) {
+            $global_settings['allow_guest_voting'] = (bool) $settings['allow_guest_voting'];
+        }
+
         if (isset($settings['enable_comments'])) {
-            update_option('roadmap_enable_comments', $settings['enable_comments'] ? 'yes' : 'no');
+            $global_settings['enable_comments'] = (bool) $settings['enable_comments'];
         }
-        
+
         if (isset($settings['enable_suggestions'])) {
-            update_option('roadmap_enable_suggestions', $settings['enable_suggestions'] ? 'yes' : 'no');
+            $global_settings['enable_suggestions'] = (bool) $settings['enable_suggestions'];
         }
-        
+
         if (isset($settings['items_per_page'])) {
-            update_option('roadmap_items_per_page', absint($settings['items_per_page']));
+            $global_settings['items_per_page'] = absint($settings['items_per_page']);
         }
+
+        update_option('roadmap_global_settings', $global_settings);
         
         do_action('roadmap_settings_updated', $settings);
         
@@ -810,18 +851,22 @@ class Roadmap_API {
     
     // Permission callbacks
     public function can_vote() {
-        $voting_enabled = get_option('roadmap_enable_voting', 'yes') === 'yes';
-        $guest_voting_allowed = get_option('roadmap_allow_guest_voting', 'yes') === 'yes';
-        
+        $global_settings = get_option('roadmap_global_settings', []);
+        $voting_enabled = $global_settings['enable_voting'] ?? (get_option('roadmap_enable_voting', 'yes') === 'yes');
+        $guest_voting_allowed = $global_settings['allow_guest_voting'] ?? (get_option('roadmap_allow_guest_voting', 'yes') === 'yes');
+
         return $voting_enabled && ($guest_voting_allowed || is_user_logged_in());
     }
     
     public function can_comment() {
-        return is_user_logged_in() && get_option('roadmap_enable_comments', 'yes') === 'yes';
+        $global_settings = get_option('roadmap_global_settings', []);
+        $comments_enabled = $global_settings['enable_comments'] ?? (get_option('roadmap_enable_comments', 'yes') === 'yes');
+
+        return is_user_logged_in() && $comments_enabled;
     }
     
     public function can_suggest() {
-        return is_user_logged_in() && get_option('roadmap_enable_suggestions', 'yes') === 'yes';
+        return Roadmap_Permissions::can_suggest();
     }
     
     public function can_edit_items() {
@@ -830,5 +875,19 @@ class Roadmap_API {
     
     public function can_manage_settings() {
         return current_user_can('manage_options');
+    }
+
+    private function get_user_ip() {
+        $ip = '';
+
+        if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
+            $ip = sanitize_text_field(wp_unslash($_SERVER['HTTP_CLIENT_IP']));
+        } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+            $ip = sanitize_text_field(wp_unslash($_SERVER['HTTP_X_FORWARDED_FOR']));
+        } elseif (!empty($_SERVER['REMOTE_ADDR'])) {
+            $ip = sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR']));
+        }
+
+        return $ip;
     }
 }

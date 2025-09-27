@@ -3,7 +3,7 @@
  * Plugin Name: Product Roadmap
  * Plugin URI: https://wbcomdesigns.com/plugins/product-roadmap/
  * Description: Create public product roadmaps to share your vision, collect user feedback, and build products your customers actually want.
- * Version: 1.1.0
+ * Version: 1.1.1
  * Author: wbcomdesigns
  * Author URI: https://wbcomdesigns.com/
  * License: GPL v2 or later
@@ -18,7 +18,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('ROADMAP_VERSION', '1.1.0');
+define('ROADMAP_VERSION', '1.1.1');
 define('ROADMAP_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('ROADMAP_PLUGIN_PATH', plugin_dir_path(__FILE__));
 define('ROADMAP_PLUGIN_BASENAME', plugin_basename(__FILE__));
@@ -59,8 +59,9 @@ class RoadmapPlugin {
     private function define_hooks() {
         register_activation_hook(__FILE__, [$this, 'activate']);
         register_deactivation_hook(__FILE__, [$this, 'deactivate']);
-        
+
         add_action('init', [$this, 'init']);
+        add_action('upgrader_process_complete', [$this, 'handle_plugin_update'], 10, 2);
         
         // Initialize components
         Roadmap_CPT::get_instance();
@@ -84,10 +85,34 @@ class RoadmapPlugin {
         if (!defined('ROADMAP_PRO_ACTIVE')) {
             define('ROADMAP_PRO_ACTIVE', false);
         }
-        
+
         // Run migration check on admin init
         if (is_admin()) {
             add_action('admin_init', [$this, 'check_migration']);
+            add_action('admin_init', [$this, 'check_version_update']);
+        }
+    }
+
+    /**
+     * Check if plugin version has changed and flush rewrite rules if needed
+     */
+    public function check_version_update() {
+        $stored_version = get_option('roadmap_version');
+
+        // If version changed or not set, flush rewrite rules
+        if ($stored_version !== ROADMAP_VERSION) {
+            // Re-register post types and taxonomies
+            if (class_exists('Roadmap_CPT')) {
+                $cpt_instance = Roadmap_CPT::get_instance();
+                $cpt_instance->register_post_types();
+                $cpt_instance->register_taxonomies();
+            }
+
+            // Flush rewrite rules
+            flush_rewrite_rules();
+
+            // Update stored version
+            update_option('roadmap_version', ROADMAP_VERSION);
         }
     }
     
@@ -134,6 +159,50 @@ class RoadmapPlugin {
     public function deactivate() {
         flush_rewrite_rules();
     }
+
+    /**
+     * Handle plugin updates - flush rewrite rules when this plugin is updated
+     *
+     * @param WP_Upgrader $upgrader_object WP_Upgrader instance
+     * @param array $options Array of bulk item update data
+     */
+    public function handle_plugin_update($upgrader_object, $options) {
+        // Check if this is a plugin update
+        if ($options['action'] !== 'update' || $options['type'] !== 'plugin') {
+            return;
+        }
+
+        // Check if our plugin is being updated
+        $our_plugin = plugin_basename(__FILE__);
+
+        // Handle single plugin update
+        if (isset($options['plugin']) && $options['plugin'] === $our_plugin) {
+            $this->flush_rewrite_on_update();
+        }
+
+        // Handle bulk plugin updates
+        if (isset($options['plugins']) && is_array($options['plugins']) && in_array($our_plugin, $options['plugins'])) {
+            $this->flush_rewrite_on_update();
+        }
+    }
+
+    /**
+     * Flush rewrite rules on plugin update
+     */
+    private function flush_rewrite_on_update() {
+        // Re-register post types and taxonomies to ensure they're loaded
+        if (class_exists('Roadmap_CPT')) {
+            $cpt_instance = Roadmap_CPT::get_instance();
+            $cpt_instance->register_post_types();
+            $cpt_instance->register_taxonomies();
+        }
+
+        // Flush rewrite rules
+        flush_rewrite_rules();
+
+        // Store version for comparison on next update
+        update_option('roadmap_version', ROADMAP_VERSION);
+    }
     
     private function create_tables() {
         global $wpdb;
@@ -144,13 +213,17 @@ class RoadmapPlugin {
         $votes_table = $wpdb->prefix . 'roadmap_votes';
         $sql_votes = "CREATE TABLE IF NOT EXISTS $votes_table (
             id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-            user_id bigint(20) unsigned NOT NULL,
+            user_id bigint(20) unsigned DEFAULT NULL,
             item_id bigint(20) unsigned NOT NULL,
             vote_value int(1) NOT NULL DEFAULT 1,
+            guest_ip varchar(45) DEFAULT NULL,
+            user_agent text,
             created_at datetime DEFAULT CURRENT_TIMESTAMP,
             PRIMARY KEY (id),
             UNIQUE KEY user_item (user_id, item_id),
-            KEY item_id (item_id)
+            UNIQUE KEY guest_item (guest_ip, item_id),
+            KEY item_id (item_id),
+            KEY guest_ip (guest_ip)
         ) $charset_collate;";
         
         require_once(ABSPATH . 'wp-admin/includes/upgrade.php');

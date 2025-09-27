@@ -52,6 +52,7 @@ class Roadmap_Permissions {
             'subscriber' => [
                 'roadmap_vote',
                 'roadmap_comment',
+                'roadmap_suggest',
             ],
         ];
         
@@ -66,21 +67,26 @@ class Roadmap_Permissions {
     }
     
     public function filter_capabilities($allcaps, $caps, $args, $user) {
+        $global_settings = get_option('roadmap_global_settings', []);
+
         // Check if voting is enabled
-        if (in_array('roadmap_vote', $caps) && get_option('roadmap_enable_voting', 'yes') !== 'yes') {
+        $voting_enabled = $global_settings['enable_voting'] ?? (get_option('roadmap_enable_voting', 'yes') === 'yes');
+        if (in_array('roadmap_vote', $caps) && !$voting_enabled) {
             return $allcaps;
         }
-        
+
         // Check if comments are enabled
-        if (in_array('roadmap_comment', $caps) && get_option('roadmap_enable_comments', 'yes') !== 'yes') {
+        $comments_enabled = $global_settings['enable_comments'] ?? (get_option('roadmap_enable_comments', 'yes') === 'yes');
+        if (in_array('roadmap_comment', $caps) && !$comments_enabled) {
             return $allcaps;
         }
-        
+
         // Check if suggestions are enabled
-        if (in_array('roadmap_suggest', $caps) && get_option('roadmap_enable_suggestions', 'yes') !== 'yes') {
+        $suggestions_enabled = $global_settings['enable_suggestions'] ?? (get_option('roadmap_enable_suggestions', 'yes') === 'yes');
+        if (in_array('roadmap_suggest', $caps) && !$suggestions_enabled) {
             return $allcaps;
         }
-        
+
         return $allcaps;
     }
     
@@ -88,24 +94,33 @@ class Roadmap_Permissions {
         if (!$user_id) {
             $user_id = get_current_user_id();
         }
-        
-        return user_can($user_id, 'roadmap_vote') && get_option('roadmap_enable_voting', 'yes') === 'yes';
+
+        $global_settings = get_option('roadmap_global_settings', []);
+        $voting_enabled = $global_settings['enable_voting'] ?? (get_option('roadmap_enable_voting', 'yes') === 'yes');
+
+        return user_can($user_id, 'roadmap_vote') && $voting_enabled;
     }
-    
+
     public static function can_comment($user_id = null) {
         if (!$user_id) {
             $user_id = get_current_user_id();
         }
-        
-        return user_can($user_id, 'roadmap_comment') && get_option('roadmap_enable_comments', 'yes') === 'yes';
+
+        $global_settings = get_option('roadmap_global_settings', []);
+        $comments_enabled = $global_settings['enable_comments'] ?? (get_option('roadmap_enable_comments', 'yes') === 'yes');
+
+        return user_can($user_id, 'roadmap_comment') && $comments_enabled;
     }
-    
+
     public static function can_suggest($user_id = null) {
         if (!$user_id) {
             $user_id = get_current_user_id();
         }
-        
-        return user_can($user_id, 'roadmap_suggest') && get_option('roadmap_enable_suggestions', 'yes') === 'yes';
+
+        $global_settings = get_option('roadmap_global_settings', []);
+        $suggestions_enabled = $global_settings['enable_suggestions'] ?? (get_option('roadmap_enable_suggestions', 'yes') === 'yes');
+
+        return user_can($user_id, 'roadmap_suggest') && $suggestions_enabled;
     }
     
     public static function can_edit_items($user_id = null) {

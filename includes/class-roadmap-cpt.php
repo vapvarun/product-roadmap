@@ -35,6 +35,15 @@ class Roadmap_CPT {
         
         // Pro hooks
         add_filter('roadmap_item_meta_fields', [$this, 'filter_meta_fields']);
+
+        // Admin post status views
+        add_filter('views_edit-roadmap_item', [$this, 'add_pending_post_status_view']);
+
+        // Quick approve/reject actions
+        add_filter('post_row_actions', [$this, 'add_quick_approve_actions'], 10, 2);
+        add_action('admin_action_approve_roadmap_item', [$this, 'handle_approve_action']);
+        add_action('admin_action_reject_roadmap_item', [$this, 'handle_reject_action']);
+        add_action('admin_notices', [$this, 'show_action_notices']);
     }
     
     public function register_post_types() {
@@ -650,6 +659,36 @@ class Roadmap_CPT {
     }
     
     /**
+     * Add pending post status view in admin
+     */
+    public function add_pending_post_status_view($views) {
+        global $wpdb;
+
+        $post_type = 'roadmap_item';
+        $pending_count = (int) $wpdb->get_var(
+            $wpdb->prepare(
+                "SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = %s AND post_status = 'pending'",
+                $post_type
+            )
+        );
+
+        if ($pending_count > 0) {
+            $class = (isset($_GET['post_status']) && $_GET['post_status'] === 'pending') ? ' class="current"' : '';
+            $pending_url = admin_url('edit.php?post_status=pending&post_type=' . $post_type);
+
+            $views['pending'] = sprintf(
+                '<a href="%s"%s>%s <span class="count">(%d)</span></a>',
+                esc_url($pending_url),
+                $class,
+                __('Pending', 'product-roadmap'),
+                $pending_count
+            );
+        }
+
+        return $views;
+    }
+
+    /**
      * Add custom rewrite rules for product-specific URLs
      */
     public function add_rewrite_rules() {
@@ -742,7 +781,145 @@ class Roadmap_CPT {
                 return $custom_template;
             }
         }
-        
+
         return $template;
+    }
+
+    /**
+     * Add quick approve/reject actions to pending items
+     */
+    public function add_quick_approve_actions($actions, $post) {
+        if ($post->post_type !== 'roadmap_item' || $post->post_status !== 'pending') {
+            return $actions;
+        }
+
+        if (!current_user_can('publish_posts')) {
+            return $actions;
+        }
+
+        $approve_url = wp_nonce_url(
+            admin_url('admin.php?action=approve_roadmap_item&post=' . $post->ID),
+            'approve_roadmap_item_' . $post->ID
+        );
+
+        $reject_url = wp_nonce_url(
+            admin_url('admin.php?action=reject_roadmap_item&post=' . $post->ID),
+            'reject_roadmap_item_' . $post->ID
+        );
+
+        // Add approve action (with green color)
+        $actions['approve'] = sprintf(
+            '<a href="%s" style="color: #46b450;">%s</a>',
+            esc_url($approve_url),
+            __('Approve', 'product-roadmap')
+        );
+
+        // Add reject action (with red color)
+        $actions['reject'] = sprintf(
+            '<a href="%s" style="color: #dc3232;" onclick="return confirm(\'%s\');">%s</a>',
+            esc_url($reject_url),
+            esc_js(__('Are you sure you want to reject this submission?', 'product-roadmap')),
+            __('Reject', 'product-roadmap')
+        );
+
+        return $actions;
+    }
+
+    /**
+     * Handle approve action
+     */
+    public function handle_approve_action() {
+        if (!isset($_GET['post'])) {
+            wp_die(esc_html__('No submission specified', 'product-roadmap'));
+        }
+
+        $post_id = intval($_GET['post']);
+
+        // Security check
+        check_admin_referer('approve_roadmap_item_' . $post_id);
+
+        if (!current_user_can('publish_posts')) {
+            wp_die(esc_html__('You do not have permission to approve submissions', 'product-roadmap'));
+        }
+
+        $post = get_post($post_id);
+        if (!$post || $post->post_type !== 'roadmap_item') {
+            wp_die(esc_html__('Invalid submission', 'product-roadmap'));
+        }
+
+        // Update post status to publish
+        wp_update_post([
+            'ID' => $post_id,
+            'post_status' => 'publish'
+        ]);
+
+        // Set a transient for the success message
+        set_transient('roadmap_action_notice_' . get_current_user_id(), [
+            'type' => 'success',
+            /* translators: %s: Post title */
+            'message' => sprintf(__('"%s" has been approved and published!', 'product-roadmap'), $post->post_title)
+        ], 30);
+
+        // Redirect back to the list
+        wp_redirect(admin_url('edit.php?post_type=roadmap_item&approved=1'));
+        exit;
+    }
+
+    /**
+     * Handle reject action
+     */
+    public function handle_reject_action() {
+        if (!isset($_GET['post'])) {
+            wp_die(esc_html__('No submission specified', 'product-roadmap'));
+        }
+
+        $post_id = intval($_GET['post']);
+
+        // Security check
+        check_admin_referer('reject_roadmap_item_' . $post_id);
+
+        if (!current_user_can('delete_posts')) {
+            wp_die(esc_html__('You do not have permission to reject submissions', 'product-roadmap'));
+        }
+
+        $post = get_post($post_id);
+        if (!$post || $post->post_type !== 'roadmap_item') {
+            wp_die(esc_html__('Invalid submission', 'product-roadmap'));
+        }
+
+        // Move to trash
+        wp_trash_post($post_id);
+
+        // Set a transient for the success message
+        set_transient('roadmap_action_notice_' . get_current_user_id(), [
+            'type' => 'updated',
+            /* translators: %s: Post title */
+            'message' => sprintf(__('"%s" has been rejected and moved to trash.', 'product-roadmap'), $post->post_title)
+        ], 30);
+
+        // Redirect back to the list
+        wp_redirect(admin_url('edit.php?post_type=roadmap_item&rejected=1'));
+        exit;
+    }
+
+    /**
+     * Show admin notices after approve/reject actions
+     */
+    public function show_action_notices() {
+        $screen = get_current_screen();
+        if (!$screen || $screen->post_type !== 'roadmap_item') {
+            return;
+        }
+
+        // Check for transient message
+        $notice = get_transient('roadmap_action_notice_' . get_current_user_id());
+        if ($notice) {
+            printf(
+                '<div class="notice notice-%s is-dismissible"><p>%s</p></div>',
+                esc_attr($notice['type']),
+                esc_html($notice['message'])
+            );
+            delete_transient('roadmap_action_notice_' . get_current_user_id());
+        }
     }
 }

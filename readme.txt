@@ -3,7 +3,7 @@ Contributors: wbcomdesigns, vapvarun
 Tags: roadmap, product roadmap, feature voting, user feedback, product management
 Requires at least: 5.8
 Tested up to: 6.8
-Stable tag: 1.1.0
+Stable tag: 1.1.1
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -106,64 +106,21 @@ Multiple product roadmaps are available in the Pro version. Free version support
 7. Mobile responsive view of the roadmap
 8. Individual roadmap item with voting and comments
 
-== Developer Information ==
-
-= Build Process =
-
-This plugin uses modern JavaScript build tools for optimal performance and maintainability. **All source files are included in the distribution** to comply with WordPress.org guidelines.
-
-**Source Code Structure:**
-- `/vue-app/src/` - Vue 3 source files for the roadmap interface
-- `/assets/js/` - Compiled JavaScript files and additional scripts
-- `/assets/css/` - Stylesheets (both source and compiled)
-- `/build.sh` - Build script for compiling assets
-- `/package.json` - NPM dependencies and build scripts
-
-**JavaScript Files:**
-- `assets/js/roadmap-app.js` - Compiled from `/vue-app/src/` using Vite
-- `assets/js/index.js` - Compiled from `/vue-app/src/` using Vite
-- Source files are located in `/vue-app/src/` directory
-
-**Building from Source:**
-```bash
-# Install dependencies
-npm install
-cd vue-app && npm install && cd ..
-
-# Development mode
-npm run dev
-
-# Production build
-npm run build
-
-# Build all assets including RTL
-npm run build:all
-```
-
-**Build Tools & Technologies:**
-- Vue 3 - Interactive roadmap interface
-- Vite - Module bundler and build tool
-- PostCSS - CSS processing
-- RTLcss - Right-to-left language support
-- Terser - JavaScript minification
-
-**Why We Include Source Files:**
-In compliance with WordPress.org guidelines (Section 4 - Human Readable Code), we include all source files in our distribution. This allows developers to:
-- Review the original source code
-- Understand how the plugin works
-- Contribute improvements
-- Fork and modify the code
-- Build the assets themselves
-
-**File Types Included:**
-- All Vue source files (`/vue-app/src/`)
-- Build configuration files (`vite.config.js`, `package.json`)
-- Build scripts (`build.sh`, `build-all.sh`, `build-rtl.js`)
-- Documentation (`README.md`)
-
-The full uncompiled source code is available in the plugin directory for complete transparency and open-source collaboration.
-
 == Changelog ==
+
+= 1.1.1 =
+* Fix: User submissions now properly appear as pending for admin review instead of being lost
+* Fix: Subscribers can now submit suggestions (previously they couldn't due to permissions)
+* Fix: Guest voting now works correctly - visitors can vote without logging in
+* Fix: Settings page now clearly shows which features require Pro version
+* Fix: User suggestions now get the correct default status set in settings
+* Fix: Voting system no longer creates duplicate votes when users change their vote
+* Fix: Improved security with better input validation and output protection
+* Fix: Plugin now automatically refreshes URL structure after updates (prevents 404 errors)
+* Enhancement: All voting and suggestion settings are now in one easy-to-find location
+* Enhancement: Better support for non-English websites with improved translations
+* Enhancement: Guest users can now vote on features without creating an account
+* Enhancement: Smoother experience when updating the plugin - no manual steps needed
 
 = 1.1.0 =
 * New: Auto-approval option for user suggestions in settings
@@ -204,6 +161,9 @@ The full uncompiled source code is available in the plugin directory for complet
 * Shortcode support
 
 == Upgrade Notice ==
+
+= 1.1.1 =
+Important update! Fixes guest voting, subscriber permissions, and pending submissions workflow. Adds full guest voting support with IP tracking. Highly recommended for all users.
 
 = 1.1.0 =
 Major update! New auto-approval for suggestions, copy-to-clipboard for shortcodes, Gutenberg block support in Pro version, and improved admin UI. Recommended update for all users.
