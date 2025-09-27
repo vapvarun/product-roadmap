@@ -2,7 +2,7 @@
 
 Create public product roadmaps to share your vision, collect user feedback, and build products your customers actually want.
 
-**Version:** 1.1.0
+**Version:** 1.1.1
 **Requires WordPress:** 5.8 or higher
 **Requires PHP:** 7.4 or higher
 **License:** GPL v2 or later
@@ -11,13 +11,15 @@ Create public product roadmaps to share your vision, collect user feedback, and 
 
 Product Roadmap helps you build transparency with your customers by sharing your development plans and letting them vote on features that matter most to them.
 
-## 🚀 What's New in 1.1.0
+## 🚀 What's New in 1.1.1
 
-- **Auto-Approval for Suggestions**: Automatically publish user suggestions without manual review
-- **Copy to Clipboard**: Easy shortcode copying with visual feedback
-- **Enhanced Admin UI**: Modern animations, transitions, and responsive design
-- **Improved Settings**: Better organized settings page with toggle controls
-- **Pro Compatibility**: Seamless integration with Pro addon features
+- **Fixed Submission Workflow**: User submissions now properly appear as pending for admin review
+- **Enhanced Permissions**: Subscriber role can now submit roadmap suggestions
+- **Guest Voting Improvements**: Fixed database structure for guest voting with IP tracking
+- **Security & Compliance**: WordPress security compliance with proper input sanitization
+- **Automatic Permalink Refresh**: Flush permalinks on plugin activation and updates
+- **Better Admin Experience**: WordPress default styling for pending submission notices
+- **Improved Settings**: Clearer Pro feature indicators in free version
 
 ## 📖 Long Description
 
@@ -43,7 +45,7 @@ Product Roadmap transforms the way you communicate with your customers about upc
 - **Progress Tracking**: Show what's planned, in progress, under review, on hold, or completed
 - **Organized Categories**: Group similar features together for easy browsing
 - **User Suggestions**: Allow customers to submit their own feature ideas
-- **Auto-Approval Option** (NEW): Automatically publish suggestions without moderation
+- **Pending Review System**: Admin review workflow for user-submitted suggestions
 - **Comment System**: Enable discussions on each roadmap item
 - **Copy to Clipboard** (NEW): Easy shortcode copying throughout admin
 - **Setup Wizard**: Get started quickly with our 4-step guided setup
@@ -119,13 +121,12 @@ Add the roadmap to any page using the shortcode:
 ]
 ```
 
-### Auto-Approval Settings
+### Managing Submissions
 
-1. Go to **Roadmap → Settings → General**
-2. Find "User Suggestions" section
-3. Enable "Auto-approve user suggestions"
-4. Select default status for approved items
-5. Save settings
+1. Go to **Roadmap → Product Roadmap** in admin
+2. Click "Pending Review (X)" to see submitted items
+3. Use quick approve/reject actions
+4. Items are published when approved
 
 ### Copy Shortcode Feature
 
@@ -165,11 +166,13 @@ Navigate to **Roadmap → Settings** to access:
 1. Go to Product Roadmap in admin
 2. Click "Pending Review (X)" at the top
 3. Review and approve/reject suggestions
+4. Use quick action links for faster moderation
 
-**With Auto-Approval Enabled:**
-- Suggestions publish immediately
-- Default status applied automatically
-- No manual review required
+**Pending Review Workflow:**
+- User suggestions require admin approval
+- Clear notification of pending submissions
+- Quick approve/reject actions available
+- Automatic status assignment upon approval
 
 ## 🔌 REST API Endpoints
 
@@ -300,6 +303,17 @@ Create unlimited product roadmaps:
 - Verify CSS is loading
 
 ## 📝 Changelog
+
+### Version 1.1.1
+- Fix: User submissions now properly appear as pending for admin review
+- Fix: Subscriber role permissions to allow roadmap suggestions
+- Fix: Guest voting system with proper IP tracking and database structure
+- Fix: WordPress security compliance with proper input sanitization and output escaping
+- Fix: Automatic permalink flushing on plugin activation, deactivation, and updates
+- Enhancement: Quick approve/reject actions for pending submissions
+- Enhancement: Better support for non-English websites with improved translations
+- Enhancement: WordPress default styling for pending submissions notice
+- Update: Version tracking system to detect plugin updates and refresh rewrite rules
 
 ### Version 1.1.0
 - New: Auto-approval option for suggestions

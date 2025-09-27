@@ -1,5 +1,14 @@
 # Product Roadmap Developer Guide
 
+## What's New in v1.1.1
+
+- **Enhanced Submission API**: Fixed `/suggest` endpoint to properly create pending items for admin review
+- **Permission System**: Added `roadmap_suggest` capability to subscriber role
+- **Database Updates**: Enhanced guest voting with IP tracking and nullable user_id column
+- **Security Improvements**: WordPress coding standards compliance with proper escaping
+- **Admin Quick Actions**: Added approve/reject functionality for pending submissions
+- **Version Management**: Automatic permalink flushing on plugin updates
+
 ## Table of Contents
 1. [Architecture Overview](#architecture-overview)
 2. [File Structure](#file-structure)

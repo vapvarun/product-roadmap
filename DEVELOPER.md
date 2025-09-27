@@ -2,6 +2,16 @@
 
 This guide provides technical documentation for developers working with the Product Roadmap plugin.
 
+## What's New in v1.1.1
+
+- **Enhanced Submission Workflow**: Fixed user submissions to properly appear as pending for admin review
+- **Permission System**: Added `roadmap_suggest` capability to subscriber role for submission access
+- **Guest Voting Database**: Improved database structure with IP tracking and nullable user_id
+- **Security Compliance**: WordPress coding standards compliance with proper escaping and sanitization
+- **Quick Actions**: Added approve/reject actions for pending submissions in admin
+- **Permalink Management**: Automatic rewrite rule flushing on activation and updates
+- **Version Tracking**: Added system to detect plugin updates and refresh permalinks
+
 ## Table of Contents
 
 1. [Architecture Overview](#architecture-overview)
