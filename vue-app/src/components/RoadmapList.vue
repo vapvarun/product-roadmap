@@ -56,28 +56,28 @@
               
               <div class="roadmap-list-item-meta">
                 <div class="roadmap-list-item-badges">
-                  <span 
-                    v-if="item.status && item.status.length" 
+                  <span
+                    v-if="item.status && item.status.length"
                     class="roadmap-badge roadmap-badge-primary"
                   >
                     {{ item.status[0].name }}
                   </span>
-                  <span 
-                    v-if="item.priority" 
+                  <span
+                    v-if="item.priority"
                     class="roadmap-badge"
                     :class="`roadmap-badge-${getPriorityClass(item.priority)}`"
                   >
                     {{ item.priority }}
                   </span>
-                  <span 
-                    v-for="category in item.categories" 
+                  <span
+                    v-for="category in item.categories"
                     :key="category.id"
                     class="roadmap-badge roadmap-badge-secondary"
                   >
                     {{ category.name }}
                   </span>
                 </div>
-                
+
                 <div class="roadmap-list-item-stats">
                   <div class="roadmap-list-stat">
                     <i>👍</i> {{ item.votes || 0 }}
@@ -89,6 +89,23 @@
                     <i>📅</i> {{ formatDate(item.target_date) }}
                   </div>
                 </div>
+              </div>
+
+              <div v-if="mode === 'manage' && canEdit" class="roadmap-list-item-actions">
+                <button
+                  @click.stop="$emit('edit-item', item)"
+                  class="roadmap-btn roadmap-btn-sm roadmap-btn-secondary"
+                  title="Edit"
+                >
+                  ✏️ Edit
+                </button>
+                <button
+                  @click.stop="$emit('delete-item', item.id)"
+                  class="roadmap-btn roadmap-btn-sm roadmap-btn-danger"
+                  title="Delete"
+                >
+                  🗑️ Delete
+                </button>
               </div>
               
               <div 
@@ -141,7 +158,7 @@ const props = defineProps({
   }
 })
 
-defineEmits(['item-click', 'update-item'])
+defineEmits(['item-click', 'update-item', 'edit-item', 'delete-item'])
 
 const groupBy = ref('status')
 const sortBy = ref('created')
@@ -378,6 +395,19 @@ onMounted(() => {
   color: #666;
 }
 
+.roadmap-list-item-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #e0e0e0;
+
+  button {
+    font-size: 13px;
+    padding: 6px 12px;
+  }
+}
+
 .roadmap-list-item-progress {
   margin-top: 12px;
   display: flex;
@@ -467,6 +497,10 @@ onMounted(() => {
 
 .roadmap-dark .roadmap-list-item-stats {
   color: #999;
+}
+
+.roadmap-dark .roadmap-list-item-actions {
+  border-top-color: #50575e;
 }
 
 // Responsive

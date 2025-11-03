@@ -65,6 +65,22 @@
                     </span>
                   </div>
                 </div>
+                <div v-if="mode === 'manage' && canEdit" class="roadmap-timeline-item-actions">
+                  <button
+                    @click.stop="$emit('edit-item', item)"
+                    class="roadmap-btn roadmap-btn-sm roadmap-btn-secondary"
+                    title="Edit"
+                  >
+                    ✏️ Edit
+                  </button>
+                  <button
+                    @click.stop="$emit('delete-item', item.id)"
+                    class="roadmap-btn roadmap-btn-sm roadmap-btn-danger"
+                    title="Delete"
+                  >
+                    🗑️ Delete
+                  </button>
+                </div>
               </div>
               <div v-if="item.start_date && item.end_date" class="roadmap-timeline-item-dates">
                 <span>{{ formatDate(item.start_date) }} - {{ formatDate(item.end_date) }}</span>
@@ -120,6 +136,22 @@
                     </span>
                   </div>
                 </div>
+                <div v-if="mode === 'manage' && canEdit" class="roadmap-timeline-item-actions">
+                  <button
+                    @click.stop="$emit('edit-item', item)"
+                    class="roadmap-btn roadmap-btn-sm roadmap-btn-secondary"
+                    title="Edit"
+                  >
+                    ✏️ Edit
+                  </button>
+                  <button
+                    @click.stop="$emit('delete-item', item.id)"
+                    class="roadmap-btn roadmap-btn-sm roadmap-btn-danger"
+                    title="Delete"
+                  >
+                    🗑️ Delete
+                  </button>
+                </div>
               </div>
               <div v-if="item.start_date && item.end_date" class="roadmap-timeline-item-dates">
                 <span>{{ formatDate(item.start_date) }} - {{ formatDate(item.end_date) }}</span>
@@ -164,6 +196,22 @@
                     <span class="roadmap-timeline-votes">👍 {{ item.votes || 0 }}</span>
                     <span class="roadmap-timeline-comments">💬 {{ item.comment_count || 0 }}</span>
                   </div>
+                </div>
+                <div v-if="mode === 'manage' && canEdit" class="roadmap-timeline-item-actions">
+                  <button
+                    @click.stop="$emit('edit-item', item)"
+                    class="roadmap-btn roadmap-btn-sm roadmap-btn-secondary"
+                    title="Edit"
+                  >
+                    ✏️ Edit
+                  </button>
+                  <button
+                    @click.stop="$emit('delete-item', item.id)"
+                    class="roadmap-btn roadmap-btn-sm roadmap-btn-danger"
+                    title="Delete"
+                  >
+                    🗑️ Delete
+                  </button>
                 </div>
               </div>
             </div>
@@ -216,7 +264,7 @@ const props = defineProps({
   }
 })
 
-defineEmits(['item-click', 'update-item'])
+defineEmits(['item-click', 'update-item', 'edit-item', 'delete-item'])
 
 const currentView = ref('current')
 const now = new Date()
@@ -522,6 +570,19 @@ const formatDate = (date) => {
           height: 16px;
         }
       }
+    }
+  }
+
+  .roadmap-timeline-item-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid #f0f0f0;
+
+    button {
+      font-size: 13px;
+      padding: 6px 12px;
     }
   }
 

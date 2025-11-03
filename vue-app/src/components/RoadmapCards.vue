@@ -106,13 +106,30 @@
           v-if="item.categories && item.categories.length" 
           class="roadmap-card-categories"
         >
-          <span 
-            v-for="category in item.categories" 
+          <span
+            v-for="category in item.categories"
             :key="category.id"
             class="roadmap-category-tag"
           >
             {{ category.name }}
           </span>
+        </div>
+
+        <div v-if="mode === 'manage' && canEdit" class="roadmap-card-actions">
+          <button
+            @click.stop="$emit('edit-item', item)"
+            class="roadmap-btn roadmap-btn-sm roadmap-btn-secondary"
+            title="Edit"
+          >
+            ✏️ Edit
+          </button>
+          <button
+            @click.stop="$emit('delete-item', item.id)"
+            class="roadmap-btn roadmap-btn-sm roadmap-btn-danger"
+            title="Delete"
+          >
+            🗑️ Delete
+          </button>
         </div>
       </div>
     </div>
@@ -149,7 +166,7 @@ const props = defineProps({
   }
 })
 
-defineEmits(['item-click', 'update-item'])
+defineEmits(['item-click', 'update-item', 'edit-item', 'delete-item'])
 
 const columns = ref('auto')
 const sortBy = ref('votes')
@@ -410,6 +427,20 @@ const formatDate = (date) => {
   border-top: 1px solid #f0f0f0;
 }
 
+.roadmap-card-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #f0f0f0;
+
+  button {
+    font-size: 13px;
+    padding: 6px 12px;
+    flex: 1;
+  }
+}
+
 .roadmap-category-tag {
   font-size: 11px;
   padding: 3px 8px;
@@ -450,6 +481,10 @@ const formatDate = (date) => {
 }
 
 .roadmap-dark .roadmap-cards-grid .roadmap-card-categories {
+  border-top-color: #50575e;
+}
+
+.roadmap-dark .roadmap-cards-grid .roadmap-card-actions {
   border-top-color: #50575e;
 }
 

@@ -76,6 +76,22 @@
                   📅 {{ formatDate(item.target_date) }}
                 </div>
               </div>
+              <div v-if="mode === 'manage' && canEdit" class="roadmap-minimal-item-actions">
+                <button
+                  @click.stop="$emit('edit-item', item)"
+                  class="roadmap-btn roadmap-btn-sm roadmap-btn-secondary"
+                  title="Edit"
+                >
+                  ✏️ Edit
+                </button>
+                <button
+                  @click.stop="$emit('delete-item', item.id)"
+                  class="roadmap-btn roadmap-btn-sm roadmap-btn-danger"
+                  title="Delete"
+                >
+                  🗑️ Delete
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -131,7 +147,7 @@ const props = defineProps({
   }
 })
 
-defineEmits(['item-click', 'update-item'])
+defineEmits(['item-click', 'update-item', 'edit-item', 'delete-item'])
 
 const activeFilter = ref('all')
 const showCompleted = ref(true)
@@ -395,6 +411,19 @@ const formatDate = (date) => {
   color: #666;
 }
 
+.roadmap-minimal-item-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #f0f0f0;
+
+  button {
+    font-size: 13px;
+    padding: 6px 12px;
+  }
+}
+
 .roadmap-minimal-dot {
   width: 12px;
   height: 12px;
@@ -535,6 +564,10 @@ const formatDate = (date) => {
 .roadmap-dark .roadmap-minimal-item-description,
 .roadmap-dark .roadmap-minimal-item-meta {
   color: #aaa;
+}
+
+.roadmap-dark .roadmap-minimal-item-actions {
+  border-top-color: #50575e;
 }
 
 .roadmap-dark .roadmap-minimal-dot {
