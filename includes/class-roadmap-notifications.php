@@ -229,13 +229,27 @@ class Roadmap_Notifications {
     }
     
     private function send_notification($subject, $message) {
-        $to = get_option('roadmap_notification_email', get_option('admin_email'));
-        
+        $notification_emails = get_option('roadmap_notification_email', get_option('admin_email'));
+
+        // Parse multiple emails (one per line)
+        $emails = array_map('trim', explode("\n", $notification_emails));
+        $emails = array_filter($emails); // Remove empty lines
+        $emails = array_map('sanitize_email', $emails);
+        $emails = array_filter($emails); // Remove invalid emails
+
+        // Fallback to admin email if no valid emails
+        if (empty($emails)) {
+            $emails = [get_option('admin_email')];
+        }
+
         $headers = [
             'Content-Type: text/plain; charset=UTF-8',
             'From: ' . get_bloginfo('name') . ' <' . get_option('admin_email') . '>',
         ];
-        
-        wp_mail($to, $subject, $message, $headers);
+
+        // Send to all recipients
+        foreach ($emails as $to) {
+            wp_mail($to, $subject, $message, $headers);
+        }
     }
 }

@@ -643,11 +643,13 @@ class Roadmap_Settings {
                     </div>
                     
                     <div class="form-row" style="margin-top: 20px;">
-                        <label for="notification_email"><?php esc_html_e('Notification Email Address', 'product-roadmap'); ?></label>
-                        <input type="email" name="roadmap_global_settings[notification_email]" 
-                               id="notification_email" value="<?php echo esc_attr($settings['notification_email']); ?>" 
-                               class="regular-text" placeholder="admin@example.com" />
-                        <p class="description"><?php esc_html_e('Where notification emails should be sent.', 'product-roadmap'); ?></p>
+                        <label for="notification_email"><?php esc_html_e('Notification Email Addresses', 'product-roadmap'); ?></label>
+                        <textarea name="roadmap_global_settings[notification_email]"
+                                  id="notification_email"
+                                  rows="5"
+                                  class="large-text code"
+                                  placeholder="admin@example.com&#10;manager@example.com&#10;team@example.com"><?php echo esc_textarea($settings['notification_email']); ?></textarea>
+                        <p class="description"><?php esc_html_e('Enter one email address per line. All addresses will receive notification emails. Leave empty to use the admin email.', 'product-roadmap'); ?></p>
                     </div>
                 </div>
             </div>
@@ -903,7 +905,18 @@ class Roadmap_Settings {
         $sanitized['auto_approve_suggestions'] = !empty($input['auto_approve_suggestions']);
         $sanitized['suggestion_default_status'] = sanitize_text_field($input['suggestion_default_status'] ?? 'under-review');
         $sanitized['enable_notifications'] = !empty($input['enable_notifications']);
-        $sanitized['notification_email'] = sanitize_email($input['notification_email'] ?? '');
+
+        // Sanitize notification email(s) - supports multiple emails (one per line)
+        if (!empty($input['notification_email'])) {
+            $emails = array_map('trim', explode("\n", $input['notification_email']));
+            $emails = array_filter($emails); // Remove empty lines
+            $emails = array_map('sanitize_email', $emails);
+            $emails = array_filter($emails); // Remove invalid emails
+            $sanitized['notification_email'] = implode("\n", $emails);
+        } else {
+            $sanitized['notification_email'] = '';
+        }
+
         $sanitized['notify_on_vote'] = !empty($input['notify_on_vote']);
         $sanitized['notify_on_comment'] = !empty($input['notify_on_comment']);
         $sanitized['notify_on_suggestion'] = !empty($input['notify_on_suggestion']);
