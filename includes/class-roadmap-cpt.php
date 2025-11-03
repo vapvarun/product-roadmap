@@ -476,14 +476,18 @@ class Roadmap_CPT {
                 break;
                 
             case 'select':
+                $is_multiple = isset($field['multiple']) && $field['multiple'];
+                $name_attr = $is_multiple ? $field['id'] . '[]' : $field['id'];
+                $selected_values = $is_multiple && is_array($value) ? $value : [$value];
                 ?>
-                <select id="<?php echo esc_attr($field['id']); ?>" 
-                        name="<?php echo esc_attr($field['id']); ?>" 
+                <select id="<?php echo esc_attr($field['id']); ?>"
+                        name="<?php echo esc_attr($name_attr); ?>"
                         class="widefat"
+                        <?php echo $is_multiple ? 'multiple' : ''; ?>
                         <?php echo esc_attr($readonly); ?>>
                     <?php foreach ($field['options'] as $option_value => $option_label) : ?>
-                        <option value="<?php echo esc_attr($option_value); ?>" 
-                                <?php selected($value, $option_value); ?>>
+                        <option value="<?php echo esc_attr($option_value); ?>"
+                                <?php echo in_array($option_value, $selected_values, true) ? 'selected' : ''; ?>>
                             <?php echo esc_html($option_label); ?>
                         </option>
                     <?php endforeach; ?>
@@ -522,10 +526,21 @@ class Roadmap_CPT {
             if (isset($field['readonly']) && $field['readonly']) {
                 continue;
             }
-            
+
             if (isset($_POST[$field['id']])) {
-                $value = sanitize_text_field(wp_unslash($_POST[$field['id']]));
+                // Handle array values for multiple select fields
+                if (is_array($_POST[$field['id']])) {
+                    $value = array_map('sanitize_text_field', wp_unslash($_POST[$field['id']]));
+                } else {
+                    $value = sanitize_text_field(wp_unslash($_POST[$field['id']]));
+                }
                 update_post_meta($post_id, $field['id'], $value);
+            } else {
+                // Clear meta if field not in POST (e.g., unchecked multiselect)
+                $is_multiple = isset($field['multiple']) && $field['multiple'];
+                if ($is_multiple) {
+                    update_post_meta($post_id, $field['id'], []);
+                }
             }
         }
     }
