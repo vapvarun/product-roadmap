@@ -283,7 +283,11 @@ const nextPeriod = computed(() => {
 })
 
 const futurePeriod = computed(() => {
-  return `${currentYear + 1} & Beyond`
+  const futureDate = new Date()
+  futureDate.setMonth(futureDate.getMonth() + 3)
+  const futureYear = futureDate.getFullYear()
+  const futureMonth = futureDate.toLocaleDateString('en-US', { month: 'long' })
+  return `${futureMonth} ${futureYear} & Beyond`
 })
 
 const currentItems = computed(() => {
