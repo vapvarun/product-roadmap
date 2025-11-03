@@ -225,7 +225,9 @@ class Roadmap_API {
             // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- API endpoint requires filtering
             'meta_query' => [],
             // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- API endpoint requires filtering
-            'tax_query' => [],
+            'tax_query' => [
+                'relation' => 'AND',
+            ],
         ];
 
         // Only show published posts on frontend (pending is for backend only)
