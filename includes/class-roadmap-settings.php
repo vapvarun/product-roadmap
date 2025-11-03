@@ -767,13 +767,14 @@ class Roadmap_Settings {
                             <div class="product-shortcode">
                                 <div class="shortcode-wrapper">
                                     <code class="shortcode-text">[roadmap product="<?php echo esc_attr($product->slug); ?>"]</code>
-                                    <button type="button" class="button button-small copy-shortcode"
-                                            data-shortcode='[roadmap product="<?php echo esc_attr($product->slug); ?>"]'
-                                            title="<?php esc_attr_e('Copy to clipboard', 'product-roadmap'); ?>">
-                                        <span class="dashicons dashicons-clipboard"></span>
-                                        <span class="copy-text"><?php esc_html_e('Copy', 'product-roadmap'); ?></span>
-                                    </button>
                                 </div>
+                                <button type="button" class="button button-small copy-shortcode"
+                                        data-shortcode='[roadmap product="<?php echo esc_attr($product->slug); ?>"]'
+                                        title="<?php esc_attr_e('Copy to clipboard', 'product-roadmap'); ?>"
+                                        style="margin-top: 8px;">
+                                    <span class="dashicons dashicons-clipboard"></span>
+                                    <span class="copy-text"><?php esc_html_e('Copy', 'product-roadmap'); ?></span>
+                                </button>
                             </div>
                             
                             <div class="product-actions">
