@@ -290,11 +290,44 @@ const futurePeriod = computed(() => {
   return `${futureMonth} ${futureYear} & Beyond`
 })
 
+// Filter items based on selected time period
+const getDateFilteredItems = () => {
+  if (currentView.value === 'all') {
+    return props.items
+  }
+
+  const now = new Date()
+  let endDate = new Date()
+
+  switch (currentView.value) {
+    case 'current':
+      // Current quarter (3 months)
+      endDate.setMonth(endDate.getMonth() + 3)
+      break
+    case '6months':
+      endDate.setMonth(endDate.getMonth() + 6)
+      break
+    case 'year':
+      endDate.setFullYear(endDate.getFullYear() + 1)
+      break
+  }
+
+  return props.items.filter(item => {
+    const itemDate = item.target_date || item.start_date || item.end_date
+    if (!itemDate) return true // Include items without dates
+
+    const targetDate = new Date(itemDate)
+    return targetDate >= now && targetDate <= endDate
+  })
+}
+
 const currentItems = computed(() => {
   const inProgressStatuses = ['in-progress', 'development', 'testing', 'in-development']
-  return props.items.filter(item => {
+  const filteredItems = getDateFilteredItems()
+
+  return filteredItems.filter(item => {
     const statusSlug = item.status?.[0]?.slug
-    return inProgressStatuses.includes(statusSlug) || 
+    return inProgressStatuses.includes(statusSlug) ||
            (item.start_date && new Date(item.start_date) <= now && (!item.end_date || new Date(item.end_date) >= now))
   })
 })
@@ -303,10 +336,11 @@ const upcomingItems = computed(() => {
   const upcomingStatuses = ['planned', 'approved', 'scheduled']
   const futureDate = new Date()
   futureDate.setMonth(futureDate.getMonth() + 3)
-  
-  return props.items.filter(item => {
+  const filteredItems = getDateFilteredItems()
+
+  return filteredItems.filter(item => {
     const statusSlug = item.status?.[0]?.slug
-    return upcomingStatuses.includes(statusSlug) || 
+    return upcomingStatuses.includes(statusSlug) ||
            (item.start_date && new Date(item.start_date) > now && new Date(item.start_date) <= futureDate)
   })
 })
@@ -315,10 +349,11 @@ const futureItems = computed(() => {
   const futureStatuses = ['idea', 'under-review', 'considering', 'backlog']
   const futureDate = new Date()
   futureDate.setMonth(futureDate.getMonth() + 3)
-  
-  return props.items.filter(item => {
+  const filteredItems = getDateFilteredItems()
+
+  return filteredItems.filter(item => {
     const statusSlug = item.status?.[0]?.slug
-    return futureStatuses.includes(statusSlug) || 
+    return futureStatuses.includes(statusSlug) ||
            (!item.start_date || (item.start_date && new Date(item.start_date) > futureDate))
   })
 })
