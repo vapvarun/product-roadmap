@@ -372,11 +372,18 @@ class Roadmap_Settings {
                     <?php
                     // Check if this is a tab that needs form wrapper
                     $form_tabs = array('general', 'notifications', 'advanced');
+                    // Allow pro addon to add tabs that need forms
+                    $form_tabs = apply_filters('roadmap_settings_form_tabs', $form_tabs);
                     $needs_form = in_array($active_tab, $form_tabs);
-                    
+
                     if ($needs_form) {
+                        // Determine settings group based on active tab
+                        $settings_group = 'roadmap_global';
+                        // Allow pro addon to specify different settings groups for pro tabs
+                        $settings_group = apply_filters('roadmap_settings_group', $settings_group, $active_tab);
+
                         echo '<form method="post" action="options.php" class="roadmap-settings-form">';
-                        settings_fields('roadmap_global');
+                        settings_fields($settings_group);
                     }
                     
                     switch ($active_tab) {
