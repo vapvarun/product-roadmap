@@ -108,6 +108,16 @@ Multiple product roadmaps are available in the Pro version. Free version support
 
 == Changelog ==
 
+= 1.2.0 =
+* Fix: Product filtering now works correctly - items from all products display properly on frontend
+* Fix: New items added to any product now appear immediately on frontend
+* Fix: Taxonomy query relation now explicitly set for predictable filtering behavior
+* Enhancement: Added extensibility filters for Pro plugin settings integration
+* Enhancement: Pro settings tabs can now specify custom form groups and save buttons
+* Enhancement: Improved plugin architecture for better free/pro integration
+* Compatibility: Enhanced coordination between free and Pro versions for seamless functionality
+* Note: This update requires both free and Pro versions to be updated together
+
 = 1.1.1 =
 * Fix: User submissions now properly appear as pending for admin review instead of being lost
 * Fix: Subscribers can now submit suggestions (previously they couldn't due to permissions)
