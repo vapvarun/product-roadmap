@@ -426,7 +426,7 @@ class Roadmap_Setup_Wizard {
         </ul>
         
         <div class="roadmap-setup-actions">
-            <a href="<?php echo esc_url(admin_url('edit.php?post_type=roadmap_item')); ?>" 
+            <a href="<?php echo esc_url(admin_url('admin.php?page=roadmap-dashboard')); ?>"
                class="button button-primary button-large">
                 <?php esc_html_e('Go to Roadmap Dashboard', 'product-roadmap'); ?>
             </a>
