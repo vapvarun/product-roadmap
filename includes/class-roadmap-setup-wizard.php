@@ -400,9 +400,15 @@ class Roadmap_Setup_Wizard {
             <div style="background: #f0f9ff; border: 1px solid #0073aa; padding: 20px; margin: 20px 0;">
                 <h3 style="margin-top: 0;"><?php esc_html_e('Quick Start:', 'product-roadmap'); ?></h3>
                 <p><?php esc_html_e('Add this shortcode to any page or post to display your roadmap:', 'product-roadmap'); ?></p>
-                <p style="font-size: 18px; font-family: monospace; background: #fff; padding: 10px; border: 1px solid #ddd;">
-                    [roadmap product="main"]
-                </p>
+                <div class="shortcode-wrapper" style="display: flex; align-items: center; gap: 10px; background: #fff; padding: 10px; border: 1px solid #ddd;">
+                    <code class="shortcode-text" style="font-size: 18px; font-family: monospace; flex: 1;">[roadmap product="main"]</code>
+                    <button type="button" class="button button-primary copy-shortcode"
+                            data-shortcode='[roadmap product="main"]'
+                            title="<?php esc_attr_e('Copy to clipboard', 'product-roadmap'); ?>">
+                        <span class="dashicons dashicons-clipboard"></span>
+                        <span class="copy-text"><?php esc_html_e('Copy', 'product-roadmap'); ?></span>
+                    </button>
+                </div>
             </div>
         <?php endif; ?>
         
@@ -566,9 +572,12 @@ class Roadmap_Setup_Wizard {
         if ($hook !== 'roadmap_page_roadmap-setup-wizard') {
             return;
         }
-        
+
         // Add any additional styles if needed
         wp_enqueue_style('roadmap-admin', ROADMAP_PLUGIN_URL . 'assets/css/roadmap-admin.css', array(), ROADMAP_VERSION);
+
+        // Enqueue admin JS for copy-to-clipboard functionality
+        wp_enqueue_script('roadmap-admin', ROADMAP_PLUGIN_URL . 'assets/js/roadmap-admin.js', array('jquery'), ROADMAP_VERSION, true);
     }
 }
 
