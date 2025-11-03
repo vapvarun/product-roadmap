@@ -84,18 +84,18 @@
 
     <div class="roadmap-minimal-footer">
       <div class="roadmap-minimal-toggle">
-        <input 
-          type="checkbox" 
-          id="show-completed" 
+        <input
+          type="checkbox"
+          id="show-completed"
           v-model="showCompleted"
         />
-        <label for="show-completed">Show completed items</label>
+        <label for="show-completed" contenteditable="false">Show completed items</label>
       </div>
       
       <div class="roadmap-minimal-stats">
         <span>{{ totalItems }} total items</span>
         <span>{{ inProgressItems }} in progress</span>
-        <span>{{ completedItems }} completed</span>
+        <span v-if="showCompleted">{{ completedItems }} completed</span>
       </div>
     </div>
   </div>
@@ -139,7 +139,7 @@ const showCompleted = ref(true)
 const filters = computed(() => {
   const all = { key: 'all', name: 'All', count: props.items.length }
   const byStatus = {}
-  
+
   props.items.forEach(item => {
     const statusSlug = getStatusSlug(item)
     if (!byStatus[statusSlug]) {
@@ -151,8 +151,16 @@ const filters = computed(() => {
     }
     byStatus[statusSlug].count++
   })
-  
-  return [all, ...Object.values(byStatus)]
+
+  // Filter out completed statuses if showCompleted is false
+  let statusFilters = Object.values(byStatus)
+  if (!showCompleted.value) {
+    statusFilters = statusFilters.filter(filter =>
+      !['completed', 'released', 'cancelled'].includes(filter.key)
+    )
+  }
+
+  return [all, ...statusFilters]
 })
 
 const filteredItems = computed(() => {
@@ -457,9 +465,14 @@ const formatDate = (date) => {
   cursor: pointer;
   font-size: 14px;
   color: #666;
+  user-select: none;
 
   input {
     cursor: pointer;
+  }
+
+  label {
+    user-select: none;
   }
 }
 
