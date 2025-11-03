@@ -125,6 +125,15 @@ wp-content/wp-cache-config.php
 *.tar.bz2
 *.7z
 
+# Release builds
+/releases/
+
+# AI/LLM directories
+.grok/
+.cursor/
+.claude/
+.aider/
+
 # Runtime data
 pids
 *.pid

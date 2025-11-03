@@ -7,6 +7,12 @@ echo "Building All Roadmap Plugins..."
 echo "========================================="
 echo ""
 
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m' # No Color
+
 # Store current directory
 CURRENT_DIR=$(pwd)
 
@@ -14,9 +20,13 @@ CURRENT_DIR=$(pwd)
 echo "1. Building Product Roadmap Plugin..."
 echo "-------------------------------------"
 if [ -f "build.sh" ]; then
-    ./build.sh
+    if ! ./build.sh; then
+        echo -e "${RED}✗ Error: Free plugin build failed${NC}"
+        exit 1
+    fi
+    echo -e "${GREEN}✓ Free plugin build successful${NC}"
 else
-    echo "✗ Error: build.sh not found in current directory"
+    echo -e "${RED}✗ Error: build.sh not found in current directory${NC}"
     exit 1
 fi
 
@@ -24,24 +34,33 @@ echo ""
 echo ""
 
 # Build pro addon if it exists
-PRO_ADDON_PATH="../../roadmap-pro-addon"
+PRO_ADDON_PATH="../roadmap-pro-addon"
 if [ -d "$PRO_ADDON_PATH" ]; then
     echo "2. Building Roadmap Pro Addon..."
     echo "-------------------------------------"
     cd "$PRO_ADDON_PATH"
     if [ -f "build.sh" ]; then
-        ./build.sh
+        if ! ./build.sh; then
+            echo -e "${RED}✗ Error: Pro addon build failed${NC}"
+            echo -e "${YELLOW}Cannot continue - fix pro build errors first${NC}"
+            cd "$CURRENT_DIR"
+            exit 1
+        fi
+        echo -e "${GREEN}✓ Pro addon build successful${NC}"
     else
-        echo "✗ Warning: build.sh not found in pro addon directory"
+        echo -e "${RED}✗ Warning: build.sh not found in pro addon directory${NC}"
+        cd "$CURRENT_DIR"
+        exit 1
     fi
     cd "$CURRENT_DIR"
 else
     echo "2. Roadmap Pro Addon not found - skipping"
+    echo -e "${YELLOW}  (This is OK if you only want to build the free version)${NC}"
 fi
 
 echo ""
 echo "========================================="
-echo "✓ Build process completed!"
+echo -e "${GREEN}✓ Build process completed successfully!${NC}"
 echo "========================================="
 echo ""
 echo "Both plugins are now ready with:"

@@ -8,6 +8,12 @@ echo "Building Release Packages..."
 echo "========================================="
 echo ""
 
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m' # No Color
+
 # Store current directory
 CURRENT_DIR=$(pwd)
 PLUGIN_SLUG="product-roadmap"
@@ -145,9 +151,17 @@ if [ -d "$PRO_ADDON_PATH" ]; then
 
     # Build pro addon
     if [ -f "build.sh" ]; then
-        ./build.sh
+        if ! ./build.sh; then
+            echo -e "${RED}✗ Error: Pro addon build failed${NC}"
+            echo -e "${YELLOW}Cannot create pro package with build errors${NC}"
+            cd "$CURRENT_DIR"
+            exit 1
+        fi
+        echo -e "${GREEN}✓ Pro addon build successful${NC}"
     else
-        echo "✗ Warning: build.sh not found in pro addon"
+        echo -e "${RED}✗ Warning: build.sh not found in pro addon${NC}"
+        cd "$CURRENT_DIR"
+        exit 1
     fi
 
     echo ""
@@ -185,8 +199,38 @@ if [ -d "$PRO_ADDON_PATH" ]; then
     echo "Creating pro addon zip..."
     cd "$TEMP_DIR"
     zip -r "$RELEASES_DIR/${PRO_SLUG}-${PRO_VERSION}.zip" "$PRO_SLUG" -q
-    echo "✓ Pro addon package created: ${PRO_SLUG}-${PRO_VERSION}.zip"
-    echo "  Note: This addon requires the free version to be installed first"
+
+    # Verify critical assets exist in pro ZIP
+    echo ""
+    echo "Verifying pro addon assets..."
+    PRO_ZIP="$RELEASES_DIR/${PRO_SLUG}-${PRO_VERSION}.zip"
+    REQUIRED_PRO_ASSETS=(
+        "assets/css/roadmap-pro.css"
+        "assets/css/roadmap-pro-rtl.css"
+        "assets/css/admin.css"
+        "assets/js/roadmap-pro.js"
+        "assets/js/timeline.js"
+        "assets/js/admin.js"
+    )
+
+    MISSING_PRO_ASSETS=0
+    for asset in "${REQUIRED_PRO_ASSETS[@]}"; do
+        if ! unzip -l "$PRO_ZIP" | grep -q "$asset"; then
+            echo -e "${RED}✗ Missing required pro asset: $asset${NC}"
+            MISSING_PRO_ASSETS=$((MISSING_PRO_ASSETS + 1))
+        fi
+    done
+
+    if [ $MISSING_PRO_ASSETS -gt 0 ]; then
+        echo -e "${RED}✗ ERROR: $MISSING_PRO_ASSETS required pro asset(s) missing${NC}"
+        echo -e "${YELLOW}The pro build may have failed. Check build output.${NC}"
+        cd "$CURRENT_DIR"
+        exit 1
+    fi
+
+    echo -e "${GREEN}✓ All required pro assets present${NC}"
+    echo -e "${GREEN}✓ Pro addon package created: ${PRO_SLUG}-${PRO_VERSION}.zip${NC}"
+    echo -e "${YELLOW}  Note: This addon requires the free version to be installed first${NC}"
 else
     echo ""
     echo "3. Pro addon not found - skipping pro addon package"
