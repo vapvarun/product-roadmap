@@ -86,6 +86,18 @@
             $('#product-settings-modal').css('display', 'none');
         };
 
+        // Attach event listener to close button
+        $('.roadmap-modal-close').on('click', function() {
+            closeProductModal();
+        });
+
+        // Close modal when clicking outside of it
+        $(window).on('click', function(e) {
+            if ($(e.target).is('#product-settings-modal')) {
+                closeProductModal();
+            }
+        });
+
         // Demo import functionality
         $('.roadmap-import-demo').on('click', function(e) {
             e.preventDefault();
