@@ -19,18 +19,21 @@ CURRENT_DIR=$(pwd)
 PLUGIN_SLUG="product-roadmap"
 PRO_SLUG="roadmap-pro-addon"
 
-# Create a releases directory if it doesn't exist
-RELEASES_DIR="$CURRENT_DIR/../releases"
-mkdir -p "$RELEASES_DIR"
-
 # Get version from plugin file
 if [ -f "product-roadmap.php" ]; then
     VERSION=$(grep -i "Version:" product-roadmap.php | sed 's/.*Version: *//' | tr -d '\r\n' | awk '{print $1}')
     echo "Plugin version: $VERSION"
 else
-    echo "✗ Error: product-roadmap.php not found"
+    echo -e "${RED}✗ Error: product-roadmap.php not found${NC}"
     exit 1
 fi
+
+# Create dist directory in current plugin folder
+DIST_DIR="$CURRENT_DIR/dist"
+mkdir -p "$DIST_DIR"
+
+echo "Distribution directory: $DIST_DIR"
+echo ""
 
 # Build the plugin first
 echo ""
@@ -129,8 +132,8 @@ fi
 # Create free version zip
 echo "Creating free version zip..."
 cd "$TEMP_DIR"
-zip -r "$RELEASES_DIR/${PLUGIN_SLUG}-${VERSION}.zip" "$PLUGIN_SLUG" -q
-echo "✓ Free version package created: ${PLUGIN_SLUG}-${VERSION}.zip"
+zip -r "$DIST_DIR/${PLUGIN_SLUG}-${VERSION}.zip" "$PLUGIN_SLUG" -q
+echo -e "${GREEN}✓ Free version package created: ${PLUGIN_SLUG}-${VERSION}.zip${NC}"
 
 # Build and package pro addon separately if it exists
 # Pro addon is in the same plugins directory
@@ -195,15 +198,19 @@ if [ -d "$PRO_ADDON_PATH" ]; then
     rm -rf "$PRO_PACKAGE_DIR/docs" 2>/dev/null || true
     rm -f "$PRO_PACKAGE_DIR/*.md" 2>/dev/null || true
 
+    # Create pro addon dist directory
+    PRO_DIST_DIR="$PRO_ADDON_PATH/dist"
+    mkdir -p "$PRO_DIST_DIR"
+
     # Create pro addon zip (standalone, requires free version)
     echo "Creating pro addon zip..."
     cd "$TEMP_DIR"
-    zip -r "$RELEASES_DIR/${PRO_SLUG}-${PRO_VERSION}.zip" "$PRO_SLUG" -q
+    zip -r "$PRO_DIST_DIR/${PRO_SLUG}-${PRO_VERSION}.zip" "$PRO_SLUG" -q
 
     # Verify critical assets exist in pro ZIP
     echo ""
     echo "Verifying pro addon assets..."
-    PRO_ZIP="$RELEASES_DIR/${PRO_SLUG}-${PRO_VERSION}.zip"
+    PRO_ZIP="$PRO_DIST_DIR/${PRO_SLUG}-${PRO_VERSION}.zip"
     REQUIRED_PRO_ASSETS=(
         "assets/css/roadmap-pro.css"
         "assets/css/roadmap-pro-rtl.css"
@@ -249,14 +256,14 @@ echo "========================================="
 echo "✓ Release packages created successfully!"
 echo "========================================="
 echo ""
-echo "Packages created in: $RELEASES_DIR"
-echo ""
 echo "Free version:"
-echo "  - ${PLUGIN_SLUG}-${VERSION}.zip (WordPress.org compatible)"
+echo "  Location: $DIST_DIR/${PLUGIN_SLUG}-${VERSION}.zip"
+echo "  Status: WordPress.org compatible"
 if [ -d "$PRO_ADDON_PATH" ]; then
     echo ""
     echo "Pro addon:"
-    echo "  - ${PRO_SLUG}-${PRO_VERSION}.zip (Requires free version installed)"
+    echo "  Location: $PRO_DIST_DIR/${PRO_SLUG}-${PRO_VERSION}.zip"
+    echo "  Note: Requires free version installed"
 fi
 echo ""
 echo "These packages are ready for distribution!"

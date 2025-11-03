@@ -117,16 +117,13 @@ wp-content/wp-cache-config.php
 *.bak
 *.orig
 
-# Archive files
-*.zip
+# Archive files (excluding dist/ folder ZIPs for distribution)
+# *.zip - Allowing ZIP files in dist/ folder
 *.rar
 *.tar
 *.tar.gz
 *.tar.bz2
 *.7z
-
-# Release builds
-/releases/
 
 # AI/LLM directories
 .grok/
@@ -150,7 +147,6 @@ htmlcov/
 
 # Build tools output
 build/Release
-dist/
 .nuxt/
 .next/
 out/
