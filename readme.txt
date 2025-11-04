@@ -3,7 +3,7 @@ Contributors: wbcomdesigns, vapvarun
 Tags: roadmap, product roadmap, feature voting, user feedback, product management
 Requires at least: 5.8
 Tested up to: 6.8
-Stable tag: 1.2.0
+Stable tag: 1.2.1
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -107,6 +107,11 @@ Multiple product roadmaps are available in the Pro version. Free version support
 8. Individual roadmap item with voting and comments
 
 == Changelog ==
+
+= 1.2.1 =
+* Fix: Improved array filtering for multiple select fields to properly handle empty values
+* Enhancement: Better handling of dependency field data when saving roadmap items
+* Compatibility: Ensures clean data structure for Pro addon features
 
 = 1.2.0 =
 * Fix: Product filtering now works correctly - items from all products display properly on frontend
