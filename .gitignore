@@ -3,7 +3,7 @@
 /vendor/
 /node_modules/
 jspm_packages/
-
+dist/
 # Build files
 /vue-app/dist/
 /vue-app/.vite/
