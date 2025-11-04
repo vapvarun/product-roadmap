@@ -531,6 +531,12 @@ class Roadmap_CPT {
                 // Handle array values for multiple select fields
                 if (is_array($_POST[$field['id']])) {
                     $value = array_map('sanitize_text_field', wp_unslash($_POST[$field['id']]));
+                    // Filter out empty values (blank options)
+                    $value = array_filter($value, function($item) {
+                        return !empty($item);
+                    });
+                    // Re-index array after filtering
+                    $value = array_values($value);
                 } else {
                     $value = sanitize_text_field(wp_unslash($_POST[$field['id']]));
                 }
