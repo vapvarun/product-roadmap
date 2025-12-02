@@ -7,6 +7,7 @@
 - [Creating & Managing Roadmap Items](#creating--managing-roadmap-items)
 - [Categories & Statuses](#categories--statuses)
 - [Product Management](#product-management)
+- [Changelog Feature](#changelog-feature-v130) (NEW in 1.3.0)
 - [Displaying Roadmaps on Frontend](#displaying-roadmaps-on-frontend)
 - [User Engagement Features](#user-engagement-features)
 - [Settings Configuration](#settings-configuration)
@@ -401,6 +402,68 @@ Filter items by product in admin:
 - Dropdown filter above item list
 - Select product to view only its items
 
+## Changelog Feature (v1.3.0)
+
+Document your product releases and updates with the new Changelog feature.
+
+### What is Changelog?
+
+The Changelog lets you document releases, updates, and changes to your product over time. It's separate from the roadmap but complements it by showing what's been completed.
+
+### Creating a Changelog Entry
+
+1. Go to **Roadmap > Changelog > Add New**
+2. Fill in details:
+   - **Title**: Release name (e.g., "Version 2.0 Release")
+   - **Version**: Version number (e.g., "2.0.0")
+   - **Release Date**: When it was released
+   - **Release Type**: Major, Minor, or Patch
+   - **Content**: Detailed release notes
+
+3. Add change items:
+   - **New**: New features added
+   - **Improved**: Enhancements to existing features
+   - **Fixed**: Bug fixes
+   - **Changed**: Changes to existing behavior
+   - **Deprecated**: Features being phased out
+   - **Removed**: Features that were removed
+   - **Security**: Security-related updates
+
+4. Assign to **Product** (optional)
+5. Click **Publish**
+
+### Displaying Changelog
+
+**Shortcode:**
+```
+[roadmap_changelog product="main"]
+```
+
+**Parameters:**
+- `product` - Filter by product slug
+- `limit` - Number of entries to show
+- `order` - ASC or DESC (default: DESC)
+
+**Example - Show last 5 releases:**
+```
+[roadmap_changelog product="main" limit="5"]
+```
+
+### Changelog Archive
+
+Visit `/changelog/` to see all changelog entries, or `/changelog/product-slug/` for product-specific changelogs.
+
+### Change Type Badges
+
+Each change item displays with a colored badge:
+- **New** - Green badge
+- **Improved** - Blue badge
+- **Fixed** - Orange badge
+- **Changed** - Purple badge
+- **Deprecated** - Yellow badge
+- **Removed** - Red badge
+- **Security** - Dark red badge
+
 ## Displaying Roadmaps on Frontend
 
 ### Basic Shortcode
@@ -449,9 +512,14 @@ The `product` parameter is mandatory. Use "main" for the default product.
 **template** (Optional)
 - Display style
 - Default: "board"
-- Free version: "board" only
-- Pro version: "board", "timeline", "list", "cards", "minimal"
+- Free version: "board", "ideabox" (NEW in 1.3.0)
+- Pro version: "board", "ideabox", "timeline", "list", "cards", "minimal"
 - Example: `template="board"`
+
+**Idea Box Template (v1.3.0)**
+- Use `template="ideabox"` for a focused idea collection view
+- Features prominent upvote buttons and sorting options
+- Perfect for collecting user feedback and feature requests
 
 **status** (Optional)
 - Filter by status
@@ -850,6 +918,23 @@ Each roadmap item has its own page with:
 - Comment section
 - Share buttons (if enabled)
 - Related items (if configured)
+
+**StackOverflow-Style Voting (v1.3.0)**
+
+Single item pages now feature a redesigned voting UI:
+- Voting section prominently displayed on the left side
+- Large vote count with "votes" label
+- Up arrow button to add votes (green hover)
+- Down arrow button to remove existing votes (orange hover)
+- Breadcrumb navigation showing product context
+- Status and category badges
+- Author and date metadata
+
+**Vote Button Behavior:**
+- **Up arrow**: Click to add +1 vote, click again to remove
+- **Down arrow**: Only active if you've already voted (removes your vote)
+- Visual feedback with color changes on hover
+- Mobile responsive - voting moves to horizontal layout on small screens
 
 **Customizing Single Pages:**
 - Create template in theme: `single-roadmap_item.php`

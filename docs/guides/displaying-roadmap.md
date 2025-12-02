@@ -55,10 +55,20 @@ Display style:
 
 Available templates:
 - `board` - Kanban board (default, free)
+- `ideabox` - Idea collection with voting (NEW in 1.3.0)
 - `timeline` - Gantt chart (Pro)
 - `list` - Simple list (Pro)
 - `cards` - Grid of cards (Pro)
 - `minimal` - Compact view (Pro)
+
+**Idea Box Template (v1.3.0)**
+```
+[roadmap product="main" template="ideabox"]
+```
+Perfect for collecting user ideas with prominent voting. Features:
+- Large upvote buttons
+- Sort by votes, newest, or activity
+- Clean, focused design for idea collection
 
 ### status
 

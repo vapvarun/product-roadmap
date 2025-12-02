@@ -29,7 +29,7 @@ Voting lets users show which features they want most. Each user can vote once pe
 **For Users:**
 1. Click vote button on any item
 2. Vote count increases
-3. Button changes to "Voted"
+3. Button changes to "Voted" (highlighted green)
 4. Click again to remove vote
 
 **For Admins:**
@@ -37,6 +37,27 @@ Voting lets users show which features they want most. Each user can vote once pe
 2. Sort by votes to find popular items
 3. View who voted (in item edit screen)
 4. Use votes to prioritize roadmap
+
+### Voting UI (v1.3.0)
+
+**StackOverflow-style Single Item Pages:**
+- Voting section displayed prominently on the left side
+- Up arrow: Add your vote (green hover)
+- Down arrow: Remove your vote (orange hover when voted)
+- Large vote count display
+- Clear visual feedback for vote states
+
+**Hover Colors:**
+| State | Color | Meaning |
+|-------|-------|---------|
+| Not voted + hover up | Green | "Add your vote" |
+| Already voted | Solid green | Vote registered |
+| Voted + hover down | Orange | "Remove your vote" |
+
+**Idea Box Template:**
+- Dedicated upvote button per idea
+- Click to vote, click again to unvote
+- Sort by "Top Voted", "Newest", or "Active"
 
 ## Setting Up Voting
 

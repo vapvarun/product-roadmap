@@ -69,15 +69,18 @@ Choose what you want to learn:
 - Creating Items - Add and edit items
 - Statuses & Categories - Organize items
 - Progress Tracking - Track completion
+- **Changelog** - Document releases and updates (NEW in 1.3.0)
 
 ### User Engagement
 - Voting & Comments - Enable feedback
 - Feature Suggestions - Collect ideas
+- **Idea Box Template** - Collect and display user ideas (NEW in 1.3.0)
 
 ### Display & Customization
 - Displaying Roadmap - Show on site
 - Shortcode Reference - All parameters
 - Customization - Styling tips
+- **Single Item Voting UI** - StackOverflow-style voting (NEW in 1.3.0)
 
 ### Settings & Configuration
 - Settings Overview - All settings
@@ -133,11 +136,11 @@ docs/
 ## 🔄 Documentation Updates
 
 This documentation is for:
-- **Plugin Version**: 1.0+
+- **Plugin Version**: 1.3.0+
 - **WordPress**: 5.8+
 - **PHP**: 7.4+
 
-Last updated: September 2025
+Last updated: December 2025
 
 ## 💡 Quick Tips
 
