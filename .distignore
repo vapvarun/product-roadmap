@@ -5,6 +5,10 @@
 .git
 .gitignore
 .github
+.distignore
+
+# Distribution archives (old releases)
+dist
 
 # Development files
 node_modules

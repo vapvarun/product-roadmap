@@ -5,11 +5,11 @@
 
 get_header();
 
-$product_slug = get_query_var('roadmap_product');
-$product_term = get_term_by('slug', $product_slug, 'roadmap_product');
+$roadmap_product_slug = get_query_var('roadmap_product');
+$roadmap_product_term = get_term_by('slug', $roadmap_product_slug, 'roadmap_product');
 
-if (!$product_term) {
-    wp_redirect(home_url());
+if (!$roadmap_product_term) {
+    wp_safe_redirect(home_url());
     exit;
 }
 
@@ -19,14 +19,14 @@ wp_enqueue_style('roadmap-archive', ROADMAP_PLUGIN_URL . 'assets/css/roadmap-arc
 
 <div class="roadmap-archive">
     <div class="roadmap-archive-header">
-        <h1><?php echo esc_html($product_term->name); ?> Roadmap</h1>
-        <?php if ($product_term->description) : ?>
-            <p class="roadmap-product-description"><?php echo esc_html($product_term->description); ?></p>
+        <h1><?php echo esc_html($roadmap_product_term->name); ?> Roadmap</h1>
+        <?php if ($roadmap_product_term->description) : ?>
+            <p class="roadmap-product-description"><?php echo esc_html($roadmap_product_term->description); ?></p>
         <?php endif; ?>
     </div>
-    
+
     <div class="roadmap-archive-content">
-        <?php echo do_shortcode('[roadmap product="' . esc_attr($product_slug) . '"]'); ?>
+        <?php echo do_shortcode('[roadmap product="' . esc_attr($roadmap_product_slug) . '"]'); ?>
     </div>
     
     <div class="roadmap-archive-footer">

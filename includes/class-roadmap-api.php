@@ -61,7 +61,13 @@ class Roadmap_API {
                 ],
                 'vote_value' => [
                     'default' => 1,
-                    'sanitize_callback' => 'absint',
+                    'sanitize_callback' => function($value) {
+                        return intval($value);
+                    },
+                    'validate_callback' => function($value) {
+                        $int_val = intval($value);
+                        return in_array($int_val, [-1, 0, 1], true);
+                    },
                 ],
             ],
         ]);
@@ -186,6 +192,34 @@ class Roadmap_API {
                 'callback' => [$this, 'update_settings'],
                 'permission_callback' => [$this, 'can_manage_settings'],
             ],
+        ]);
+
+        // Changelog endpoints
+        register_rest_route($this->namespace, '/changelog', [
+            'methods' => 'GET',
+            'callback' => [$this, 'get_changelogs'],
+            'permission_callback' => '__return_true',
+            'args' => [
+                'product' => [
+                    'sanitize_callback' => 'sanitize_text_field',
+                ],
+                'limit' => [
+                    'default' => 10,
+                    'sanitize_callback' => 'absint',
+                ],
+            ],
+        ]);
+
+        register_rest_route($this->namespace, '/changelog/(?P<id>\d+)', [
+            'methods' => 'GET',
+            'callback' => [$this, 'get_changelog'],
+            'permission_callback' => '__return_true',
+        ]);
+
+        register_rest_route($this->namespace, '/changelog-types', [
+            'methods' => 'GET',
+            'callback' => [$this, 'get_changelog_types'],
+            'permission_callback' => '__return_true',
         ]);
         
         // Comment endpoints
@@ -827,14 +861,14 @@ class Roadmap_API {
     
     public function get_item_comments($request) {
         $item_id = $request->get_param('id');
-        
+
         $comments = get_comments([
             'post_id' => $item_id,
             'status' => 'approve',
             'orderby' => 'comment_date',
             'order' => 'DESC',
         ]);
-        
+
         $formatted_comments = [];
         foreach ($comments as $comment) {
             $formatted_comments[] = [
@@ -847,10 +881,129 @@ class Roadmap_API {
                 'formatted_date' => get_comment_date('M j, Y', $comment),
             ];
         }
-        
+
         return new WP_REST_Response($formatted_comments, 200);
     }
-    
+
+    // Changelog API methods
+    public function get_changelogs($request) {
+        $product = $request->get_param('product');
+        $limit = $request->get_param('limit') ?: 10;
+
+        $args = [
+            'post_type' => 'roadmap_changelog',
+            'posts_per_page' => $limit,
+            'post_status' => 'publish',
+            'orderby' => 'date',
+            'order' => 'DESC',
+        ];
+
+        // Filter by product if provided (Pro feature)
+        if ($product && defined('ROADMAP_PRO_ACTIVE') && ROADMAP_PRO_ACTIVE) {
+            // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- API endpoint requires product filtering
+            $args['tax_query'] = [
+                [
+                    'taxonomy' => 'roadmap_product',
+                    'field' => 'slug',
+                    'terms' => $product,
+                ],
+            ];
+        }
+
+        $query = new WP_Query($args);
+        $changelogs = [];
+
+        foreach ($query->posts as $post) {
+            $changelogs[] = $this->format_changelog($post);
+        }
+
+        return new WP_REST_Response([
+            'changelogs' => $changelogs,
+            'total' => $query->found_posts,
+        ], 200);
+    }
+
+    public function get_changelog($request) {
+        $id = $request->get_param('id');
+        $post = get_post($id);
+
+        if (!$post || $post->post_type !== 'roadmap_changelog') {
+            return new WP_Error('not_found', __('Changelog not found', 'product-roadmap'), ['status' => 404]);
+        }
+
+        return new WP_REST_Response($this->format_changelog($post), 200);
+    }
+
+    public function get_changelog_types($request) {
+        $types = get_terms([
+            'taxonomy' => 'changelog_type',
+            'hide_empty' => false,
+        ]);
+
+        if (is_wp_error($types)) {
+            return new WP_REST_Response([], 200);
+        }
+
+        $formatted = [];
+        foreach ($types as $type) {
+            $color = get_term_meta($type->term_id, 'changelog_type_color', true);
+            $formatted[] = [
+                'id' => $type->term_id,
+                'name' => $type->name,
+                'slug' => $type->slug,
+                'color' => $color ?: '#6b7280',
+            ];
+        }
+
+        return new WP_REST_Response($formatted, 200);
+    }
+
+    private function format_changelog($post) {
+        $version = get_post_meta($post->ID, '_changelog_version', true);
+        $release_date = get_post_meta($post->ID, '_changelog_release_date', true);
+        $items = get_post_meta($post->ID, '_changelog_items', true);
+
+        // Get product terms
+        $products = wp_get_post_terms($post->ID, 'roadmap_product');
+        $product_data = [];
+        foreach ($products as $product) {
+            $product_data[] = [
+                'id' => $product->term_id,
+                'name' => $product->name,
+                'slug' => $product->slug,
+            ];
+        }
+
+        // Format items with type details
+        $formatted_items = [];
+        if (is_array($items)) {
+            foreach ($items as $item) {
+                $type_term = get_term_by('slug', $item['type'], 'changelog_type');
+                $type_color = $type_term ? get_term_meta($type_term->term_id, 'changelog_type_color', true) : '#6b7280';
+
+                $formatted_items[] = [
+                    'description' => $item['description'],
+                    'type' => $item['type'],
+                    'type_name' => $type_term ? $type_term->name : ucfirst($item['type']),
+                    'type_color' => $type_color,
+                ];
+            }
+        }
+
+        return [
+            'id' => $post->ID,
+            'title' => $post->post_title,
+            'content' => $post->post_content,
+            'version' => $version,
+            'release_date' => $release_date,
+            'formatted_date' => $release_date ? date_i18n(get_option('date_format'), strtotime($release_date)) : '',
+            'items' => $formatted_items,
+            'products' => $product_data,
+            'date' => $post->post_date,
+            'link' => get_permalink($post->ID),
+        ];
+    }
+
     // Permission callbacks
     public function can_vote() {
         $global_settings = get_option('roadmap_global_settings', []);

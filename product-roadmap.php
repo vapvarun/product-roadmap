@@ -3,7 +3,7 @@
  * Plugin Name: Product Roadmap
  * Plugin URI: https://wbcomdesigns.com/plugins/product-roadmap/
  * Description: Create public product roadmaps to share your vision, collect user feedback, and build products your customers actually want.
- * Version: 1.2.1
+ * Version: 1.3.0
  * Author: wbcomdesigns
  * Author URI: https://wbcomdesigns.com/
  * License: GPL v2 or later
@@ -18,7 +18,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('ROADMAP_VERSION', '1.2.1');
+define('ROADMAP_VERSION', '1.3.0');
 define('ROADMAP_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('ROADMAP_PLUGIN_PATH', plugin_dir_path(__FILE__));
 define('ROADMAP_PLUGIN_BASENAME', plugin_basename(__FILE__));
@@ -54,6 +54,7 @@ class RoadmapPlugin {
         require_once ROADMAP_PLUGIN_PATH . 'includes/class-roadmap-comments.php';
         require_once ROADMAP_PLUGIN_PATH . 'includes/class-roadmap-suggestions.php';
         require_once ROADMAP_PLUGIN_PATH . 'includes/class-roadmap-template.php';
+        require_once ROADMAP_PLUGIN_PATH . 'includes/class-roadmap-changelog.php';
     }
     
     private function define_hooks() {
@@ -75,7 +76,8 @@ class RoadmapPlugin {
         Roadmap_Comments::get_instance();
         Roadmap_Suggestions::get_instance();
         Roadmap_Template::get_instance();
-        
+        Roadmap_Changelog::get_instance();
+
         // Pro addon hooks
         do_action('roadmap_plugin_loaded');
     }

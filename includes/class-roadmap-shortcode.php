@@ -17,6 +17,7 @@ class Roadmap_Shortcode {
     
     private function __construct() {
         add_shortcode('roadmap', [$this, 'render_shortcode']);
+        add_shortcode('roadmap_changelog', [$this, 'render_changelog_shortcode']);
         add_action('wp_enqueue_scripts', [$this, 'maybe_enqueue_assets']);
     }
     
@@ -107,7 +108,285 @@ class Roadmap_Shortcode {
         
         return ob_get_clean();
     }
-    
+
+    /**
+     * Render changelog shortcode
+     *
+     * @param array $atts Shortcode attributes
+     * @return string HTML output
+     */
+    public function render_changelog_shortcode($atts) {
+        $atts = shortcode_atts([
+            'product' => '',
+            'limit' => 10,
+            'show_date' => 'true',
+            'collapsible' => 'false',
+            'class' => '',
+        ], $atts, 'roadmap_changelog');
+
+        // Handle product parameter - Free version uses default product
+        if (empty($atts['product'])) {
+            if (!defined('ROADMAP_PRO_ACTIVE') || !ROADMAP_PRO_ACTIVE) {
+                $atts['product'] = 'main';
+            }
+        }
+
+        // If Pro is not active and product is not 'main', show error
+        if ((!defined('ROADMAP_PRO_ACTIVE') || !ROADMAP_PRO_ACTIVE) && !empty($atts['product']) && $atts['product'] !== 'main') {
+            return '<div class="roadmap-error">' . __('Multiple products require the Pro version.', 'product-roadmap') . '</div>';
+        }
+
+        // Query changelog entries
+        $query_args = [
+            'post_type' => 'roadmap_changelog',
+            'posts_per_page' => absint($atts['limit']),
+            'orderby' => 'meta_value',
+            'meta_key' => '_changelog_release_date',
+            'order' => 'DESC',
+            'post_status' => 'publish',
+        ];
+
+        // Filter by product if specified
+        if (!empty($atts['product'])) {
+            $query_args['tax_query'] = [
+                [
+                    'taxonomy' => 'roadmap_product',
+                    'field' => 'slug',
+                    'terms' => $atts['product'],
+                ],
+            ];
+        }
+
+        $changelogs = new WP_Query($query_args);
+
+        if (!$changelogs->have_posts()) {
+            return '<div class="roadmap-changelog-empty">' . __('No changelog entries found.', 'product-roadmap') . '</div>';
+        }
+
+        // Get change types for styling
+        $change_types = Roadmap_Changelog::get_change_types();
+
+        $show_date = filter_var($atts['show_date'], FILTER_VALIDATE_BOOLEAN);
+        $collapsible = filter_var($atts['collapsible'], FILTER_VALIDATE_BOOLEAN);
+
+        // Enqueue changelog styles
+        $this->enqueue_changelog_assets();
+
+        ob_start();
+        ?>
+        <div class="roadmap-changelog <?php echo esc_attr($atts['class']); ?>" <?php echo $collapsible ? 'data-collapsible="true"' : ''; ?>>
+            <?php while ($changelogs->have_posts()) : $changelogs->the_post();
+                $post_id = get_the_ID();
+                $version = get_post_meta($post_id, '_changelog_version', true);
+                $release_date = get_post_meta($post_id, '_changelog_release_date', true);
+                $release_type = get_post_meta($post_id, '_changelog_release_type', true);
+                $items = get_post_meta($post_id, '_changelog_items', true);
+
+                $version_class = 'roadmap-changelog-version';
+                if ($release_type) {
+                    $version_class .= ' changelog-' . esc_attr($release_type);
+                }
+                ?>
+                <div class="<?php echo esc_attr($version_class); ?>" data-version="<?php echo esc_attr($version); ?>">
+                    <div class="roadmap-changelog-header">
+                        <h3 class="roadmap-changelog-title">
+                            <?php if ($collapsible) : ?>
+                                <button type="button" class="roadmap-changelog-toggle" aria-expanded="true">
+                                    <span class="toggle-icon">&#9660;</span>
+                            <?php endif; ?>
+                            <?php if ($version) : ?>
+                                <span class="version-number">v<?php echo esc_html($version); ?></span>
+                            <?php else : ?>
+                                <?php the_title(); ?>
+                            <?php endif; ?>
+                            <?php if ($collapsible) : ?>
+                                </button>
+                            <?php endif; ?>
+                        </h3>
+                        <?php if ($show_date && $release_date) : ?>
+                            <span class="roadmap-changelog-date">
+                                <?php echo esc_html(date_i18n(get_option('date_format'), strtotime($release_date))); ?>
+                            </span>
+                        <?php endif; ?>
+                    </div>
+
+                    <div class="roadmap-changelog-content">
+                        <?php if (!empty(get_the_content())) : ?>
+                            <div class="roadmap-changelog-description">
+                                <?php the_content(); ?>
+                            </div>
+                        <?php endif; ?>
+
+                        <?php if (!empty($items) && is_array($items)) : ?>
+                            <ul class="roadmap-changelog-items">
+                                <?php foreach ($items as $item) :
+                                    $type_slug = $item['type'] ?? '';
+                                    $type_data = $change_types[$type_slug] ?? null;
+                                    $badge_style = '';
+                                    $badge_name = ucfirst($type_slug);
+
+                                    if ($type_data) {
+                                        $badge_style = sprintf(
+                                            'color: %s; background: %s;',
+                                            esc_attr($type_data['color']),
+                                            esc_attr($type_data['background'])
+                                        );
+                                        $badge_name = $type_data['name'];
+                                    }
+                                    ?>
+                                    <li class="roadmap-changelog-item">
+                                        <?php if ($type_slug) : ?>
+                                            <span class="roadmap-changelog-badge" style="<?php echo esc_attr($badge_style); ?>">
+                                                <?php echo esc_html($badge_name); ?>
+                                            </span>
+                                        <?php endif; ?>
+                                        <span class="roadmap-changelog-item-text">
+                                            <?php echo esc_html($item['description'] ?? ''); ?>
+                                        </span>
+                                    </li>
+                                <?php endforeach; ?>
+                            </ul>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            <?php endwhile; ?>
+            <?php wp_reset_postdata(); ?>
+        </div>
+        <?php
+
+        return ob_get_clean();
+    }
+
+    /**
+     * Enqueue changelog-specific assets
+     */
+    private function enqueue_changelog_assets() {
+        $version = ROADMAP_VERSION;
+
+        // Inline CSS for changelog
+        wp_register_style('roadmap-changelog', false, [], $version);
+        wp_enqueue_style('roadmap-changelog');
+        wp_add_inline_style('roadmap-changelog', '
+            .roadmap-changelog {
+                max-width: 800px;
+                margin: 0 auto;
+            }
+            .roadmap-changelog-version {
+                background: #fff;
+                border: 1px solid #e5e7eb;
+                border-radius: 8px;
+                margin-bottom: 20px;
+                overflow: hidden;
+            }
+            .roadmap-changelog-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 16px 20px;
+                background: #f9fafb;
+                border-bottom: 1px solid #e5e7eb;
+            }
+            .roadmap-changelog-title {
+                margin: 0;
+                font-size: 18px;
+                font-weight: 600;
+            }
+            .roadmap-changelog-title .version-number {
+                color: #1f2937;
+            }
+            .roadmap-changelog-date {
+                color: #6b7280;
+                font-size: 14px;
+            }
+            .roadmap-changelog-content {
+                padding: 20px;
+            }
+            .roadmap-changelog-description {
+                margin-bottom: 16px;
+                color: #4b5563;
+                line-height: 1.6;
+            }
+            .roadmap-changelog-items {
+                list-style: none;
+                margin: 0;
+                padding: 0;
+            }
+            .roadmap-changelog-item {
+                display: flex;
+                align-items: flex-start;
+                gap: 12px;
+                padding: 10px 0;
+                border-bottom: 1px solid #f3f4f6;
+            }
+            .roadmap-changelog-item:last-child {
+                border-bottom: none;
+            }
+            .roadmap-changelog-badge {
+                display: inline-block;
+                padding: 4px 10px;
+                border-radius: 4px;
+                font-size: 12px;
+                font-weight: 500;
+                white-space: nowrap;
+                flex-shrink: 0;
+            }
+            .roadmap-changelog-item-text {
+                color: #374151;
+                line-height: 1.5;
+            }
+            .roadmap-changelog-toggle {
+                background: none;
+                border: none;
+                cursor: pointer;
+                padding: 0;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                font-size: inherit;
+                font-weight: inherit;
+                color: inherit;
+            }
+            .roadmap-changelog-toggle .toggle-icon {
+                transition: transform 0.2s;
+                font-size: 12px;
+            }
+            .roadmap-changelog-toggle[aria-expanded="false"] .toggle-icon {
+                transform: rotate(-90deg);
+            }
+            .roadmap-changelog-version.collapsed .roadmap-changelog-content {
+                display: none;
+            }
+            .roadmap-changelog-empty {
+                text-align: center;
+                padding: 40px;
+                color: #6b7280;
+            }
+            /* Release type badges */
+            .changelog-major .roadmap-changelog-header {
+                border-left: 4px solid #dc2626;
+            }
+            .changelog-minor .roadmap-changelog-header {
+                border-left: 4px solid #2563eb;
+            }
+            .changelog-patch .roadmap-changelog-header {
+                border-left: 4px solid #16a34a;
+            }
+        ');
+
+        // Inline JS for collapsible functionality
+        wp_add_inline_script('jquery', '
+            jQuery(document).ready(function($) {
+                $(".roadmap-changelog[data-collapsible=true] .roadmap-changelog-toggle").on("click", function() {
+                    var $version = $(this).closest(".roadmap-changelog-version");
+                    var isExpanded = $(this).attr("aria-expanded") === "true";
+
+                    $(this).attr("aria-expanded", !isExpanded);
+                    $version.toggleClass("collapsed");
+                });
+            });
+        ');
+    }
+
     public function maybe_enqueue_assets() {
         global $post;
         

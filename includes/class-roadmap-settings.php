@@ -104,7 +104,7 @@ class Roadmap_Settings {
             'manage_options',
             'edit-tags.php?taxonomy=roadmap_category&post_type=roadmap_item'
         );
-        
+
         // Add Settings submenu
         add_submenu_page(
             'roadmap-dashboard',
@@ -332,10 +332,17 @@ class Roadmap_Settings {
                             </a>
                         </li>
                         <li>
-                            <a href="?page=roadmap-settings&tab=notifications" 
+                            <a href="?page=roadmap-settings&tab=notifications"
                                class="roadmap-nav-item <?php echo esc_attr($active_tab === 'notifications' ? 'active' : ''); ?>">
                                 <i class="dashicons dashicons-email"></i>
                                 <span><?php esc_html_e('Notifications', 'product-roadmap'); ?></span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="?page=roadmap-settings&tab=changelog-types"
+                               class="roadmap-nav-item <?php echo esc_attr($active_tab === 'changelog-types' ? 'active' : ''); ?>">
+                                <i class="dashicons dashicons-tag"></i>
+                                <span><?php esc_html_e('Changelog Types', 'product-roadmap'); ?></span>
                             </a>
                         </li>
                         <?php
@@ -392,6 +399,9 @@ class Roadmap_Settings {
                             break;
                         case 'notifications':
                             $this->render_notifications_settings_modern($global_settings);
+                            break;
+                        case 'changelog-types':
+                            $this->render_changelog_types_settings();
                             break;
                         default:
                             // Allow pro addon to render custom tabs
@@ -734,63 +744,115 @@ class Roadmap_Settings {
         if (!current_user_can('manage_options')) {
             return;
         }
-        
+
         $products = get_terms(['taxonomy' => 'roadmap_product', 'hide_empty' => false]);
         // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reading product parameter for display only
         $selected_product = isset($_GET['product']) ? sanitize_text_field(wp_unslash($_GET['product'])) : '';
+
+        // Get total votes across all products
+        global $wpdb;
+        $votes_table = $wpdb->prefix . 'roadmap_votes';
         ?>
-        <div class="wrap">
-            <h1>
-                <?php esc_html_e('Roadmap Products', 'product-roadmap'); ?>
-                <a href="<?php echo esc_url(admin_url('edit-tags.php?taxonomy=roadmap_product&post_type=roadmap_item')); ?>" 
-                   class="page-title-action"><?php esc_html_e('Manage Products', 'product-roadmap'); ?></a>
-            </h1>
-            
+        <div class="roadmap-settings-wrap">
+            <div class="roadmap-settings-header">
+                <h1><?php esc_html_e('Products', 'product-roadmap'); ?></h1>
+                <p class="roadmap-settings-description">
+                    <?php esc_html_e('Manage your product roadmaps. Each product has its own roadmap that can be displayed using shortcodes.', 'product-roadmap'); ?>
+                </p>
+            </div>
+
             <?php if (empty($products)): ?>
-                <div class="notice notice-info">
-                    <p><?php esc_html_e('No products found. Create your first product to get started.', 'product-roadmap'); ?></p>
-                    <p>
-                        <a href="<?php echo esc_url(admin_url('edit-tags.php?taxonomy=roadmap_product&post_type=roadmap_item')); ?>" 
-                           class="button button-primary"><?php esc_html_e('Create Product', 'product-roadmap'); ?></a>
-                    </p>
+                <div class="roadmap-empty-state">
+                    <span class="dashicons dashicons-products"></span>
+                    <h3><?php esc_html_e('No Products Yet', 'product-roadmap'); ?></h3>
+                    <p><?php esc_html_e('Create your first product to start building roadmaps your users will love.', 'product-roadmap'); ?></p>
+                    <a href="<?php echo esc_url(admin_url('edit-tags.php?taxonomy=roadmap_product&post_type=roadmap_item')); ?>"
+                       class="button button-primary button-hero">
+                        <span class="dashicons dashicons-plus-alt2" style="margin-top: 4px;"></span>
+                        <?php esc_html_e('Create Your First Product', 'product-roadmap'); ?>
+                    </a>
                 </div>
             <?php else: ?>
+                <div class="products-header-actions">
+                    <a href="<?php echo esc_url(admin_url('edit-tags.php?taxonomy=roadmap_product&post_type=roadmap_item')); ?>"
+                       class="button button-primary">
+                        <span class="dashicons dashicons-plus-alt2" style="margin-top: 4px;"></span>
+                        <?php esc_html_e('Add New Product', 'product-roadmap'); ?>
+                    </a>
+                </div>
+
                 <div class="roadmap-products-grid">
-                    <?php foreach ($products as $product): 
+                    <?php foreach ($products as $product):
                         $product_settings = $this->get_product_settings($product->term_id);
                         $item_count = $product->count;
+                        $theme_color = !empty($product_settings['theme_color']) ? $product_settings['theme_color'] : '#2271b1';
+
+                        // Get vote count for this product
+                        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Simple count query for display
+                        $vote_count = $wpdb->get_var($wpdb->prepare(
+                            "SELECT COALESCE(SUM(v.vote_value), 0)
+                             FROM {$votes_table} v
+                             INNER JOIN {$wpdb->posts} p ON v.item_id = p.ID
+                             INNER JOIN {$wpdb->term_relationships} tr ON p.ID = tr.object_id
+                             INNER JOIN {$wpdb->term_taxonomy} tt ON tr.term_taxonomy_id = tt.term_taxonomy_id
+                             WHERE tt.term_id = %d AND tt.taxonomy = 'roadmap_product'",
+                            $product->term_id
+                        ));
+                        $vote_count = intval($vote_count);
                     ?>
-                        <div class="roadmap-product-card">
-                            <h3><?php echo esc_html($product->name); ?></h3>
-                            <p class="description"><?php echo esc_html($product->description); ?></p>
-                            
-                            <div class="product-stats">
-                                <span class="stat-item">
-                                    <strong><?php echo esc_html($item_count); ?></strong> 
-                                    <?php echo esc_html(_n('Item', 'Items', $item_count, 'product-roadmap')); ?>
-                                </span>
-                            </div>
-                            
-                            <div class="product-shortcode">
-                                <div class="shortcode-wrapper">
-                                    <code class="shortcode-text">[roadmap product="<?php echo esc_attr($product->slug); ?>"]</code>
-                                </div>
-                                <button type="button" class="button button-small copy-shortcode"
-                                        data-shortcode='[roadmap product="<?php echo esc_attr($product->slug); ?>"]'
-                                        title="<?php esc_attr_e('Copy to clipboard', 'product-roadmap'); ?>"
-                                        style="margin-top: 8px;">
+                        <div class="roadmap-product-card" style="--product-color: <?php echo esc_attr($theme_color); ?>;">
+                            <div class="product-card-header">
+                                <div class="product-icon" style="background: <?php echo esc_attr($theme_color); ?>;">
                                     <span class="dashicons dashicons-clipboard"></span>
-                                    <span class="copy-text"><?php esc_html_e('Copy', 'product-roadmap'); ?></span>
-                                </button>
+                                </div>
+                                <div class="product-title-wrap">
+                                    <h3><?php echo esc_html($product->name); ?></h3>
+                                    <span class="product-slug">/<?php echo esc_html($product->slug); ?></span>
+                                </div>
                             </div>
-                            
+
+                            <?php if (!empty($product->description)): ?>
+                                <p class="product-description"><?php echo esc_html($product->description); ?></p>
+                            <?php endif; ?>
+
+                            <div class="product-stats">
+                                <div class="stat-item">
+                                    <span class="stat-icon dashicons dashicons-list-view"></span>
+                                    <div class="stat-content">
+                                        <span class="stat-number"><?php echo esc_html($item_count); ?></span>
+                                        <span class="stat-label"><?php echo esc_html(_n('Item', 'Items', $item_count, 'product-roadmap')); ?></span>
+                                    </div>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-icon dashicons dashicons-thumbs-up"></span>
+                                    <div class="stat-content">
+                                        <span class="stat-number"><?php echo esc_html($vote_count); ?></span>
+                                        <span class="stat-label"><?php echo esc_html(_n('Vote', 'Votes', $vote_count, 'product-roadmap')); ?></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="product-shortcode">
+                                <label><?php esc_html_e('Shortcode', 'product-roadmap'); ?></label>
+                                <div class="shortcode-copy-wrapper">
+                                    <code class="shortcode-text">[roadmap product="<?php echo esc_attr($product->slug); ?>"]</code>
+                                    <button type="button" class="copy-shortcode-btn"
+                                            data-shortcode='[roadmap product="<?php echo esc_attr($product->slug); ?>"]'
+                                            title="<?php esc_attr_e('Copy to clipboard', 'product-roadmap'); ?>">
+                                        <span class="dashicons dashicons-admin-page"></span>
+                                    </button>
+                                </div>
+                            </div>
+
                             <div class="product-actions">
-                                <a href="#" class="button" onclick="editProductSettings('<?php echo esc_attr($product->term_id); ?>')">
-                                    <?php esc_html_e('Settings', 'product-roadmap'); ?>
-                                </a>
-                                <a href="<?php echo esc_url(admin_url('edit.php?post_type=roadmap_item&roadmap_product=' . $product->slug)); ?>" 
-                                   class="button">
+                                <a href="<?php echo esc_url(admin_url('edit.php?post_type=roadmap_item&roadmap_product=' . $product->slug)); ?>"
+                                   class="button button-primary">
+                                    <span class="dashicons dashicons-visibility" style="margin-top: 4px;"></span>
                                     <?php esc_html_e('View Items', 'product-roadmap'); ?>
+                                </a>
+                                <a href="#" class="button" onclick="editProductSettings('<?php echo esc_attr($product->term_id); ?>'); return false;">
+                                    <span class="dashicons dashicons-admin-generic" style="margin-top: 4px;"></span>
+                                    <?php esc_html_e('Settings', 'product-roadmap'); ?>
                                 </a>
                             </div>
                         </div>
@@ -1006,21 +1068,21 @@ class Roadmap_Settings {
     
     public function set_taxonomy_parent_menu($parent_file) {
         global $current_screen;
-        
+
         // Check if we're on a roadmap taxonomy page
-        if ($current_screen && isset($current_screen->taxonomy) && isset($current_screen->post_type)) {
+        if ($current_screen && isset($current_screen->post_type)) {
             if ($current_screen->post_type === 'roadmap_item') {
                 // Force the parent menu to be roadmap-dashboard
                 return 'roadmap-dashboard';
             }
         }
-        
+
         return $parent_file;
     }
     
     public function set_taxonomy_submenu_active($submenu_file) {
         global $current_screen, $taxonomy;
-        
+
         // Check if we're on a roadmap taxonomy page
         if ($current_screen && isset($current_screen->taxonomy) && isset($current_screen->post_type)) {
             if ($current_screen->post_type === 'roadmap_item') {
@@ -1037,6 +1099,7 @@ class Roadmap_Settings {
                         break;
                 }
             }
+
         }
         
         return $submenu_file;
@@ -1164,6 +1227,169 @@ class Roadmap_Settings {
     private function render_settings_styles() {
         // Styles moved to assets/css/roadmap-admin.css
         return;
+    }
+
+    /**
+     * Render changelog types settings tab
+     */
+    private function render_changelog_types_settings() {
+        $change_types = get_terms([
+            'taxonomy' => 'changelog_type',
+            'hide_empty' => false,
+        ]);
+        ?>
+        <div class="roadmap-settings-section">
+            <h2><?php esc_html_e('Changelog Badge Types', 'product-roadmap'); ?></h2>
+            <p class="section-description">
+                <?php esc_html_e('Customize the badge types used in your changelogs. Each type can have its own color scheme.', 'product-roadmap'); ?>
+            </p>
+
+            <!-- Existing Badge Types -->
+            <div class="roadmap-settings-card">
+                <div class="card-header">
+                    <h3><i class="dashicons dashicons-tag"></i> <?php esc_html_e('Badge Types', 'product-roadmap'); ?></h3>
+                </div>
+                <div class="card-body">
+                    <?php if (!empty($change_types) && !is_wp_error($change_types)) : ?>
+                        <table class="widefat changelog-types-table">
+                            <thead>
+                                <tr>
+                                    <th><?php esc_html_e('Name', 'product-roadmap'); ?></th>
+                                    <th><?php esc_html_e('Slug', 'product-roadmap'); ?></th>
+                                    <th style="width: 150px;"><?php esc_html_e('Preview', 'product-roadmap'); ?></th>
+                                    <th style="width: 100px;"><?php esc_html_e('Text Color', 'product-roadmap'); ?></th>
+                                    <th style="width: 100px;"><?php esc_html_e('Background', 'product-roadmap'); ?></th>
+                                    <th style="width: 100px;"><?php esc_html_e('Actions', 'product-roadmap'); ?></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($change_types as $type) :
+                                    $color = get_term_meta($type->term_id, '_changelog_type_color', true) ?: '#383d41';
+                                    $background = get_term_meta($type->term_id, '_changelog_type_background', true) ?: '#e2e3e5';
+                                    ?>
+                                    <tr data-term-id="<?php echo esc_attr($type->term_id); ?>">
+                                        <td>
+                                            <strong><?php echo esc_html($type->name); ?></strong>
+                                        </td>
+                                        <td>
+                                            <code><?php echo esc_html($type->slug); ?></code>
+                                        </td>
+                                        <td>
+                                            <span class="changelog-badge-preview" style="display: inline-block; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 500; color: <?php echo esc_attr($color); ?>; background: <?php echo esc_attr($background); ?>;">
+                                                <?php echo esc_html($type->name); ?>
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <input type="color"
+                                                   class="changelog-type-color"
+                                                   value="<?php echo esc_attr($color); ?>"
+                                                   data-term-id="<?php echo esc_attr($type->term_id); ?>"
+                                                   data-field="color">
+                                        </td>
+                                        <td>
+                                            <input type="color"
+                                                   class="changelog-type-background"
+                                                   value="<?php echo esc_attr($background); ?>"
+                                                   data-term-id="<?php echo esc_attr($type->term_id); ?>"
+                                                   data-field="background">
+                                        </td>
+                                        <td>
+                                            <a href="<?php echo esc_url(admin_url('edit-tags.php?action=edit&taxonomy=changelog_type&tag_ID=' . $type->term_id . '&post_type=roadmap_changelog')); ?>" class="button button-small">
+                                                <?php esc_html_e('Edit', 'product-roadmap'); ?>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    <?php else : ?>
+                        <p><?php esc_html_e('No changelog types found. They will be created automatically when you add your first changelog.', 'product-roadmap'); ?></p>
+                    <?php endif; ?>
+
+                    <p style="margin-top: 20px;">
+                        <a href="<?php echo esc_url(admin_url('edit-tags.php?taxonomy=changelog_type&post_type=roadmap_changelog')); ?>" class="button">
+                            <span class="dashicons dashicons-plus-alt2" style="vertical-align: middle;"></span>
+                            <?php esc_html_e('Manage All Types', 'product-roadmap'); ?>
+                        </a>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Usage Info -->
+            <div class="roadmap-settings-card">
+                <div class="card-header">
+                    <h3><i class="dashicons dashicons-info"></i> <?php esc_html_e('How to Use Changelogs', 'product-roadmap'); ?></h3>
+                </div>
+                <div class="card-body">
+                    <p><?php esc_html_e('To display your changelog on your site, use this shortcode:', 'product-roadmap'); ?></p>
+                    <div class="shortcode-wrapper" style="margin: 15px 0;">
+                        <code class="shortcode-text" style="padding: 10px 15px; display: inline-block; background: #f0f0f1; border-radius: 4px;">[roadmap_changelog]</code>
+                        <button type="button" class="button button-small copy-shortcode" data-shortcode="[roadmap_changelog]" style="margin-left: 10px;">
+                            <span class="dashicons dashicons-clipboard"></span>
+                            <?php esc_html_e('Copy', 'product-roadmap'); ?>
+                        </button>
+                    </div>
+
+                    <h4><?php esc_html_e('Shortcode Options', 'product-roadmap'); ?></h4>
+                    <table class="widefat" style="margin-top: 10px;">
+                        <thead>
+                            <tr>
+                                <th><?php esc_html_e('Attribute', 'product-roadmap'); ?></th>
+                                <th><?php esc_html_e('Description', 'product-roadmap'); ?></th>
+                                <th><?php esc_html_e('Example', 'product-roadmap'); ?></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>limit</code></td>
+                                <td><?php esc_html_e('Number of changelog entries to show', 'product-roadmap'); ?></td>
+                                <td><code>[roadmap_changelog limit="5"]</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>product</code></td>
+                                <td><?php esc_html_e('Filter by product slug (Pro)', 'product-roadmap'); ?></td>
+                                <td><code>[roadmap_changelog product="my-app"]</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>collapsible</code></td>
+                                <td><?php esc_html_e('Make versions expandable', 'product-roadmap'); ?></td>
+                                <td><code>[roadmap_changelog collapsible="true"]</code></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <script>
+        jQuery(document).ready(function($) {
+            // Update badge preview on color change
+            $('.changelog-type-color, .changelog-type-background').on('change', function() {
+                var $row = $(this).closest('tr');
+                var termId = $(this).data('term-id');
+                var field = $(this).data('field');
+                var value = $(this).val();
+
+                // Update preview
+                var $preview = $row.find('.changelog-badge-preview');
+                if (field === 'color') {
+                    $preview.css('color', value);
+                } else {
+                    $preview.css('background', value);
+                }
+
+                // Save via AJAX
+                $.post(ajaxurl, {
+                    action: 'roadmap_save_changelog_type_color',
+                    term_id: termId,
+                    field: field,
+                    value: value,
+                    nonce: '<?php echo esc_js(wp_create_nonce('roadmap_changelog_type_color')); ?>'
+                });
+            });
+        });
+        </script>
+        <?php
     }
 
     /**

@@ -112,11 +112,26 @@
           @item-click="openDetailModal"
           @update-item="updateItem"
         />
-        
-        
+
+        <!-- Idea Box View (Pro) -->
+        <RoadmapIdeaBox
+          v-else-if="viewMode === 'ideabox' && config.is_pro"
+          :items="filteredItems"
+          :statuses="statuses"
+          :categories="categories"
+          :mode="currentMode"
+          :can-edit="canEdit"
+          :pro-features="config.pro_features"
+          @item-click="openDetailModal"
+          @vote="submitVote"
+          @edit-item="openItemModal"
+          @delete-item="deleteItem"
+          @update-item="updateItem"
+        />
+
         <!-- Fallback to Minimal for Pro templates when not Pro -->
         <RoadmapMinimal
-          v-else-if="['grid', 'timeline', 'list', 'cards', 'board'].includes(viewMode) && !config.is_pro"
+          v-else-if="['grid', 'timeline', 'list', 'cards', 'board', 'ideabox'].includes(viewMode) && !config.is_pro"
           :items="filteredItems"
           :statuses="statuses"
           :mode="currentMode"
@@ -207,6 +222,7 @@ import RoadmapTimeline from '@/components/RoadmapTimeline.vue'
 import RoadmapList from '@/components/RoadmapList.vue'
 import RoadmapCards from '@/components/RoadmapCards.vue'
 import RoadmapMinimal from '@/components/RoadmapMinimal.vue'
+import RoadmapIdeaBox from '@/components/RoadmapIdeaBox.vue'
 import RoadmapFooter from '@/components/RoadmapFooter.vue'
 import ItemModal from '@/components/ItemModal.vue'
 import CommentModal from '@/components/CommentModal.vue'

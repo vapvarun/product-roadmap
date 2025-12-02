@@ -5,48 +5,47 @@
     'use strict';
 
     $(document).ready(function() {
-        // Copy shortcode functionality
-        $(document).on('click', '.copy-shortcode', function(e) {
+        // Copy shortcode functionality - supports both old and new button classes
+        $(document).on('click', '.copy-shortcode, .copy-shortcode-btn', function(e) {
             e.preventDefault();
             var button = $(this);
             var shortcode = button.data('shortcode');
             var originalText = button.find('.copy-text').text();
+            var hasText = button.find('.copy-text').length > 0;
+            var iconClass = button.find('.dashicons').hasClass('dashicons-admin-page') ? 'dashicons-admin-page' : 'dashicons-clipboard';
 
             // Create temporary textarea for copying
             var tempInput = $('<textarea>');
             $('body').append(tempInput);
             tempInput.val(shortcode).select();
 
+            function showSuccess() {
+                button.addClass('copied');
+                if (hasText) {
+                    button.find('.copy-text').text('Copied!');
+                }
+                button.find('.dashicons').removeClass(iconClass).addClass('dashicons-yes');
+
+                // Reset after 2 seconds
+                setTimeout(function() {
+                    button.removeClass('copied');
+                    if (hasText) {
+                        button.find('.copy-text').text(originalText);
+                    }
+                    button.find('.dashicons').removeClass('dashicons-yes').addClass(iconClass);
+                }, 2000);
+            }
+
             try {
                 // Try modern clipboard API first
                 if (navigator.clipboard && window.isSecureContext) {
                     navigator.clipboard.writeText(shortcode).then(function() {
-                        // Success feedback
-                        button.addClass('copied');
-                        button.find('.copy-text').text('Copied!');
-                        button.find('.dashicons').removeClass('dashicons-clipboard').addClass('dashicons-yes');
-
-                        // Reset after 2 seconds
-                        setTimeout(function() {
-                            button.removeClass('copied');
-                            button.find('.copy-text').text(originalText);
-                            button.find('.dashicons').removeClass('dashicons-yes').addClass('dashicons-clipboard');
-                        }, 2000);
+                        showSuccess();
                     });
                 } else {
                     // Fallback for older browsers
                     document.execCommand('copy');
-
-                    // Success feedback
-                    button.addClass('copied');
-                    button.find('.copy-text').text('Copied!');
-                    button.find('.dashicons').removeClass('dashicons-clipboard').addClass('dashicons-yes');
-
-                    setTimeout(function() {
-                        button.removeClass('copied');
-                        button.find('.copy-text').text(originalText);
-                        button.find('.dashicons').removeClass('dashicons-yes').addClass('dashicons-clipboard');
-                    }, 2000);
+                    showSuccess();
                 }
             } catch (err) {
                 console.error('Failed to copy:', err);
