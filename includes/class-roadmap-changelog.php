@@ -572,9 +572,10 @@ class Roadmap_Changelog {
             .roadmap-changelog-items-table { margin-bottom: 10px; }
             .roadmap-changelog-items-table th { font-weight: 600; }
             .roadmap-changelog-items-table .sort-handle { text-align: center; }
-            .roadmap-changelog-items-table .remove-changelog-item { color: #b32d2e; }
+            .roadmap-changelog-items-table .remove-changelog-item { color: #b32d2e; display: flex; align-items: center; }
             .roadmap-changelog-items-table .remove-changelog-item:hover { color: #dc3232; }
             .changelog-type-select { min-width: 120px; }
+            select#_changelog_release_type { width: calc(100% - 34px); }
         ');
 
         // Inline JS for changelog items repeater
