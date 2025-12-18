@@ -351,6 +351,7 @@ const formatDate = (date) => {
       background: #2271b1;
       color: #fff;
       border-color: #2271b1;
+      padding: 0;
     }
   }
 }
@@ -367,6 +368,7 @@ const formatDate = (date) => {
 .roadmap-ideabox-vote-btn {
   width: 48px;
   height: 48px;
+  padding: 0;
   border: 2px solid #d1d5db;
   background: #fff;
   border-radius: 8px;
