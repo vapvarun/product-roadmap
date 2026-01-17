@@ -235,21 +235,26 @@ class Roadmap_Settings {
                 <div class="roadmap-stat-card">
                     <h3><?php esc_html_e('In Progress', 'product-roadmap'); ?></h3>
                     <p class="roadmap-stat-number">
-                        <?php 
-                        $in_progress = get_posts([
-                            'post_type' => 'roadmap_item',
-                            'posts_per_page' => -1,
-                            'post_status' => ['publish', 'pending'],
-                            // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- Dashboard statistics query
-                            'tax_query' => [
-                                [
-                                    'taxonomy' => 'roadmap_status',
-                                    'field' => 'slug',
-                                    'terms' => 'in-progress'
-                                ]
+                        <?php
+                        // Use WP_Query with fields=ids for efficient counting
+                        $in_progress_query = new WP_Query(
+                            [
+                                'post_type'      => 'roadmap_item',
+                                'posts_per_page' => 1,
+                                'post_status'    => [ 'publish', 'pending' ],
+                                'fields'         => 'ids',
+                                // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- Dashboard statistics query
+                                'tax_query'      => [
+                                    [
+                                        'taxonomy' => 'roadmap_status',
+                                        'field'    => 'slug',
+                                        'terms'    => 'in-progress',
+                                    ],
+                                ],
                             ]
-                        ]);
-                        echo count($in_progress);
+                        );
+                        echo esc_html( $in_progress_query->found_posts );
+                        wp_reset_postdata();
                         ?>
                     </p>
                 </div>

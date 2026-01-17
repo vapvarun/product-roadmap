@@ -360,8 +360,22 @@ class Roadmap_API {
 		$query = new WP_Query( $args );
 		$items = array();
 
-		foreach ( $query->posts as $post ) {
-			$items[] = $this->format_item( $post );
+		// Prime caches to avoid N+1 queries
+		if ( ! empty( $query->posts ) ) {
+			$post_ids = wp_list_pluck( $query->posts, 'ID' );
+
+			// Prime post meta cache for all posts at once
+			update_postmeta_cache( $post_ids );
+
+			// Prime term cache for all posts at once
+			update_object_term_cache( $post_ids, 'roadmap_item' );
+
+			// Batch fetch all vote statuses in single query
+			$user_votes = $this->get_user_votes_batch( $post_ids );
+
+			foreach ( $query->posts as $post ) {
+				$items[] = $this->format_item( $post, $user_votes );
+			}
 		}
 
 		return new WP_REST_Response(
@@ -375,7 +389,19 @@ class Roadmap_API {
 		);
 	}
 
-	private function format_item( $post ) {
+	/**
+	 * Format a roadmap item for API response.
+	 *
+	 * @param WP_Post    $post       The post object.
+	 * @param array|null $user_votes Optional pre-fetched user votes for batch optimization.
+	 * @return array Formatted item data.
+	 */
+	private function format_item( $post, $user_votes = null ) {
+		// Use batch vote data if available, otherwise query individually
+		$user_voted = null !== $user_votes
+			? ( isset( $user_votes[ $post->ID ] ) ? $user_votes[ $post->ID ] : false )
+			: $this->has_user_voted( $post->ID );
+
 		$item = array(
 			'id'              => $post->ID,
 			'title'           => $post->post_title,
@@ -396,7 +422,7 @@ class Roadmap_API {
 			'github_issue'    => get_post_meta( $post->ID, '_roadmap_github_issue', true ),
 			'status'          => $this->get_item_terms( $post->ID, 'roadmap_status' ),
 			'categories'      => $this->get_item_terms( $post->ID, 'roadmap_category' ),
-			'user_voted'      => $this->has_user_voted( $post->ID ),
+			'user_voted'      => $user_voted,
 			'product'         => $this->get_item_terms( $post->ID, 'roadmap_product' ),
 			'link'            => get_permalink( $post->ID ),
 		);
@@ -450,6 +476,54 @@ class Roadmap_API {
 		}
 
 		return $vote ? (int) $vote : false;
+	}
+
+	/**
+	 * Batch fetch user votes for multiple items in a single query.
+	 *
+	 * @param array $post_ids Array of post IDs to check votes for.
+	 * @return array Associative array of post_id => vote_value.
+	 */
+	private function get_user_votes_batch( $post_ids ) {
+		if ( empty( $post_ids ) ) {
+			return array();
+		}
+
+		global $wpdb;
+		$table   = $wpdb->prefix . 'roadmap_votes';
+		$user_id = get_current_user_id();
+
+		// Build placeholders for IN clause
+		$placeholders = implode( ',', array_fill( 0, count( $post_ids ), '%d' ) );
+
+		if ( $user_id ) {
+			// Logged in user - query by user_id
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Placeholders are safe integers
+			$query = $wpdb->prepare(
+				"SELECT item_id, vote_value FROM {$table} WHERE user_id = %d AND item_id IN ({$placeholders})",
+				array_merge( array( $user_id ), $post_ids )
+			);
+		} else {
+			// Guest user - query by IP
+			$guest_ip = $this->get_user_ip();
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Placeholders are safe integers
+			$query = $wpdb->prepare(
+				"SELECT item_id, vote_value FROM {$table} WHERE guest_ip = %s AND item_id IN ({$placeholders})",
+				array_merge( array( $guest_ip ), $post_ids )
+			);
+		}
+
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Query is prepared above, custom table for batch performance
+		$results = $wpdb->get_results( $query );
+
+		$votes = array();
+		if ( $results ) {
+			foreach ( $results as $row ) {
+				$votes[ (int) $row->item_id ] = (int) $row->vote_value;
+			}
+		}
+
+		return $votes;
 	}
 
 	public function submit_vote( $request ) {
@@ -1151,17 +1225,33 @@ class Roadmap_API {
 		return current_user_can( 'manage_options' );
 	}
 
+	/**
+	 * Get user IP address for guest voting.
+	 *
+	 * Security: Only use REMOTE_ADDR which cannot be spoofed by the client.
+	 * HTTP_CLIENT_IP and HTTP_X_FORWARDED_FOR headers can be manipulated
+	 * by malicious users to bypass one-vote-per-IP restrictions.
+	 *
+	 * Note: If your site is behind a trusted reverse proxy (like Cloudflare),
+	 * you may need to configure WordPress to trust those headers via a filter.
+	 *
+	 * @return string The validated IP address or empty string.
+	 */
 	private function get_user_ip() {
 		$ip = '';
 
-		if ( ! empty( $_SERVER['HTTP_CLIENT_IP'] ) ) {
-			$ip = sanitize_text_field( wp_unslash( $_SERVER['HTTP_CLIENT_IP'] ) );
-		} elseif ( ! empty( $_SERVER['HTTP_X_FORWARDED_FOR'] ) ) {
-			$ip = sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_FORWARDED_FOR'] ) );
-		} elseif ( ! empty( $_SERVER['REMOTE_ADDR'] ) ) {
+		// Only use REMOTE_ADDR for security - it cannot be spoofed by the client
+		// Proxy headers (HTTP_CLIENT_IP, HTTP_X_FORWARDED_FOR) can be easily faked
+		if ( ! empty( $_SERVER['REMOTE_ADDR'] ) ) {
 			$ip = sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) );
 		}
 
-		return $ip;
+		// Validate IP format to prevent injection
+		if ( ! empty( $ip ) && filter_var( $ip, FILTER_VALIDATE_IP ) === false ) {
+			$ip = '';
+		}
+
+		// Allow filtering for sites behind trusted proxies
+		return apply_filters( 'roadmap_guest_user_ip', $ip );
 	}
 }

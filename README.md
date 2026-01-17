@@ -2,7 +2,7 @@
 
 Create public product roadmaps to share your vision, collect user feedback, and build products your customers actually want.
 
-**Version:** 1.1.1
+**Version:** 1.3.1
 **Requires WordPress:** 5.8 or higher
 **Requires PHP:** 7.4 or higher
 **License:** GPL v2 or later

@@ -3,7 +3,7 @@ Contributors: wbcomdesigns, vapvarun
 Tags: roadmap, product roadmap, feature voting, user feedback, product management
 Requires at least: 5.8
 Tested up to: 6.8
-Stable tag: 1.3.0
+Stable tag: 1.3.1
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -108,6 +108,21 @@ Multiple product roadmaps are available in the Pro version. Free version support
 
 == Changelog ==
 
+= 1.3.1 =
+* Security: Fixed IP spoofing vulnerability in guest voting - now uses only REMOTE_ADDR with proper validation
+* Performance: Fixed N+1 query issue in REST API - batch fetches votes and primes caches for all items
+* Performance: Dashboard stats now use efficient count queries instead of loading all posts
+* Performance: Role capabilities only added on activation/version upgrade (not every page load)
+* Performance: Default taxonomy terms only inserted on activation/version upgrade (not every page load)
+* Enhancement: Added filter hooks for Pro addon to enhance changelog shortcode and API
+
+= 1.3.0 =
+* New: Changelog feature for publishing release notes and version updates
+* New: Changelog shortcode [roadmap_changelog] for displaying changelogs on frontend
+* New: Changelog types taxonomy for categorizing updates (Feature, Fix, Security, etc.)
+* Enhancement: REST API endpoints for changelog management
+* Enhancement: Improved admin interface for changelog entries
+
 = 1.2.1 =
 * Fix: Improved array filtering for multiple select fields to properly handle empty values
 * Enhancement: Better handling of dependency field data when saving roadmap items
@@ -176,6 +191,9 @@ Multiple product roadmaps are available in the Pro version. Free version support
 * Shortcode support
 
 == Upgrade Notice ==
+
+= 1.3.1 =
+Security and performance update. Fixes IP spoofing vulnerability in guest voting and N+1 query issues in REST API. Recommended for all users.
 
 = 1.1.1 =
 Important update! Fixes guest voting, subscriber permissions, and pending submissions workflow. Adds full guest voting support with IP tracking. Highly recommended for all users.

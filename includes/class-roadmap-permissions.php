@@ -16,10 +16,30 @@ class Roadmap_Permissions {
     }
     
     private function __construct() {
-        add_action('init', [$this, 'add_capabilities']);
-        add_filter('user_has_cap', [$this, 'filter_capabilities'], 10, 4);
+        add_action( 'init', [ $this, 'maybe_add_capabilities' ] );
+        add_filter( 'user_has_cap', [ $this, 'filter_capabilities' ], 10, 4 );
     }
-    
+
+    /**
+     * Check if capabilities need to be added (on activation or version change)
+     *
+     * This prevents database writes on every page load.
+     */
+    public function maybe_add_capabilities() {
+        $caps_version = get_option( 'roadmap_capabilities_version', '0' );
+
+        // Only add capabilities on first install or version upgrade
+        if ( version_compare( $caps_version, ROADMAP_VERSION, '<' ) ) {
+            $this->add_capabilities();
+            update_option( 'roadmap_capabilities_version', ROADMAP_VERSION, false );
+        }
+    }
+
+    /**
+     * Add roadmap capabilities to roles
+     *
+     * Called during activation or version upgrade only.
+     */
     public function add_capabilities() {
         $roles = [
             'administrator' => [
@@ -31,36 +51,36 @@ class Roadmap_Permissions {
                 'roadmap_manage_settings',
                 'roadmap_view_analytics',
             ],
-            'editor' => [
+            'editor'        => [
                 'roadmap_vote',
                 'roadmap_comment',
                 'roadmap_suggest',
                 'roadmap_edit_items',
                 'roadmap_delete_items',
             ],
-            'author' => [
+            'author'        => [
                 'roadmap_vote',
                 'roadmap_comment',
                 'roadmap_suggest',
                 'roadmap_edit_own_items',
             ],
-            'contributor' => [
+            'contributor'   => [
                 'roadmap_vote',
                 'roadmap_comment',
                 'roadmap_suggest',
             ],
-            'subscriber' => [
+            'subscriber'    => [
                 'roadmap_vote',
                 'roadmap_comment',
                 'roadmap_suggest',
             ],
         ];
-        
-        foreach ($roles as $role_name => $caps) {
-            $role = get_role($role_name);
-            if ($role) {
-                foreach ($caps as $cap) {
-                    $role->add_cap($cap);
+
+        foreach ( $roles as $role_name => $caps ) {
+            $role = get_role( $role_name );
+            if ( $role ) {
+                foreach ( $caps as $cap ) {
+                    $role->add_cap( $cap );
                 }
             }
         }

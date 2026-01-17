@@ -210,40 +210,60 @@ class Roadmap_CPT {
             ],
         ];
         
-        register_taxonomy('roadmap_product', ['roadmap_item'], $product_args);
-        
-        // Insert default statuses on activation
-        $this->insert_default_terms();
+        register_taxonomy( 'roadmap_product', [ 'roadmap_item' ], $product_args );
+
+        // Insert default terms only on activation or version upgrade (not every page load)
+        $this->maybe_insert_default_terms();
     }
-    
+
+    /**
+     * Check if default terms need to be inserted
+     *
+     * This prevents database queries on every page load.
+     */
+    private function maybe_insert_default_terms() {
+        $terms_version = get_option( 'roadmap_terms_version', '0' );
+
+        // Only insert terms on first install or version upgrade
+        if ( version_compare( $terms_version, ROADMAP_VERSION, '<' ) ) {
+            $this->insert_default_terms();
+            update_option( 'roadmap_terms_version', ROADMAP_VERSION, false );
+        }
+    }
+
+    /**
+     * Insert default taxonomy terms
+     *
+     * Called during activation or version upgrade only.
+     */
     private function insert_default_terms() {
         $default_statuses = [
-            'planned' => __('Planned', 'product-roadmap'),
-            'in-progress' => __('In Progress', 'product-roadmap'),
-            'completed' => __('Completed', 'product-roadmap'),
-            'on-hold' => __('On Hold', 'product-roadmap'),
-            'under-review' => __('Under Review', 'product-roadmap'),
+            'planned'      => __( 'Planned', 'product-roadmap' ),
+            'in-progress'  => __( 'In Progress', 'product-roadmap' ),
+            'completed'    => __( 'Completed', 'product-roadmap' ),
+            'on-hold'      => __( 'On Hold', 'product-roadmap' ),
+            'under-review' => __( 'Under Review', 'product-roadmap' ),
         ];
-        
-        foreach ($default_statuses as $slug => $name) {
-            if (!term_exists($slug, 'roadmap_status')) {
-                wp_insert_term($name, 'roadmap_status', ['slug' => $slug]);
+
+        foreach ( $default_statuses as $slug => $name ) {
+            if ( ! term_exists( $slug, 'roadmap_status' ) ) {
+                wp_insert_term( $name, 'roadmap_status', [ 'slug' => $slug ] );
             }
         }
-        
+
         // Insert default product term
-        $default_product = get_option('roadmap_default_product', 'main');
-        if (!term_exists($default_product, 'roadmap_product')) {
+        $default_product = get_option( 'roadmap_default_product', 'main' );
+        if ( ! term_exists( $default_product, 'roadmap_product' ) ) {
             // Use the product name from settings if available
-            $product_name = get_option('roadmap_product_name', __('Main Product', 'product-roadmap'));
-            $term = wp_insert_term(
+            $product_name = get_option( 'roadmap_product_name', __( 'Main Product', 'product-roadmap' ) );
+            $term         = wp_insert_term(
                 $product_name,
                 'roadmap_product',
-                ['slug' => $default_product]
+                [ 'slug' => $default_product ]
             );
-            
-            if (!is_wp_error($term)) {
-                update_option('roadmap_default_product_id', $term['term_id']);
+
+            if ( ! is_wp_error( $term ) ) {
+                update_option( 'roadmap_default_product_id', $term['term_id'] );
             }
         }
     }
