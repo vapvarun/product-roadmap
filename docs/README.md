@@ -136,11 +136,17 @@ docs/
 ## 🔄 Documentation Updates
 
 This documentation is for:
-- **Plugin Version**: 1.3.0+
+- **Plugin Version**: 1.3.1
 - **WordPress**: 5.8+
 - **PHP**: 7.4+
 
-Last updated: December 2025
+**What's New in 1.3.1:**
+- Security: Fixed IP spoofing vulnerability in guest voting
+- Performance: Fixed N+1 query issue in REST API
+- Performance: Optimized dashboard stats queries
+- Enhancement: New hooks for Pro addon changelog integration
+
+Last updated: January 2026
 
 ## 💡 Quick Tips
 

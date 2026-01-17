@@ -115,6 +115,8 @@ Multiple product roadmaps are available in the Pro version. Free version support
 * Performance: Role capabilities only added on activation/version upgrade (not every page load)
 * Performance: Default taxonomy terms only inserted on activation/version upgrade (not every page load)
 * Enhancement: Added filter hooks for Pro addon to enhance changelog shortcode and API
+* Fix: Admin notice for pending submissions now properly persists dismissal (stays dismissed until new submissions arrive)
+* Docs: Added comprehensive web documentation with screenshots
 
 = 1.3.0 =
 * New: Changelog feature for publishing release notes and version updates

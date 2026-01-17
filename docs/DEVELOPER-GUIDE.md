@@ -1,11 +1,16 @@
 # WordPress Product Roadmap Plugin - Developer Guide
 
+**Version:** 1.3.1
+
 ## Table of Contents
 - [Architecture Overview](#architecture-overview)
+- [What's New in v1.3.1](#whats-new-in-v131)
 - [Hooks Reference](#hooks-reference)
   - [Action Hooks](#action-hooks)
   - [Filter Hooks](#filter-hooks)
 - [REST API Endpoints](#rest-api-endpoints)
+  - [Roadmap Items API](#roadmap-items-api)
+  - [Changelog API](#changelog-api-v130)
 - [JavaScript Integration](#javascript-integration)
 - [Database Schema](#database-schema)
 - [Custom Post Types](#custom-post-types)
@@ -43,6 +48,93 @@ product-roadmap/
 - **Roadmap_API**: REST API implementation
 - **Roadmap_Shortcode**: Shortcode rendering
 - **Roadmap_Voting**: Vote management
+
+## What's New in v1.3.1
+
+This release includes security fixes, performance optimizations, and new extension points.
+
+### Security Fixes
+
+**IP Spoofing Prevention**
+Guest voting now uses only `REMOTE_ADDR` for IP tracking. Previously, the code checked `HTTP_X_FORWARDED_FOR` and other headers which can be spoofed by malicious users.
+
+```php
+// Before (vulnerable)
+$ip = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'];
+
+// After (secure)
+$ip = filter_var($_SERVER['REMOTE_ADDR'], FILTER_VALIDATE_IP);
+```
+
+### Performance Optimizations
+
+**N+1 Query Fix**
+The REST API now batch-fetches vote counts for all items in a single query instead of querying each item individually.
+
+```php
+// Before: One query per item
+foreach ($items as $item) {
+    $votes = get_post_meta($item->ID, '_roadmap_votes', true);
+}
+
+// After: Single query for all items
+$item_ids = wp_list_pluck($items, 'ID');
+$votes = $wpdb->get_results(
+    "SELECT item_id, COUNT(*) as count
+     FROM {$wpdb->prefix}roadmap_votes
+     WHERE item_id IN (" . implode(',', $item_ids) . ")
+     GROUP BY item_id"
+);
+```
+
+**Dashboard Query Optimization**
+Stats now use `SELECT COUNT(*)` instead of loading all posts and counting in PHP.
+
+**Initialization Optimization**
+Role capabilities and default taxonomy terms are now only inserted on plugin activation or version upgrade, not on every page load.
+
+### New Filter Hooks
+
+**`roadmap_changelog_shortcode_data`**
+Filter changelog data before rendering. Used by Pro addon for product filtering.
+
+```php
+$changelog_data = apply_filters('roadmap_changelog_shortcode_data', $changelog_data, $atts);
+```
+
+**`roadmap_api_changelog_args`**
+Filter WP_Query args for changelog REST API requests.
+
+```php
+$args = apply_filters('roadmap_api_changelog_args', $args, $request);
+```
+
+### Pro Addon Integration
+
+These hooks allow the Pro addon to extend changelog functionality:
+
+```php
+// Pro addon hooks into changelog shortcode
+add_filter('roadmap_changelog_shortcode_data', function($data, $atts) {
+    if (!empty($atts['product'])) {
+        // Filter by product
+    }
+    return $data;
+}, 10, 2);
+
+// Pro addon hooks into changelog API
+add_filter('roadmap_api_changelog_args', function($args, $request) {
+    $product = $request->get_param('product');
+    if ($product) {
+        $args['tax_query'][] = [
+            'taxonomy' => 'roadmap_product',
+            'field' => 'slug',
+            'terms' => $product,
+        ];
+    }
+    return $args;
+}, 10, 2);
+```
 
 ## Hooks Reference
 
@@ -332,6 +424,127 @@ Body:
 GET /wp-json/roadmap/v1/settings
 ```
 Returns statuses, categories, and configuration.
+
+### Changelog API (v1.3.0)
+
+The Changelog API provides endpoints for managing release notes and version history.
+
+#### Get Changelog Entries
+```
+GET /wp-json/roadmap/v1/changelog
+```
+
+Parameters:
+- `product`: Filter by product slug (Pro addon required for multi-product)
+- `type`: Filter by changelog type (feature, fix, security, etc.)
+- `per_page`: Items per page (default: 10)
+- `page`: Page number
+
+Response:
+```json
+{
+  "items": [
+    {
+      "id": 123,
+      "title": "Version 2.0 Release",
+      "version": "2.0.0",
+      "release_date": "2025-01-15",
+      "release_type": "major",
+      "content": "Full release notes...",
+      "changes": [
+        {"type": "new", "description": "Added dark mode"},
+        {"type": "fix", "description": "Fixed login bug"}
+      ],
+      "products": ["main"]
+    }
+  ],
+  "total": 15,
+  "pages": 2
+}
+```
+
+#### Get Single Changelog Entry
+```
+GET /wp-json/roadmap/v1/changelog/{id}
+```
+
+#### Get Changelog Types
+```
+GET /wp-json/roadmap/v1/changelog/types
+```
+
+Returns available changelog types:
+```json
+[
+  {"slug": "new", "name": "New", "color": "#22c55e"},
+  {"slug": "improved", "name": "Improved", "color": "#3b82f6"},
+  {"slug": "fixed", "name": "Fixed", "color": "#f97316"},
+  {"slug": "changed", "name": "Changed", "color": "#8b5cf6"},
+  {"slug": "deprecated", "name": "Deprecated", "color": "#eab308"},
+  {"slug": "removed", "name": "Removed", "color": "#ef4444"},
+  {"slug": "security", "name": "Security", "color": "#991b1b"}
+]
+```
+
+#### Create Changelog Entry
+```
+POST /wp-json/roadmap/v1/changelog
+```
+Required capabilities: `edit_posts`
+
+Body:
+```json
+{
+  "title": "Version 2.1 Release",
+  "version": "2.1.0",
+  "release_date": "2025-01-20",
+  "release_type": "minor",
+  "content": "This release includes...",
+  "changes": [
+    {"type": "new", "description": "Added export feature"},
+    {"type": "fix", "description": "Fixed performance issue"}
+  ],
+  "products": ["main"]
+}
+```
+
+#### Update Changelog Entry
+```
+PUT /wp-json/roadmap/v1/changelog/{id}
+```
+Required capabilities: `edit_posts`
+
+#### Delete Changelog Entry
+```
+DELETE /wp-json/roadmap/v1/changelog/{id}
+```
+Required capabilities: `delete_posts`
+
+### Pro Addon Changelog Endpoints
+
+When the Pro addon is active, additional endpoints become available:
+
+#### Get Changelog by Product (Pro)
+```
+GET /wp-json/roadmap/v1/changelog/by-product/{product_slug}
+```
+
+Parameters:
+- `limit`: Max entries to return (default: 10)
+- `page`: Page number for pagination (v1.3.1+)
+
+#### Get Products with Changelogs (Pro)
+```
+GET /wp-json/roadmap/v1/changelog/products
+```
+
+Returns products that have changelog entries:
+```json
+[
+  {"id": 1, "slug": "main", "name": "Main Product", "count": 5},
+  {"id": 2, "slug": "mobile-app", "name": "Mobile App", "count": 3}
+]
+```
 
 ## JavaScript Integration
 

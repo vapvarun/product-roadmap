@@ -1,13 +1,16 @@
 # WordPress Product Roadmap Plugin - User Guide
 
+**Version:** 1.3.1
+
 ## Table of Contents
 - [Introduction](#introduction)
+- [What's New in v1.3.1](#whats-new-in-v131)
 - [Installation & Setup](#installation--setup)
 - [Dashboard Overview](#dashboard-overview)
 - [Creating & Managing Roadmap Items](#creating--managing-roadmap-items)
 - [Categories & Statuses](#categories--statuses)
 - [Product Management](#product-management)
-- [Changelog Feature](#changelog-feature-v130) (NEW in 1.3.0)
+- [Changelog Feature](#changelog-feature-v130)
 - [Displaying Roadmaps on Frontend](#displaying-roadmaps-on-frontend)
 - [User Engagement Features](#user-engagement-features)
 - [Settings Configuration](#settings-configuration)
@@ -37,6 +40,45 @@ The WordPress Product Roadmap Plugin helps you create and manage product roadmap
 - Submit feature suggestions
 - Track what's being built
 - Stay informed about product direction
+
+## What's New in v1.3.1
+
+This release focuses on security hardening and performance optimization. Here's what changed:
+
+### Security Improvements
+
+**Better Vote Protection**
+Guest voting now uses more reliable tracking to prevent vote manipulation. Previously, the system could be tricked into counting extra votes. Now it properly validates each vote to ensure fairness.
+
+What this means for you:
+- Vote counts are more accurate
+- Less chance of spam votes affecting your roadmap priorities
+- No action needed on your part - the fix is automatic
+
+### Performance Improvements
+
+**Faster Roadmap Loading**
+Roadmaps with many items now load noticeably faster. We fixed an issue where the system was making too many database calls when displaying items.
+
+What this means for you:
+- Roadmaps with 50+ items load faster
+- Less strain on your server
+- Better experience for your visitors
+
+**Smarter Dashboard**
+The admin dashboard now calculates stats more efficiently. Instead of loading every item to count them, it uses optimized queries.
+
+**One-Time Setup Tasks**
+Role permissions and default taxonomies are now set only during plugin activation or upgrades - not on every page load. This reduces unnecessary work.
+
+### Changelog Feature Enhancements
+
+**Pro Integration Ready**
+The changelog shortcode and API now include hooks for the Pro addon to add multi-product filtering. If you're using both free and Pro versions, changelogs can now be filtered by product.
+
+### Updating from 1.3.0
+
+Update through your WordPress dashboard as usual. No special steps needed - all improvements take effect automatically.
 
 ## Installation & Setup
 
