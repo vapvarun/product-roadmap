@@ -123,6 +123,8 @@ class Roadmap_Shortcode {
 		$atts = shortcode_atts(
 			array(
 				'product'     => '',
+				'version'     => '',
+				'id'          => '',
 				'limit'       => 10,
 				'show_date'   => 'true',
 				'collapsible' => 'false',
