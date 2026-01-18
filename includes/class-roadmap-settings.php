@@ -832,8 +832,24 @@ class Roadmap_Settings {
 					<?php
 					foreach ( $products as $product ) :
 						$product_settings = $this->get_product_settings( $product->term_id );
-						$item_count       = $product->count;
-						$theme_color      = ! empty( $product_settings['theme_color'] ) ? $product_settings['theme_color'] : '#2271b1';
+
+						// Count only roadmap_item posts for this product (not changelogs).
+						// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+						$item_count = (int) $wpdb->get_var(
+							$wpdb->prepare(
+								"SELECT COUNT(DISTINCT p.ID)
+								FROM {$wpdb->posts} p
+								INNER JOIN {$wpdb->term_relationships} tr ON p.ID = tr.object_id
+								INNER JOIN {$wpdb->term_taxonomy} tt ON tr.term_taxonomy_id = tt.term_taxonomy_id
+								WHERE tt.term_id = %d
+								AND tt.taxonomy = 'roadmap_product'
+								AND p.post_type = 'roadmap_item'
+								AND p.post_status = 'publish'",
+								$product->term_id
+							)
+						);
+
+						$theme_color = ! empty( $product_settings['theme_color'] ) ? $product_settings['theme_color'] : '#2271b1';
 
 						// Get vote count for this product
                         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Simple count query for display
@@ -899,6 +915,11 @@ class Roadmap_Settings {
 									class="button button-primary">
 									<span class="dashicons dashicons-visibility" style="margin-top: 4px;"></span>
 									<?php esc_html_e( 'View Items', 'product-roadmap' ); ?>
+								</a>
+								<a href="<?php echo esc_url( get_term_link( $product, 'roadmap_product' ) ); ?>"
+									class="button" target="_blank">
+									<span class="dashicons dashicons-external" style="margin-top: 4px;"></span>
+									<?php esc_html_e( 'View Roadmap', 'product-roadmap' ); ?>
 								</a>
 								<a href="#" class="button" onclick="editProductSettings('<?php echo esc_attr( $product->term_id ); ?>'); return false;">
 									<span class="dashicons dashicons-admin-generic" style="margin-top: 4px;"></span>
