@@ -3,7 +3,7 @@ Contributors: wbcomdesigns, vapvarun
 Tags: roadmap, product roadmap, feature voting, user feedback, product management
 Requires at least: 5.8
 Tested up to: 6.8
-Stable tag: 1.3.1
+Stable tag: 1.4.0
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -108,6 +108,15 @@ Multiple product roadmaps are available in the Pro version. Free version support
 
 == Changelog ==
 
+= 1.4.0 =
+* New: All Products archive page for roadmap items (/roadmap/) showing product cards with status counts
+* New: Select2 bundled locally - removed CDN dependencies for better performance and privacy
+* New: Product filter dropdown on changelog and roadmap archive pages with search functionality
+* Enhancement: Consistent Select2 styling across all pages (52px height, proper borders)
+* Enhancement: Custom Select2 theme (roadmap-plugin) for unified look and feel
+* Fix: Changelog meta data now properly displays version, release date, and release type
+* Fix: Template loader now properly handles roadmap_product taxonomy archives
+
 = 1.3.1 =
 * Security: Fixed IP spoofing vulnerability in guest voting - now uses only REMOTE_ADDR with proper validation
 * Performance: Fixed N+1 query issue in REST API - batch fetches votes and primes caches for all items
@@ -193,6 +202,9 @@ Multiple product roadmaps are available in the Pro version. Free version support
 * Shortcode support
 
 == Upgrade Notice ==
+
+= 1.4.0 =
+Feature update! New All Products archive page, local Select2 bundling (no more CDN), consistent dropdown styling, and changelog meta fixes.
 
 = 1.3.1 =
 Security and performance update. Fixes IP spoofing vulnerability in guest voting and N+1 query issues in REST API. Recommended for all users.
