@@ -88,6 +88,7 @@ defineEmits(['update:status', 'update:category', 'update:product', 'update:sortB
   
   select {
     min-width: 150px;
+    flex: 1;
   }
   
   .roadmap-sort-control {

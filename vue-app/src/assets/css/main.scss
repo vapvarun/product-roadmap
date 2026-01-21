@@ -145,7 +145,7 @@ $white: #ffffff;
     font-size: 14px;
     line-height: 1.5;
     color: $text-color;
-    background: $white;
+    background-color: $white;
     border: 1px solid $border-color;
     border-radius: 4px;
     @include transition(border-color);
@@ -157,7 +157,7 @@ $white: #ffffff;
     }
     
     &:disabled {
-      background: $light-bg;
+      background-color: $light-bg;
       cursor: not-allowed;
     }
   }

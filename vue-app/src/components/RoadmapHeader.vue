@@ -66,6 +66,7 @@ const i18n = config?.i18n || {}
     display: flex;
     align-items: center;
     gap: 12px;
+    flex-wrap: wrap;
     
     input {
       width: 250px;
