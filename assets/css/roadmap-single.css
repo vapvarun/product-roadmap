@@ -330,6 +330,46 @@
     margin: 16px 0;
 }
 
+/* Completion Notes */
+.roadmap-completion-notes {
+    margin: 32px 0;
+    padding: 24px;
+    background: #f0fdf4;
+    border: 1px solid #86efac;
+    border-radius: 12px;
+}
+
+.roadmap-completion-notes h3 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 16px 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: #166534;
+}
+
+.roadmap-completion-notes h3 .dashicons {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    color: #22c55e;
+}
+
+.roadmap-completion-content {
+    font-size: 15px;
+    line-height: 1.7;
+    color: #15803d;
+}
+
+.roadmap-completion-content p {
+    margin: 0 0 12px 0;
+}
+
+.roadmap-completion-content p:last-child {
+    margin-bottom: 0;
+}
+
 /* Footer */
 .roadmap-single-footer {
     margin-top: 32px;

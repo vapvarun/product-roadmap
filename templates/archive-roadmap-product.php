@@ -5,7 +5,18 @@
 
 get_header();
 
+// Support both URL patterns:
+// 1. /roadmap/{product}/ - custom rewrite with query var
+// 2. /roadmap-product/{product}/ - WordPress taxonomy archive
 $roadmap_product_slug = get_query_var('roadmap_product');
+
+if (!$roadmap_product_slug && is_tax('roadmap_product')) {
+    $term = get_queried_object();
+    if ($term && !is_wp_error($term)) {
+        $roadmap_product_slug = $term->slug;
+    }
+}
+
 $roadmap_product_term = get_term_by('slug', $roadmap_product_slug, 'roadmap_product');
 
 if (!$roadmap_product_term) {
@@ -15,6 +26,10 @@ if (!$roadmap_product_term) {
 
 // Enqueue archive styles
 wp_enqueue_style('roadmap-archive', ROADMAP_PLUGIN_URL . 'assets/css/roadmap-archive.css', [], ROADMAP_VERSION);
+
+// Get default template from Pro settings (stored in roadmap_pro_templates array)
+$pro_templates = get_option('roadmap_pro_templates', []);
+$default_template = isset($pro_templates['default_template']) ? $pro_templates['default_template'] : 'board';
 ?>
 
 <div class="roadmap-archive">
@@ -26,7 +41,7 @@ wp_enqueue_style('roadmap-archive', ROADMAP_PLUGIN_URL . 'assets/css/roadmap-arc
     </div>
 
     <div class="roadmap-archive-content">
-        <?php echo do_shortcode('[roadmap product="' . esc_attr($roadmap_product_slug) . '"]'); ?>
+        <?php echo do_shortcode('[roadmap product="' . esc_attr($roadmap_product_slug) . '" template="' . esc_attr($default_template) . '"]'); ?>
     </div>
     
     <div class="roadmap-archive-footer">

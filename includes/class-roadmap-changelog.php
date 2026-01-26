@@ -848,8 +848,9 @@ class Roadmap_Changelog {
 			}
 		}
 
-		// Order by release date (stored in meta) then post date
-		$query->set( 'orderby', 'date' );
+		// Order by release date (stored in meta) - newest versions first
+		$query->set( 'meta_key', '_changelog_release_date' );
+		$query->set( 'orderby', 'meta_value' );
 		$query->set( 'order', 'DESC' );
 	}
 

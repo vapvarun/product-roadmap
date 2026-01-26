@@ -66,7 +66,7 @@
           <h4>Progress</h4>
           <div class="roadmap-progress-detail">
             <div class="roadmap-progress">
-              <div 
+              <div
                 class="roadmap-progress-bar"
                 :style="{ width: `${item.progress}%` }"
               ></div>
@@ -74,7 +74,15 @@
             <span class="roadmap-progress-text">{{ item.progress }}%</span>
           </div>
         </div>
-        
+
+        <!-- Completion Notes (for completed items) -->
+        <div v-if="item.completion_notes" class="roadmap-detail-section roadmap-completion-notes">
+          <h4>✅ What was delivered</h4>
+          <div class="roadmap-detail-content roadmap-completion-content">
+            {{ item.completion_notes }}
+          </div>
+        </div>
+
         <!-- Assignee -->
         <div v-if="item.assignee" class="roadmap-detail-section">
           <h4>Assigned To</h4>
@@ -264,6 +272,25 @@ const handleCommentAdded = () => {
     margin-top: 30px;
     padding-top: 30px;
     border-top: 1px solid #eee;
+  }
+}
+
+.roadmap-completion-notes {
+  background: #f0fdf4;
+  border: 1px solid #86efac;
+  border-radius: 8px;
+  padding: 20px;
+  margin-top: 20px;
+
+  h4 {
+    color: #166534;
+    margin-bottom: 12px;
+  }
+
+  .roadmap-completion-content {
+    color: #15803d;
+    background: transparent;
+    line-height: 1.7;
   }
 }
 

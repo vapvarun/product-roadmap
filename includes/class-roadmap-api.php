@@ -404,9 +404,9 @@ class Roadmap_API {
 
 		$item = array(
 			'id'              => $post->ID,
-			'title'           => $post->post_title,
-			'content'         => $post->post_content,
-			'excerpt'         => wp_trim_words( $post->post_content, 20 ),
+			'title'           => html_entity_decode( $post->post_title, ENT_QUOTES, 'UTF-8' ),
+			'content'         => html_entity_decode( $post->post_content, ENT_QUOTES, 'UTF-8' ),
+			'excerpt'         => html_entity_decode( wp_trim_words( $post->post_content, 20 ), ENT_QUOTES, 'UTF-8' ),
 			'author'          => get_the_author_meta( 'display_name', $post->post_author ),
 			'date'            => $post->post_date,
 			'modified'        => $post->post_modified,
@@ -414,6 +414,7 @@ class Roadmap_API {
 			'comment_count'   => $post->comment_count,
 			'priority'        => get_post_meta( $post->ID, '_roadmap_priority', true ),
 			'progress'        => (int) get_post_meta( $post->ID, '_roadmap_progress', true ),
+			'completion_notes' => get_post_meta( $post->ID, '_roadmap_completion_notes', true ),
 			'target_date'     => get_post_meta( $post->ID, '_roadmap_target_date', true ),
 			'external_link'   => get_post_meta( $post->ID, '_roadmap_external_link', true ),
 			'start_date'      => get_post_meta( $post->ID, '_roadmap_start_date', true ),
@@ -764,19 +765,20 @@ class Roadmap_API {
 
 			// Set all meta fields
 			$meta_fields = array(
-				'_roadmap_priority'        => $request->get_param( 'priority' ),
-				'_roadmap_progress'        => $request->get_param( 'progress' ),
-				'_roadmap_target_date'     => $request->get_param( 'target_date' ),
-				'_roadmap_external_link'   => $request->get_param( 'external_link' ),
-				'_roadmap_start_date'      => $request->get_param( 'start_date' ),
-				'_roadmap_end_date'        => $request->get_param( 'end_date' ),
-				'_roadmap_effort_estimate' => $request->get_param( 'effort_estimate' ),
-				'_roadmap_github_issue'    => $request->get_param( 'github_issue' ),
+				'_roadmap_priority'         => $request->get_param( 'priority' ),
+				'_roadmap_progress'         => $request->get_param( 'progress' ),
+				'_roadmap_completion_notes' => $request->get_param( 'completion_notes' ),
+				'_roadmap_target_date'      => $request->get_param( 'target_date' ),
+				'_roadmap_external_link'    => $request->get_param( 'external_link' ),
+				'_roadmap_start_date'       => $request->get_param( 'start_date' ),
+				'_roadmap_end_date'         => $request->get_param( 'end_date' ),
+				'_roadmap_effort_estimate'  => $request->get_param( 'effort_estimate' ),
+				'_roadmap_github_issue'     => $request->get_param( 'github_issue' ),
 			);
 
 			foreach ( $meta_fields as $key => $value ) {
 				if ( $value !== null ) {
-					update_post_meta( $post_id, $key, sanitize_text_field( $value ) );
+					update_post_meta( $post_id, $key, sanitize_textarea_field( $value ) );
 				}
 			}
 
@@ -825,19 +827,20 @@ class Roadmap_API {
 
 			// Update all meta fields
 			$meta_fields = array(
-				'_roadmap_priority'        => $request->get_param( 'priority' ),
-				'_roadmap_progress'        => $request->get_param( 'progress' ),
-				'_roadmap_target_date'     => $request->get_param( 'target_date' ),
-				'_roadmap_external_link'   => $request->get_param( 'external_link' ),
-				'_roadmap_start_date'      => $request->get_param( 'start_date' ),
-				'_roadmap_end_date'        => $request->get_param( 'end_date' ),
-				'_roadmap_effort_estimate' => $request->get_param( 'effort_estimate' ),
-				'_roadmap_github_issue'    => $request->get_param( 'github_issue' ),
+				'_roadmap_priority'         => $request->get_param( 'priority' ),
+				'_roadmap_progress'         => $request->get_param( 'progress' ),
+				'_roadmap_completion_notes' => $request->get_param( 'completion_notes' ),
+				'_roadmap_target_date'      => $request->get_param( 'target_date' ),
+				'_roadmap_external_link'    => $request->get_param( 'external_link' ),
+				'_roadmap_start_date'       => $request->get_param( 'start_date' ),
+				'_roadmap_end_date'         => $request->get_param( 'end_date' ),
+				'_roadmap_effort_estimate'  => $request->get_param( 'effort_estimate' ),
+				'_roadmap_github_issue'     => $request->get_param( 'github_issue' ),
 			);
 
 			foreach ( $meta_fields as $key => $value ) {
 				if ( $value !== null ) {
-					update_post_meta( $post_id, $key, sanitize_text_field( $value ) );
+					update_post_meta( $post_id, $key, sanitize_textarea_field( $value ) );
 				}
 			}
 
@@ -1175,7 +1178,7 @@ class Roadmap_API {
 				$type_color = $type_term ? get_term_meta( $type_term->term_id, 'changelog_type_color', true ) : '#6b7280';
 
 				$formatted_items[] = array(
-					'description' => $item['description'],
+					'description' => html_entity_decode( $item['description'], ENT_QUOTES, 'UTF-8' ),
 					'type'        => $item['type'],
 					'type_name'   => $type_term ? $type_term->name : ucfirst( $item['type'] ),
 					'type_color'  => $type_color,
@@ -1185,8 +1188,8 @@ class Roadmap_API {
 
 		return array(
 			'id'             => $post->ID,
-			'title'          => $post->post_title,
-			'content'        => $post->post_content,
+			'title'          => html_entity_decode( $post->post_title, ENT_QUOTES, 'UTF-8' ),
+			'content'        => html_entity_decode( $post->post_content, ENT_QUOTES, 'UTF-8' ),
 			'version'        => $version,
 			'release_date'   => $release_date,
 			'formatted_date' => $release_date ? date_i18n( get_option( 'date_format' ), strtotime( $release_date ) ) : '',

@@ -3,7 +3,7 @@ Contributors: wbcomdesigns, vapvarun
 Tags: roadmap, product roadmap, feature voting, user feedback, product management
 Requires at least: 5.8
 Tested up to: 6.8
-Stable tag: 1.4.0
+Stable tag: 1.5.0
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -107,6 +107,16 @@ Multiple product roadmaps are available in the Pro version. Free version support
 8. Individual roadmap item with voting and comments
 
 == Changelog ==
+
+= 1.5.0 =
+* New: "Done" section in Timeline view displays completed items separately from planned items
+* New: Completion Notes field for completed items - explain what was done to customers
+* New: Archive pages now use global default template setting from Pro Templates tab
+* New: Support for both /roadmap/{product}/ and /roadmap-product/{product}/ URL patterns
+* Enhancement: Completed items excluded from "Future - Later" section in Timeline view
+* Enhancement: Archive template properly detects taxonomy archives and custom rewrites
+* Enhancement: Completion notes exposed in REST API for frontend display
+* Fix: Timeline view now correctly groups items by completion status
 
 = 1.4.0 =
 * New: All Products archive page for roadmap items (/roadmap/) showing product cards with status counts

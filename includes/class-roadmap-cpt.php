@@ -382,6 +382,13 @@ class Roadmap_CPT {
 				'free'        => true,
 			),
 			array(
+				'id'          => '_roadmap_completion_notes',
+				'label'       => __( 'Completion Notes', 'product-roadmap' ),
+				'type'        => 'textarea',
+				'description' => __( 'Notes about what was completed (shown to customers on completed items)', 'product-roadmap' ),
+				'free'        => true,
+			),
+			array(
 				'id'          => '_roadmap_target_date',
 				'label'       => __( 'Target Date', 'product-roadmap' ),
 				'type'        => 'date',
@@ -845,6 +852,14 @@ class Roadmap_CPT {
 
 		// Product-specific archive template: /roadmap/{product}/
 		if ( get_query_var( 'roadmap_product' ) && ! is_singular() ) {
+			$custom_template = ROADMAP_PLUGIN_PATH . 'templates/archive-roadmap-product.php';
+			if ( file_exists( $custom_template ) ) {
+				return $custom_template;
+			}
+		}
+
+		// Taxonomy archive template: /roadmap-product/{product}/
+		if ( is_tax( 'roadmap_product' ) ) {
 			$custom_template = ROADMAP_PLUGIN_PATH . 'templates/archive-roadmap-product.php';
 			if ( file_exists( $custom_template ) ) {
 				return $custom_template;

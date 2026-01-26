@@ -169,6 +169,22 @@ while (have_posts()) : the_post();
                     <?php the_content(); ?>
                 </div>
 
+                <!-- Completion Notes (for completed items) -->
+                <?php
+                $completion_notes = get_post_meta($item_id, '_roadmap_completion_notes', true);
+                if (!empty($completion_notes)):
+                ?>
+                <div class="roadmap-completion-notes">
+                    <h3>
+                        <span class="dashicons dashicons-yes-alt"></span>
+                        <?php esc_html_e('What was delivered', 'product-roadmap'); ?>
+                    </h3>
+                    <div class="roadmap-completion-content">
+                        <?php echo wp_kses_post(wpautop($completion_notes)); ?>
+                    </div>
+                </div>
+                <?php endif; ?>
+
                 <!-- Tags/Categories Footer -->
                 <?php if (!empty($categories) || !empty($products)): ?>
                 <footer class="roadmap-single-footer">

@@ -217,6 +217,61 @@
             </div>
           </div>
         </div>
+
+        <!-- Done/Completed Section -->
+        <div class="roadmap-timeline-section roadmap-timeline-done" v-if="completedItems.length > 0">
+          <div class="roadmap-timeline-section-header">
+            <h3>
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <path d="M7 10L9 12L13 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="2"/>
+              </svg>
+              Done
+            </h3>
+            <span class="roadmap-timeline-period">{{ completedItems.length }} completed</span>
+          </div>
+          <div class="roadmap-timeline-items">
+            <div
+              v-for="item in completedItems"
+              :key="item.id"
+              class="roadmap-timeline-item status-completed"
+              @click="$emit('item-click', item)"
+            >
+              <div class="roadmap-timeline-item-content">
+                <h4>{{ item.title }}</h4>
+                <p>{{ item.excerpt || item.content.substring(0, 100) + '...' }}</p>
+                <div class="roadmap-timeline-item-footer">
+                  <div class="roadmap-timeline-item-meta">
+                    <span class="roadmap-timeline-status roadmap-status-completed">{{ getStatusName(item) }}</span>
+                    <span v-if="item.categories && item.categories.length" class="roadmap-timeline-category">
+                      {{ item.categories[0].name }}
+                    </span>
+                  </div>
+                  <div class="roadmap-timeline-item-stats">
+                    <span class="roadmap-timeline-votes">👍 {{ item.votes || 0 }}</span>
+                    <span class="roadmap-timeline-comments">💬 {{ item.comment_count || 0 }}</span>
+                  </div>
+                </div>
+                <div v-if="mode === 'manage' && canEdit" class="roadmap-timeline-item-actions">
+                  <button
+                    @click.stop="$emit('edit-item', item)"
+                    class="roadmap-btn roadmap-btn-sm roadmap-btn-secondary"
+                    title="Edit"
+                  >
+                    ✏️ Edit
+                  </button>
+                  <button
+                    @click.stop="$emit('delete-item', item.id)"
+                    class="roadmap-btn roadmap-btn-sm roadmap-btn-danger"
+                    title="Delete"
+                  >
+                    🗑️ Delete
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- Visual Timeline -->
@@ -347,14 +402,27 @@ const upcomingItems = computed(() => {
 
 const futureItems = computed(() => {
   const futureStatuses = ['idea', 'under-review', 'considering', 'backlog']
+  const completedStatuses = ['completed', 'released', 'done', 'shipped']
   const futureDate = new Date()
   futureDate.setMonth(futureDate.getMonth() + 3)
   const filteredItems = getDateFilteredItems()
 
   return filteredItems.filter(item => {
     const statusSlug = item.status?.[0]?.slug
+    // Exclude completed items from Later section
+    if (completedStatuses.includes(statusSlug)) return false
     return futureStatuses.includes(statusSlug) ||
            (!item.start_date || (item.start_date && new Date(item.start_date) > futureDate))
+  })
+})
+
+const completedItems = computed(() => {
+  const completedStatuses = ['completed', 'released', 'done', 'shipped']
+  const filteredItems = getDateFilteredItems()
+
+  return filteredItems.filter(item => {
+    const statusSlug = item.status?.[0]?.slug
+    return completedStatuses.includes(statusSlug)
   })
 })
 
@@ -457,6 +525,20 @@ const formatDate = (date) => {
       border-radius: 20px;
     }
   }
+
+  &.roadmap-timeline-done {
+    background: #e8f5e9;
+    border: 1px solid #c8e6c9;
+
+    .roadmap-timeline-section-header h3 svg {
+      color: #4caf50;
+    }
+
+    .roadmap-timeline-period {
+      background: #4caf50;
+      color: white;
+    }
+  }
 }
 
 .roadmap-timeline-items {
@@ -518,8 +600,15 @@ const formatDate = (date) => {
   }
 
   &.status-completed:before,
-  &.status-released:before {
+  &.status-released:before,
+  &.status-done:before,
+  &.status-shipped:before {
     background: #4caf50;
+  }
+
+  .roadmap-status-completed {
+    background: #e8f5e9 !important;
+    color: #2e7d32 !important;
   }
 
   &.status-idea:before,
