@@ -1012,6 +1012,17 @@ class Roadmap_API {
 
 		$comment_id = wp_insert_comment( $comment_data );
 
+		if ( $comment_id ) {
+			/**
+			 * Fires after a comment is submitted on a roadmap item.
+			 *
+			 * @param int $comment_id The new comment ID.
+			 * @param int $item_id    The roadmap item post ID.
+			 * @param int $user_id    The commenting user's ID.
+			 */
+			do_action( 'roadmap_comment_submitted', $comment_id, $item_id, get_current_user_id() );
+		}
+
 		if ( ! $comment_id ) {
 			return new WP_Error( 'comment_failed', __( 'Failed to add comment', 'product-roadmap' ), array( 'status' => 500 ) );
 		}

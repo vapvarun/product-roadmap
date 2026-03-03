@@ -20,6 +20,7 @@ class Roadmap_Notifications {
         add_action('roadmap_comment_submitted', [$this, 'handle_comment_notification'], 10, 3);
         add_action('roadmap_suggestion_submitted', [$this, 'handle_suggestion_notification'], 10, 2);
         add_action('transition_post_status', [$this, 'handle_status_change_notification'], 10, 3);
+        add_action('set_object_terms', [$this, 'handle_roadmap_status_change'], 10, 6);
     }
     
     public function handle_vote_notification($item_id, $user_id, $vote_value) {
@@ -159,7 +160,85 @@ class Roadmap_Notifications {
             wp_mail($user_email, $subject, $message);
         }
     }
-    
+
+    public function handle_roadmap_status_change($object_id, $terms, $tt_ids, $taxonomy, $append, $old_tt_ids) {
+        // Only process roadmap_status taxonomy changes
+        if ('roadmap_status' !== $taxonomy) {
+            return;
+        }
+
+        // Only for roadmap_item post type
+        $post = get_post($object_id);
+        if (!$post || 'roadmap_item' !== $post->post_type) {
+            return;
+        }
+
+        if (!$this->should_send_notification('status_change')) {
+            return;
+        }
+
+        // Get old status name from old term taxonomy IDs
+        $old_status_name = '';
+        if (!empty($old_tt_ids)) {
+            $old_term = get_term_by('term_taxonomy_id', $old_tt_ids[0]);
+            if ($old_term && !is_wp_error($old_term)) {
+                $old_status_name = $old_term->name;
+            }
+        }
+
+        // Get new status name from the assigned terms
+        $new_status_name = '';
+        if (!empty($terms)) {
+            $new_term = get_term($terms[0], 'roadmap_status');
+            if ($new_term && !is_wp_error($new_term)) {
+                $new_status_name = $new_term->name;
+            }
+        }
+
+        // Skip if status didn't actually change
+        if ($old_status_name === $new_status_name) {
+            return;
+        }
+
+        // Get users who voted or commented on this item
+        $users_to_notify = $this->get_users_to_notify($object_id);
+
+        if (empty($users_to_notify)) {
+            return;
+        }
+
+        $subject = sprintf(
+            /* translators: %1$s: Site name, %2$s: Item title */
+            __('[%1$s] Status update: %2$s', 'product-roadmap'),
+            get_bloginfo('name'),
+            $post->post_title
+        );
+
+        $message = sprintf(
+            /* translators: %1$s: Item title, %2$s: Old status, %3$s: New status, %4$s: Item URL */
+            __("A roadmap item you're following has changed status:\n\nItem: %1\$s\nOld Status: %2\$s\nNew Status: %3\$s\n\nView item: %4\$s", 'product-roadmap'),
+            $post->post_title,
+            $old_status_name ? $old_status_name : __('None', 'product-roadmap'),
+            $new_status_name ? $new_status_name : __('None', 'product-roadmap'),
+            get_permalink($object_id)
+        );
+
+        /**
+         * Fires when a roadmap item's status taxonomy term changes.
+         * Fired BEFORE emails so pro addon can set template context.
+         *
+         * @param int    $object_id       The roadmap item post ID.
+         * @param string $new_status_name The new status term name.
+         * @param string $old_status_name The old status term name.
+         */
+        do_action('roadmap_status_changed', $object_id, $new_status_name, $old_status_name);
+
+        // Send to each user
+        foreach ($users_to_notify as $user_email) {
+            wp_mail($user_email, $subject, $message);
+        }
+    }
+
     private function get_users_to_notify($item_id) {
         global $wpdb;
         
@@ -223,6 +302,8 @@ class Roadmap_Notifications {
                 return get_option('roadmap_notify_on_comment', 'yes') === 'yes';
             case 'suggestion':
                 return get_option('roadmap_notify_on_suggestion', 'yes') === 'yes';
+            case 'status_change':
+                return get_option('roadmap_notify_on_status_change', 'yes') === 'yes';
             default:
                 return false;
         }

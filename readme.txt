@@ -3,7 +3,7 @@ Contributors: wbcomdesigns, vapvarun
 Tags: roadmap, product roadmap, feature voting, user feedback, product management
 Requires at least: 5.8
 Tested up to: 6.8
-Stable tag: 1.5.1
+Stable tag: 1.6.0
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -107,6 +107,12 @@ Multiple product roadmaps are available in the Pro version. Free version support
 8. Individual roadmap item with voting and comments
 
 == Changelog ==
+
+= 1.6.0 =
+* New: Email notification to voters when a roadmap item status changes
+* New: Admin email notification when a new suggestion is submitted
+* Enhancement: Status change detection now uses taxonomy term changes for accurate tracking
+* Enhancement: Fires `roadmap_status_changed` action hook for extensibility
 
 = 1.5.1 =
 * Fix: Force asset cache refresh for completion notes modal display
