@@ -1,0 +1,73 @@
+{
+  "schema_version": "v1",
+  "plugin": {
+    "slug": "product-roadmap",
+    "version": "0.0.0"
+  },
+  "generated": {
+    "at": "2026-07-11T15:35:31.289Z",
+    "manifest_at": null,
+    "manifest_branch": null
+  },
+  "categories": {
+    "rest": {
+      "total": 0,
+      "covered": 0,
+      "uncovered": 0,
+      "skipped": 0,
+      "covered_items": [],
+      "uncovered_items": []
+    },
+    "ajax": {
+      "total": 1,
+      "covered": 0,
+      "uncovered": 1,
+      "skipped": 0,
+      "covered_items": [],
+      "uncovered_items": [
+        {
+          "action": "roadmap_vote",
+          "stub_command": "bin/qa-stub-gen.php ajax roadmap_vote"
+        }
+      ]
+    },
+    "hooks_fired": {
+      "total": 0,
+      "covered": 0,
+      "uncovered": 0,
+      "skipped": 0,
+      "covered_items": [],
+      "uncovered_items": [],
+      "_note": "Tracks only hooks with non-empty consumed_by. Skipped hooks are pure extensibility surface."
+    },
+    "cron": {
+      "total": 0,
+      "covered": 0,
+      "uncovered": 0,
+      "skipped": 0,
+      "covered_items": [],
+      "uncovered_items": []
+    },
+    "wp_cli": {
+      "total": 0,
+      "covered": 0,
+      "uncovered": 0,
+      "skipped": 0,
+      "covered_items": [],
+      "uncovered_items": []
+    }
+  },
+  "summary": {
+    "categories_checked": 5,
+    "items_total": 1,
+    "items_covered": 0,
+    "items_uncovered": 1,
+    "items_skipped": 0,
+    "coverage_percent": 0
+  },
+  "drift": {
+    "previous_uncovered": null,
+    "current_uncovered": 1,
+    "delta": null
+  }
+}
