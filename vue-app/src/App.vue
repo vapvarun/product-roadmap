@@ -148,7 +148,7 @@
         <!-- No Items -->
         <div v-else-if="filteredItems.length === 0" class="roadmap-empty">
           <p>{{ config.i18n.no_items }}</p>
-          <button 
+          <button
             v-if="canEdit && currentMode === 'manage'"
             @click="openItemModal()"
             class="roadmap-btn roadmap-btn-primary"
@@ -156,8 +156,26 @@
             {{ config.i18n.add_item }}
           </button>
         </div>
+
+        <!-- Load more -->
+        <div
+          v-if="!loading && totalItems > items.length"
+          class="roadmap-load-more"
+          style="text-align:center; margin:24px 0;"
+        >
+          <p class="roadmap-load-more__count" style="margin:0 0 8px; opacity:.7;">
+            {{ items.length }} / {{ totalItems }}
+          </p>
+          <button
+            @click="loadMore"
+            :disabled="loadingMore"
+            class="roadmap-btn roadmap-btn-primary roadmap-load-more__btn"
+          >
+            {{ loadingMore ? (config.i18n.loading || 'Loading…') : (config.i18n.load_more || 'Load more') }}
+          </button>
+        </div>
       </div>
-      
+
       <!-- Footer Actions -->
       <RoadmapFooter
         v-if="config.settings.enable_suggestions && canSuggest"
@@ -243,8 +261,12 @@ provide('$roadmapConfig', props.config)
 
 // State
 const loading = ref(true)
+const loadingMore = ref(false)
 const error = ref(null)
 const items = ref([])
+const currentPage = ref(1)
+const totalItems = ref(0)
+const totalPages = ref(0)
 const statuses = ref([])
 const categories = ref([])
 const products = ref([])
@@ -338,12 +360,18 @@ const filteredItems = computed(() => {
     )
   }
   
-  // Product filter (Pro)
+  // Product filter (Pro). The server already scopes /items by the mandatory
+  // product param, so this is a client-side safety net for product switching.
+  // item.product may be a single object ({id,name,slug}) or an array; items
+  // without product data are not excluded (the server already filtered them).
   if (selectedProduct.value && props.config.is_pro) {
-    filtered = filtered.filter(item => 
-      item.product && Array.isArray(item.product) && 
-      item.product.some(p => p.slug === selectedProduct.value)
-    )
+    filtered = filtered.filter(item => {
+      if (!item.product) return true
+      if (Array.isArray(item.product)) {
+        return item.product.some(p => p.slug === selectedProduct.value)
+      }
+      return item.product.slug === selectedProduct.value
+    })
   }
   
   // Sort items
@@ -398,24 +426,51 @@ const apiCall = async (endpoint, options = {}) => {
 }
 
 // Methods
+const fetchItemsPage = async (page) => {
+  const params = new URLSearchParams({
+    product: selectedProduct.value || props.config.product,
+    per_page: props.config.settings?.items_per_page || 100,
+    page: page
+  })
+  return await apiCall(`/items?${params}`)
+}
+
 const fetchItems = async () => {
   loading.value = true
   error.value = null
-  
+  currentPage.value = 1
+
   try {
-    const params = new URLSearchParams({
-      product: selectedProduct.value || props.config.product,
-      per_page: props.config.settings?.items_per_page || 100
-    })
-    
-    const response = await apiCall(`/items?${params}`)
+    const response = await fetchItemsPage(1)
     items.value = response.items || []
-    
-    // Items fetched successfully
+    totalItems.value = response.total ?? items.value.length
+    totalPages.value = response.pages ?? 1
   } catch (err) {
     error.value = err.message || props.config.i18n.error
   } finally {
     loading.value = false
+  }
+}
+
+// Append the next page of items (Load more), preserving the loaded list.
+const loadMore = async () => {
+  if (loadingMore.value || items.value.length >= totalItems.value) {
+    return
+  }
+  loadingMore.value = true
+  try {
+    const next = currentPage.value + 1
+    const response = await fetchItemsPage(next)
+    if (response.items && response.items.length) {
+      items.value = [...items.value, ...response.items]
+      currentPage.value = next
+      totalItems.value = response.total ?? totalItems.value
+      totalPages.value = response.pages ?? totalPages.value
+    }
+  } catch (err) {
+    error.value = err.message || props.config.i18n.error
+  } finally {
+    loadingMore.value = false
   }
 }
 
