@@ -83,6 +83,9 @@ class RoadmapPlugin {
     }
     
     public function init() {
+        // Load translations.
+        load_plugin_textdomain( 'product-roadmap', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
+
         // Check if pro addon is active
         if (!defined('ROADMAP_PRO_ACTIVE')) {
             define('ROADMAP_PRO_ACTIVE', false);
