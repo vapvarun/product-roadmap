@@ -356,6 +356,15 @@ class Roadmap_API {
 			);
 		}
 
+		/**
+		 * Allow the pro addon to add advanced query filters (priority, progress,
+		 * assignee, date range, dependencies) to the roadmap items query.
+		 *
+		 * @param array $args   The WP_Query args.
+		 * @param array $params The REST request params.
+		 */
+		$args = apply_filters( 'roadmap_api_query_args', $args, $params );
+
 		// Run the query
 		$query = new WP_Query( $args );
 		$items = array();

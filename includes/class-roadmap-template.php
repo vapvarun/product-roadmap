@@ -27,6 +27,13 @@ class Roadmap_Template {
 		global $post;
 
 		if ( $post->post_type === 'roadmap_item' ) {
+			/**
+			 * Fires when a single roadmap item is viewed on the frontend.
+			 *
+			 * @param int $item_id The roadmap item post ID.
+			 */
+			do_action( 'roadmap_item_viewed', $post->ID );
+
 			$plugin_template = ROADMAP_PLUGIN_PATH . 'templates/single-roadmap_item.php';
 
 			// Check if template exists in theme first
