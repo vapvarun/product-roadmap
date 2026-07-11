@@ -113,6 +113,10 @@ class RoadmapPlugin {
             // Flush rewrite rules
             flush_rewrite_rules();
 
+            // Run table migrations so existing installs pick up new columns/indexes.
+            $this->create_tables();         // adds any new columns via dbDelta
+            $this->upgrade_votes_indexes(); // dbDelta cannot reliably add indexes to existing tables
+
             // Update stored version
             update_option('roadmap_version', ROADMAP_VERSION);
         }
@@ -225,11 +229,48 @@ class RoadmapPlugin {
             UNIQUE KEY user_item (user_id, item_id),
             UNIQUE KEY guest_item (guest_ip, item_id),
             KEY item_id (item_id),
-            KEY guest_ip (guest_ip)
+            KEY guest_ip (guest_ip),
+            KEY created_at (created_at),
+            KEY item_created (item_id, created_at)
         ) $charset_collate;";
         
         require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
         dbDelta($sql_votes);
+
+        // Fresh tables get the indexes from the CREATE above; existing tables are
+        // migrated by upgrade_votes_indexes() (dbDelta won't add them reliably).
+        $this->upgrade_votes_indexes();
+    }
+
+    /**
+     * Ensure the votes table has the created_at / item_created indexes.
+     *
+     * dbDelta does not reliably add indexes to an existing table, so add them
+     * explicitly and idempotently. Speeds up every date-window vote query
+     * (analytics charts, digests) at scale.
+     */
+    private function upgrade_votes_indexes() {
+        global $wpdb;
+        $table = $wpdb->prefix . 'roadmap_votes';
+
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        if ( $wpdb->get_var( "SHOW TABLES LIKE '{$table}'" ) !== $table ) {
+            return;
+        }
+
+        $indexes = array(
+            'created_at'   => "ALTER TABLE `{$table}` ADD KEY `created_at` (`created_at`)",
+            'item_created' => "ALTER TABLE `{$table}` ADD KEY `item_created` (`item_id`, `created_at`)",
+        );
+
+        foreach ( $indexes as $name => $alter_sql ) {
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+            $exists = $wpdb->get_var( $wpdb->prepare( "SHOW INDEX FROM `{$table}` WHERE Key_name = %s", $name ) );
+            if ( ! $exists ) {
+                // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
+                $wpdb->query( $alter_sql );
+            }
+        }
     }
     
     private function set_default_options() {
