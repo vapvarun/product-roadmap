@@ -3,7 +3,7 @@ Contributors: wbcomdesigns, vapvarun
 Tags: roadmap, product roadmap, feature voting, user feedback, product management
 Requires at least: 5.8
 Tested up to: 6.8
-Stable tag: 1.6.0
+Stable tag: 1.7.0
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -107,6 +107,17 @@ Multiple product roadmaps are available in the Pro version. Free version support
 8. Individual roadmap item with voting and comments
 
 == Changelog ==
+
+= 1.7.0 - July 2026 =
+
+* New      - Fire roadmap_item_viewed on single-item views so the Pro addon can record views.
+* New      - Load more pagination on the roadmap board so products with more than 100 items are fully browsable.
+* Improve  - Fire roadmap_api_query_args so the Pro addon's advanced filters (priority, progress, assignee, date) apply.
+* Improve  - Add created_at and item_created indexes to the votes table for faster analytics at scale.
+* Improve  - Add uninstall cleanup (options, votes table, transients) and load the plugin text domain for translation.
+* Improve  - Label the roadmap filter dropdowns for screen readers.
+* Fix      - Roadmap board rendered empty when the Pro addon was active due to a product filter type mismatch.
+* Compat   - Aligned with Product Roadmap Pro 1.7.0. Install both updates together.
 
 = 1.6.0 =
 * New: Email notification to voters when a roadmap item status changes
