@@ -358,23 +358,23 @@ const formatDate = (date) => {
   font-weight: 500;
 
   &.roadmap-priority-low {
-    background: #d4f4dd;
-    color: #1e7e34;
+    background: var(--rm-priority-low-tint);
+    color: var(--rm-priority-low);
   }
 
   &.roadmap-priority-medium {
-    background: #fff3cd;
-    color: #856404;
+    background: var(--rm-priority-medium-tint);
+    color: var(--rm-priority-medium);
   }
 
   &.roadmap-priority-high {
-    background: #ffeaa7;
-    color: #e17055;
+    background: var(--rm-priority-high-tint);
+    color: var(--rm-priority-high);
   }
 
   &.roadmap-priority-critical {
-    background: #f8d7da;
-    color: #721c24;
+    background: var(--rm-priority-critical-tint);
+    color: var(--rm-priority-critical);
   }
 }
 
