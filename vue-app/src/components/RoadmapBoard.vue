@@ -38,13 +38,13 @@
             v-if="getItemsByStatus(status.slug).length === 0"
             class="roadmap-board-empty"
           >
-            <p class="roadmap-board-empty-text">No items in {{ status.name.toLowerCase() }}</p>
+            <p class="roadmap-board-empty-text">{{ i18n.no_items_in || 'No items in' }} {{ status.name.toLowerCase() }}</p>
             <p class="roadmap-board-empty-hint">
               <template v-if="mode === 'manage' && canEdit">
-                Drag items here or create new ones
+                {{ i18n.drag_items_hint || 'Drag items here or create new ones' }}
               </template>
               <template v-else>
-                Items will appear here when added
+                {{ i18n.items_appear_hint || 'Items will appear here when added' }}
               </template>
             </p>
           </div>
@@ -55,8 +55,11 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, inject } from 'vue'
 import RoadmapItem from './RoadmapItem.vue'
+
+const config = inject('$roadmapConfig', {})
+const i18n = config?.i18n || {}
 
 const props = defineProps({
   items: {

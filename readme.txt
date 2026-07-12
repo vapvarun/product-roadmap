@@ -133,6 +133,7 @@ Multiple product roadmaps are available in the Pro version. Free version support
 * Fix      - Roadmap board rendered empty when the Pro addon was active due to a product filter type mismatch.
 * Fix      - Changelog version header was unreadable under a dark theme; it now follows the theme toggle.
 * Dev      - Version the built board assets by file modification time so a rebuilt bundle busts the browser cache.
+* Dev      - Full frontend translation readiness: every Vue board string (timeline, filters, cards, modals, changelog) runs through the plugin text domain and ships in the POT.
 * Compat   - Aligned with Product Roadmap Pro 1.7.0. Install both updates together.
 
 = 1.6.0 =

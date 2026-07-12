@@ -1,13 +1,13 @@
 <template>
   <div class="roadmap-template-timeline roadmap-timeline">
     <div class="roadmap-timeline-header">
-      <h2 class="roadmap-timeline-title">Product Roadmap Timeline</h2>
+      <h2 class="roadmap-timeline-title">{{ i18n.roadmap_timeline || 'Product Roadmap Timeline' }}</h2>
       <div class="roadmap-timeline-filters">
         <select v-model="currentView" class="roadmap-select">
-          <option value="current">Current Quarter</option>
-          <option value="6months">Next 6 Months</option>
-          <option value="year">Next Year</option>
-          <option value="all">All Time</option>
+          <option value="current">{{ i18n.current_quarter || 'Current Quarter' }}</option>
+          <option value="6months">{{ i18n.next_6_months || 'Next 6 Months' }}</option>
+          <option value="year">{{ i18n.next_year || 'Next Year' }}</option>
+          <option value="all">{{ i18n.all_time || 'All Time' }}</option>
         </select>
       </div>
     </div>
@@ -22,13 +22,13 @@
                 <circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="2"/>
                 <path d="M10 6V10L13 13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
               </svg>
-              Now
+              {{ i18n.now || 'Now' }}
             </h3>
             <span class="roadmap-timeline-period">{{ currentPeriod }}</span>
           </div>
           <div class="roadmap-timeline-items">
             <div v-if="currentItems.length === 0" class="roadmap-timeline-empty">
-              <p>No items in progress</p>
+              <p>{{ i18n.no_items_in_progress || 'No items in progress' }}</p>
             </div>
             <div 
               v-for="item in currentItems" 
@@ -69,16 +69,16 @@
                   <button
                     @click.stop="$emit('edit-item', item)"
                     class="roadmap-btn roadmap-btn-sm roadmap-btn-secondary"
-                    title="Edit"
+                    :title="i18n.edit || 'Edit'"
                   >
-                    ✏️ Edit
+                    ✏️ {{ i18n.edit || 'Edit' }}
                   </button>
                   <button
                     @click.stop="$emit('delete-item', item.id)"
                     class="roadmap-btn roadmap-btn-sm roadmap-btn-danger"
-                    title="Delete"
+                    :title="i18n.delete || 'Delete'"
                   >
-                    🗑️ Delete
+                    🗑️ {{ i18n.delete || 'Delete' }}
                   </button>
                 </div>
               </div>
@@ -96,13 +96,13 @@
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                 <path d="M2 10H18M18 10L13 5M18 10L13 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
-              Next
+              {{ i18n.next || 'Next' }}
             </h3>
             <span class="roadmap-timeline-period">{{ nextPeriod }}</span>
           </div>
           <div class="roadmap-timeline-items">
             <div v-if="upcomingItems.length === 0" class="roadmap-timeline-empty">
-              <p>No upcoming items</p>
+              <p>{{ i18n.no_upcoming_items || 'No upcoming items' }}</p>
             </div>
             <div 
               v-for="item in upcomingItems" 
@@ -140,16 +140,16 @@
                   <button
                     @click.stop="$emit('edit-item', item)"
                     class="roadmap-btn roadmap-btn-sm roadmap-btn-secondary"
-                    title="Edit"
+                    :title="i18n.edit || 'Edit'"
                   >
-                    ✏️ Edit
+                    ✏️ {{ i18n.edit || 'Edit' }}
                   </button>
                   <button
                     @click.stop="$emit('delete-item', item.id)"
                     class="roadmap-btn roadmap-btn-sm roadmap-btn-danger"
-                    title="Delete"
+                    :title="i18n.delete || 'Delete'"
                   >
-                    🗑️ Delete
+                    🗑️ {{ i18n.delete || 'Delete' }}
                   </button>
                 </div>
               </div>
@@ -167,13 +167,13 @@
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                 <path d="M4 6H20M4 12H20M4 18H20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
               </svg>
-              Later
+              {{ i18n.later || 'Later' }}
             </h3>
             <span class="roadmap-timeline-period">{{ futurePeriod }}</span>
           </div>
           <div class="roadmap-timeline-items">
             <div v-if="futureItems.length === 0" class="roadmap-timeline-empty">
-              <p>No items in backlog</p>
+              <p>{{ i18n.no_items_in_backlog || 'No items in backlog' }}</p>
             </div>
             <div 
               v-for="item in futureItems" 
@@ -201,16 +201,16 @@
                   <button
                     @click.stop="$emit('edit-item', item)"
                     class="roadmap-btn roadmap-btn-sm roadmap-btn-secondary"
-                    title="Edit"
+                    :title="i18n.edit || 'Edit'"
                   >
-                    ✏️ Edit
+                    ✏️ {{ i18n.edit || 'Edit' }}
                   </button>
                   <button
                     @click.stop="$emit('delete-item', item.id)"
                     class="roadmap-btn roadmap-btn-sm roadmap-btn-danger"
-                    title="Delete"
+                    :title="i18n.delete || 'Delete'"
                   >
-                    🗑️ Delete
+                    🗑️ {{ i18n.delete || 'Delete' }}
                   </button>
                 </div>
               </div>
@@ -226,9 +226,9 @@
                 <path d="M7 10L9 12L13 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 <circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="2"/>
               </svg>
-              Done
+              {{ i18n.done || 'Done' }}
             </h3>
-            <span class="roadmap-timeline-period">{{ completedItems.length }} completed</span>
+            <span class="roadmap-timeline-period">{{ completedItems.length }} {{ i18n.completed || 'completed' }}</span>
           </div>
           <div class="roadmap-timeline-items">
             <div
@@ -256,16 +256,16 @@
                   <button
                     @click.stop="$emit('edit-item', item)"
                     class="roadmap-btn roadmap-btn-sm roadmap-btn-secondary"
-                    title="Edit"
+                    :title="i18n.edit || 'Edit'"
                   >
-                    ✏️ Edit
+                    ✏️ {{ i18n.edit || 'Edit' }}
                   </button>
                   <button
                     @click.stop="$emit('delete-item', item.id)"
                     class="roadmap-btn roadmap-btn-sm roadmap-btn-danger"
-                    title="Delete"
+                    :title="i18n.delete || 'Delete'"
                   >
-                    🗑️ Delete
+                    🗑️ {{ i18n.delete || 'Delete' }}
                   </button>
                 </div>
               </div>
@@ -278,10 +278,10 @@
       <div class="roadmap-visual-timeline">
         <div class="roadmap-timeline-markers">
           <div class="roadmap-timeline-marker">
-            <div class="roadmap-timeline-marker-label">Past</div>
+            <div class="roadmap-timeline-marker-label">{{ i18n.past || 'Past' }}</div>
           </div>
           <div class="roadmap-timeline-marker active">
-            <div class="roadmap-timeline-marker-label">Now</div>
+            <div class="roadmap-timeline-marker-label">{{ i18n.now || 'Now' }}</div>
           </div>
         </div>
       </div>
@@ -290,7 +290,10 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, inject } from 'vue'
+
+const config = inject('$roadmapConfig', {})
+const i18n = config?.i18n || {}
 
 const props = defineProps({
   items: {
@@ -327,7 +330,7 @@ const currentQuarter = Math.floor(now.getMonth() / 3) + 1
 const currentYear = now.getFullYear()
 
 const currentPeriod = computed(() => {
-  const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+  const months = i18n.months || ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
   return `${months[now.getMonth()]} - ${months[now.getMonth() + 2] || months[0]} ${currentYear}`
 })
 
@@ -342,7 +345,7 @@ const futurePeriod = computed(() => {
   futureDate.setMonth(futureDate.getMonth() + 3)
   const futureYear = futureDate.getFullYear()
   const futureMonth = futureDate.toLocaleDateString('en-US', { month: 'long' })
-  return `${futureMonth} ${futureYear} & Beyond`
+  return `${futureMonth} ${futureYear} ${i18n.and_beyond || '& Beyond'}`
 })
 
 // Filter items based on selected time period
@@ -431,7 +434,7 @@ const getStatusSlug = (item) => {
 }
 
 const getStatusName = (item) => {
-  return item.status?.[0]?.name || 'Unknown'
+  return item.status?.[0]?.name || (i18n.unknown || 'Unknown')
 }
 
 const formatDate = (date) => {

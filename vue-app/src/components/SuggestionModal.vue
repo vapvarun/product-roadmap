@@ -25,45 +25,45 @@
           </div>
           
           <div class="roadmap-form-group">
-            <label class="roadmap-form-label">Description</label>
-            <textarea 
+            <label class="roadmap-form-label">{{ i18n.description || 'Description' }}</label>
+            <textarea
               v-model="form.description"
               class="roadmap-form-control"
               rows="6"
               required
-              placeholder="Describe your feature idea in detail..."
+              :placeholder="i18n.describe_detail || 'Describe your feature idea in detail...'"
             ></textarea>
           </div>
           
           <!-- Guest fields for Pro version - ONLY for non-logged-in users -->
           <template v-if="isGuest && isPro && guestSuggestionsEnabled">
             <div class="roadmap-form-group">
-              <label class="roadmap-form-label">Your Name</label>
+              <label class="roadmap-form-label">{{ i18n.your_name || 'Your Name' }}</label>
               <input
                 v-model="form.guest_name"
                 type="text"
                 class="roadmap-form-control"
                 required
-                placeholder="Enter your name"
+                :placeholder="i18n.enter_name || 'Enter your name'"
               >
             </div>
 
             <div class="roadmap-form-group">
-              <label class="roadmap-form-label">Your Email</label>
+              <label class="roadmap-form-label">{{ i18n.your_email || 'Your Email' }}</label>
               <input
                 v-model="form.guest_email"
                 type="email"
                 class="roadmap-form-control"
                 required
-                placeholder="Enter your email address"
+                :placeholder="i18n.enter_email || 'Enter your email address'"
               >
             </div>
           </template>
 
           <div class="roadmap-form-group">
-            <label class="roadmap-form-label">Category (Optional)</label>
+            <label class="roadmap-form-label">{{ i18n.category || 'Category' }} ({{ i18n.optional || 'Optional' }})</label>
             <select v-model="form.category" class="roadmap-form-control">
-              <option value="">Select a category</option>
+              <option value="">{{ i18n.select_category || 'Select a category' }}</option>
               <option 
                 v-for="category in categories"
                 :key="category.id"
@@ -75,23 +75,23 @@
           </div>
           
           <div class="roadmap-form-group">
-            <label class="roadmap-form-label">Priority (Optional)</label>
+            <label class="roadmap-form-label">{{ i18n.priority || 'Priority' }} ({{ i18n.optional || 'Optional' }})</label>
             <select v-model="form.priority" class="roadmap-form-control">
-              <option value="">Select priority</option>
-              <option value="low">Low - Nice to have</option>
-              <option value="medium">Medium - Important</option>
-              <option value="high">High - Very important</option>
-              <option value="critical">Critical - Must have</option>
+              <option value="">{{ i18n.select_priority || 'Select priority' }}</option>
+              <option value="low">{{ i18n.low || 'Low' }} - {{ i18n.priority_low_hint || 'Nice to have' }}</option>
+              <option value="medium">{{ i18n.medium || 'Medium' }} - {{ i18n.priority_medium_hint || 'Important' }}</option>
+              <option value="high">{{ i18n.high || 'High' }} - {{ i18n.priority_high_hint || 'Very important' }}</option>
+              <option value="critical">{{ i18n.critical || 'Critical' }} - {{ i18n.priority_critical_hint || 'Must have' }}</option>
             </select>
           </div>
           
           <div class="roadmap-form-group">
-            <label class="roadmap-form-label">External Link (Optional)</label>
-            <input 
+            <label class="roadmap-form-label">{{ i18n.external_link || 'External Link' }} ({{ i18n.optional || 'Optional' }})</label>
+            <input
               v-model="form.external_link"
               type="url"
               class="roadmap-form-control"
-              placeholder="Link to more details or examples"
+              :placeholder="i18n.link_details || 'Link to more details or examples'"
             >
           </div>
         </form>
@@ -99,10 +99,10 @@
       
       <div class="roadmap-modal-footer">
         <button @click="$emit('close')" class="roadmap-btn roadmap-btn-secondary">
-          Cancel
+          {{ i18n.cancel || 'Cancel' }}
         </button>
         <button @click="handleSubmit" class="roadmap-btn roadmap-btn-primary">
-          Submit Suggestion
+          {{ i18n.submit_suggestion || 'Submit Suggestion' }}
         </button>
       </div>
     </div>

@@ -14,7 +14,7 @@
         </button>
       </div>
       <div class="roadmap-ideabox-count">
-        {{ filteredItems.length }} {{ filteredItems.length === 1 ? 'idea' : 'ideas' }}
+        {{ filteredItems.length }} {{ filteredItems.length === 1 ? (i18n.idea || 'idea') : (i18n.ideas || 'ideas') }}
       </div>
     </div>
 
@@ -33,14 +33,14 @@
             :class="{ 'voted': item.user_voted }"
             @click.stop="handleVote(item)"
             :disabled="voting === item.id"
-            :title="item.user_voted ? 'Remove your vote' : 'Vote for this idea'"
+            :title="item.user_voted ? (i18n.remove_vote || 'Remove your vote') : (i18n.vote_for_this || 'Vote for this idea')"
           >
             <svg viewBox="0 0 24 24" class="roadmap-ideabox-vote-icon">
               <path d="M12 4l-8 8h5v8h6v-8h5z" fill="currentColor"/>
             </svg>
           </button>
           <span class="roadmap-ideabox-vote-count">{{ item.votes || 0 }}</span>
-          <span class="roadmap-ideabox-vote-label">votes</span>
+          <span class="roadmap-ideabox-vote-label">{{ i18n.votes || 'votes' }}</span>
         </div>
 
         <!-- Content Section (Middle) -->
@@ -105,7 +105,7 @@
           <button
             @click.stop="$emit('edit-item', item)"
             class="roadmap-ideabox-action-btn"
-            title="Edit"
+            :title="i18n.edit || 'Edit'"
           >
             <svg viewBox="0 0 20 20" width="16" height="16">
               <path fill="currentColor" d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828zM15 4l1 1-8.5 8.5H6v-1.5L14.5 3.5 15 4z"/>
@@ -114,7 +114,7 @@
           <button
             @click.stop="$emit('delete-item', item.id)"
             class="roadmap-ideabox-action-btn roadmap-ideabox-action-danger"
-            title="Delete"
+            :title="i18n.delete || 'Delete'"
           >
             <svg viewBox="0 0 20 20" width="16" height="16">
               <path fill="currentColor" d="M6 2l2-2h4l2 2h4v2H2V2h4zM3 6h14l-1 14H4L3 6zm5 2v10h1V8H8zm3 0v10h1V8h-1z"/>
@@ -128,8 +128,8 @@
         <svg viewBox="0 0 24 24" width="64" height="64" class="roadmap-ideabox-empty-icon">
           <path fill="currentColor" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
         </svg>
-        <h3>No ideas yet</h3>
-        <p>Be the first to suggest a feature!</p>
+        <h3>{{ i18n.no_ideas_yet || 'No ideas yet' }}</h3>
+        <p>{{ i18n.be_first_suggest || 'Be the first to suggest a feature!' }}</p>
       </div>
     </div>
   </div>
@@ -169,6 +169,7 @@ const emit = defineEmits(['item-click', 'vote', 'edit-item', 'delete-item', 'upd
 
 // Get config from parent
 const config = inject('$roadmapConfig', { settings: {} })
+const i18n = config?.i18n || {}
 
 // State
 const sortBy = ref('votes')
@@ -176,9 +177,9 @@ const voting = ref(null)
 
 // Sort tabs
 const sortTabs = [
-  { key: 'votes', label: 'Top Voted' },
-  { key: 'recent', label: 'Newest' },
-  { key: 'active', label: 'Active' }
+  { key: 'votes', label: i18n.top_voted || 'Top Voted' },
+  { key: 'recent', label: i18n.newest || 'Newest' },
+  { key: 'active', label: i18n.active || 'Active' }
 ]
 
 // Status colors mapping
@@ -270,11 +271,11 @@ const formatDate = (date) => {
   const diff = now - d
   const days = Math.floor(diff / (1000 * 60 * 60 * 24))
 
-  if (days === 0) return 'Today'
-  if (days === 1) return 'Yesterday'
-  if (days < 7) return `${days} days ago`
-  if (days < 30) return `${Math.floor(days / 7)} weeks ago`
-  if (days < 365) return `${Math.floor(days / 30)} months ago`
+  if (days === 0) return i18n.today || 'Today'
+  if (days === 1) return i18n.yesterday || 'Yesterday'
+  if (days < 7) return `${days} ${i18n.days_ago || 'days ago'}`
+  if (days < 30) return `${Math.floor(days / 7)} ${i18n.weeks_ago || 'weeks ago'}`
+  if (days < 365) return `${Math.floor(days / 30)} ${i18n.months_ago || 'months ago'}`
   return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
 }
 </script>

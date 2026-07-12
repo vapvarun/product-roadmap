@@ -9,18 +9,18 @@
     <div class="roadmap-item-header">
       <h4 class="roadmap-item-title">{{ item.title }}</h4>
       <div v-if="canEdit" class="roadmap-item-actions">
-        <button 
+        <button
           @click.stop="$emit('edit')"
           class="roadmap-btn roadmap-btn-sm roadmap-btn-icon"
-          title="Edit"
+          :title="i18n.edit || 'Edit'"
         >
           ✏️
         </button>
-        <button 
+        <button
           v-if="mode === 'manage'"
           @click.stop="$emit('delete')"
           class="roadmap-btn roadmap-btn-sm roadmap-btn-icon roadmap-btn-danger"
-          title="Delete"
+          :title="i18n.delete || 'Delete'"
         >
           🗑️
         </button>
@@ -63,11 +63,11 @@
           :class="{ 'voted': item.user_voted }"
           :disabled="!canVote"
           :aria-pressed="item.user_voted ? 'true' : 'false'"
-          :title="item.user_voted ? 'You have voted for this item' : 'Vote for this item'"
+          :title="item.user_voted ? (i18n.you_have_voted || 'You have voted for this item') : (i18n.vote_for_this || 'Vote for this item')"
         >
           <span class="roadmap-vote-icon" aria-hidden="true">{{ item.user_voted ? '✓' : '👍' }}</span>
-          {{ item.votes || 0 }} {{ item.votes === 1 ? 'Vote' : 'Votes' }}
-          <span v-if="item.user_voted" class="roadmap-vote-tag">Voted</span>
+          {{ item.votes || 0 }} {{ item.votes === 1 ? (i18n.vote || 'Vote') : (i18n.votes || 'Votes') }}
+          <span v-if="item.user_voted" class="roadmap-vote-tag">{{ i18n.voted || 'Voted' }}</span>
         </button>
         
         <a 
@@ -75,9 +75,9 @@
           :href="item.link"
           class="roadmap-item-comment"
           @click.stop
-          title="View comments"
+          :title="i18n.view_comments || 'View comments'"
         >
-          💬 {{ item.comment_count || 0 }} {{ item.comment_count === 1 ? 'Comment' : 'Comments' }}
+          💬 {{ item.comment_count || 0 }} {{ item.comment_count === 1 ? (i18n.comment || 'Comment') : (i18n.comments || 'Comments') }}
         </a>
         <button 
           v-else
@@ -85,7 +85,7 @@
           class="roadmap-item-comment"
           :disabled="!canComment"
         >
-          💬 {{ item.comment_count || 0 }} {{ item.comment_count === 1 ? 'Comment' : 'Comments' }}
+          💬 {{ item.comment_count || 0 }} {{ item.comment_count === 1 ? (i18n.comment || 'Comment') : (i18n.comments || 'Comments') }}
         </button>
       </div>
       
@@ -138,6 +138,7 @@ const emit = defineEmits(['update', 'delete', 'vote', 'comment', 'dragstart', 'c
 
 // Inject config
 const config = inject('$roadmapConfig', {})
+const i18n = config?.i18n || {}
 
 // Computed
 const canVote = computed(() => config.user?.can_vote && config.settings?.enable_voting)

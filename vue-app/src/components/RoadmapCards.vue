@@ -3,16 +3,16 @@
     <div class="roadmap-cards-header">
       <div class="roadmap-cards-controls">
         <select v-model="columns" class="roadmap-form-control">
-          <option value="auto">Auto Layout</option>
-          <option value="2">2 Columns</option>
-          <option value="3">3 Columns</option>
-          <option value="4">4 Columns</option>
+          <option value="auto">{{ i18n.auto_layout || 'Auto Layout' }}</option>
+          <option value="2">2 {{ i18n.columns_label || 'Columns' }}</option>
+          <option value="3">3 {{ i18n.columns_label || 'Columns' }}</option>
+          <option value="4">4 {{ i18n.columns_label || 'Columns' }}</option>
         </select>
         <select v-model="sortBy" class="roadmap-form-control">
-          <option value="votes">Sort by Votes</option>
-          <option value="created">Sort by Created</option>
-          <option value="priority">Sort by Priority</option>
-          <option value="title">Sort by Title</option>
+          <option value="votes">{{ i18n.sort_by || 'Sort by' }} {{ i18n.votes || 'Votes' }}</option>
+          <option value="created">{{ i18n.sort_by || 'Sort by' }} {{ i18n.created_label || 'Created' }}</option>
+          <option value="priority">{{ i18n.sort_by || 'Sort by' }} {{ i18n.priority || 'Priority' }}</option>
+          <option value="title">{{ i18n.sort_by || 'Sort by' }} {{ i18n.title || 'Title' }}</option>
         </select>
       </div>
     </div>
@@ -22,7 +22,7 @@
       :class="`roadmap-cards-columns-${columns}`"
     >
       <div v-if="sortedItems.length === 0" class="roadmap-cards-empty">
-        <p>No roadmap items found</p>
+        <p>{{ i18n.no_items || 'No roadmap items found' }}</p>
       </div>
       
       <div 
@@ -120,16 +120,16 @@
           <button
             @click.stop="$emit('edit-item', item)"
             class="roadmap-btn roadmap-btn-sm roadmap-btn-secondary"
-            title="Edit"
+            :title="i18n.edit || 'Edit'"
           >
-            ✏️ Edit
+            ✏️ {{ i18n.edit || 'Edit' }}
           </button>
           <button
             @click.stop="$emit('delete-item', item.id)"
             class="roadmap-btn roadmap-btn-sm roadmap-btn-danger"
-            title="Delete"
+            :title="i18n.delete || 'Delete'"
           >
-            🗑️ Delete
+            🗑️ {{ i18n.delete || 'Delete' }}
           </button>
         </div>
       </div>
@@ -138,7 +138,10 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, inject } from 'vue'
+
+const config = inject('$roadmapConfig', {})
+const i18n = config?.i18n || {}
 
 const props = defineProps({
   items: {

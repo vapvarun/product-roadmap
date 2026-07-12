@@ -4,20 +4,20 @@
       <!-- Loading State -->
       <div v-if="loading" class="roadmap-changelog-loading">
         <LoadingSpinner />
-        <p>Loading changelog...</p>
+        <p>{{ i18n.loading_changelog || 'Loading changelog...' }}</p>
       </div>
 
       <!-- Error State -->
       <div v-else-if="error" class="roadmap-changelog-error">
         <p>{{ error }}</p>
         <button @click="fetchChangelogs" class="roadmap-btn roadmap-btn-primary">
-          Retry
+          {{ i18n.retry || 'Retry' }}
         </button>
       </div>
 
       <!-- Empty State -->
       <div v-else-if="changelogs.length === 0" class="roadmap-changelog-empty">
-        <p>No changelog entries found.</p>
+        <p>{{ i18n.no_changelog || 'No changelog entries found.' }}</p>
       </div>
 
       <!-- Changelog List -->
@@ -59,7 +59,7 @@
             </div>
             <div class="roadmap-changelog-entry-stats">
               <span class="roadmap-changelog-item-count">
-                {{ entry.items.length }} {{ entry.items.length === 1 ? 'change' : 'changes' }}
+                {{ entry.items.length }} {{ entry.items.length === 1 ? (i18n.change || 'change') : (i18n.changes || 'changes') }}
               </span>
             </div>
           </div>
@@ -101,7 +101,7 @@
       <!-- Load More -->
       <div v-if="hasMore && !loading" class="roadmap-changelog-load-more">
         <button @click="loadMore" class="roadmap-btn roadmap-btn-secondary">
-          Load More
+          {{ i18n.load_more || 'Load More' }}
         </button>
       </div>
     </div>
@@ -135,6 +135,9 @@ const props = defineProps({
   }
 })
 
+// Translations (localized strings from PHP via config.i18n)
+const i18n = props.config?.i18n || {}
+
 // State
 const loading = ref(true)
 const error = ref(null)
@@ -158,8 +161,8 @@ const apiCall = async (endpoint) => {
   })
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({ message: 'Network error' }))
-    throw new Error(errorData.message || 'API call failed')
+    const errorData = await response.json().catch(() => ({ message: i18n.network_error || 'Network error' }))
+    throw new Error(errorData.message || i18n.api_call_failed || 'API call failed')
   }
 
   return response.json()
@@ -188,7 +191,7 @@ const fetchChangelogs = async () => {
       expandedEntries.value = [changelogs.value[0].id]
     }
   } catch (err) {
-    error.value = err.message || 'Failed to load changelog'
+    error.value = err.message || i18n.failed_load_changelog || 'Failed to load changelog'
   } finally {
     loading.value = false
   }

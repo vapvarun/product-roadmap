@@ -38,7 +38,7 @@
         <div v-else-if="error" class="roadmap-error">
           <p>{{ error }}</p>
           <button @click="fetchItems" class="roadmap-btn roadmap-btn-primary">
-            Retry
+            {{ config.i18n.retry || 'Retry' }}
           </button>
         </div>
         
@@ -421,8 +421,8 @@ const apiCall = async (endpoint, options = {}) => {
   })
   
   if (!response.ok) {
-    const error = await response.json().catch(() => ({ message: 'Network error' }))
-    throw new Error(error.message || 'API call failed')
+    const error = await response.json().catch(() => ({ message: props.config.i18n.network_error || 'Network error' }))
+    throw new Error(error.message || props.config.i18n.api_call_failed || 'API call failed')
   }
   
   return response.json()
@@ -657,7 +657,7 @@ const submitSuggestion = async (suggestionData) => {
       body: JSON.stringify(payload)
     })
 
-    showNotification(response.message || 'Your feature suggestion has been submitted!', 'success')
+    showNotification(response.message || props.config.i18n.suggestion_submitted || 'Your feature suggestion has been submitted!', 'success')
     closeSuggestionModal()
 
     // Only refresh if user can view pending items (admin)
@@ -767,7 +767,7 @@ const openSingleItemModal = async (itemId) => {
         openItemModal(response)
       }
     } catch (error) {
-      showNotification('Failed to load item for editing', 'error')
+      showNotification(props.config.i18n.load_item_failed || 'Failed to load item for editing', 'error')
     }
   }
 }

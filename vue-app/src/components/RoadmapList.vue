@@ -3,16 +3,16 @@
     <div class="roadmap-list-header">
       <div class="roadmap-list-controls">
         <select v-model="groupBy" class="roadmap-form-control">
-          <option value="status">Group by Status</option>
-          <option value="category">Group by Category</option>
-          <option value="priority">Group by Priority</option>
-          <option value="none">No Grouping</option>
+          <option value="status">{{ i18n.group_by_status || 'Group by Status' }}</option>
+          <option value="category">{{ i18n.group_by_category || 'Group by Category' }}</option>
+          <option value="priority">{{ i18n.group_by_priority || 'Group by Priority' }}</option>
+          <option value="none">{{ i18n.no_grouping || 'No Grouping' }}</option>
         </select>
         <select v-model="sortBy" class="roadmap-form-control">
-          <option value="created">Sort by Created Date</option>
-          <option value="votes">Sort by Votes</option>
-          <option value="priority">Sort by Priority</option>
-          <option value="title">Sort by Title</option>
+          <option value="created">{{ i18n.sort_by_created || 'Sort by Created Date' }}</option>
+          <option value="votes">{{ i18n.sort_by_votes || 'Sort by Votes' }}</option>
+          <option value="priority">{{ i18n.sort_by_priority || 'Sort by Priority' }}</option>
+          <option value="title">{{ i18n.sort_by_title || 'Sort by Title' }}</option>
         </select>
       </div>
     </div>
@@ -96,16 +96,16 @@
                 <button
                   @click.stop="$emit('edit-item', item)"
                   class="roadmap-btn roadmap-btn-sm roadmap-btn-secondary"
-                  title="Edit"
+                  :title="i18n.edit || 'Edit'"
                 >
-                  ✏️ Edit
+                  ✏️ {{ i18n.edit || 'Edit' }}
                 </button>
                 <button
                   @click.stop="$emit('delete-item', item.id)"
                   class="roadmap-btn roadmap-btn-sm roadmap-btn-danger"
-                  title="Delete"
+                  :title="i18n.delete || 'Delete'"
                 >
-                  🗑️ Delete
+                  🗑️ {{ i18n.delete || 'Delete' }}
                 </button>
               </div>
               
@@ -130,7 +130,10 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, inject } from 'vue'
+
+const config = inject('$roadmapConfig', {})
+const i18n = config?.i18n || {}
 
 const props = defineProps({
   items: {
@@ -169,7 +172,7 @@ const groupedItems = computed(() => {
   if (groupBy.value === 'none') {
     return [{
       key: 'all',
-      name: 'All Items',
+      name: i18n.all_items || 'All Items',
       items: sortedItems.value
     }]
   }
@@ -178,7 +181,7 @@ const groupedItems = computed(() => {
   
   props.items.forEach(item => {
     let groupKey = 'other'
-    let groupName = 'Other'
+    let groupName = i18n.other || 'Other'
     
     if (groupBy.value === 'status' && item.status && item.status.length) {
       groupKey = item.status[0].slug

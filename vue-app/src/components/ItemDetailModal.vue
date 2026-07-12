@@ -15,7 +15,7 @@
         <!-- Item Status and Priority -->
         <div class="roadmap-detail-meta">
           <div class="roadmap-detail-status">
-            <strong>Status:</strong>
+            <strong>{{ i18n.status || 'Status' }}:</strong>
             <span 
               v-for="status in item.status" 
               :key="status.id"
@@ -26,7 +26,7 @@
           </div>
           
           <div v-if="item.priority" class="roadmap-detail-priority">
-            <strong>Priority:</strong>
+            <strong>{{ i18n.priority || 'Priority' }}:</strong>
             <span 
               class="roadmap-badge"
               :class="`roadmap-badge-${getPriorityClass(item.priority)}`"
@@ -36,20 +36,20 @@
           </div>
           
           <div v-if="item.target_date" class="roadmap-detail-date">
-            <strong>Target Date:</strong>
+            <strong>{{ i18n.target_date || 'Target Date' }}:</strong>
             {{ formatDate(item.target_date) }}
           </div>
         </div>
         
         <!-- Description -->
         <div class="roadmap-detail-section">
-          <h4>Description</h4>
+          <h4>{{ i18n.description || 'Description' }}</h4>
           <div class="roadmap-detail-content" v-html="item.content"></div>
         </div>
         
         <!-- Categories -->
         <div v-if="item.categories && item.categories.length > 0" class="roadmap-detail-section">
-          <h4>Categories</h4>
+          <h4>{{ i18n.categories || 'Categories' }}</h4>
           <div class="roadmap-detail-tags">
             <span 
               v-for="category in item.categories"
@@ -63,7 +63,7 @@
         
         <!-- Progress -->
         <div v-if="item.progress > 0" class="roadmap-detail-section">
-          <h4>Progress</h4>
+          <h4>{{ i18n.progress || 'Progress' }}</h4>
           <div class="roadmap-progress-detail">
             <div class="roadmap-progress">
               <div
@@ -77,7 +77,7 @@
 
         <!-- Completion Notes (for completed items) -->
         <div v-if="item.completion_notes" class="roadmap-detail-section roadmap-completion-notes">
-          <h4>✅ What was delivered</h4>
+          <h4>✅ {{ i18n.what_was_delivered || 'What was delivered' }}</h4>
           <div class="roadmap-detail-content roadmap-completion-content">
             {{ item.completion_notes }}
           </div>
@@ -85,7 +85,7 @@
 
         <!-- Assignee -->
         <div v-if="item.assignee" class="roadmap-detail-section">
-          <h4>Assigned To</h4>
+          <h4>{{ i18n.assigned_to || 'Assigned To' }}</h4>
           <div class="roadmap-detail-assignee">
             <img 
               v-if="item.assignee.avatar"
@@ -102,19 +102,19 @@
           <div class="roadmap-stat-item">
             <span class="roadmap-stat-icon">👍</span>
             <span class="roadmap-stat-value">{{ item.votes || 0 }}</span>
-            <span class="roadmap-stat-label">Votes</span>
+            <span class="roadmap-stat-label">{{ i18n.votes || 'Votes' }}</span>
           </div>
           
           <div class="roadmap-stat-item">
             <span class="roadmap-stat-icon">💬</span>
             <span class="roadmap-stat-value">{{ commentCount }}</span>
-            <span class="roadmap-stat-label">Comments</span>
+            <span class="roadmap-stat-label">{{ i18n.comments || 'Comments' }}</span>
           </div>
           
           <div v-if="item.view_count" class="roadmap-stat-item">
             <span class="roadmap-stat-icon">👁️</span>
             <span class="roadmap-stat-value">{{ item.view_count }}</span>
-            <span class="roadmap-stat-label">Views</span>
+            <span class="roadmap-stat-label">{{ i18n.views || 'Views' }}</span>
           </div>
         </div>
         
@@ -127,23 +127,23 @@
           class="roadmap-btn"
           :class="item.user_voted ? 'roadmap-btn-primary' : 'roadmap-btn-secondary'"
         >
-          {{ item.user_voted ? 'Remove Vote' : 'Vote for This' }}
+          {{ item.user_voted ? (i18n.remove_vote || 'Remove Vote') : (i18n.vote_for_this || 'Vote for This') }}
         </button>
-        
-        
-        <a 
+
+
+        <a
           v-if="item.link"
           :href="item.link"
           class="roadmap-btn roadmap-btn-primary"
         >
-          View Details & Comments
+          {{ i18n.view_details_comments || 'View Details & Comments' }}
         </a>
-        
-        <button 
+
+        <button
           @click="$emit('close')"
           class="roadmap-btn roadmap-btn-secondary"
         >
-          Close
+          {{ i18n.close || 'Close' }}
         </button>
       </div>
     </div>
@@ -164,6 +164,7 @@ const emit = defineEmits(['close', 'vote', 'comment'])
 
 // Inject config
 const config = inject('$roadmapConfig', {})
+const i18n = config?.i18n || {}
 
 // State
 const commentCount = ref(props.item.comment_count || 0)

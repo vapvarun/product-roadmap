@@ -2,34 +2,34 @@
   <div class="roadmap-modal" @click.self="$emit('close')">
     <div class="roadmap-modal-dialog">
       <div class="roadmap-modal-header">
-        <h3>{{ item?.id ? 'Edit Item' : 'Add New Item' }}</h3>
+        <h3>{{ item?.id ? (i18n.edit_item || 'Edit Item') : (i18n.add_new_item || 'Add New Item') }}</h3>
         <button @click="$emit('close')" class="roadmap-btn roadmap-btn-icon">×</button>
       </div>
       
       <div class="roadmap-modal-body">
         <form @submit.prevent="handleSubmit">
           <div class="roadmap-form-group">
-            <label class="roadmap-form-label">Title</label>
-            <input 
+            <label class="roadmap-form-label">{{ i18n.title || 'Title' }}</label>
+            <input
               v-model="form.title"
               type="text"
               class="roadmap-form-control"
               required
             >
           </div>
-          
+
           <div class="roadmap-form-group">
-            <label class="roadmap-form-label">Description</label>
-            <textarea 
+            <label class="roadmap-form-label">{{ i18n.description || 'Description' }}</label>
+            <textarea
               v-model="form.content"
               class="roadmap-form-control"
               rows="4"
               required
             ></textarea>
           </div>
-          
+
           <div class="roadmap-form-group">
-            <label class="roadmap-form-label">Status</label>
+            <label class="roadmap-form-label">{{ i18n.status || 'Status' }}</label>
             <select v-model="form.status" class="roadmap-form-control">
               <option 
                 v-for="status in statuses"
@@ -42,7 +42,7 @@
           </div>
           
           <div class="roadmap-form-group">
-            <label class="roadmap-form-label">Categories</label>
+            <label class="roadmap-form-label">{{ i18n.categories || 'Categories' }}</label>
             <div class="roadmap-checkbox-group">
               <label 
                 v-for="category in categories"
@@ -60,18 +60,18 @@
           </div>
           
           <div class="roadmap-form-group">
-            <label class="roadmap-form-label">Priority</label>
+            <label class="roadmap-form-label">{{ i18n.priority || 'Priority' }}</label>
             <select v-model="form.priority" class="roadmap-form-control">
-              <option value="">None</option>
-              <option value="low">Low</option>
-              <option value="medium">Medium</option>
-              <option value="high">High</option>
-              <option value="critical">Critical</option>
+              <option value="">{{ i18n.none || 'None' }}</option>
+              <option value="low">{{ i18n.low || 'Low' }}</option>
+              <option value="medium">{{ i18n.medium || 'Medium' }}</option>
+              <option value="high">{{ i18n.high || 'High' }}</option>
+              <option value="critical">{{ i18n.critical || 'Critical' }}</option>
             </select>
           </div>
-          
+
           <div class="roadmap-form-group">
-            <label class="roadmap-form-label">Progress (%)</label>
+            <label class="roadmap-form-label">{{ i18n.progress || 'Progress' }} (%)</label>
             <div class="roadmap-range-wrapper">
               <input 
                 v-model="form.progress"
@@ -86,16 +86,16 @@
           </div>
           
           <div class="roadmap-form-group">
-            <label class="roadmap-form-label">Target Date</label>
-            <input 
+            <label class="roadmap-form-label">{{ i18n.target_date || 'Target Date' }}</label>
+            <input
               v-model="form.target_date"
               type="date"
               class="roadmap-form-control"
             >
           </div>
-          
+
           <div class="roadmap-form-group">
-            <label class="roadmap-form-label">External Link</label>
+            <label class="roadmap-form-label">{{ i18n.external_link || 'External Link' }}</label>
             <input 
               v-model="form.external_link"
               type="url"
@@ -106,39 +106,39 @@
           
           <div v-if="isPro" class="roadmap-form-row">
             <div class="roadmap-form-group">
-              <label class="roadmap-form-label">Start Date</label>
-              <input 
+              <label class="roadmap-form-label">{{ i18n.start_date || 'Start Date' }}</label>
+              <input
                 v-model="form.start_date"
                 type="date"
                 class="roadmap-form-control"
               >
             </div>
-            
+
             <div class="roadmap-form-group">
-              <label class="roadmap-form-label">End Date</label>
-              <input 
+              <label class="roadmap-form-label">{{ i18n.end_date || 'End Date' }}</label>
+              <input
                 v-model="form.end_date"
                 type="date"
                 class="roadmap-form-control"
               >
             </div>
           </div>
-          
+
           <div v-if="isPro" class="roadmap-form-group">
-            <label class="roadmap-form-label">Effort Estimate</label>
+            <label class="roadmap-form-label">{{ i18n.effort_estimate || 'Effort Estimate' }}</label>
             <select v-model="form.effort_estimate" class="roadmap-form-control">
-              <option value="">-- Select Effort --</option>
-              <option value="xs">XS - Very Small (1-2 days)</option>
-              <option value="s">S - Small (3-5 days)</option>
-              <option value="m">M - Medium (1-2 weeks)</option>
-              <option value="l">L - Large (2-4 weeks)</option>
-              <option value="xl">XL - Extra Large (1-2 months)</option>
-              <option value="xxl">XXL - Huge (2+ months)</option>
+              <option value="">{{ i18n.select_effort || '-- Select Effort --' }}</option>
+              <option value="xs">{{ i18n.effort_xs || 'XS - Very Small (1-2 days)' }}</option>
+              <option value="s">{{ i18n.effort_s || 'S - Small (3-5 days)' }}</option>
+              <option value="m">{{ i18n.effort_m || 'M - Medium (1-2 weeks)' }}</option>
+              <option value="l">{{ i18n.effort_l || 'L - Large (2-4 weeks)' }}</option>
+              <option value="xl">{{ i18n.effort_xl || 'XL - Extra Large (1-2 months)' }}</option>
+              <option value="xxl">{{ i18n.effort_xxl || 'XXL - Huge (2+ months)' }}</option>
             </select>
           </div>
-          
+
           <div v-if="isPro" class="roadmap-form-group">
-            <label class="roadmap-form-label">GitHub Issue URL</label>
+            <label class="roadmap-form-label">{{ i18n.github_issue_url || 'GitHub Issue URL' }}</label>
             <input 
               v-model="form.github_issue"
               type="url"
@@ -151,10 +151,10 @@
       
       <div class="roadmap-modal-footer">
         <button @click="$emit('close')" class="roadmap-btn roadmap-btn-secondary">
-          Cancel
+          {{ i18n.cancel || 'Cancel' }}
         </button>
         <button @click="handleSubmit" class="roadmap-btn roadmap-btn-primary">
-          Save
+          {{ i18n.save || 'Save' }}
         </button>
       </div>
     </div>
@@ -162,7 +162,10 @@
 </template>
 
 <script setup>
-import { reactive, watch } from 'vue'
+import { reactive, watch, inject } from 'vue'
+
+const config = inject('$roadmapConfig', {})
+const i18n = config?.i18n || {}
 
 const props = defineProps({
   item: Object,

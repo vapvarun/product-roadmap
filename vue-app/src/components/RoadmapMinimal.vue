@@ -44,7 +44,7 @@
                 <span 
                   v-if="item.priority" 
                   class="roadmap-minimal-priority"
-                  :title="`Priority: ${item.priority}`"
+                  :title="`${i18n.priority || 'Priority'}: ${item.priority}`"
                 >
                   {{ getPriorityIcon(item.priority) }}
                 </span>
@@ -80,16 +80,16 @@
                 <button
                   @click.stop="$emit('edit-item', item)"
                   class="roadmap-btn roadmap-btn-sm roadmap-btn-secondary"
-                  title="Edit"
+                  :title="i18n.edit || 'Edit'"
                 >
-                  ✏️ Edit
+                  ✏️ {{ i18n.edit || 'Edit' }}
                 </button>
                 <button
                   @click.stop="$emit('delete-item', item.id)"
                   class="roadmap-btn roadmap-btn-sm roadmap-btn-danger"
-                  title="Delete"
+                  :title="i18n.delete || 'Delete'"
                 >
-                  🗑️ Delete
+                  🗑️ {{ i18n.delete || 'Delete' }}
                 </button>
               </div>
             </div>
@@ -105,20 +105,23 @@
           id="show-completed"
           v-model="showCompleted"
         />
-        <label for="show-completed" contenteditable="false">Show completed items</label>
+        <label for="show-completed" contenteditable="false">{{ i18n.show_completed_items || 'Show completed items' }}</label>
       </div>
       
       <div class="roadmap-minimal-stats">
-        <span>{{ totalItems }} total items</span>
-        <span>{{ inProgressItems }} in progress</span>
-        <span v-if="showCompleted">{{ completedItems }} completed</span>
+        <span>{{ totalItems }} {{ i18n.total_items || 'total items' }}</span>
+        <span>{{ inProgressItems }} {{ i18n.in_progress || 'in progress' }}</span>
+        <span v-if="showCompleted">{{ completedItems }} {{ i18n.completed || 'completed' }}</span>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, inject } from 'vue'
+
+const config = inject('$roadmapConfig', {})
+const i18n = config?.i18n || {}
 
 const props = defineProps({
   items: {
@@ -153,7 +156,7 @@ const activeFilter = ref('all')
 const showCompleted = ref(true)
 
 const filters = computed(() => {
-  const all = { key: 'all', name: 'All', count: props.items.length }
+  const all = { key: 'all', name: i18n.all || 'All', count: props.items.length }
   const byStatus = {}
 
   props.items.forEach(item => {
@@ -206,17 +209,17 @@ const filteredGroups = computed(() => {
   const groups = {
     current: {
       key: 'current',
-      name: `Q${currentQuarter} ${currentYear} - Now`,
+      name: `Q${currentQuarter} ${currentYear} - ${i18n.now || 'Now'}`,
       items: []
     },
     next: {
       key: 'next',
-      name: `Q${currentQuarter === 4 ? 1 : currentQuarter + 1} ${currentQuarter === 4 ? currentYear + 1 : currentYear} - Next`,
+      name: `Q${currentQuarter === 4 ? 1 : currentQuarter + 1} ${currentQuarter === 4 ? currentYear + 1 : currentYear} - ${i18n.next || 'Next'}`,
       items: []
     },
     future: {
       key: 'future',
-      name: 'Future - Later',
+      name: i18n.future_later || 'Future - Later',
       items: []
     }
   }
@@ -255,7 +258,7 @@ const getStatusSlug = (item) => {
 }
 
 const getStatusName = (item) => {
-  return item.status?.[0]?.name || 'Unknown'
+  return item.status?.[0]?.name || (i18n.unknown || 'Unknown')
 }
 
 const getPriorityIcon = (priority) => {

@@ -1,12 +1,12 @@
 <template>
   <div class="roadmap-header">
-    <h1>{{ productName }} Roadmap</h1>
+    <h1>{{ productName }} {{ i18n.roadmap || 'Roadmap' }}</h1>
     <div class="roadmap-header-actions">
-      <input 
+      <input
         type="search"
         :value="search"
         @input="$emit('update:search', $event.target.value)"
-        placeholder="Search roadmap..."
+        :placeholder="i18n.search_roadmap || 'Search roadmap...'"
         class="roadmap-form-control"
       >
       <button 
@@ -21,7 +21,7 @@
         @click="$emit('update:mode', mode === 'view' ? 'manage' : 'view')"
         class="roadmap-btn roadmap-btn-secondary"
       >
-        {{ mode === 'view' ? 'Manage Mode' : 'View Mode' }}
+        {{ mode === 'view' ? (i18n.manage_mode || 'Manage Mode') : (i18n.view_mode || 'View Mode') }}
       </button>
     </div>
   </div>
