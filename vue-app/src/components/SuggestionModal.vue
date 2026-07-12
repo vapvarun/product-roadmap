@@ -8,6 +8,11 @@
       
       <div class="roadmap-modal-body">
         <form @submit.prevent="handleSubmit">
+          <!-- Honeypot: hidden from real users, catches bots. Not display:none
+               (some bots skip that); positioned off-screen instead. -->
+          <div aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;">
+            <label>Website<input v-model="form.website" type="text" tabindex="-1" autocomplete="off"></label>
+          </div>
           <div class="roadmap-form-group">
             <label class="roadmap-form-label">{{ i18n.item_singular || 'Feature' }} {{ i18n.title || 'Title' }}</label>
             <input 
@@ -128,7 +133,8 @@ const form = reactive({
   priority: '',
   external_link: '',
   guest_name: '',
-  guest_email: ''
+  guest_email: '',
+  website: '' // honeypot: stays empty for real users; bots fill it
 })
 
 const handleSubmit = () => {

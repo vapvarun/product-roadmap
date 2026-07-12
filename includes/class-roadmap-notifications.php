@@ -21,6 +21,48 @@ class Roadmap_Notifications {
         add_action('roadmap_suggestion_submitted', [$this, 'handle_suggestion_notification'], 10, 2);
         add_action('transition_post_status', [$this, 'handle_status_change_notification'], 10, 3);
         add_action('set_object_terms', [$this, 'handle_roadmap_status_change'], 10, 6);
+        add_action('init', [$this, 'handle_unsubscribe']);
+    }
+
+    /**
+     * Build a per-user unsubscribe URL. The token is a keyed hash of the user
+     * ID (uses the site's AUTH salts), so no token needs to be stored.
+     *
+     * @param int $user_id User ID.
+     * @return string
+     */
+    private function get_unsubscribe_url($user_id) {
+        return add_query_arg(
+            array(
+                'roadmap_unsubscribe' => $user_id,
+                'token'               => wp_hash('roadmap_unsub_' . $user_id),
+            ),
+            home_url('/')
+        );
+    }
+
+    /**
+     * Process an unsubscribe link click: verify the token, then set the
+     * per-user opt-out meta that get_users_to_notify() honours.
+     */
+    public function handle_unsubscribe() {
+        if (!isset($_GET['roadmap_unsubscribe'], $_GET['token'])) {
+            return;
+        }
+
+        $user_id = absint($_GET['roadmap_unsubscribe']);
+        $token   = sanitize_text_field(wp_unslash($_GET['token']));
+
+        if (!$user_id || !hash_equals(wp_hash('roadmap_unsub_' . $user_id), $token)) {
+            wp_die(esc_html__('This unsubscribe link is invalid or has expired.', 'product-roadmap'));
+        }
+
+        update_user_meta($user_id, 'roadmap_notifications_optout', '1');
+        wp_die(
+            esc_html__('You have been unsubscribed from roadmap update emails.', 'product-roadmap'),
+            esc_html__('Unsubscribed', 'product-roadmap'),
+            array('response' => 200)
+        );
     }
     
     public function handle_vote_notification($item_id, $user_id, $vote_value) {
@@ -155,9 +197,14 @@ class Roadmap_Notifications {
             get_permalink($post->ID)
         );
         
-        // Send to each user
-        foreach ($users_to_notify as $user_email) {
-            wp_mail($user_email, $subject, $message);
+        // Send to each user with a per-user unsubscribe link appended.
+        foreach ($users_to_notify as $uid => $user_email) {
+            $body = $message . "\n\n---\n" . sprintf(
+                /* translators: %s: unsubscribe URL */
+                __('You are receiving this because you voted on or commented on this item. Unsubscribe: %s', 'product-roadmap'),
+                $this->get_unsubscribe_url($uid)
+            );
+            wp_mail($user_email, $subject, $body);
         }
     }
 
@@ -233,61 +280,72 @@ class Roadmap_Notifications {
          */
         do_action('roadmap_status_changed', $object_id, $new_status_name, $old_status_name);
 
-        // Send to each user
-        foreach ($users_to_notify as $user_email) {
-            wp_mail($user_email, $subject, $message);
+        // Send to each user with a per-user unsubscribe link appended.
+        foreach ($users_to_notify as $uid => $user_email) {
+            $body = $message . "\n\n---\n" . sprintf(
+                /* translators: %s: unsubscribe URL */
+                __('You are receiving this because you voted on or commented on this item. Unsubscribe: %s', 'product-roadmap'),
+                $this->get_unsubscribe_url($uid)
+            );
+            wp_mail($user_email, $subject, $body);
         }
     }
 
+    /**
+     * Recipients for a status-change email: users who voted or commented on the
+     * item, minus anyone who opted out. Returns a map of user_id => email so the
+     * caller can build a per-user unsubscribe link.
+     *
+     * @param int $item_id Roadmap item ID.
+     * @return array<int,string>
+     */
     private function get_users_to_notify($item_id) {
         global $wpdb;
-        
-        $users = [];
-        
-        // Get users who voted
-        $cache_key = 'roadmap_voted_users_' . $item_id;
-        $voted_users = wp_cache_get($cache_key, 'roadmap');
-        
-        if (false === $voted_users) {
-            $votes_table = $wpdb->prefix . 'roadmap_votes';
-            // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-            $voted_users = $wpdb->get_col($wpdb->prepare(
-                "SELECT DISTINCT u.user_email 
-                FROM {$votes_table} v 
-                JOIN {$wpdb->users} u ON v.user_id = u.ID 
-                WHERE v.item_id = %d",
-                $item_id
-            )); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table query with caching
-            // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-            wp_cache_set($cache_key, $voted_users, 'roadmap', 3600);
+
+        $users = []; // user_id => email
+
+        // Users who voted.
+        $votes_table = $wpdb->prefix . 'roadmap_votes';
+        // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        $voted = $wpdb->get_results($wpdb->prepare(
+            "SELECT DISTINCT u.ID, u.user_email
+            FROM {$votes_table} v
+            JOIN {$wpdb->users} u ON v.user_id = u.ID
+            WHERE v.item_id = %d",
+            $item_id
+        )); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table query
+        // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        foreach ((array) $voted as $u) {
+            $users[(int) $u->ID] = $u->user_email;
         }
-        
-        if ($voted_users) {
-            $users = array_merge($users, $voted_users);
+
+        // Users who commented.
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Core table query
+        $commented = $wpdb->get_results($wpdb->prepare(
+            "SELECT DISTINCT u.ID, u.user_email
+            FROM {$wpdb->comments} c
+            JOIN {$wpdb->users} u ON c.user_id = u.ID
+            WHERE c.comment_post_ID = %d AND c.comment_approved = '1'",
+            $item_id
+        ));
+        foreach ((array) $commented as $u) {
+            $users[(int) $u->ID] = $u->user_email;
         }
-        
-        // Get users who commented
-        $cache_key_comments = 'roadmap_comment_users_' . $item_id;
-        $comment_users = wp_cache_get($cache_key_comments, 'roadmap');
-        
-        if (false === $comment_users) {
-            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Core table query with caching
-            $comment_users = $wpdb->get_col($wpdb->prepare(
-                "SELECT DISTINCT u.user_email 
-                FROM {$wpdb->comments} c 
-                JOIN {$wpdb->users} u ON c.user_id = u.ID 
-                WHERE c.comment_post_ID = %d 
-                AND c.comment_approved = '1'",
-                $item_id
+
+        // Drop anyone who unsubscribed from roadmap emails.
+        if (!empty($users)) {
+            $opted_out = get_users(array(
+                'include'    => array_keys($users),
+                'meta_key'   => 'roadmap_notifications_optout',
+                'meta_value' => '1',
+                'fields'     => 'ID',
             ));
-            wp_cache_set($cache_key_comments, $comment_users, 'roadmap', 3600);
+            foreach ($opted_out as $oid) {
+                unset($users[(int) $oid]);
+            }
         }
-        
-        if ($comment_users) {
-            $users = array_merge($users, $comment_users);
-        }
-        
-        return array_unique($users);
+
+        return $users;
     }
     
     private function should_send_notification($type) {

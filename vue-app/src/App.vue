@@ -634,6 +634,8 @@ const submitSuggestion = async (suggestionData) => {
       description: suggestionData.description,
       category: suggestionData.category || '',
       priority: suggestionData.priority || 'medium',
+      // Honeypot value (empty for real users) — the server rejects if filled.
+      website: suggestionData.website || '',
       // Associate the suggestion with the product whose roadmap it was made on.
       product: selectedProduct.value || props.config.product || 'main'
     }
