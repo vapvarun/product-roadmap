@@ -460,18 +460,27 @@ const formatDate = (date) => {
   align-items: center;
   padding: 1.5rem 2rem;
   background: linear-gradient(135deg, var(--roadmap-accent) 0%, var(--roadmap-accent-hover) 100%);
-  color: #fff;
+  color: var(--roadmap-accent-contrast, #fff);
 
   .roadmap-timeline-title {
     margin: 0;
     font-size: 1.5rem;
     font-weight: 600;
+    // The gradient header is a light/brand accent surface even under a dark
+    // theme, so its text must follow accent-contrast. !important is deliberate:
+    // it overrides the broad dark-mode heading rule (which forces every
+    // [class*="-title"] to a light colour) that would otherwise wash the title
+    // out on a pale theme accent (Reign).
+    color: var(--roadmap-accent-contrast, #fff) !important;
   }
 
   .roadmap-select {
-    background: rgba(255, 255, 255, 0.2);
-    color: #fff;
-    border: 1px solid rgba(255, 255, 255, 0.3);
+    // Translucent version of the contrast colour so the control adapts: a subtle
+    // dark tint on light accents, a subtle light tint on dark ones - never the
+    // invisible white-on-pale-blue it was before.
+    background: color-mix(in srgb, var(--roadmap-accent-contrast, #fff) 15%, transparent);
+    color: var(--roadmap-accent-contrast, #fff);
+    border: 1px solid color-mix(in srgb, var(--roadmap-accent-contrast, #fff) 35%, transparent);
     padding: 0.5rem 1rem;
     border-radius: 6px;
     font-size: 14px;
@@ -479,7 +488,7 @@ const formatDate = (date) => {
 
     option {
       background: var(--roadmap-accent);
-      color: #fff;
+      color: var(--roadmap-accent-contrast, #fff);
     }
   }
 }

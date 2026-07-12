@@ -311,7 +311,7 @@ const formatDate = (date) => {
 
   &.active {
     background: var(--roadmap-accent);
-    color: #fff;
+    color: var(--roadmap-accent-contrast, #fff);
     border-color: var(--roadmap-accent);
   }
 }

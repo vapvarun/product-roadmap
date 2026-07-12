@@ -283,7 +283,9 @@ const handleItemClick = (event) => {
     &.voted {
       background: var(--roadmap-accent-tint, #e3f2fd);
       border-color: var(--roadmap-accent, #2196f3);
-      color: var(--roadmap-accent, #2196f3);
+      // Lightness-clamped accent text so the voted state stays readable on the
+      // tint under a pale theme accent (falls back to the raw accent).
+      color: var(--roadmap-accent-text, #2196f3);
     }
   }
 

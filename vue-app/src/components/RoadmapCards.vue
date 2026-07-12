@@ -413,7 +413,7 @@ const formatDate = (date) => {
     height: 24px;
     border-radius: 50%;
     background: var(--roadmap-accent);
-    color: #fff;
+    color: var(--roadmap-accent-contrast, #fff);
     display: flex;
     align-items: center;
     justify-content: center;

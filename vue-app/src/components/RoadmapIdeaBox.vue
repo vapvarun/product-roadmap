@@ -350,7 +350,7 @@ const formatDate = (date) => {
   &.roadmap-ideabox-item-voted {
     .roadmap-ideabox-vote-btn {
       background: var(--roadmap-accent, #2271b1);
-      color: #fff;
+      color: var(--roadmap-accent-contrast, #fff);
       border-color: var(--roadmap-accent, #2271b1);
       padding: 0;
     }

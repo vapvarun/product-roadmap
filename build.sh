@@ -28,6 +28,22 @@ npm install
 echo "Building Vue app for production..."
 npm run build
 
+# IIFE-wrap the JS bundle so its top-level declarations (Vue's internal
+# `const wp`, etc.) stay function-scoped instead of leaking into the page's
+# shared global lexical scope. Without this, a theme that also declares a
+# top-level `const wp` in a classic script (e.g. Reign) collides with
+# "Identifier 'wp' has already been declared", which fatally aborts whichever
+# script parses second and leaves the board stuck on "Loading roadmap...".
+# Done as a post-build wrap (not a Vite iife format) so CSS stays a separate
+# file. dev mode also loads dist/assets/index.js, so both paths get the fix.
+if [ -f "dist/assets/index.js" ]; then
+    printf ';(function(){\n' > dist/assets/index.js.wrapped
+    cat dist/assets/index.js >> dist/assets/index.js.wrapped
+    printf '\n})();\n' >> dist/assets/index.js.wrapped
+    mv dist/assets/index.js.wrapped dist/assets/index.js
+    echo "✓ Bundle IIFE-wrapped (global-scope isolation)"
+fi
+
 # Copy built assets to plugin assets directory
 echo "Copying built assets..."
 mkdir -p ../assets/js

@@ -31,6 +31,20 @@ $white: #ffffff;
   --roadmap-accent-hover: color-mix(in srgb, var(--roadmap-accent) 85%, #000);
   --roadmap-accent-tint: color-mix(in srgb, var(--roadmap-accent) 15%, #fff);
 
+  // Foreground colour for text/icons placed ON an accent-coloured background.
+  // Defaults to white (correct for the plugin's default mid-blue). Where the
+  // browser supports OKLCH relative colour, flip to black on LIGHT theme accents
+  // (e.g. Reign's pale #97c0ee) and keep white on dark ones - readable, premium
+  // buttons on ANY theme accent.
+  --roadmap-accent-contrast: #{$white};
+
+  // Accent-coloured TEXT/emphasis placed on a surface or tint (stat numbers,
+  // chips, "voted" state, links). The raw theme accent washes out as text on a
+  // same-mode surface when it is pale (Reign #97c0ee on a light card). The
+  // @supports block below keeps the accent hue but clamps its lightness so it
+  // stays readable in both modes; this is the pre-OKLCH fallback.
+  --roadmap-accent-text: var(--roadmap-accent-hover);
+
   // Chrome tokens (light values; the dark theme block swaps them). Every view
   // template reads these so light/dark is a pure token swap.
   --rm-surface: #{$white};
@@ -63,6 +77,35 @@ $white: #ffffff;
   
   * {
     box-sizing: border-box;
+  }
+}
+
+// Luminance-adaptive accent contrast (kept top-level so it overrides the plain
+// --roadmap-accent-contrast above by source order, without triggering Sass's
+// mixed-decls warning). Black text on light theme accents, white on dark ones.
+@supports (color: oklch(from red l c h)) {
+  .roadmap-app {
+    --roadmap-accent-contrast: oklch(from var(--roadmap-accent) clamp(0, (0.62 - l) * 1000, 1) 0 0);
+  }
+}
+
+// Accent TEXT/emphasis, hue-preserved but lightness-clamped so it stays readable
+// as text on a surface/tint. Light mode caps lightness (dark enough on light
+// surfaces); dark mode floors it (light enough on dark surfaces). The dark
+// selectors out-specify the light rule so they win when the theme is dark.
+@supports (color: oklch(from red l c h)) {
+  .roadmap-app {
+    --roadmap-accent-text: oklch(from var(--roadmap-accent) min(l, 0.5) c h);
+  }
+
+  .roadmap-dark,
+  html[data-bx-mode="dark"] .roadmap-app,
+  html[data-mode="dark"] .roadmap-app,
+  body.buddyx-dark-theme .roadmap-app,
+  body.buddyx-dark-style-variation .roadmap-app,
+  body.dark-scheme .roadmap-app,
+  body.reign-ld-dark-theme .roadmap-app {
+    --roadmap-accent-text: oklch(from var(--roadmap-accent) max(l, 0.62) c h);
   }
 }
 
@@ -106,7 +149,7 @@ $white: #ffffff;
   
   &-primary {
     background: var(--roadmap-accent);
-    color: $white;
+    color: var(--roadmap-accent-contrast, #{$white});
     border-color: var(--roadmap-accent);
 
     &:hover:not(:disabled) {
@@ -287,7 +330,10 @@ $white: #ffffff;
   
   &-primary {
     background: var(--roadmap-accent-tint);
-    color: var(--roadmap-accent-hover);
+    // Lightness-clamped accent text so the chip keeps its accent identity while
+    // staying readable on the tint in both modes (the raw accent washed out
+    // against its own tint on pale theme accents).
+    color: var(--roadmap-accent-text);
   }
   
   &-success {
@@ -462,6 +508,12 @@ $white: #ffffff;
   --rm-priority-medium: #fbbf24;   --rm-priority-medium-tint: #2c2416;
   --rm-priority-high: #fb923c;     --rm-priority-high-tint: #2c1f14;
   --rm-priority-critical: #f87171; --rm-priority-critical-tint: #2c1a1a;
+
+  // Make the accent tint dark-mode-aware (light mode leaves it near-white),
+  // so tinted chips read as a subtle dark-accent surface on a dark card instead
+  // of a glaring near-white block. Accent text then follows the same swap.
+  --roadmap-accent-tint: color-mix(in srgb, var(--roadmap-accent) 22%, #1a1d21);
+  --roadmap-accent-text: var(--roadmap-accent);
 
   background: $dark-bg;
   color: #e2e4e7;

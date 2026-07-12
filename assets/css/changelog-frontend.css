@@ -12,6 +12,16 @@
 .roadmap-changelog-archive-wrapper {
     --roadmap-accent: var(--wp--preset--color--primary, #2271b1);
     --roadmap-accent-hover: color-mix(in srgb, var(--roadmap-accent) 85%, #000);
+    /* White text suits the default mid-blue; the @supports rule below flips it to
+       black on LIGHT theme accents (e.g. Reign's pale #97c0ee) so headers/badges
+       never wash out. */
+    --roadmap-accent-contrast: #ffffff;
+    /* Accent-coloured TEXT/emphasis on a surface (breadcrumb + view-all links,
+       hovered archive titles, "more" hints). The raw theme accent washes out as
+       text on a same-mode surface when it is pale (Reign #97c0ee on a light
+       card); the @supports block below keeps the accent hue but clamps its
+       lightness so it stays readable in both modes. Pre-OKLCH fallback. */
+    --roadmap-accent-text: var(--roadmap-accent-hover);
     --rc-surface: #ffffff;
     --rc-surface-alt: #f8fafc;
     --rc-border: #e2e8f0;
@@ -19,6 +29,36 @@
     --rc-fg: #1e293b;
     --rc-text: #475569;
     --rc-muted: #64748b;
+}
+
+/* Luminance-adaptive accent contrast: black text on light theme accents, white
+   on dark ones (falls back to the plain white token on browsers without OKLCH
+   relative colour). */
+@supports (color: oklch(from red l c h)) {
+    .roadmap-changelog-wrapper,
+    .roadmap-changelog-archive-wrapper {
+        --roadmap-accent-contrast: oklch(from var(--roadmap-accent) clamp(0, (0.62 - l) * 1000, 1) 0 0);
+    }
+}
+
+/* Accent TEXT/emphasis, hue-preserved but lightness-clamped so it stays readable
+   as text on a surface. Light mode caps lightness (dark enough on light
+   surfaces); dark mode floors it (light enough on dark surfaces). The dark
+   selectors out-specify the light rule so they win when the theme is dark. */
+@supports (color: oklch(from red l c h)) {
+    .roadmap-changelog-wrapper,
+    .roadmap-changelog-archive-wrapper {
+        --roadmap-accent-text: oklch(from var(--roadmap-accent) min(l, 0.5) c h);
+    }
+
+    html[data-bx-mode="dark"] :is(.roadmap-changelog-wrapper, .roadmap-changelog-archive-wrapper),
+    html[data-mode="dark"] :is(.roadmap-changelog-wrapper, .roadmap-changelog-archive-wrapper),
+    body.buddyx-dark-theme :is(.roadmap-changelog-wrapper, .roadmap-changelog-archive-wrapper),
+    body.buddyx-dark-style-variation :is(.roadmap-changelog-wrapper, .roadmap-changelog-archive-wrapper),
+    body.dark-scheme :is(.roadmap-changelog-wrapper, .roadmap-changelog-archive-wrapper),
+    body.reign-ld-dark-theme :is(.roadmap-changelog-wrapper, .roadmap-changelog-archive-wrapper) {
+        --roadmap-accent-text: oklch(from var(--roadmap-accent) max(l, 0.62) c h);
+    }
 }
 
 /* Wrapper */
@@ -46,13 +86,13 @@
 }
 
 .changelog-breadcrumb a {
-    color: var(--roadmap-accent);
+    color: var(--roadmap-accent-text);
     text-decoration: none;
     transition: color 0.2s;
 }
 
 .changelog-breadcrumb a:hover {
-    color: var(--roadmap-accent-hover);
+    color: var(--roadmap-accent-text);
     text-decoration: underline;
 }
 
@@ -87,7 +127,7 @@
     display: inline-flex;
     align-items: center;
     background: linear-gradient(135deg, var(--roadmap-accent) 0%, var(--roadmap-accent-hover) 100%);
-    color: #fff;
+    color: var(--roadmap-accent-contrast, #fff);
     border-radius: 6px;
     overflow: hidden;
     font-weight: 600;
@@ -303,7 +343,7 @@
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    color: var(--roadmap-accent);
+    color: var(--roadmap-accent-text);
     font-size: 14px;
     font-weight: 500;
     text-decoration: none;
@@ -311,7 +351,7 @@
 }
 
 .view-all-link:hover {
-    color: var(--roadmap-accent-hover);
+    color: var(--roadmap-accent-text);
 }
 
 .view-all-link svg {
@@ -334,7 +374,7 @@
 .roadmap-changelog-single .changelog-version {
     display: inline-block;
     background: var(--roadmap-accent);
-    color: #fff;
+    color: var(--roadmap-accent-contrast, #fff);
     padding: 4px 12px;
     border-radius: 4px;
     font-weight: 600;
@@ -445,7 +485,7 @@
 }
 
 .changelog-back-link:hover {
-    color: var(--roadmap-accent);
+    color: var(--roadmap-accent-text);
 }
 
 .changelog-back-link svg {
@@ -498,7 +538,7 @@
 }
 
 .changelog-archive-item:hover h2 {
-    color: var(--roadmap-accent);
+    color: var(--roadmap-accent-text);
 }
 
 .changelog-archive-meta {
@@ -510,7 +550,7 @@
 
 .changelog-archive-meta .changelog-version {
     background: linear-gradient(135deg, var(--roadmap-accent) 0%, var(--roadmap-accent-hover) 100%);
-    color: #fff;
+    color: var(--roadmap-accent-contrast, #fff);
     padding: 4px 10px;
     border-radius: 4px;
     font-size: 13px;
@@ -608,7 +648,7 @@
 }
 
 .changelog-preview-more {
-    color: var(--roadmap-accent);
+    color: var(--roadmap-accent-text);
     font-size: 13px;
     font-weight: 500;
     padding-top: 8px;
@@ -683,7 +723,7 @@
 .navigation.pagination .page-numbers.current {
     background: var(--roadmap-accent);
     border-color: var(--roadmap-accent);
-    color: #fff;
+    color: var(--roadmap-accent-contrast, #fff);
 }
 
 /* Responsive */
@@ -943,6 +983,7 @@ body.buddyx-dark-theme :is(.roadmap-changelog-wrapper, .roadmap-changelog-archiv
 body.buddyx-dark-style-variation :is(.roadmap-changelog-wrapper, .roadmap-changelog-archive-wrapper),
 body.dark-scheme :is(.roadmap-changelog-wrapper, .roadmap-changelog-archive-wrapper),
 body.reign-ld-dark-theme :is(.roadmap-changelog-wrapper, .roadmap-changelog-archive-wrapper) {
+    --roadmap-accent-text: var(--roadmap-accent);
     --rc-surface: #2a2f36;
     --rc-surface-alt: #23272e;
     --rc-border: #3a4048;
