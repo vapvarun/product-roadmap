@@ -119,6 +119,8 @@ Multiple product roadmaps are available in the Pro version. Free version support
 * Improve  - Roadmap board and changelog adopt the active theme's accent colour, falling back to the plugin blue on themes with no colour token.
 * Improve  - Vote button shows a clear voted state (checkmark and Voted pill) that stays visible on themes which restyle buttons.
 * Improve  - Changelog supports dark mode driven only by the theme's own light/dark toggle, never the operating system.
+* Improve  - Rate-limit votes and suggestions (per user, or per IP for guests) and add a suggestion honeypot to block spam without a captcha.
+* Improve  - Status-update emails now include an unsubscribe link, and the per-type notification toggles (vote, comment, suggestion) now take effect.
 * Fix      - Roadmap board rendered empty when the Pro addon was active due to a product filter type mismatch.
 * Fix      - Changelog version header was unreadable under a dark theme; it now follows the theme toggle.
 * Dev      - Version the built board assets by file modification time so a rebuilt bundle busts the browser cache.
