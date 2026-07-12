@@ -289,27 +289,27 @@ const formatDate = (date) => {
   flex-wrap: wrap;
   margin-bottom: 30px;
   padding-bottom: 20px;
-  border-bottom: 2px solid #f0f0f0;
+  border-bottom: 2px solid var(--rm-border);
 }
 
 .roadmap-minimal-filter {
-  background: #f5f5f5;
-  border: 1px solid #e0e0e0;
+  background: var(--rm-surface-alt);
+  border: 1px solid var(--rm-border);
   padding: 8px 16px;
   border-radius: 20px;
   font-size: 14px;
   cursor: pointer;
   transition: all 0.2s;
-  color: #333;
+  color: var(--rm-heading);
 
   &:hover {
-    background: #e0e0e0;
+    background: var(--rm-border);
   }
 
   &.active {
-    background: #2271b1;
+    background: var(--roadmap-accent);
     color: #fff;
-    border-color: #2271b1;
+    border-color: var(--roadmap-accent);
   }
 }
 
@@ -327,7 +327,7 @@ const formatDate = (date) => {
 .roadmap-minimal-group-title {
   font-size: 20px;
   font-weight: 600;
-  color: #333;
+  color: var(--rm-heading);
   margin: 0 0 20px;
   padding-left: 30px;
 }
@@ -335,7 +335,7 @@ const formatDate = (date) => {
 .roadmap-minimal-group-count {
   font-size: 16px;
   font-weight: 400;
-  color: #666;
+  color: var(--rm-muted);
 }
 
 .roadmap-minimal-items {
@@ -348,7 +348,7 @@ const formatDate = (date) => {
     top: 0;
     bottom: 0;
     width: 2px;
-    background: #e0e0e0;
+    background: var(--rm-border);
   }
 }
 
@@ -359,11 +359,11 @@ const formatDate = (date) => {
   transition: all 0.2s;
 
   &:hover .roadmap-minimal-item-content {
-    background: #f9f9f9;
+    background: var(--rm-surface-alt);
   }
 
   &:hover .roadmap-minimal-item-title {
-    color: #2271b1;
+    color: var(--roadmap-accent);
   }
 }
 
@@ -378,8 +378,8 @@ const formatDate = (date) => {
 
 .roadmap-minimal-item-content {
   flex: 1;
-  background: white;
-  border: 1px solid #e0e0e0;
+  background: var(--rm-surface);
+  border: 1px solid var(--rm-border);
   border-radius: 6px;
   padding: 15px;
   transition: all 0.2s;
@@ -389,7 +389,7 @@ const formatDate = (date) => {
   margin: 0 0 8px;
   font-size: 16px;
   font-weight: 500;
-  color: #333;
+  color: var(--rm-heading);
   display: flex;
   align-items: center;
   gap: 8px;
@@ -397,7 +397,7 @@ const formatDate = (date) => {
 
 .roadmap-minimal-item-description {
   margin: 0 0 10px;
-  color: #666;
+  color: var(--rm-muted);
   font-size: 14px;
   line-height: 1.5;
 }
@@ -408,7 +408,7 @@ const formatDate = (date) => {
   align-items: center;
   flex-wrap: wrap;
   font-size: 13px;
-  color: #666;
+  color: var(--rm-muted);
 }
 
 .roadmap-minimal-item-actions {
@@ -416,7 +416,7 @@ const formatDate = (date) => {
   gap: 8px;
   margin-top: 12px;
   padding-top: 12px;
-  border-top: 1px solid #f0f0f0;
+  border-top: 1px solid var(--rm-border);
 
   button {
     font-size: 13px;
@@ -428,30 +428,30 @@ const formatDate = (date) => {
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  background: #999;
-  border: 2px solid #fff;
-  box-shadow: 0 0 0 2px #e0e0e0;
+  background: var(--rm-muted);
+  border: 2px solid var(--rm-surface);
+  box-shadow: 0 0 0 2px var(--rm-border);
   position: relative;
   z-index: 1;
 
   &.roadmap-status-planned {
-    background: #6c757d;
+    background: var(--rm-planned);
   }
 
   &.roadmap-status-in-progress {
-    background: #0073aa;
+    background: var(--rm-progress);
   }
 
   &.roadmap-status-completed {
-    background: #46b450;
+    background: var(--rm-done);
   }
 
   &.roadmap-status-cancelled {
-    background: #dc3232;
+    background: var(--rm-cancelled);
   }
 
   &.roadmap-status-under-review {
-    background: #f0b849;
+    background: var(--rm-review);
   }
 }
 
@@ -471,7 +471,7 @@ const formatDate = (date) => {
 .roadmap-minimal-category {
   font-size: 12px;
   padding: 2px 8px;
-  background: #f0f0f0;
+  background: var(--rm-surface-alt);
   border-radius: 10px;
 }
 
@@ -484,7 +484,7 @@ const formatDate = (date) => {
   justify-content: space-between;
   align-items: center;
   padding-top: 20px;
-  border-top: 2px solid #f0f0f0;
+  border-top: 2px solid var(--rm-border);
 }
 
 .roadmap-minimal-toggle {
@@ -493,7 +493,7 @@ const formatDate = (date) => {
   gap: 8px;
   cursor: pointer;
   font-size: 14px;
-  color: #666;
+  color: var(--rm-muted);
   user-select: none;
 
   input {
@@ -509,84 +509,7 @@ const formatDate = (date) => {
   display: flex;
   gap: 20px;
   font-size: 14px;
-  color: #666;
-}
-
-// Dark mode
-.roadmap-dark .roadmap-minimal-filters {
-  border-bottom-color: #50575e;
-}
-
-.roadmap-dark .roadmap-minimal-filter {
-  background: #32373c;
-  border-color: #50575e;
-  color: #e2e4e7;
-
-  &:hover {
-    background: #3a4046;
-  }
-
-  &.active {
-    background: #4a90d9;
-    border-color: #4a90d9;
-  }
-}
-
-.roadmap-dark .roadmap-minimal-group-title {
-  color: #e2e4e7;
-}
-
-.roadmap-dark .roadmap-minimal-group-count {
-  color: #aaa;
-}
-
-.roadmap-dark .roadmap-minimal-items:before {
-  background: #50575e;
-}
-
-.roadmap-dark .roadmap-minimal-item:hover .roadmap-minimal-item-content {
-  background: #3a4046;
-}
-
-.roadmap-dark .roadmap-minimal-item:hover .roadmap-minimal-item-title {
-  color: #4a90d9;
-}
-
-.roadmap-dark .roadmap-minimal-item-content {
-  background: #32373c;
-  border-color: #50575e;
-}
-
-.roadmap-dark .roadmap-minimal-item-title {
-  color: #e2e4e7;
-}
-
-.roadmap-dark .roadmap-minimal-item-description,
-.roadmap-dark .roadmap-minimal-item-meta {
-  color: #aaa;
-}
-
-.roadmap-dark .roadmap-minimal-item-actions {
-  border-top-color: #50575e;
-}
-
-.roadmap-dark .roadmap-minimal-dot {
-  border-color: #32373c;
-  box-shadow: 0 0 0 2px #50575e;
-}
-
-.roadmap-dark .roadmap-minimal-category {
-  background: #23282d;
-  color: #aaa;
-}
-
-.roadmap-dark .roadmap-minimal-footer {
-  border-top-color: #50575e;
-}
-
-.roadmap-dark .roadmap-minimal-toggle,
-.roadmap-dark .roadmap-minimal-stats {
-  color: #aaa;
+  color: var(--rm-muted);
 }
 
 // Responsive

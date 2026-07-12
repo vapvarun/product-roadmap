@@ -31,6 +31,26 @@ $white: #ffffff;
   --roadmap-accent-hover: color-mix(in srgb, var(--roadmap-accent) 85%, #000);
   --roadmap-accent-tint: color-mix(in srgb, var(--roadmap-accent) 15%, #fff);
 
+  // Chrome tokens (light values; the dark theme block swaps them). Every view
+  // template reads these so light/dark is a pure token swap.
+  --rm-surface: #{$white};
+  --rm-surface-alt: #f6f7f7;
+  --rm-elevated: #{$white};
+  --rm-border: #e5e7eb;
+  --rm-border-soft: #f0f1f3;
+  --rm-heading: #1f2937;
+  --rm-text: #3c434a;
+  --rm-muted: #6b7280;
+
+  // Semantic status palette: a solid (text / card border) and a tint (chip
+  // background) per status. Kept distinct on purpose so status reads at a glance.
+  --rm-planned: #2563eb;   --rm-planned-tint: #e8f0fe;
+  --rm-progress: #d97706;  --rm-progress-tint: #fef1e0;
+  --rm-hold: #64748b;      --rm-hold-tint: #eef1f4;
+  --rm-review: #7c3aed;    --rm-review-tint: #f3e9fd;
+  --rm-done: #16a34a;      --rm-done-tint: #e6f5ec;
+  --rm-cancelled: #dc2626; --rm-cancelled-tint: #fdeaea;
+
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   color: $text-color;
   line-height: 1.6;
@@ -280,6 +300,65 @@ $white: #ffffff;
   }
 }
 
+// Semantic status badges (shared by every view template). A status taxonomy
+// slug maps to the status palette so the same status reads the same colour on
+// the board, cards, list and timeline - and swaps for dark via tokens. Scoped
+// to .roadmap-badge so it never touches other status-classed elements (e.g. the
+// minimal template's status dots). Unknown slugs fall back to the neutral chip.
+.roadmap-badge {
+  &[class*="roadmap-status-"] {
+    background: var(--rm-hold-tint);
+    color: var(--rm-hold);
+  }
+  &.roadmap-status-planned,
+  &.roadmap-status-approved,
+  &.roadmap-status-backlog {
+    background: var(--rm-planned-tint);
+    color: var(--rm-planned);
+  }
+  &.roadmap-status-in-progress,
+  &.roadmap-status-inprogress,
+  &.roadmap-status-in-development,
+  &.roadmap-status-development,
+  &.roadmap-status-started {
+    background: var(--rm-progress-tint);
+    color: var(--rm-progress);
+  }
+  &.roadmap-status-on-hold,
+  &.roadmap-status-onhold,
+  &.roadmap-status-paused,
+  &.roadmap-status-deferred {
+    background: var(--rm-hold-tint);
+    color: var(--rm-hold);
+  }
+  &.roadmap-status-under-review,
+  &.roadmap-status-review,
+  &.roadmap-status-reviewing,
+  &.roadmap-status-idea,
+  &.roadmap-status-considering {
+    background: var(--rm-review-tint);
+    color: var(--rm-review);
+  }
+  &.roadmap-status-completed,
+  &.roadmap-status-complete,
+  &.roadmap-status-done,
+  &.roadmap-status-released,
+  &.roadmap-status-shipped,
+  &.roadmap-status-launched {
+    background: var(--rm-done-tint);
+    color: var(--rm-done);
+  }
+  &.roadmap-status-cancelled,
+  &.roadmap-status-canceled,
+  &.roadmap-status-rejected,
+  &.roadmap-status-declined,
+  &.roadmap-status-wont-do,
+  &.roadmap-status-closed {
+    background: var(--rm-cancelled-tint);
+    color: var(--rm-cancelled);
+  }
+}
+
 // Modal
 .roadmap-modal {
   position: fixed;
@@ -357,6 +436,23 @@ $white: #ffffff;
 // Shared dark styles, applied both by the plugin's own toggle (.roadmap-dark)
 // and automatically when the active theme is in dark mode.
 @mixin roadmap-dark-theme {
+  // Swap the chrome + status tokens to dark-appropriate values. Because every
+  // view template reads these tokens, this single block darkens them all.
+  --rm-surface: #{color.adjust($dark-bg, $lightness: 6%)};
+  --rm-surface-alt: #{$dark-bg};
+  --rm-elevated: #{color.adjust($dark-bg, $lightness: 9%)};
+  --rm-border: #{color.adjust($dark-bg, $lightness: 14%)};
+  --rm-border-soft: #{color.adjust($dark-bg, $lightness: 9%)};
+  --rm-heading: #e2e4e7;
+  --rm-text: #d3d6da;
+  --rm-muted: #9ca3af;
+  --rm-planned: #60a5fa;   --rm-planned-tint: #1c2740;
+  --rm-progress: #fbbf24;  --rm-progress-tint: #2c2416;
+  --rm-hold: #94a3b8;      --rm-hold-tint: #262b32;
+  --rm-review: #c084fc;    --rm-review-tint: #251a35;
+  --rm-done: #4ade80;      --rm-done-tint: #14281b;
+  --rm-cancelled: #f87171; --rm-cancelled-tint: #2c1a1a;
+
   background: $dark-bg;
   color: #e2e4e7;
 

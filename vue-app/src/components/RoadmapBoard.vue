@@ -130,7 +130,7 @@ const handleDrop = (event, newStatus) => {
   }
   
   &-column {
-    background: #f5f5f5;
+    background: var(--rm-surface-alt);
     border-radius: 8px;
     padding: 15px;
     min-height: 400px;
@@ -150,8 +150,8 @@ const handleDrop = (event, newStatus) => {
   }
   
   &-count {
-    background: #ddd;
-    color: #666;
+    background: var(--rm-border);
+    color: var(--rm-muted);
     padding: 2px 8px;
     border-radius: 12px;
     font-size: 12px;
@@ -165,8 +165,8 @@ const handleDrop = (event, newStatus) => {
     min-height: 300px;
     
     &.drag-over {
-      background: rgba(34, 113, 177, 0.1);
-      border: 2px dashed #2271b1;
+      background: var(--roadmap-accent-tint);
+      border: 2px dashed var(--roadmap-accent);
       border-radius: 4px;
     }
   }
@@ -178,36 +178,14 @@ const handleDrop = (event, newStatus) => {
     &-text {
       margin: 0 0 8px 0;
       font-size: 16px;
-      color: #666;
+      color: var(--rm-muted);
       font-weight: 500;
     }
-    
+
     &-hint {
       margin: 0;
       font-size: 14px;
-      color: #999;
-    }
-  }
-}
-
-// Dark mode
-.roadmap-dark .roadmap-board {
-  &-column {
-    background: #2c3338;
-  }
-  
-  &-count {
-    background: #50575e;
-    color: #ccc;
-  }
-  
-  &-empty {
-    &-text {
-      color: #aaa;
-    }
-    
-    &-hint {
-      color: #666;
+      color: var(--rm-muted);
     }
   }
 }

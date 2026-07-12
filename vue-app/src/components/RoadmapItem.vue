@@ -174,8 +174,8 @@ const handleItemClick = (event) => {
 
 <style lang="scss" scoped>
 .roadmap-item {
-  background: white;
-  border: 1px solid #ddd;
+  background: var(--rm-surface);
+  border: 1px solid var(--rm-border);
   border-radius: 6px;
   padding: 16px;
   transition: all 0.2s ease;
@@ -219,7 +219,7 @@ const handleItemClick = (event) => {
     p {
       margin: 0;
       font-size: 14px;
-      color: #666;
+      color: var(--rm-muted);
       line-height: 1.5;
     }
   }
@@ -241,7 +241,7 @@ const handleItemClick = (event) => {
   
   &-date {
     font-size: 13px;
-    color: #666;
+    color: var(--rm-muted);
   }
   
   &-footer {
@@ -249,7 +249,7 @@ const handleItemClick = (event) => {
     align-items: center;
     justify-content: space-between;
     padding-top: 12px;
-    border-top: 1px solid #eee;
+    border-top: 1px solid var(--rm-border);
   }
   
   &-stats {
@@ -265,13 +265,13 @@ const handleItemClick = (event) => {
     padding: 4px 8px;
     font-size: 13px;
     background: transparent;
-    border: 1px solid #ddd;
+    border: 1px solid var(--rm-border);
     border-radius: 4px;
     cursor: pointer;
     transition: all 0.2s ease;
-    
+
     &:hover:not(:disabled) {
-      background: #f5f5f5;
+      background: var(--rm-surface-alt);
     }
     
     &:disabled {
@@ -315,8 +315,8 @@ const handleItemClick = (event) => {
     color: inherit;
     
     &:hover {
-      background: #f5f5f5;
-      color: #2271b1;
+      background: var(--rm-surface-alt);
+      color: var(--roadmap-accent);
     }
   }
   
@@ -325,7 +325,7 @@ const handleItemClick = (event) => {
     align-items: center;
     gap: 6px;
     font-size: 13px;
-    color: #666;
+    color: var(--rm-muted);
   }
   
   &-progress {
@@ -345,48 +345,20 @@ const handleItemClick = (event) => {
 .roadmap-progress {
   flex: 1;
   height: 6px;
-  background: #eee;
+  background: var(--rm-border);
   border-radius: 3px;
   overflow: hidden;
-  
+
   &-bar {
     height: 100%;
-    background: #4caf50;
+    background: var(--rm-done);
     transition: width 0.3s ease;
   }
-  
+
   &-text {
     font-size: 12px;
-    color: #666;
+    color: var(--rm-muted);
     font-weight: 500;
-  }
-}
-
-// Dark mode
-.roadmap-dark .roadmap-item {
-  background: #2c3338;
-  border-color: #50575e;
-  
-  &-content p {
-    color: #ccc;
-  }
-  
-  &-date,
-  &-assignee {
-    color: #aaa;
-  }
-  
-  &-footer {
-    border-top-color: #50575e;
-  }
-  
-  &-vote,
-  &-comment {
-    border-color: #50575e;
-    
-    &:hover:not(:disabled) {
-      background: #3a4047;
-    }
   }
 }
 </style>

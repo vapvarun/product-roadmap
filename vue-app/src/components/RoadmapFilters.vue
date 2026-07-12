@@ -97,12 +97,12 @@ defineEmits(['update:status', 'update:category', 'update:product', 'update:sortB
   
   .roadmap-sort-control {
     margin-left: auto;
-    background-color: #f0f4f8;
-    border-color: #e1e8ed;
+    background-color: var(--rm-surface-alt);
+    border-color: var(--rm-border);
     font-weight: 500;
-    
+
     &:hover {
-      background-color: #e1e8ed;
+      background-color: var(--rm-border);
     }
   }
 }

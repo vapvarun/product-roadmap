@@ -33,10 +33,11 @@
       >
         <div class="roadmap-card-header">
           <div class="roadmap-card-status">
-            <span 
-              v-for="status in item.status" 
+            <span
+              v-for="status in item.status"
               :key="status.id"
-              class="roadmap-badge roadmap-badge-primary"
+              class="roadmap-badge"
+              :class="'roadmap-status-' + (status.slug || 'default')"
             >
               {{ status.name }}
             </span>
@@ -241,12 +242,12 @@ const formatDate = (date) => {
 .roadmap-cards-empty {
   text-align: center;
   padding: 60px 20px;
-  color: #666;
+  color: var(--rm-muted);
 }
 
 .roadmap-card {
-  background: #fff;
-  border: 1px solid #e0e0e0;
+  background: var(--rm-surface);
+  border: 1px solid var(--rm-border);
   border-radius: 8px;
   padding: 20px;
   cursor: pointer;
@@ -255,7 +256,7 @@ const formatDate = (date) => {
   flex-direction: column;
 
   &:hover {
-    border-color: #2271b1;
+    border-color: var(--roadmap-accent);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     transform: translateY(-2px);
   }
@@ -278,14 +279,14 @@ const formatDate = (date) => {
   display: flex;
   align-items: center;
   gap: 4px;
-  background: #f0f0f0;
+  background: var(--rm-surface-alt);
   padding: 4px 8px;
   border-radius: 15px;
   font-size: 14px;
 
   .roadmap-vote-count {
     font-weight: 600;
-    color: #333;
+    color: var(--rm-heading);
   }
 
   .roadmap-vote-icon {
@@ -297,13 +298,13 @@ const formatDate = (date) => {
   margin: 0 0 12px;
   font-size: 18px;
   font-weight: 600;
-  color: #333;
+  color: var(--rm-heading);
   line-height: 1.3;
 }
 
 .roadmap-card-content {
   margin: 0 0 15px;
-  color: #666;
+  color: var(--rm-muted);
   font-size: 14px;
   line-height: 1.6;
   flex-grow: 1;
@@ -318,20 +319,20 @@ const formatDate = (date) => {
   .roadmap-progress {
     flex: 1;
     height: 6px;
-    background: #e0e0e0;
+    background: var(--rm-border);
     border-radius: 3px;
     overflow: hidden;
 
     .roadmap-progress-bar {
       height: 100%;
-      background: #46b450;
+      background: var(--rm-done);
       transition: width 0.3s;
     }
   }
 
   .roadmap-progress-text {
     font-size: 12px;
-    color: #666;
+    color: var(--rm-muted);
     min-width: 35px;
   }
 }
@@ -379,7 +380,7 @@ const formatDate = (date) => {
 
 .roadmap-card-date {
   font-size: 12px;
-  color: #666;
+  color: var(--rm-muted);
 }
 
 .roadmap-card-stats {
@@ -390,7 +391,7 @@ const formatDate = (date) => {
 
 .roadmap-card-stat {
   font-size: 13px;
-  color: #666;
+  color: var(--rm-muted);
 }
 
 .roadmap-card-assignee {
@@ -408,7 +409,7 @@ const formatDate = (date) => {
     width: 24px;
     height: 24px;
     border-radius: 50%;
-    background: #2271b1;
+    background: var(--roadmap-accent);
     color: #fff;
     display: flex;
     align-items: center;
@@ -424,7 +425,7 @@ const formatDate = (date) => {
   flex-wrap: wrap;
   margin-top: 12px;
   padding-top: 12px;
-  border-top: 1px solid #f0f0f0;
+  border-top: 1px solid var(--rm-border);
 }
 
 .roadmap-card-actions {
@@ -432,7 +433,7 @@ const formatDate = (date) => {
   gap: 8px;
   margin-top: 12px;
   padding-top: 12px;
-  border-top: 1px solid #f0f0f0;
+  border-top: 1px solid var(--rm-border);
 
   button {
     font-size: 13px;
@@ -444,53 +445,9 @@ const formatDate = (date) => {
 .roadmap-category-tag {
   font-size: 11px;
   padding: 3px 8px;
-  background: #f0f0f0;
-  color: #666;
+  background: var(--rm-surface-alt);
+  color: var(--rm-muted);
   border-radius: 10px;
-}
-
-// Dark mode
-.roadmap-dark .roadmap-cards-grid .roadmap-card {
-  background: #32373c;
-  border-color: #50575e;
-
-  &:hover {
-    border-color: #4a90d9;
-  }
-}
-
-.roadmap-dark .roadmap-cards-grid .roadmap-card-title {
-  color: #e2e4e7;
-}
-
-.roadmap-dark .roadmap-cards-grid .roadmap-card-content {
-  color: #aaa;
-}
-
-.roadmap-dark .roadmap-cards-grid .roadmap-card-votes {
-  background: #23282d;
-
-  .roadmap-vote-count {
-    color: #e2e4e7;
-  }
-}
-
-.roadmap-dark .roadmap-cards-grid .roadmap-card-date,
-.roadmap-dark .roadmap-cards-grid .roadmap-card-stat {
-  color: #999;
-}
-
-.roadmap-dark .roadmap-cards-grid .roadmap-card-categories {
-  border-top-color: #50575e;
-}
-
-.roadmap-dark .roadmap-cards-grid .roadmap-card-actions {
-  border-top-color: #50575e;
-}
-
-.roadmap-dark .roadmap-cards-grid .roadmap-category-tag {
-  background: #23282d;
-  color: #999;
 }
 
 // Responsive
