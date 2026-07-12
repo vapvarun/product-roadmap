@@ -348,9 +348,9 @@ const formatDate = (date) => {
 
   &.roadmap-ideabox-item-voted {
     .roadmap-ideabox-vote-btn {
-      background: #2271b1;
+      background: var(--roadmap-accent, #2271b1);
       color: #fff;
-      border-color: #2271b1;
+      border-color: var(--roadmap-accent, #2271b1);
       padding: 0;
     }
   }

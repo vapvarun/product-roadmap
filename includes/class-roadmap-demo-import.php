@@ -72,6 +72,11 @@ class Roadmap_Demo_Import {
      */
     public function dismiss_setup_notice() {
         check_ajax_referer('roadmap_dismiss_notice', 'nonce');
+
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error(array('message' => __('Permission denied.', 'product-roadmap')), 403);
+        }
+
         update_option('roadmap_setup_notice_dismissed', true);
         wp_die();
     }
@@ -242,8 +247,8 @@ class Roadmap_Demo_Import {
                 'meta_input' => array()
             );
             
-            $post_id = wp_insert_post($post_data);
-            
+            $post_id = wp_insert_post($post_data, true);
+
             if ($post_id && !is_wp_error($post_id)) {
                 // Assign category
                 if (isset($category_ids[$item['category']])) {
@@ -262,7 +267,7 @@ class Roadmap_Demo_Import {
                 
                 // Assign status
                 $status_term = get_term_by('slug', $item['status'], 'roadmap_status');
-                if ($status_term && !is_wp_error($status_term)) {
+                if ($status_term) {
                     $status_result = wp_set_object_terms($post_id, (int)$status_term->term_id, 'roadmap_status', false);
                     // Silently handle errors
                 }
@@ -335,7 +340,7 @@ class Roadmap_Demo_Import {
         $default_product = get_option('roadmap_default_product', 'main');
         $term = get_term_by('slug', $default_product, 'roadmap_product');
         
-        if (!$term || is_wp_error($term)) {
+        if (!$term) {
             // Create default product term
             $product_name = get_option('roadmap_product_name', 'Main Product');
             $result = wp_insert_term(
@@ -377,7 +382,7 @@ class Roadmap_Demo_Import {
         
         foreach ($default_statuses as $slug => $name) {
             $existing = get_term_by('slug', $slug, 'roadmap_status');
-            if (!$existing || is_wp_error($existing)) {
+            if (!$existing) {
                 $result = wp_insert_term($name, 'roadmap_status', array('slug' => $slug));
                 // Silently handle errors
             }

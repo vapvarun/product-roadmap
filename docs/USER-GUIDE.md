@@ -1,10 +1,10 @@
 # WordPress Product Roadmap Plugin - User Guide
 
-**Version:** 1.3.1
+**Version:** 1.7.0
 
 ## Table of Contents
 - [Introduction](#introduction)
-- [What's New in v1.3.1](#whats-new-in-v131)
+- [What's New in v1.7.0](#whats-new-in-v170)
 - [Installation & Setup](#installation--setup)
 - [Dashboard Overview](#dashboard-overview)
 - [Creating & Managing Roadmap Items](#creating--managing-roadmap-items)
@@ -41,42 +41,44 @@ The WordPress Product Roadmap Plugin helps you create and manage product roadmap
 - Track what's being built
 - Stay informed about product direction
 
-## What's New in v1.3.1
+## What's New in v1.7.0
 
-This release focuses on security hardening and performance optimization. Here's what changed:
+This release makes the roadmap feel native to your theme, strengthens voting and spam defense, and cleans up notifications. Here's what changed:
 
-### Security Improvements
+### Theme Integration and Dark Mode
 
-**Better Vote Protection**
-Guest voting now uses more reliable tracking to prevent vote manipulation. Previously, the system could be tricked into counting extra votes. Now it properly validates each vote to ensure fairness.
-
-What this means for you:
-- Vote counts are more accurate
-- Less chance of spam votes affecting your roadmap priorities
-- No action needed on your part - the fix is automatic
-
-### Performance Improvements
-
-**Faster Roadmap Loading**
-Roadmaps with many items now load noticeably faster. We fixed an issue where the system was making too many database calls when displaying items.
+**Adopts Your Theme's Look**
+The board and every view now pick up your active theme's accent color (via the theme's primary color preset, falling back to the plugin blue if none is set). Dark mode is driven only by your theme's own light/dark toggle - the plugin no longer forces dark styling based on the visitor's operating system. This applies to the board, the changelog (shortcode, single, and archive), and all other surfaces.
 
 What this means for you:
-- Roadmaps with 50+ items load faster
-- Less strain on your server
-- Better experience for your visitors
+- The roadmap matches your brand automatically
+- Dark and light modes follow whatever your theme already offers
+- No separate "dark mode" switch to keep in sync
 
-**Smarter Dashboard**
-The admin dashboard now calculates stats more efficiently. Instead of loading every item to count them, it uses optimized queries.
+### Voting Improvements
 
-**One-Time Setup Tasks**
-Role permissions and default taxonomies are now set only during plugin activation or upgrades - not on every page load. This reduces unnecessary work.
+**Clear "Voted" State**
+The vote button now shows an unmistakable "Voted" state (a checkmark and pill) that stays visible even on themes that heavily restyle buttons.
 
-### Changelog Feature Enhancements
+**Guest Voting by IP**
+You can allow guests to vote, tracked by IP address, from a setting. Leave it off to require login.
 
-**Pro Integration Ready**
-The changelog shortcode and API now include hooks for the Pro addon to add multi-product filtering. If you're using both free and Pro versions, changelogs can now be filtered by product.
+### Spam Defense (Automatic)
 
-### Updating from 1.3.0
+Votes and suggestions are now rate-limited (per user, or per IP for guests), and the suggestion form includes a hidden honeypot field to catch bots. There is nothing to configure - these protections are always on.
+
+### Notifications
+
+Status-change emails sent to voters and commenters now include an unsubscribe link. The per-type notification toggles (new vote, new comment, new suggestion) in Settings now actually take effect, so you only receive the emails you opt into.
+
+### Under the Hood
+
+- Indexed votes table and bounded queries keep large roadmaps fast
+- Uninstalling the plugin now cleans up its data
+- All strings are translation-ready
+- Frontend assets cache-bust automatically when rebuilt
+
+### Updating from Earlier Versions
 
 Update through your WordPress dashboard as usual. No special steps needed - all improvements take effect automatically.
 
@@ -495,6 +497,8 @@ The Changelog lets you document releases, updates, and changes to your product o
 
 Visit `/changelog/` to see all changelog entries, or `/changelog/product-slug/` for product-specific changelogs.
 
+As of 1.7.0 the changelog shortcode, single entry, and archive views are theme and dark-mode aware, with a left-aligned header. The archive keeps entries that have no release date set and orders entries by release date.
+
 ### Change Type Badges
 
 Each change item displays with a colored badge:
@@ -535,7 +539,7 @@ The `product` parameter is mandatory. Use "main" for the default product.
 ```
 [roadmap
     product="main"
-    template="board"
+    template="minimal"
     status="planned,in-progress"
     category="feature"
     limit="50"
@@ -553,15 +557,16 @@ The `product` parameter is mandatory. Use "main" for the default product.
 
 **template** (Optional)
 - Display style
-- Default: "board"
-- Free version: "board", "ideabox" (NEW in 1.3.0)
-- Pro version: "board", "ideabox", "timeline", "list", "cards", "minimal"
-- Example: `template="board"`
+- Default: "minimal"
+- Free version: "minimal" (the clean, single-column layout)
+- Pro version: adds "board", "cards", "list", "timeline", and "ideabox"
+- Example: `template="minimal"`
 
-**Idea Box Template (v1.3.0)**
+**Idea Box Template (Pro)**
 - Use `template="ideabox"` for a focused idea collection view
 - Features prominent upvote buttons and sorting options
 - Perfect for collecting user feedback and feature requests
+- Requires the Pro addon; free installs fall back to the minimal layout
 
 **status** (Optional)
 - Filter by status
@@ -675,11 +680,19 @@ Create menu link to roadmap page:
 - Items can be sorted by votes
 - Admins see who voted (in meta box when editing item)
 
+**Voted State (v1.7.0):**
+- After voting, the button shows a clear "Voted" state (checkmark + pill)
+- This state stays visible even on themes that heavily restyle buttons
+
 **Guest Voting:**
-- If enabled, anonymous users can vote
-- Uses cookies/IP to prevent duplicate votes
+- If enabled, anonymous users can vote, tracked by IP address
+- Enable guest voting in Settings; leave it off to require login
 - Less reliable than logged-in voting
-- Enable in Settings > Advanced
+
+**Spam Defense (v1.7.0, automatic):**
+- Votes and suggestions are rate-limited (per user, or per IP for guests)
+- The suggestion form includes a hidden honeypot to catch bots
+- Nothing to configure - these protections are always on
 
 **Removing Votes:**
 - Users can click vote button again to unvote
@@ -783,7 +796,7 @@ Access at **Roadmap > Settings**
 **Display Options**
 - **Items Per Page**: How many items to show (default: 100)
 - **Default Status**: Initial status for new items (default: "Planned")
-- **Enable Dark Mode**: Toggle dark theme support
+- **Theme Colors & Dark Mode**: As of 1.7.0, the roadmap automatically adopts your theme's accent color and follows your theme's own light/dark toggle. There is no separate dark-mode switch to manage.
 
 **User Interaction**
 - **Enable Voting**: Let users vote on items
@@ -796,6 +809,8 @@ Access at **Roadmap > Settings**
 - **Notify on New Vote**: Email when someone votes (can be noisy)
 - **Notify on New Comment**: Email on new comments
 - **Notify on New Suggestion**: Email on feature suggestions
+
+As of 1.7.0 each of these per-type toggles is honored independently, so you only receive the notifications you enable. Status-change emails sent to voters and commenters also include an unsubscribe link.
 
 ### Display Settings Tab
 

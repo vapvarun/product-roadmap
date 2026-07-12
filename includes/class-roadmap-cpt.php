@@ -286,13 +286,13 @@ class Roadmap_CPT {
 		$basic_fields = array_filter(
 			$fields,
 			function ( $field ) {
-				return empty( $field['pro'] ) || ! $field['pro'];
+				return empty( $field['pro'] );
 			}
 		);
 		$pro_fields   = array_filter(
 			$fields,
 			function ( $field ) {
-				return ! empty( $field['pro'] ) && $field['pro'];
+				return ! empty( $field['pro'] );
 			}
 		);
 

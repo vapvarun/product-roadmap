@@ -48,7 +48,7 @@ After changing slugs, visit **Settings > Permalinks** and click Save to refresh 
 
 | Setting | Description | Options |
 |---------|-------------|---------|
-| Default Template | Layout for shortcode | Kanban, List, Grid, Idea Box |
+| Default Template | Layout for shortcode | Minimal (Board, List, Cards, Timeline, and Idea Box are Pro) |
 | Show Progress | Display progress bars | Yes/No |
 | Show Votes | Display vote counts | Yes/No |
 | Show Status | Display status badges | Yes/No |
@@ -227,7 +227,7 @@ Set defaults that apply when shortcode parameters aren't specified.
 
 | Setting | Shortcode Equivalent |
 |---------|---------------------|
-| Default Template | `template="kanban"` |
+| Default Template | `template="minimal"` |
 | Default Order | `orderby="date" order="desc"` |
 | Default Limit | `limit="20"` |
 | Default Status | `status="all"` |

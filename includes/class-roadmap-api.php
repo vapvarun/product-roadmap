@@ -356,6 +356,15 @@ class Roadmap_API {
 			);
 		}
 
+		/**
+		 * Allow the pro addon to add advanced query filters (priority, progress,
+		 * assignee, date range, dependencies) to the roadmap items query.
+		 *
+		 * @param array $args   The WP_Query args.
+		 * @param array $params The REST request params.
+		 */
+		$args = apply_filters( 'roadmap_api_query_args', $args, $params );
+
 		// Run the query
 		$query = new WP_Query( $args );
 		$items = array();
@@ -407,7 +416,7 @@ class Roadmap_API {
 			'title'           => html_entity_decode( $post->post_title, ENT_QUOTES, 'UTF-8' ),
 			'content'         => html_entity_decode( $post->post_content, ENT_QUOTES, 'UTF-8' ),
 			'excerpt'         => html_entity_decode( wp_trim_words( $post->post_content, 20 ), ENT_QUOTES, 'UTF-8' ),
-			'author'          => get_the_author_meta( 'display_name', $post->post_author ),
+			'author'          => get_the_author_meta( 'display_name', (int) $post->post_author ),
 			'date'            => $post->post_date,
 			'modified'        => $post->post_modified,
 			'votes'           => (int) get_post_meta( $post->ID, '_roadmap_votes', true ),
@@ -527,10 +536,50 @@ class Roadmap_API {
 		return $votes;
 	}
 
+	/**
+	 * Transient-based rate limiter. Keys by user ID when logged in, otherwise by
+	 * IP. Returns WP_Error (429) once the window limit is reached.
+	 *
+	 * @param string $action Action slug (vote, suggestion).
+	 * @param int    $max    Max attempts allowed within the window.
+	 * @param int    $window Window length in seconds.
+	 * @return true|WP_Error
+	 */
+	private function rate_limit_check( $action, $max, $window ) {
+		$user_id = get_current_user_id();
+		if ( $user_id ) {
+			$id = 'u' . $user_id;
+		} else {
+			$ip = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '';
+			$id = 'ip' . md5( $ip );
+		}
+
+		$key      = 'roadmap_rl_' . $action . '_' . $id;
+		$attempts = (int) get_transient( $key );
+
+		if ( $attempts >= $max ) {
+			return new WP_Error(
+				'rate_limited',
+				__( 'You are doing that too often. Please slow down and try again shortly.', 'product-roadmap' ),
+				array( 'status' => 429 )
+			);
+		}
+
+		set_transient( $key, $attempts + 1, $window );
+		return true;
+	}
+
 	public function submit_vote( $request ) {
 		$item_id    = $request->get_param( 'item_id' );
 		$vote_value = $request->get_param( 'vote_value' );
 		$user_id    = get_current_user_id();
+
+		// Throttle vote flooding (per user, or per IP for guests). Generous so
+		// normal browsing is never blocked, but stops rapid-fire abuse.
+		$limit = $this->rate_limit_check( 'vote', 30, MINUTE_IN_SECONDS );
+		if ( is_wp_error( $limit ) ) {
+			return $limit;
+		}
 
 		global $wpdb;
 		$table = $wpdb->prefix . 'roadmap_votes';
@@ -622,6 +671,18 @@ class Roadmap_API {
 	}
 
 	public function submit_suggestion( $request ) {
+		// Honeypot: a hidden field real users never fill. Bots that fill every
+		// input trip it; return a fake success so they don't retry.
+		if ( ! empty( $request->get_param( 'website' ) ) ) {
+			return rest_ensure_response( array( 'success' => true, 'id' => 0 ) );
+		}
+
+		// Throttle suggestion spam (per user, or per IP for guests).
+		$limit = $this->rate_limit_check( 'suggestion', 5, HOUR_IN_SECONDS );
+		if ( is_wp_error( $limit ) ) {
+			return $limit;
+		}
+
 		$title       = $request->get_param( 'title' );
 		$description = $request->get_param( 'description' );
 		$category    = $request->get_param( 'category' );
@@ -653,8 +714,15 @@ class Roadmap_API {
 				wp_set_object_terms( $post_id, $category, 'roadmap_category' );
 			}
 
-			// Set default product
-			update_post_meta( $post_id, '_roadmap_product', get_option( 'roadmap_default_product', 'main' ) );
+			// Assign the product taxonomy: use the product the suggestion was made
+			// on (passed from the shortcode's current product), falling back to the
+			// configured default product. (Matches create_item; the taxonomy is the
+			// single source of truth for product association.)
+			$product = $request->get_param( 'product' );
+			if ( empty( $product ) ) {
+				$product = get_option( 'roadmap_default_product', 'main' );
+			}
+			wp_set_object_terms( $post_id, sanitize_text_field( $product ), 'roadmap_product' );
 
 			// Set priority if provided
 			$priority = $request->get_param( 'priority' );
@@ -743,7 +811,7 @@ class Roadmap_API {
 			'post_status'  => 'publish',
 		);
 
-		$post_id = wp_insert_post( $post_data );
+		$post_id = wp_insert_post( $post_data, true );
 
 		if ( $post_id && ! is_wp_error( $post_id ) ) {
 			// Get default status from settings
@@ -809,7 +877,7 @@ class Roadmap_API {
 			$post_data['post_content'] = $request->get_param( 'content' );
 		}
 
-		$updated = wp_update_post( $post_data );
+		$updated = wp_update_post( $post_data, true );
 
 		if ( $updated && ! is_wp_error( $updated ) ) {
 			// Update taxonomies

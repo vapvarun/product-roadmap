@@ -1,9 +1,10 @@
 <template>
   <div class="roadmap-filters">
-    <select 
+    <select
       :value="status"
       @change="$emit('update:status', $event.target.value)"
       class="roadmap-form-control"
+      :aria-label="config?.i18n?.filter_by_status || 'Filter by status'"
     >
       <option value="">{{ config?.i18n?.all_statuses || 'All Statuses' }}</option>
       <option 
@@ -15,10 +16,11 @@
       </option>
     </select>
     
-    <select 
+    <select
       :value="category"
       @change="$emit('update:category', $event.target.value)"
       class="roadmap-form-control"
+      :aria-label="config?.i18n?.filter_by_category || 'Filter by category'"
     >
       <option value="">{{ config?.i18n?.all_categories || 'All Categories' }}</option>
       <option 
@@ -35,6 +37,7 @@
       :value="product"
       @change="$emit('update:product', $event.target.value)"
       class="roadmap-form-control"
+      :aria-label="config?.i18n?.filter_by_product || 'Filter by product'"
     >
       <option value="">{{ config?.i18n?.all_products || 'All Products' }}</option>
       <option 
@@ -50,6 +53,7 @@
       :value="sortBy"
       @change="$emit('update:sortBy', $event.target.value)"
       class="roadmap-form-control roadmap-sort-control"
+      :aria-label="config?.i18n?.sort_by || 'Sort by'"
     >
       <option value="">{{ config?.i18n?.sort_by || 'Sort By' }}</option>
       <option value="votes">{{ config?.i18n?.most_voted || 'Most Voted' }}</option>
@@ -93,12 +97,12 @@ defineEmits(['update:status', 'update:category', 'update:product', 'update:sortB
   
   .roadmap-sort-control {
     margin-left: auto;
-    background-color: #f0f4f8;
-    border-color: #e1e8ed;
+    background-color: var(--rm-surface-alt);
+    border-color: var(--rm-border);
     font-weight: 500;
-    
+
     &:hover {
-      background-color: #e1e8ed;
+      background-color: var(--rm-border);
     }
   }
 }

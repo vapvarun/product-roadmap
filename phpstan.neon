@@ -1,0 +1,30 @@
+includes:
+    - vendor/szepeviktor/phpstan-wordpress/extension.neon
+parameters:
+    level: 5
+    # WordPress core PHPDoc types (via wordpress-stubs) are frequently narrower
+    # than runtime reality - e.g. get_term()/wp_insert_post() are documented to
+    # return a narrower type than they actually can - so treating PHPDoc types as
+    # certain produces false "is_wp_error() always false" / "always true"
+    # positives on legitimate defensive checks. Real bugs (undefined symbols,
+    # wrong arg types) are still reported.
+    treatPhpDocTypesAsCertain: false
+    # ROADMAP_PRO_ACTIVE is an environment-dependent constant: false in the
+    # free-only runtime, true when the Pro add-on is active. Its value is not
+    # statically knowable, so declare it dynamic - otherwise PHPStan collapses
+    # every legitimate `defined() && ROADMAP_PRO_ACTIVE` gate to "always true"
+    # (and every `! ROADMAP_PRO_ACTIVE` to "always false") and only analyses one
+    # branch. Declaring it dynamic makes PHPStan analyse BOTH branches correctly.
+    dynamicConstantNames:
+        - ROADMAP_PRO_ACTIVE
+    paths:
+        - includes
+        - product-roadmap.php
+        - uninstall.php
+    bootstrapFiles:
+        - phpstan-bootstrap.php
+    excludePaths:
+        - vue-app/*
+        - node_modules/*
+        - vendor/*
+    reportUnmatchedIgnoredErrors: false

@@ -1,0 +1,31 @@
+{
+  "_note": "Only ERROR-level findings individually verified as false-positives or intentional/vestigial are suppressed. Non-blocking warnings/info are NOT baselined. Never bulk-baseline.",
+  "generated": "2026-07-12",
+  "suppressions": [
+    {
+      "id": "hook-consumed-never-fired:roadmap_send_digest",
+      "severity": "error",
+      "reason": "False positive. roadmap_send_digest is a WP-Cron hook (const CRON_HOOK) scheduled via wp_schedule_event in class-roadmap-pro-digest.php; WP-Cron fires it, not an explicit do_action, so the static audit cannot see the fire site."
+    },
+    {
+      "id": "ajax-action-no-handler:roadmap_import_demo_data",
+      "severity": "error",
+      "reason": "Demo import runs through admin_init -> handle_demo_import (form submission) in class-roadmap-demo-import.php, which is the live path. The roadmap-admin.js AJAX call to this action is a legacy no-op; import functions without it."
+    },
+    {
+      "id": "hook-consumed-never-fired:roadmap_settings_fields",
+      "severity": "error",
+      "reason": "Reserved Pro extension filter. Free fires roadmap_settings_tabs (Pro adds its tabs via that) but does not yet apply roadmap_settings_fields; the Pro listener is a harmless no-op reserved for injecting fields into Free tabs in a later release."
+    },
+    {
+      "id": "hook-consumed-never-fired:roadmap_changelog_shortcode_data",
+      "severity": "error",
+      "reason": "Reserved Pro extension filter for augmenting changelog shortcode data. Free does not yet apply it; the Pro listener is a harmless no-op with no runtime effect."
+    },
+    {
+      "id": "option-read-never-written:roadmap_pro_feedback_widget_display",
+      "severity": "error",
+      "reason": "Display-rules option read with a safe default (widget shows everywhere) in class-roadmap-pro-feedback-widget.php. No admin UI writes it yet; the read falls back to the default so behaviour is correct. Admin control planned post-1.7.0."
+    }
+  ]
+}

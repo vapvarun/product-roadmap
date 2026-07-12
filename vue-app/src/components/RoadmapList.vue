@@ -58,7 +58,8 @@
                 <div class="roadmap-list-item-badges">
                   <span
                     v-if="item.status && item.status.length"
-                    class="roadmap-badge roadmap-badge-primary"
+                    class="roadmap-badge"
+                    :class="'roadmap-status-' + (item.status[0].slug || 'default')"
                   >
                     {{ item.status[0].name }}
                   </span>
@@ -276,7 +277,7 @@ onMounted(() => {
 
 <style lang="scss" scoped>
 .roadmap-list {
-  background: #fff;
+  background: var(--rm-surface);
   border-radius: 8px;
   padding: 20px;
 }
@@ -302,19 +303,19 @@ onMounted(() => {
 }
 
 .roadmap-list-group {
-  border: 1px solid #e0e0e0;
+  border: 1px solid var(--rm-border);
   border-radius: 6px;
   overflow: hidden;
 }
 
 .roadmap-list-group-header {
-  background: #f5f5f5;
+  background: var(--rm-surface-alt);
   padding: 15px 20px;
   cursor: pointer;
   user-select: none;
 
   &:hover {
-    background: #eeeeee;
+    background: var(--rm-border);
   }
 
   h3 {
@@ -328,12 +329,12 @@ onMounted(() => {
 
 .roadmap-list-toggle {
   font-size: 12px;
-  color: #666;
+  color: var(--rm-muted);
 }
 
 .roadmap-list-count {
   font-size: 14px;
-  color: #999;
+  color: var(--rm-muted);
   font-weight: 400;
 }
 
@@ -342,7 +343,7 @@ onMounted(() => {
 }
 
 .roadmap-list-item {
-  border: 1px solid #e0e0e0;
+  border: 1px solid var(--rm-border);
   border-radius: 6px;
   padding: 15px;
   margin-bottom: 10px;
@@ -350,7 +351,7 @@ onMounted(() => {
   transition: all 0.2s;
 
   &:hover {
-    border-color: #2271b1;
+    border-color: var(--roadmap-accent);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     transform: translateY(-1px);
   }
@@ -364,12 +365,12 @@ onMounted(() => {
   margin: 0 0 8px;
   font-size: 16px;
   font-weight: 600;
-  color: #333;
+  color: var(--rm-heading);
 }
 
 .roadmap-list-item-excerpt {
   margin: 0;
-  color: #666;
+  color: var(--rm-muted);
   font-size: 14px;
   line-height: 1.5;
 }
@@ -392,7 +393,7 @@ onMounted(() => {
   display: flex;
   gap: 15px;
   font-size: 13px;
-  color: #666;
+  color: var(--rm-muted);
 }
 
 .roadmap-list-item-actions {
@@ -400,7 +401,7 @@ onMounted(() => {
   gap: 8px;
   margin-top: 12px;
   padding-top: 12px;
-  border-top: 1px solid #e0e0e0;
+  border-top: 1px solid var(--rm-border);
 
   button {
     font-size: 13px;
@@ -417,20 +418,20 @@ onMounted(() => {
   .roadmap-progress {
     flex: 1;
     height: 6px;
-    background: #e0e0e0;
+    background: var(--rm-border);
     border-radius: 3px;
     overflow: hidden;
 
     .roadmap-progress-bar {
       height: 100%;
-      background: #46b450;
+      background: var(--rm-done);
       transition: width 0.3s;
     }
   }
 
   .roadmap-progress-text {
     font-size: 12px;
-    color: #666;
+    color: var(--rm-muted);
     min-width: 35px;
   }
 }
@@ -461,47 +462,7 @@ onMounted(() => {
   transform: translateY(10px);
 }
 
-// Dark mode
-.roadmap-dark .roadmap-list {
-  background: #23282d;
-}
-
-.roadmap-dark .roadmap-list-group {
-  border-color: #50575e;
-}
-
-.roadmap-dark .roadmap-list-group-header {
-  background: #32373c;
-
-  &:hover {
-    background: #3a4046;
-  }
-}
-
-.roadmap-dark .roadmap-list-item {
-  border-color: #50575e;
-  background: #32373c;
-
-  &:hover {
-    border-color: #4a90d9;
-  }
-}
-
-.roadmap-dark .roadmap-list-item-title {
-  color: #e2e4e7;
-}
-
-.roadmap-dark .roadmap-list-item-excerpt {
-  color: #aaa;
-}
-
-.roadmap-dark .roadmap-list-item-stats {
-  color: #999;
-}
-
-.roadmap-dark .roadmap-list-item-actions {
-  border-top-color: #50575e;
-}
+// Dark mode is handled purely by token swap (see main.scss .roadmap-app dark block).
 
 // Responsive
 @media (max-width: 768px) {

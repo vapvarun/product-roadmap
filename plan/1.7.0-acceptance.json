@@ -1,0 +1,40 @@
+{
+  "release": "1.7.0",
+  "plugins": ["product-roadmap", "roadmap-pro-addon"],
+  "gate_rule": "GO only when every gate:MUST is green on seed AND clean-install",
+  "checks": [
+    { "id": "F1", "group": "free", "gate": "MUST", "type": "browser", "bt": "BT-CORE", "assert": "board renders items in status columns, 0 console errors, 3 viewports" },
+    { "id": "F2", "group": "free", "gate": "MUST", "type": "rest", "assert": "POST /vote increments count +1, persists, no double-vote; guest IP-dedup" },
+    { "id": "F3", "group": "free", "gate": "MUST", "type": "rest", "assert": "POST /suggest + /guest-suggest create pending items (200)" },
+    { "id": "F4", "group": "free", "gate": "MUST", "type": "browser", "bt": "BT-CORE", "assert": "all 5 statuses render + filter" },
+    { "id": "F5", "group": "free", "gate": "MUST", "type": "rest", "assert": "POST /comment returns 201, admin email queued" },
+    { "id": "F6", "group": "free", "gate": "MUST", "type": "browser", "bt": "BT-CORE", "assert": "[roadmap] shortcode renders" },
+
+    { "id": "P1", "group": "pro", "gate": "MUST", "type": "rest+db", "bt": "BT-ANALYTICS", "assert": "vote/status/view actions write analytics events; /analytics/track 200; dashboard non-zero; period switch changes data", "owner_ws": ["W1", "W2"] },
+    { "id": "P2", "group": "pro", "gate": "MUST", "type": "rest+browser", "bt": "BT-FILTERS", "assert": "advanced filter narrows list (roadmap_api_query_args fires); enum options match API", "owner_ws": ["W1", "W11"] },
+    { "id": "P3", "group": "pro", "gate": "SHOULD", "type": "rest", "assert": "search matches beyond first page" },
+    { "id": "P4", "group": "pro", "gate": "MUST", "type": "rest+browser", "bt": "BT-MULTIPRODUCT", "assert": "per-product board shows only its items; switch works; assign reflects; no unregistered-CPT notice", "owner_ws": ["W3"] },
+    { "id": "P5", "group": "pro", "gate": "MUST", "type": "browser", "bt": "BT-TIMELINE", "assert": "timeline renders chronologically for a product, non-empty", "owner_ws": ["W3"] },
+    { "id": "P6", "group": "pro", "gate": "MUST", "type": "rest", "bt": "BT-EXPORT", "assert": "CSV export returns correct product rows, no fatal", "owner_ws": ["W3", "W7"] },
+    { "id": "P7", "group": "pro", "gate": "MUST", "type": "truth", "assert": "bulk operations work OR removed from readme (code and marketing agree)" },
+    { "id": "P8", "group": "pro", "gate": "MUST", "type": "browser", "assert": "board/timeline/list/cards/minimal all render" },
+    { "id": "P9", "group": "pro", "gate": "MUST", "type": "rest", "assert": "status-change / digest email fires", "owner_ws": ["W1"] },
+    { "id": "P10", "group": "pro", "gate": "SHOULD", "type": "browser", "assert": "Gutenberg block inserts + renders" },
+
+    { "id": "S1", "group": "scale", "gate": "MUST", "type": "timing", "bt": "BT-SCALE-QUERIES", "assert": "board load on 1000-item product < 800ms server; hot query indexed" },
+    { "id": "S2", "group": "scale", "gate": "MUST", "type": "grep", "assert": "no posts_per_page=-1 on hot/export paths" },
+    { "id": "S3", "group": "scale", "gate": "MUST", "type": "db", "assert": "wp_roadmap_votes date queries use created_at index (EXPLAIN)", "owner_ws": ["W6"] },
+    { "id": "S4", "group": "scale", "gate": "MUST", "type": "timing", "assert": "CSV export of 1000-item product completes, no OOM/timeout", "owner_ws": ["W7"] },
+    { "id": "S5", "group": "scale", "gate": "SHOULD", "type": "timing", "assert": "2nd analytics dashboard load hits cache (fewer queries)", "owner_ws": ["W7"] },
+    { "id": "S6", "group": "scale", "gate": "MUST", "type": "browser", "bt": "BT-PAGINATION", "assert": "items 101+ reachable via UI", "owner_ws": ["W5"] },
+
+    { "id": "T1", "group": "trust", "gate": "MUST", "type": "db", "bt": "BT-UNINSTALL", "assert": "delete removes tables + options, 0 residual", "owner_ws": ["W9"] },
+    { "id": "T2", "group": "trust", "gate": "MUST", "type": "cli", "bt": "BT-I18N", "assert": "textdomain loaded; make-pot builds; strings translate", "owner_ws": ["W9"] },
+    { "id": "T3", "group": "trust", "gate": "MUST", "type": "rest", "bt": "BT-SECURITY", "assert": "approve/reject/merge deny anon + subscriber (401/403)", "owner_ws": ["W8"] },
+    { "id": "T4", "group": "trust", "gate": "MUST", "type": "rest", "assert": "settings reject/escape script payload (no stored XSS)", "owner_ws": ["W8"] },
+    { "id": "T5", "group": "trust", "gate": "MUST", "type": "grep", "bt": "BT-VERSION", "assert": "header == readme stable tag == 1.7.0, both plugins", "owner_ws": ["W4"] },
+    { "id": "T6", "group": "trust", "gate": "MUST", "type": "grep", "assert": "Pro declares license header", "owner_ws": ["W4"] },
+    { "id": "T7", "group": "trust", "gate": "MUST", "type": "ci", "assert": "PHP Lint + PHPStan + WPCS green", "owner_ws": ["W12"] },
+    { "id": "T8", "group": "trust", "gate": "SHOULD", "type": "browser", "bt": "BT-A11Y", "assert": "labels present, focus rings, no native alert/confirm", "owner_ws": ["W10"] }
+  ]
+}

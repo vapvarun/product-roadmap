@@ -445,7 +445,7 @@ const formatDate = (date) => {
 
 <style lang="scss" scoped>
 .roadmap-timeline {
-  background: #fff;
+  background: var(--rm-surface);
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
@@ -456,7 +456,7 @@ const formatDate = (date) => {
   justify-content: space-between;
   align-items: center;
   padding: 1.5rem 2rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--roadmap-accent) 0%, var(--roadmap-accent-hover) 100%);
   color: #fff;
 
   .roadmap-timeline-title {
@@ -475,7 +475,7 @@ const formatDate = (date) => {
     cursor: pointer;
 
     option {
-      background: #667eea;
+      background: var(--roadmap-accent);
       color: #fff;
     }
   }
@@ -487,15 +487,17 @@ const formatDate = (date) => {
 
 .roadmap-timeline-sections {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 2rem;
   margin-bottom: 3rem;
+  align-items: start;
 }
 
 .roadmap-timeline-section {
-  background: #f8f9fa;
+  background: var(--rm-surface-alt);
   border-radius: 12px;
   padding: 1.5rem;
+  min-height: 120px;
 
   .roadmap-timeline-section-header {
     display: flex;
@@ -510,32 +512,32 @@ const formatDate = (date) => {
       margin: 0;
       font-size: 1.25rem;
       font-weight: 600;
-      color: #333;
+      color: var(--rm-heading);
 
       svg {
-        color: #667eea;
+        color: var(--roadmap-accent);
       }
     }
 
     .roadmap-timeline-period {
       font-size: 13px;
-      color: #666;
-      background: white;
+      color: var(--rm-muted);
+      background: var(--rm-surface);
       padding: 0.25rem 0.75rem;
       border-radius: 20px;
     }
   }
 
   &.roadmap-timeline-done {
-    background: #e8f5e9;
-    border: 1px solid #c8e6c9;
+    background: var(--rm-done-tint);
+    border: 1px solid var(--rm-done-tint);
 
     .roadmap-timeline-section-header h3 svg {
-      color: #4caf50;
+      color: var(--rm-done);
     }
 
     .roadmap-timeline-period {
-      background: #4caf50;
+      background: var(--rm-done);
       color: white;
     }
   }
@@ -550,7 +552,7 @@ const formatDate = (date) => {
 .roadmap-timeline-empty {
   text-align: center;
   padding: 2rem;
-  color: #999;
+  color: var(--rm-muted);
 
   p {
     margin: 0;
@@ -559,7 +561,7 @@ const formatDate = (date) => {
 }
 
 .roadmap-timeline-item {
-  background: white;
+  background: var(--rm-surface);
   border-radius: 8px;
   padding: 1.25rem;
   cursor: pointer;
@@ -575,14 +577,14 @@ const formatDate = (date) => {
     left: 0;
     width: 4px;
     height: 100%;
-    background: #e0e0e0;
+    background: var(--rm-border);
     transition: all 0.2s ease;
   }
 
   &:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    border-color: #667eea;
+    border-color: var(--roadmap-accent);
 
     &:before {
       width: 6px;
@@ -591,29 +593,29 @@ const formatDate = (date) => {
 
   &.status-in-progress:before,
   &.status-development:before {
-    background: #ff9800;
+    background: var(--rm-progress);
   }
 
   &.status-planned:before,
   &.status-approved:before {
-    background: #2196f3;
+    background: var(--rm-planned);
   }
 
   &.status-completed:before,
   &.status-released:before,
   &.status-done:before,
   &.status-shipped:before {
-    background: #4caf50;
+    background: var(--rm-done);
   }
 
   .roadmap-status-completed {
-    background: #e8f5e9 !important;
-    color: #2e7d32 !important;
+    background: var(--rm-done-tint) !important;
+    color: var(--rm-done) !important;
   }
 
   &.status-idea:before,
   &.status-under-review:before {
-    background: #9c27b0;
+    background: var(--rm-review);
   }
 
   .roadmap-timeline-item-content {
@@ -621,13 +623,13 @@ const formatDate = (date) => {
       margin: 0 0 0.5rem;
       font-size: 16px;
       font-weight: 600;
-      color: #333;
+      color: var(--rm-heading);
     }
 
     p {
       margin: 0 0 1rem;
       font-size: 14px;
-      color: #666;
+      color: var(--rm-muted);
       line-height: 1.5;
     }
   }
@@ -646,8 +648,8 @@ const formatDate = (date) => {
         font-size: 12px;
         padding: 0.25rem 0.75rem;
         border-radius: 20px;
-        background: #e3f2fd;
-        color: #1976d2;
+        background: var(--rm-planned-tint);
+        color: var(--rm-planned);
         font-weight: 500;
       }
 
@@ -655,8 +657,8 @@ const formatDate = (date) => {
         font-size: 12px;
         padding: 0.25rem 0.75rem;
         border-radius: 20px;
-        background: #f3e5f5;
-        color: #7b1fa2;
+        background: var(--rm-review-tint);
+        color: var(--rm-review);
       }
 
       .roadmap-timeline-progress {
@@ -664,18 +666,18 @@ const formatDate = (date) => {
         align-items: center;
         gap: 0.5rem;
         font-size: 12px;
-        color: #666;
+        color: var(--rm-muted);
 
         .roadmap-progress-bar {
           width: 60px;
           height: 4px;
-          background: #e0e0e0;
+          background: var(--rm-border);
           border-radius: 2px;
           overflow: hidden;
 
           .roadmap-progress-fill {
             height: 100%;
-            background: #4caf50;
+            background: var(--rm-done);
             transition: width 0.3s ease;
           }
         }
@@ -691,7 +693,7 @@ const formatDate = (date) => {
         align-items: center;
         gap: 0.25rem;
         font-size: 13px;
-        color: #999;
+        color: var(--rm-muted);
 
         svg {
           width: 16px;
@@ -706,7 +708,7 @@ const formatDate = (date) => {
     gap: 8px;
     margin-top: 12px;
     padding-top: 12px;
-    border-top: 1px solid #f0f0f0;
+    border-top: 1px solid var(--rm-border);
 
     button {
       font-size: 13px;
@@ -717,11 +719,11 @@ const formatDate = (date) => {
   .roadmap-timeline-item-dates {
     margin-top: 0.75rem;
     padding-top: 0.75rem;
-    border-top: 1px solid #f0f0f0;
+    border-top: 1px solid var(--rm-border);
 
     span {
       font-size: 12px;
-      color: #999;
+      color: var(--rm-muted);
     }
   }
 }
@@ -747,14 +749,14 @@ const formatDate = (date) => {
         content: '';
         width: 20px;
         height: 20px;
-        background: white;
-        border: 3px solid #667eea;
+        background: var(--rm-surface);
+        border: 3px solid var(--roadmap-accent);
         border-radius: 50%;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
       }
 
       &.active:before {
-        background: #667eea;
+        background: var(--roadmap-accent);
         width: 24px;
         height: 24px;
       }
@@ -762,78 +764,11 @@ const formatDate = (date) => {
       .roadmap-timeline-marker-label {
         font-size: 13px;
         font-weight: 600;
-        color: #666;
-        background: white;
+        color: var(--rm-muted);
+        background: var(--rm-surface);
         padding: 0.25rem 0.75rem;
         border-radius: 20px;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-      }
-    }
-  }
-}
-
-// Dark mode
-.roadmap-dark .roadmap-timeline {
-  background: #1e1e1e;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-
-  .roadmap-timeline-header {
-    background: linear-gradient(135deg, #4c5270 0%, #5a4a6d 100%);
-  }
-
-  .roadmap-timeline-section {
-    background: #2a2a2a;
-
-    h3 {
-      color: #f0f0f0;
-    }
-
-    .roadmap-timeline-period {
-      background: #333;
-      color: #ccc;
-    }
-  }
-
-  .roadmap-timeline-item {
-    background: #333;
-
-    &:hover {
-      border-color: #8b92ff;
-    }
-
-    h4 {
-      color: #f0f0f0;
-    }
-
-    p {
-      color: #ccc;
-    }
-
-    .roadmap-timeline-status {
-      background: #1a237e;
-      color: #82b1ff;
-    }
-
-    .roadmap-timeline-category {
-      background: #4a148c;
-      color: #e1bee7;
-    }
-  }
-
-  .roadmap-visual-timeline {
-    .roadmap-timeline-marker {
-      &:before {
-        background: #1e1e1e;
-        border-color: #8b92ff;
-      }
-
-      &.active:before {
-        background: #8b92ff;
-      }
-
-      .roadmap-timeline-marker-label {
-        background: #2a2a2a;
-        color: #f0f0f0;
       }
     }
   }

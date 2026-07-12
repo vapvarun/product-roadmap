@@ -16,8 +16,10 @@ Product Roadmap offers a robust free version with optional Pro addon for advance
 | Shortcode display | ✓ | ✓ |
 | Changelog feature | ✓ | ✓ |
 | REST API | ✓ | ✓ |
-| Kanban, List, Grid templates | ✓ | ✓ |
-| Idea Box template | ✓ | ✓ |
+| Theme-aware styling & dark mode | ✓ | ✓ |
+| Minimal layout | ✓ | ✓ |
+| **Board / List / Cards templates** | — | ✓ |
+| **Idea Box template** | — | ✓ |
 | Single item pages | ✓ | ✓ |
 | **Analytics Dashboard** | — | ✓ |
 | **Multi-Product Support** | — | ✓ |
@@ -57,12 +59,13 @@ The free version is perfect if you:
 - Vote count display
 
 **Display Options**
-- Kanban board template
-- List view template
-- Grid view template
-- Idea Box template for feedback
+- Minimal layout (clean, single-column roadmap)
+- Theme-aware styling that adopts your accent color
+- Dark mode driven by your theme's own light/dark toggle
 - Shortcode with filtering options
 - Single item pages
+
+*(Board, List, Cards, Timeline, and Idea Box layouts are Pro.)*
 
 **Developer Features**
 - REST API for integrations

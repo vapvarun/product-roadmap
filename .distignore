@@ -70,3 +70,19 @@ phpcs.xml.dist
 # - build.sh (build instructions)
 # - package.json (dependencies)
 # - README.md (documentation)
+# Dev tooling added for release gating (not for distribution)
+vendor
+composer.json
+composer.lock
+phpstan.neon
+phpstan-bootstrap.php
+phpstan-baseline.neon
+audit
+plan
+.contract-audit-baseline.json
+
+# Repo documentation (not shipped to customers)
+docs
+
+# Internal marketing assets (not shipped)
+marketing

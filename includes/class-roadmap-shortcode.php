@@ -110,6 +110,17 @@ class Roadmap_Shortcode {
 		</div>
 		<?php
 
+		/**
+		 * Fires after the main roadmap app container is output.
+		 *
+		 * Lets the Pro addon inject additional UI (such as the analytics tab)
+		 * after the board. Receives the resolved shortcode attributes,
+		 * including 'product'.
+		 *
+		 * @param array $atts The resolved shortcode attributes.
+		 */
+		do_action( 'roadmap_after_main_content', $atts );
+
 		return ob_get_clean();
 	}
 
@@ -296,10 +307,20 @@ class Roadmap_Shortcode {
             .roadmap-changelog {
                 max-width: 800px;
                 margin: 0 auto;
+                /* Chrome tokens: adopt the theme accent, fall back to plugin blue. */
+                --roadmap-accent: var(--wp--preset--color--primary, #2271b1);
+                --rc-surface: #ffffff;
+                --rc-surface-alt: #f9fafb;
+                --rc-border: #e5e7eb;
+                --rc-border-soft: #f3f4f6;
+                --rc-fg: #1f2937;
+                --rc-text: #374151;
+                --rc-desc: #4b5563;
+                --rc-muted: #6b7280;
             }
             .roadmap-changelog-version {
-                background: #fff;
-                border: 1px solid #e5e7eb;
+                background: var(--rc-surface);
+                border: 1px solid var(--rc-border);
                 border-radius: 8px;
                 margin-bottom: 20px;
                 overflow: hidden;
@@ -309,27 +330,29 @@ class Roadmap_Shortcode {
                 justify-content: space-between;
                 align-items: center;
                 padding: 16px 20px;
-                background: #f9fafb;
-                border-bottom: 1px solid #e5e7eb;
+                background: var(--rc-surface-alt);
+                border-bottom: 1px solid var(--rc-border);
             }
             .roadmap-changelog-title {
                 margin: 0;
                 font-size: 18px;
                 font-weight: 600;
+                color: var(--rc-fg);
             }
             .roadmap-changelog-title .version-number {
-                color: #1f2937;
+                color: var(--rc-fg);
             }
             .roadmap-changelog-date {
-                color: #6b7280;
+                color: var(--rc-muted);
                 font-size: 14px;
             }
             .roadmap-changelog-content {
                 padding: 20px;
+                background: var(--rc-surface);
             }
             .roadmap-changelog-description {
                 margin-bottom: 16px;
-                color: #4b5563;
+                color: var(--rc-desc);
                 line-height: 1.6;
             }
             .roadmap-changelog-items {
@@ -342,7 +365,7 @@ class Roadmap_Shortcode {
                 align-items: flex-start;
                 gap: 12px;
                 padding: 10px 0;
-                border-bottom: 1px solid #f3f4f6;
+                border-bottom: 1px solid var(--rc-border-soft);
             }
             .roadmap-changelog-item:last-child {
                 border-bottom: none;
@@ -357,7 +380,7 @@ class Roadmap_Shortcode {
                 flex-shrink: 0;
             }
             .roadmap-changelog-item-text {
-                color: #374151;
+                color: var(--rc-text);
                 line-height: 1.5;
             }
             .roadmap-changelog-toggle {
@@ -385,9 +408,9 @@ class Roadmap_Shortcode {
             .roadmap-changelog-empty {
                 text-align: center;
                 padding: 40px;
-                color: #6b7280;
+                color: var(--rc-muted);
             }
-            /* Release type badges */
+            /* Release type badges (semantic colours kept intentionally). */
             .changelog-major .roadmap-changelog-header {
                 border-left: 4px solid #dc2626;
             }
@@ -396,6 +419,22 @@ class Roadmap_Shortcode {
             }
             .changelog-patch .roadmap-changelog-header {
                 border-left: 4px solid #16a34a;
+            }
+            /* Dark mode: driven only by the theme own toggle (never OS). Pure token swap. */
+            html[data-bx-mode="dark"] .roadmap-changelog,
+            html[data-mode="dark"] .roadmap-changelog,
+            body.buddyx-dark-theme .roadmap-changelog,
+            body.buddyx-dark-style-variation .roadmap-changelog,
+            body.dark-scheme .roadmap-changelog,
+            body.reign-ld-dark-theme .roadmap-changelog {
+                --rc-surface: #2a2f36;
+                --rc-surface-alt: #23272e;
+                --rc-border: #3a4048;
+                --rc-border-soft: #333940;
+                --rc-fg: #e2e4e7;
+                --rc-text: #d3d6da;
+                --rc-desc: #c3c7cc;
+                --rc-muted: #9ca3af;
             }
         '
 		);
@@ -456,12 +495,24 @@ class Roadmap_Shortcode {
 				);
 			}
 		} else {
-			// Production mode - use built assets
+			// Production mode - use built assets.
+			// Bust the browser cache on every rebuilt bundle, not just on a version
+			// bump: a hotfix rebuild under the same tag otherwise serves the stale
+			// asset to anyone who already cached it. filemtime() changes whenever the
+			// file is rewritten and falls back to the plugin version if unreadable.
+			$js_path  = ROADMAP_PLUGIN_PATH . 'assets/js/roadmap-app.js';
+			$css_path = ROADMAP_PLUGIN_PATH . 'assets/css/roadmap-app.css';
+			$js_ver   = file_exists( $js_path ) ? filemtime( $js_path ) : $version;
+			$css_ver  = file_exists( $css_path ) ? filemtime( $css_path ) : $version;
+
+			// No 'wp-api' dependency: the Vue app talks to REST via fetch(), and
+			// depending on wp-api loads wp-includes/js/wp-api.min.js, which throws
+			// "_.each is not a function" on newer WordPress/Underscore builds.
 			wp_enqueue_script(
 				'roadmap-vue-app',
 				ROADMAP_PLUGIN_URL . 'assets/js/roadmap-app.js',
-				array( 'wp-api' ),
-				$version,
+				array(),
+				$js_ver,
 				true
 			);
 
@@ -469,7 +520,7 @@ class Roadmap_Shortcode {
 				'roadmap-vue-app',
 				ROADMAP_PLUGIN_URL . 'assets/css/roadmap-app.css',
 				array(),
-				$version
+				$css_ver
 			);
 
 			// Enqueue RTL styles if needed

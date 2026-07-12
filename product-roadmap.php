@@ -3,7 +3,7 @@
  * Plugin Name: Product Roadmap
  * Plugin URI: https://wbcomdesigns.com/plugins/product-roadmap/
  * Description: Create public product roadmaps to share your vision, collect user feedback, and build products your customers actually want.
- * Version: 1.6.0
+ * Version: 1.7.0
  * Author: wbcomdesigns
  * Author URI: https://wbcomdesigns.com/
  * License: GPL v2 or later
@@ -18,7 +18,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('ROADMAP_VERSION', '1.6.0');
+define('ROADMAP_VERSION', '1.7.0');
 define('ROADMAP_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('ROADMAP_PLUGIN_PATH', plugin_dir_path(__FILE__));
 define('ROADMAP_PLUGIN_BASENAME', plugin_basename(__FILE__));
@@ -50,9 +50,6 @@ class RoadmapPlugin {
         require_once ROADMAP_PLUGIN_PATH . 'includes/class-roadmap-admin.php';
         require_once ROADMAP_PLUGIN_PATH . 'includes/class-roadmap-demo-import.php';
         require_once ROADMAP_PLUGIN_PATH . 'includes/class-roadmap-setup-wizard.php';
-        require_once ROADMAP_PLUGIN_PATH . 'includes/class-roadmap-voting.php';
-        require_once ROADMAP_PLUGIN_PATH . 'includes/class-roadmap-comments.php';
-        require_once ROADMAP_PLUGIN_PATH . 'includes/class-roadmap-suggestions.php';
         require_once ROADMAP_PLUGIN_PATH . 'includes/class-roadmap-template.php';
         require_once ROADMAP_PLUGIN_PATH . 'includes/class-roadmap-changelog.php';
     }
@@ -72,9 +69,6 @@ class RoadmapPlugin {
         Roadmap_Permissions::get_instance();
         Roadmap_Notifications::get_instance();
         Roadmap_Admin::get_instance();
-        Roadmap_Voting::get_instance();
-        Roadmap_Comments::get_instance();
-        Roadmap_Suggestions::get_instance();
         Roadmap_Template::get_instance();
         Roadmap_Changelog::get_instance();
 
@@ -83,6 +77,9 @@ class RoadmapPlugin {
     }
     
     public function init() {
+        // Load translations.
+        load_plugin_textdomain( 'product-roadmap', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
+
         // Check if pro addon is active
         if (!defined('ROADMAP_PRO_ACTIVE')) {
             define('ROADMAP_PRO_ACTIVE', false);
@@ -112,6 +109,11 @@ class RoadmapPlugin {
 
             // Flush rewrite rules
             flush_rewrite_rules();
+
+            // Run table migrations so existing installs pick up new columns/indexes.
+            // create_tables() runs dbDelta for columns and then adds the votes
+            // indexes via upgrade_votes_indexes().
+            $this->create_tables();
 
             // Update stored version
             update_option('roadmap_version', ROADMAP_VERSION);
@@ -225,11 +227,48 @@ class RoadmapPlugin {
             UNIQUE KEY user_item (user_id, item_id),
             UNIQUE KEY guest_item (guest_ip, item_id),
             KEY item_id (item_id),
-            KEY guest_ip (guest_ip)
+            KEY guest_ip (guest_ip),
+            KEY created_at (created_at),
+            KEY item_created (item_id, created_at)
         ) $charset_collate;";
         
         require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
         dbDelta($sql_votes);
+
+        // Fresh tables get the indexes from the CREATE above; existing tables are
+        // migrated by upgrade_votes_indexes() (dbDelta won't add them reliably).
+        $this->upgrade_votes_indexes();
+    }
+
+    /**
+     * Ensure the votes table has the created_at / item_created indexes.
+     *
+     * dbDelta does not reliably add indexes to an existing table, so add them
+     * explicitly and idempotently. Speeds up every date-window vote query
+     * (analytics charts, digests) at scale.
+     */
+    private function upgrade_votes_indexes() {
+        global $wpdb;
+        $table = $wpdb->prefix . 'roadmap_votes';
+
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        if ( $wpdb->get_var( "SHOW TABLES LIKE '{$table}'" ) !== $table ) {
+            return;
+        }
+
+        $indexes = array(
+            'created_at'   => "ALTER TABLE `{$table}` ADD KEY `created_at` (`created_at`)",
+            'item_created' => "ALTER TABLE `{$table}` ADD KEY `item_created` (`item_id`, `created_at`)",
+        );
+
+        foreach ( $indexes as $name => $alter_sql ) {
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+            $exists = $wpdb->get_var( $wpdb->prepare( "SHOW INDEX FROM `{$table}` WHERE Key_name = %s", $name ) );
+            if ( ! $exists ) {
+                // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
+                $wpdb->query( $alter_sql );
+            }
+        }
     }
     
     private function set_default_options() {

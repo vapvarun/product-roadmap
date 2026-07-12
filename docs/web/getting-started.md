@@ -40,7 +40,7 @@ Choose how your roadmap looks:
 
 | Setting | Options | Recommendation |
 |---------|---------|----------------|
-| Default Template | Kanban, List, Grid | Kanban for visual appeal |
+| Default Template | Minimal (Board, List, Cards, Timeline, Idea Box are Pro) | Minimal for the free version |
 | Items Per Page | 10-100 | 20 for balanced loading |
 | Show Progress Bars | Yes/No | Yes for transparency |
 
@@ -113,9 +113,9 @@ Add the roadmap to any page or post.
 ### Basic Shortcode Options
 
 ```
-[roadmap]                           // Default display
+[roadmap]                           // Default display (minimal layout)
 [roadmap status="planned"]          // Show only planned items
-[roadmap template="list"]           // List view instead of kanban
+[roadmap template="list"]           // List view (Pro; free falls back to minimal)
 [roadmap show_votes="true"]         // Display vote counts
 ```
 

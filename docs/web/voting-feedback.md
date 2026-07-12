@@ -57,6 +57,7 @@ Users see vote buttons on each roadmap item:
 - **Upvote (▲)** - I want this feature
 - Vote count shows total upvotes
 - Users can see what's popular at a glance
+- After voting, the button shows a clear "Voted" state (checkmark + pill) that stays visible even on themes that restyle buttons (v1.7.0)
 
 ### Vote Display Options
 
@@ -162,7 +163,7 @@ Configure under **Roadmap > Settings > Suggestions**:
 
 Users can upvote items they support. One vote per user per item.
 
-### Idea Box Mode
+### Idea Box Mode (Pro)
 
 The Idea Box template focuses on voting and suggestions:
 
@@ -179,6 +180,8 @@ Features:
 - Clean, minimal design
 
 **Best for:** Collecting user ideas, feature request pages
+
+> **Pro Feature** - The Idea Box layout requires the Pro addon. On free installs, the roadmap uses the minimal layout.
 
 ### Combining with Statuses
 
@@ -233,17 +236,16 @@ Export voting data to CSV for analysis:
 
 ### Preventing Vote Manipulation
 
-Product Roadmap includes protections:
-- **IP tracking** - Detects same person voting multiple times
-- **Rate limiting** - Blocks rapid-fire vote attempts
-- **Cookie validation** - Ensures legitimate browser sessions
+Product Roadmap includes protections, all on by default:
+- **IP tracking** - Guest votes are tracked by IP address to limit duplicates
+- **Rate limiting** - Votes and suggestions are rate-limited (per user, or per IP for guests) to block rapid-fire attempts
+- **Suggestion honeypot** - A hidden field on the suggestion form catches bots
 
-### v1.3.1 Security Update
+There is nothing to configure - these protections are automatic.
 
-Version 1.3.1 improved vote security by:
-- Using only server-verified IP addresses
-- Preventing IP spoofing attempts via headers
-- Better detection of proxy voting
+### v1.7.0 Spam Defense
+
+Version 1.7.0 added rate limiting on votes and suggestions plus a honeypot on the suggestion form. Earlier, version 1.3.1 hardened guest voting to use only server-verified IP addresses, preventing IP spoofing via request headers.
 
 Update to the latest version for these protections.
 

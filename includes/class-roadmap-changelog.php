@@ -31,8 +31,9 @@ class Roadmap_Changelog {
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_assets' ) );
 		add_action( 'admin_menu', array( $this, 'add_changelog_menu' ), 26 );
 
-		// AJAX handlers for changelog items
-		add_action( 'wp_ajax_roadmap_add_changelog_item', array( $this, 'ajax_add_item_row' ) );
+		// AJAX handler for saving change-type colours (Settings > Changelog Types).
+		// Note: item rows are added client-side by cloning a hidden template, so
+		// there is no server-side add-item AJAX handler.
 		add_action( 'wp_ajax_roadmap_save_changelog_type_color', array( $this, 'ajax_save_changelog_type_color' ) );
 
 		// Share product taxonomy with changelog
@@ -821,7 +822,7 @@ class Roadmap_Changelog {
 	/**
 	 * Filter changelog archive by product
 	 */
-	public function filter_changelog_by_product( $query ) {
+	public function filter_changelog_by_product( \WP_Query $query ) {
 		if ( is_admin() || ! $query->is_main_query() ) {
 			return;
 		}
@@ -848,10 +849,44 @@ class Roadmap_Changelog {
 			}
 		}
 
-		// Order by release date (stored in meta) - newest versions first
-		$query->set( 'meta_key', '_changelog_release_date' );
-		$query->set( 'orderby', 'meta_value' );
-		$query->set( 'order', 'DESC' );
+		// Order by release date (stored in meta), newest first. Ordering by a
+		// meta_key alone forces an INNER JOIN that silently drops undated entries
+		// from the archive; instead a posts_clauses filter LEFT JOINs the meta and
+		// sorts by COALESCE( release date, post date ) so undated entries stay and
+		// fall back to their publish date.
+		add_filter( 'posts_clauses', array( $this, 'order_changelog_by_release_date' ), 10, 2 );
+	}
+
+	/**
+	 * Order the changelog archive by release-date meta with a post-date fallback.
+	 *
+	 * Registered from filter_changelog_by_product() so it only affects that
+	 * query, and removes itself after running.
+	 *
+	 * @param array    $clauses SQL clauses.
+	 * @param WP_Query $query   The query.
+	 * @return array
+	 */
+	public function order_changelog_by_release_date( $clauses, $query ) {
+		global $wpdb;
+
+		remove_filter( 'posts_clauses', array( $this, 'order_changelog_by_release_date' ), 10 );
+
+		if ( is_admin() || ! $query->is_main_query() || $query->get( 'post_type' ) !== 'roadmap_changelog' ) {
+			return $clauses;
+		}
+
+		$clauses['join'] .= " LEFT JOIN {$wpdb->postmeta} AS rc_rd ON ( {$wpdb->posts}.ID = rc_rd.post_id AND rc_rd.meta_key = '_changelog_release_date' )";
+
+		// COALESCE lets undated entries fall back to their publish date instead of
+		// being excluded; NULLIF treats an empty-string meta the same as missing.
+		$clauses['orderby'] = "COALESCE( NULLIF( rc_rd.meta_value, '' ), {$wpdb->posts}.post_date ) DESC";
+
+		// LEFT JOIN on a single-value meta cannot duplicate rows, but keep the
+		// query DISTINCT-safe in case other filters add joins.
+		$clauses['groupby'] = "{$wpdb->posts}.ID";
+
+		return $clauses;
 	}
 
 	/**

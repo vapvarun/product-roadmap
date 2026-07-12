@@ -43,7 +43,7 @@ Whether you're building a SaaS product, WordPress plugin, mobile app, or any dig
 | Comments | Enable discussions on roadmap items |
 | Shortcode Display | Embed roadmaps anywhere with `[roadmap]` |
 | Changelog | Document releases with version numbers and dates |
-| Templates | Choose from Kanban board, list view, or idea box layouts |
+| Minimal Layout | Clean, theme-aware single-column roadmap (board, list, cards, timeline, and idea box layouts are Pro) |
 | Single Item Pages | Dedicated pages for each roadmap item |
 | REST API | Integrate with external tools and apps |
 
@@ -141,8 +141,8 @@ Fine-tune Product Roadmap for your needs.
 
 ## Current Version
 
-**Free Plugin:** 1.3.1
-**Pro Addon:** 1.3.1
-**Last Updated:** January 2026
+**Free Plugin:** 1.7.0
+**Pro Addon:** 1.7.0
+**Last Updated:** July 2026
 
 [View Changelog →](changelog.md#plugin-changelog)

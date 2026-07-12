@@ -285,7 +285,7 @@ class Roadmap_Settings {
 								),
 							)
 						);
-						echo esc_html( $in_progress_query->found_posts );
+						echo esc_html( (string) $in_progress_query->found_posts );
 						wp_reset_postdata();
 						?>
 					</p>
@@ -466,11 +466,6 @@ class Roadmap_Settings {
 			</div>
 		</div>
 		<?php
-	}
-
-	private function render_general_settings( $settings ) {
-		// Legacy method kept for compatibility
-		$this->render_general_settings_modern( $settings );
 	}
 
 	private function render_general_settings_modern( $settings ) {
@@ -667,11 +662,6 @@ class Roadmap_Settings {
 			</div>
 		</div>
 		<?php
-	}
-
-	private function render_notifications_settings( $settings ) {
-		// Legacy method kept for compatibility
-		$this->render_notifications_settings_modern( $settings );
 	}
 
 	private function render_notifications_settings_modern( $settings ) {
@@ -885,14 +875,14 @@ class Roadmap_Settings {
 								<div class="stat-item">
 									<span class="stat-icon dashicons dashicons-list-view"></span>
 									<div class="stat-content">
-										<span class="stat-number"><?php echo esc_html( $item_count ); ?></span>
+										<span class="stat-number"><?php echo esc_html( (string) $item_count ); ?></span>
 										<span class="stat-label"><?php echo esc_html( _n( 'Item', 'Items', $item_count, 'product-roadmap' ) ); ?></span>
 									</div>
 								</div>
 								<div class="stat-item">
 									<span class="stat-icon dashicons dashicons-thumbs-up"></span>
 									<div class="stat-content">
-										<span class="stat-number"><?php echo esc_html( $vote_count ); ?></span>
+										<span class="stat-number"><?php echo esc_html( (string) $vote_count ); ?></span>
 										<span class="stat-label"><?php echo esc_html( _n( 'Vote', 'Votes', $vote_count, 'product-roadmap' ) ); ?></span>
 									</div>
 								</div>
@@ -921,7 +911,7 @@ class Roadmap_Settings {
 									<span class="dashicons dashicons-external" style="margin-top: 4px;"></span>
 									<?php esc_html_e( 'View Roadmap', 'product-roadmap' ); ?>
 								</a>
-								<a href="#" class="button" onclick="editProductSettings('<?php echo esc_attr( $product->term_id ); ?>'); return false;">
+								<a href="#" class="button" onclick="editProductSettings('<?php echo esc_attr( (string) $product->term_id ); ?>'); return false;">
 									<span class="dashicons dashicons-admin-generic" style="margin-top: 4px;"></span>
 									<?php esc_html_e( 'Settings', 'product-roadmap' ); ?>
 								</a>
@@ -1304,11 +1294,6 @@ class Roadmap_Settings {
 		<?php
 	}
 
-	private function render_settings_styles() {
-		// Styles moved to assets/css/roadmap-admin.css
-		return;
-	}
-
 	/**
 	 * Render changelog types settings tab
 	 */
@@ -1350,7 +1335,7 @@ class Roadmap_Settings {
 									$color      = get_term_meta( $type->term_id, '_changelog_type_color', true ) ?: '#383d41';
 									$background = get_term_meta( $type->term_id, '_changelog_type_background', true ) ?: '#e2e3e5';
 									?>
-									<tr data-term-id="<?php echo esc_attr( $type->term_id ); ?>">
+									<tr data-term-id="<?php echo esc_attr( (string) $type->term_id ); ?>">
 										<td>
 											<strong><?php echo esc_html( $type->name ); ?></strong>
 										</td>
@@ -1366,14 +1351,14 @@ class Roadmap_Settings {
 											<input type="color"
 													class="changelog-type-color"
 													value="<?php echo esc_attr( $color ); ?>"
-													data-term-id="<?php echo esc_attr( $type->term_id ); ?>"
+													data-term-id="<?php echo esc_attr( (string) $type->term_id ); ?>"
 													data-field="color">
 										</td>
 										<td>
 											<input type="color"
 													class="changelog-type-background"
 													value="<?php echo esc_attr( $background ); ?>"
-													data-term-id="<?php echo esc_attr( $type->term_id ); ?>"
+													data-term-id="<?php echo esc_attr( (string) $type->term_id ); ?>"
 													data-field="background">
 										</td>
 										<td>
