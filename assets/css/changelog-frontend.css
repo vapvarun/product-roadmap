@@ -37,7 +37,7 @@
 @supports (color: oklch(from red l c h)) {
     .roadmap-changelog-wrapper,
     .roadmap-changelog-archive-wrapper {
-        --roadmap-accent-contrast: oklch(from var(--roadmap-accent) clamp(0, (0.62 - l) * 1000, 1) 0 0);
+        --roadmap-accent-contrast: oklch(from var(--roadmap-accent) clamp(0, (0.72 - l) * 1000, 1) 0 0);
     }
 }
 
