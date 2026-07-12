@@ -11,10 +11,22 @@
     margin: 0 auto;
     padding: 40px 20px;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+
+    /* Chrome tokens: adopt the theme accent, fall back to plugin blue.
+       Release-type badge colours are intentionally left semantic. */
+    --roadmap-accent: var(--wp--preset--color--primary, #2271b1);
+    --roadmap-accent-hover: color-mix(in srgb, var(--roadmap-accent) 85%, #000);
+    --rc-surface: #ffffff;
+    --rc-surface-alt: #f8fafc;
+    --rc-border: #e2e8f0;
+    --rc-border-soft: #cbd5e1;
+    --rc-fg: #1e293b;
+    --rc-text: #475569;
+    --rc-muted: #64748b;
 }
 
 .roadmap-changelog-article {
-    background: #fff;
+    background: var(--rc-surface);
     border-radius: 12px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
     overflow: hidden;
@@ -23,38 +35,38 @@
 /* Breadcrumb */
 .changelog-breadcrumb {
     padding: 16px 32px;
-    background: #f8fafc;
-    border-bottom: 1px solid #e2e8f0;
+    background: var(--rc-surface-alt);
+    border-bottom: 1px solid var(--rc-border);
     font-size: 14px;
-    color: #64748b;
+    color: var(--rc-muted);
 }
 
 .changelog-breadcrumb a {
-    color: #3b82f6;
+    color: var(--roadmap-accent);
     text-decoration: none;
     transition: color 0.2s;
 }
 
 .changelog-breadcrumb a:hover {
-    color: #1d4ed8;
+    color: var(--roadmap-accent-hover);
     text-decoration: underline;
 }
 
 .changelog-breadcrumb .separator {
     margin: 0 8px;
-    color: #cbd5e1;
+    color: var(--rc-border-soft);
 }
 
 /* Header */
 .changelog-entry-header {
     padding: 32px;
-    border-bottom: 1px solid #e2e8f0;
+    border-bottom: 1px solid var(--rc-border);
 }
 
 .changelog-entry-title {
     font-size: 32px;
     font-weight: 700;
-    color: #1e293b;
+    color: var(--rc-fg);
     margin: 0 0 20px;
     line-height: 1.2;
 }
@@ -70,7 +82,7 @@
 .changelog-version-badge {
     display: inline-flex;
     align-items: center;
-    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    background: linear-gradient(135deg, var(--roadmap-accent) 0%, var(--roadmap-accent-hover) 100%);
     color: #fff;
     border-radius: 6px;
     overflow: hidden;
@@ -95,7 +107,7 @@
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    color: #64748b;
+    color: var(--rc-muted);
     font-size: 14px;
 }
 
@@ -132,7 +144,7 @@
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    color: #64748b;
+    color: var(--rc-muted);
     font-size: 14px;
 }
 
@@ -143,8 +155,8 @@
 /* Description */
 .changelog-description {
     padding: 32px;
-    border-bottom: 1px solid #e2e8f0;
-    color: #475569;
+    border-bottom: 1px solid var(--rc-border);
+    color: var(--rc-text);
     font-size: 16px;
     line-height: 1.7;
 }
@@ -168,7 +180,7 @@
     gap: 10px;
     font-size: 20px;
     font-weight: 600;
-    color: #1e293b;
+    color: var(--rc-fg);
     margin: 0 0 24px;
 }
 
@@ -187,7 +199,7 @@
     align-items: flex-start;
     gap: 12px;
     padding: 16px 0;
-    border-bottom: 1px solid #f1f5f9;
+    border-bottom: 1px solid var(--rc-surface-alt);
 }
 
 .changelog-item:last-child {
@@ -219,7 +231,7 @@
 }
 
 .changelog-item-text {
-    color: #334155;
+    color: var(--rc-text);
     font-size: 15px;
     line-height: 1.6;
     padding-top: 4px;
@@ -228,8 +240,8 @@
 /* Footer */
 .changelog-entry-footer {
     padding: 24px 32px;
-    background: #f8fafc;
-    border-top: 1px solid #e2e8f0;
+    background: var(--rc-surface-alt);
+    border-top: 1px solid var(--rc-border);
 }
 
 /* Navigation */
@@ -244,15 +256,15 @@
     display: flex;
     flex-direction: column;
     padding: 16px;
-    background: #fff;
-    border: 1px solid #e2e8f0;
+    background: var(--rc-surface);
+    border: 1px solid var(--rc-border);
     border-radius: 8px;
     text-decoration: none;
     transition: all 0.2s;
 }
 
 .changelog-nav-link:not(.disabled):hover {
-    border-color: #3b82f6;
+    border-color: var(--roadmap-accent);
     box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
 }
 
@@ -266,7 +278,7 @@
 
 .changelog-nav-link .nav-label {
     font-size: 12px;
-    color: #64748b;
+    color: var(--rc-muted);
     text-transform: uppercase;
     letter-spacing: 0.5px;
     margin-bottom: 4px;
@@ -275,7 +287,7 @@
 .changelog-nav-link .nav-title {
     font-size: 14px;
     font-weight: 600;
-    color: #1e293b;
+    color: var(--rc-fg);
 }
 
 /* View all link */
@@ -287,7 +299,7 @@
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    color: #3b82f6;
+    color: var(--roadmap-accent);
     font-size: 14px;
     font-weight: 500;
     text-decoration: none;
@@ -295,7 +307,7 @@
 }
 
 .view-all-link:hover {
-    color: #1d4ed8;
+    color: var(--roadmap-accent-hover);
 }
 
 .view-all-link svg {
@@ -317,7 +329,7 @@
 
 .roadmap-changelog-single .changelog-version {
     display: inline-block;
-    background: #3b82f6;
+    background: var(--roadmap-accent);
     color: #fff;
     padding: 4px 12px;
     border-radius: 4px;
@@ -326,7 +338,7 @@
 }
 
 .roadmap-changelog-single .changelog-date {
-    color: #64748b;
+    color: var(--rc-muted);
     font-size: 14px;
 }
 
@@ -354,8 +366,8 @@
 }
 
 .roadmap-changelog-single .changelog-product {
-    background: #f1f5f9;
-    color: #475569;
+    background: var(--rc-surface-alt);
+    color: var(--rc-text);
     padding: 4px 10px;
     border-radius: 4px;
     font-size: 13px;
@@ -363,7 +375,7 @@
 
 .roadmap-changelog-single .changelog-description {
     margin-bottom: 24px;
-    color: #475569;
+    color: var(--rc-text);
     line-height: 1.7;
 }
 
@@ -371,7 +383,7 @@
     font-size: 18px;
     font-weight: 600;
     margin-bottom: 16px;
-    color: #1e293b;
+    color: var(--rc-fg);
 }
 
 .roadmap-changelog-single .changelog-items-list {
@@ -385,7 +397,7 @@
     align-items: flex-start;
     gap: 12px;
     padding: 12px 0;
-    border-bottom: 1px solid #f1f5f9;
+    border-bottom: 1px solid var(--rc-surface-alt);
 }
 
 .roadmap-changelog-single .changelog-items-list .changelog-item:last-child {
@@ -402,7 +414,7 @@
 }
 
 .roadmap-changelog-single .changelog-item-description {
-    color: #334155;
+    color: var(--rc-text);
     line-height: 1.5;
 }
 
@@ -416,12 +428,12 @@
 .roadmap-changelog-archive-list h1 {
     font-size: 32px;
     font-weight: 700;
-    color: #1e293b;
+    color: var(--rc-fg);
     margin-bottom: 32px;
 }
 
 .changelog-archive-item {
-    background: #fff;
+    background: var(--rc-surface);
     border-radius: 12px;
     padding: 24px;
     margin-bottom: 16px;
@@ -442,12 +454,12 @@
 .changelog-archive-item h2 {
     font-size: 20px;
     font-weight: 600;
-    color: #1e293b;
+    color: var(--rc-fg);
     margin: 0 0 12px;
 }
 
 .changelog-archive-item h2:hover {
-    color: #3b82f6;
+    color: var(--roadmap-accent);
 }
 
 .changelog-archive-meta {
@@ -458,7 +470,7 @@
 }
 
 .changelog-archive-summary {
-    color: #64748b;
+    color: var(--rc-muted);
     font-size: 14px;
 }
 
@@ -478,13 +490,13 @@
 .changelog-archive-title {
     font-size: 36px;
     font-weight: 700;
-    color: #1e293b;
+    color: var(--rc-fg);
     margin: 0 0 12px;
 }
 
 .changelog-archive-description {
     font-size: 18px;
-    color: #64748b;
+    color: var(--rc-muted);
     margin: 0 0 24px;
 }
 
@@ -497,7 +509,7 @@
 }
 
 .changelog-product-filter .filter-label {
-    color: #64748b;
+    color: var(--rc-muted);
     font-size: 14px;
     font-weight: 500;
 }
@@ -506,13 +518,13 @@
     appearance: none;
     -webkit-appearance: none;
     -moz-appearance: none;
-    background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") no-repeat right 12px center;
-    border: 1px solid #e2e8f0;
+    background: var(--rc-surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") no-repeat right 12px center;
+    border: 1px solid var(--rc-border);
     border-radius: 8px;
     padding: 10px 40px 10px 16px;
     font-size: 14px;
     font-weight: 500;
-    color: #1e293b;
+    color: var(--rc-fg);
     cursor: pointer;
     min-width: 200px;
     transition: all 0.2s;
@@ -520,13 +532,13 @@
 }
 
 .changelog-product-dropdown:hover {
-    border-color: #cbd5e1;
+    border-color: var(--rc-border-soft);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
 }
 
 .changelog-product-dropdown:focus {
     outline: none;
-    border-color: #3b82f6;
+    border-color: var(--roadmap-accent);
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
 }
 
@@ -539,14 +551,14 @@
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    color: #64748b;
+    color: var(--rc-muted);
     font-size: 14px;
     text-decoration: none;
     transition: color 0.2s;
 }
 
 .changelog-back-link:hover {
-    color: #3b82f6;
+    color: var(--roadmap-accent);
 }
 
 .changelog-back-link svg {
@@ -565,10 +577,10 @@
 }
 
 .changelog-archive-item {
-    background: #fff;
+    background: var(--rc-surface);
     border-radius: 12px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-    border: 1px solid #e2e8f0;
+    border: 1px solid var(--rc-border);
     transition: all 0.2s;
     overflow: hidden;
 }
@@ -576,7 +588,7 @@
 .changelog-archive-item:hover {
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
     transform: translateY(-2px);
-    border-color: #3b82f6;
+    border-color: var(--roadmap-accent);
 }
 
 .changelog-archive-item > a {
@@ -593,13 +605,13 @@
 .changelog-archive-item h2 {
     font-size: 20px;
     font-weight: 600;
-    color: #1e293b;
+    color: var(--rc-fg);
     margin: 0 0 12px;
     transition: color 0.2s;
 }
 
 .changelog-archive-item:hover h2 {
-    color: #3b82f6;
+    color: var(--roadmap-accent);
 }
 
 .changelog-archive-meta {
@@ -610,7 +622,7 @@
 }
 
 .changelog-archive-meta .changelog-version {
-    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    background: linear-gradient(135deg, var(--roadmap-accent) 0%, var(--roadmap-accent-hover) 100%);
     color: #fff;
     padding: 4px 10px;
     border-radius: 4px;
@@ -619,7 +631,7 @@
 }
 
 .changelog-archive-meta .changelog-date {
-    color: #64748b;
+    color: var(--rc-muted);
     font-size: 13px;
 }
 
@@ -648,8 +660,8 @@
 }
 
 .changelog-archive-meta .changelog-product-badge {
-    background: #f1f5f9;
-    color: #475569;
+    background: var(--rc-surface-alt);
+    color: var(--rc-text);
     padding: 3px 10px;
     border-radius: 4px;
     font-size: 12px;
@@ -657,13 +669,13 @@
 }
 
 .changelog-archive-summary {
-    color: #64748b;
+    color: var(--rc-muted);
     font-size: 14px;
     margin-bottom: 12px;
 }
 
 .changelog-type-summary {
-    color: #94a3b8;
+    color: var(--rc-muted);
 }
 
 /* Preview Items */
@@ -671,7 +683,7 @@
     list-style: none;
     margin: 0;
     padding: 16px;
-    background: #f8fafc;
+    background: var(--rc-surface-alt);
     border-radius: 8px;
 }
 
@@ -680,7 +692,7 @@
     align-items: center;
     gap: 10px;
     padding: 8px 0;
-    border-bottom: 1px solid #e2e8f0;
+    border-bottom: 1px solid var(--rc-border);
 }
 
 .changelog-preview-item:last-child {
@@ -703,13 +715,13 @@
 }
 
 .changelog-preview-text {
-    color: #475569;
+    color: var(--rc-text);
     font-size: 13px;
     line-height: 1.4;
 }
 
 .changelog-preview-more {
-    color: #3b82f6;
+    color: var(--roadmap-accent);
     font-size: 13px;
     font-weight: 500;
     padding-top: 8px;
@@ -719,9 +731,9 @@
 .changelog-no-results {
     text-align: center;
     padding: 80px 40px;
-    background: #f8fafc;
+    background: var(--rc-surface-alt);
     border-radius: 12px;
-    color: #64748b;
+    color: var(--rc-muted);
 }
 
 .changelog-no-results svg {
@@ -732,7 +744,7 @@
 .changelog-no-results h2 {
     font-size: 20px;
     font-weight: 600;
-    color: #1e293b;
+    color: var(--rc-fg);
     margin: 0 0 8px;
 }
 
@@ -764,10 +776,10 @@
     min-width: 40px;
     height: 40px;
     padding: 0 12px;
-    background: #fff;
-    border: 1px solid #e2e8f0;
+    background: var(--rc-surface);
+    border: 1px solid var(--rc-border);
     border-radius: 8px;
-    color: #64748b;
+    color: var(--rc-muted);
     font-size: 14px;
     text-decoration: none;
     transition: all 0.2s;
@@ -775,15 +787,15 @@
 
 .changelog-pagination .page-numbers:hover,
 .navigation.pagination .page-numbers:hover {
-    background: #f1f5f9;
-    border-color: #cbd5e1;
-    color: #1e293b;
+    background: var(--rc-surface-alt);
+    border-color: var(--rc-border-soft);
+    color: var(--rc-fg);
 }
 
 .changelog-pagination .page-numbers.current,
 .navigation.pagination .page-numbers.current {
-    background: #3b82f6;
-    border-color: #3b82f6;
+    background: var(--roadmap-accent);
+    border-color: var(--roadmap-accent);
     color: #fff;
 }
 
@@ -883,7 +895,7 @@
 
 .roadmap-plugin-filter-label {
     font-weight: 500;
-    color: #475569;
+    color: var(--rc-text);
     font-size: 0.9375rem;
 }
 
@@ -894,15 +906,15 @@
 
 .select2-container--roadmap-plugin .select2-selection--single {
     height: 52px !important;
-    border: 2px solid #cbd5e1 !important;
+    border: 2px solid var(--rc-border-soft) !important;
     border-radius: 12px !important;
-    background-color: #fff;
+    background-color: var(--rc-surface);
     transition: border-color 0.2s, box-shadow 0.2s;
     box-sizing: border-box;
 }
 
 .select2-container--roadmap-plugin .select2-selection--single:hover {
-    border-color: #94a3b8;
+    border-color: var(--rc-muted);
 }
 
 .select2-container--roadmap-plugin.select2-container--focus .select2-selection--single,
@@ -941,7 +953,7 @@
 }
 
 .select2-container--roadmap-plugin .select2-dropdown {
-    border: 2px solid #e2e8f0;
+    border: 2px solid var(--rc-border);
     border-radius: 10px;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
     margin-top: 6px;
@@ -950,13 +962,13 @@
 
 .select2-container--roadmap-plugin .select2-search--dropdown {
     padding: 12px;
-    background: #f8fafc;
-    border-bottom: 1px solid #e5e7eb;
+    background: var(--rc-surface-alt);
+    border-bottom: 1px solid var(--rc-border);
 }
 
 .select2-container--roadmap-plugin .select2-search--dropdown .select2-search__field {
     height: 52px !important;
-    border: 2px solid #cbd5e1 !important;
+    border: 2px solid var(--rc-border-soft) !important;
     border-radius: 12px !important;
     padding: 0 16px !important;
     font-size: 0.9375rem;
@@ -1012,7 +1024,7 @@
 
 .select2-container--roadmap-plugin .select2-results__option .roadmap-plugin-option-count {
     font-size: 0.75rem;
-    background: #e5e7eb;
+    background: var(--rc-border);
     color: #6b7280;
     padding: 2px 8px;
     border-radius: 9999px;
@@ -1042,4 +1054,23 @@
 /* Hide native select when Select2 is active */
 .roadmap-plugin-select2 {
     width: 100% !important;
+}
+
+/* ============================ Dark mode ============================ */
+/* Driven ONLY by the theme's own light/dark toggle (never the OS colour
+   scheme). Every chrome rule reads the tokens above, so dark mode is a pure
+   token swap; semantic release-type badge colours are left unchanged. */
+html[data-bx-mode="dark"] .roadmap-changelog-wrapper,
+html[data-mode="dark"] .roadmap-changelog-wrapper,
+body.buddyx-dark-theme .roadmap-changelog-wrapper,
+body.buddyx-dark-style-variation .roadmap-changelog-wrapper,
+body.dark-scheme .roadmap-changelog-wrapper,
+body.reign-ld-dark-theme .roadmap-changelog-wrapper {
+    --rc-surface: #2a2f36;
+    --rc-surface-alt: #23272e;
+    --rc-border: #3a4048;
+    --rc-border-soft: #454c55;
+    --rc-fg: #e2e4e7;
+    --rc-text: #c3c7cc;
+    --rc-muted: #9ca3af;
 }
