@@ -267,6 +267,9 @@ const items = ref([])
 const currentPage = ref(1)
 const totalItems = ref(0)
 const totalPages = ref(0)
+// Bumped on every fresh fetch (e.g. product/filter change) so a slow in-flight
+// loadMore response for the previous product is discarded instead of appended.
+const fetchGeneration = ref(0)
 const statuses = ref([])
 const categories = ref([])
 const products = ref([])
@@ -439,16 +442,18 @@ const fetchItems = async () => {
   loading.value = true
   error.value = null
   currentPage.value = 1
+  const gen = ++fetchGeneration.value
 
   try {
     const response = await fetchItemsPage(1)
+    if (gen !== fetchGeneration.value) return // superseded by a newer fetch
     items.value = response.items || []
     totalItems.value = response.total ?? items.value.length
     totalPages.value = response.pages ?? 1
   } catch (err) {
-    error.value = err.message || props.config.i18n.error
+    if (gen === fetchGeneration.value) error.value = err.message || props.config.i18n.error
   } finally {
-    loading.value = false
+    if (gen === fetchGeneration.value) loading.value = false
   }
 }
 
@@ -458,17 +463,27 @@ const loadMore = async () => {
     return
   }
   loadingMore.value = true
+  const gen = fetchGeneration.value
   try {
     const next = currentPage.value + 1
     const response = await fetchItemsPage(next)
-    if (response.items && response.items.length) {
-      items.value = [...items.value, ...response.items]
+    if (gen !== fetchGeneration.value) return // product/filter changed mid-flight; discard
+    const fetched = response.items || []
+    if (fetched.length) {
+      items.value = [...items.value, ...fetched]
       currentPage.value = next
       totalItems.value = response.total ?? totalItems.value
       totalPages.value = response.pages ?? totalPages.value
     }
+    // Stop showing the button once the server runs out of rows, even if the
+    // reported total disagrees with the number of rows actually returned
+    // (deleted items, or a pro filter that makes count and rows disagree).
+    const perPage = props.config.settings?.items_per_page || 100
+    if (fetched.length < perPage || next >= totalPages.value) {
+      totalItems.value = items.value.length
+    }
   } catch (err) {
-    error.value = err.message || props.config.i18n.error
+    if (gen === fetchGeneration.value) error.value = err.message || props.config.i18n.error
   } finally {
     loadingMore.value = false
   }

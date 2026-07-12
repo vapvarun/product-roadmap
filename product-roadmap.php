@@ -117,8 +117,9 @@ class RoadmapPlugin {
             flush_rewrite_rules();
 
             // Run table migrations so existing installs pick up new columns/indexes.
-            $this->create_tables();         // adds any new columns via dbDelta
-            $this->upgrade_votes_indexes(); // dbDelta cannot reliably add indexes to existing tables
+            // create_tables() runs dbDelta for columns and then adds the votes
+            // indexes via upgrade_votes_indexes().
+            $this->create_tables();
 
             // Update stored version
             update_option('roadmap_version', ROADMAP_VERSION);

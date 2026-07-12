@@ -74,7 +74,7 @@ class Roadmap_Demo_Import {
         check_ajax_referer('roadmap_dismiss_notice', 'nonce');
 
         if (!current_user_can('manage_options')) {
-            wp_die(-1, 403);
+            wp_send_json_error(array('message' => __('Permission denied.', 'product-roadmap')), 403);
         }
 
         update_option('roadmap_setup_notice_dismissed', true);
