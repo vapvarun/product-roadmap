@@ -2,7 +2,7 @@
   "header": {
     "name": "Product Roadmap",
     "slug": "product-roadmap",
-    "version": "1.6.0",
+    "version": "1.7.0",
     "textDomain": "product-roadmap",
     "domainPath": "/languages",
     "requiresWP": "5.8",
@@ -82,17 +82,7 @@
     "shortcodes": [],
     "blocks": [],
     "restRoutes": [],
-    "ajaxHandlers": [
-      {
-        "action": "roadmap_vote",
-        "callback": "handle_vote",
-        "loggedIn": true,
-        "loggedOut": true,
-        "hasNonceCheck": false,
-        "file": "includes/class-roadmap-voting.php",
-        "line": 19
-      }
-    ],
+    "ajaxHandlers": [],
     "adminPages": [
       {
         "slug": "roadmap-changelog",
@@ -198,7 +188,7 @@
         "writtenAt": [
           {
             "file": "includes/class-roadmap-api.php",
-            "line": 986,
+            "line": 995,
             "kind": "write",
             "enforces": false
           }
@@ -206,37 +196,37 @@
         "readAt": [
           {
             "file": "includes/class-roadmap-api.php",
-            "line": 631,
+            "line": 640,
             "kind": "read",
             "enforces": false
           },
           {
             "file": "includes/class-roadmap-api.php",
-            "line": 750,
+            "line": 759,
             "kind": "read",
             "enforces": false
           },
           {
             "file": "includes/class-roadmap-api.php",
-            "line": 864,
+            "line": 873,
             "kind": "read",
             "enforces": false
           },
           {
             "file": "includes/class-roadmap-api.php",
-            "line": 964,
+            "line": 973,
             "kind": "read",
             "enforces": false
           },
           {
             "file": "includes/class-roadmap-api.php",
-            "line": 1216,
+            "line": 1225,
             "kind": "read",
             "enforces": false
           },
           {
             "file": "includes/class-roadmap-api.php",
-            "line": 1224,
+            "line": 1233,
             "kind": "read",
             "enforces": false
           },
@@ -278,19 +268,19 @@
           },
           {
             "file": "includes/class-roadmap-shortcode.php",
-            "line": 695,
+            "line": 706,
             "kind": "read",
             "enforces": false
           },
           {
             "file": "includes/class-roadmap-shortcode.php",
-            "line": 703,
+            "line": 714,
             "kind": "read",
             "enforces": false
           },
           {
             "file": "includes/class-roadmap-shortcode.php",
-            "line": 710,
+            "line": 721,
             "kind": "read",
             "enforces": false
           }
@@ -304,7 +294,7 @@
         "readAt": [
           {
             "file": "includes/class-roadmap-api.php",
-            "line": 657,
+            "line": 666,
             "kind": "read",
             "enforces": false
           },
@@ -322,7 +312,7 @@
           },
           {
             "file": "includes/class-roadmap-demo-import.php",
-            "line": 335,
+            "line": 340,
             "kind": "read",
             "enforces": false
           }
@@ -343,13 +333,13 @@
         "readAt": [
           {
             "file": "includes/class-roadmap-api.php",
-            "line": 866,
+            "line": 875,
             "kind": "read",
             "enforces": false
           },
           {
             "file": "includes/class-roadmap-api.php",
-            "line": 1217,
+            "line": 1226,
             "kind": "read",
             "enforces": false
           },
@@ -379,7 +369,7 @@
           },
           {
             "file": "includes/class-roadmap-shortcode.php",
-            "line": 696,
+            "line": 707,
             "kind": "read",
             "enforces": false
           }
@@ -400,13 +390,13 @@
         "readAt": [
           {
             "file": "includes/class-roadmap-api.php",
-            "line": 867,
+            "line": 876,
             "kind": "read",
             "enforces": false
           },
           {
             "file": "includes/class-roadmap-api.php",
-            "line": 1218,
+            "line": 1227,
             "kind": "read",
             "enforces": false
           },
@@ -424,7 +414,7 @@
           },
           {
             "file": "includes/class-roadmap-shortcode.php",
-            "line": 697,
+            "line": 708,
             "kind": "read",
             "enforces": false
           }
@@ -445,13 +435,13 @@
         "readAt": [
           {
             "file": "includes/class-roadmap-api.php",
-            "line": 868,
+            "line": 877,
             "kind": "read",
             "enforces": false
           },
           {
             "file": "includes/class-roadmap-api.php",
-            "line": 1225,
+            "line": 1234,
             "kind": "read",
             "enforces": false
           },
@@ -481,7 +471,7 @@
           },
           {
             "file": "includes/class-roadmap-shortcode.php",
-            "line": 704,
+            "line": 715,
             "kind": "read",
             "enforces": false
           }
@@ -495,7 +485,7 @@
         "readAt": [
           {
             "file": "includes/class-roadmap-api.php",
-            "line": 869,
+            "line": 878,
             "kind": "read",
             "enforces": false
           },
@@ -519,7 +509,7 @@
           },
           {
             "file": "includes/class-roadmap-shortcode.php",
-            "line": 711,
+            "line": 722,
             "kind": "read",
             "enforces": false
           }
@@ -533,7 +523,7 @@
         "readAt": [
           {
             "file": "includes/class-roadmap-api.php",
-            "line": 870,
+            "line": 879,
             "kind": "read",
             "enforces": false
           },
@@ -553,7 +543,7 @@
         "readAt": [
           {
             "file": "includes/class-roadmap-api.php",
-            "line": 1206,
+            "line": 1215,
             "kind": "read",
             "enforces": false
           },
@@ -565,7 +555,7 @@
           },
           {
             "file": "includes/class-roadmap-shortcode.php",
-            "line": 231,
+            "line": 242,
             "kind": "read",
             "enforces": false
           },
@@ -596,13 +586,13 @@
           },
           {
             "file": "includes/class-roadmap-demo-import.php",
-            "line": 348,
+            "line": 353,
             "kind": "write",
             "enforces": false
           },
           {
             "file": "includes/class-roadmap-demo-import.php",
-            "line": 355,
+            "line": 360,
             "kind": "write",
             "enforces": false
           }
@@ -655,7 +645,7 @@
           },
           {
             "file": "includes/class-roadmap-shortcode.php",
-            "line": 554,
+            "line": 565,
             "kind": "read",
             "enforces": false
           }
@@ -694,7 +684,7 @@
           },
           {
             "file": "includes/class-roadmap-shortcode.php",
-            "line": 555,
+            "line": 566,
             "kind": "read",
             "enforces": false
           }
@@ -727,7 +717,7 @@
           },
           {
             "file": "includes/class-roadmap-demo-import.php",
-            "line": 340,
+            "line": 345,
             "kind": "read",
             "enforces": false
           },
@@ -763,7 +753,7 @@
           },
           {
             "file": "includes/class-roadmap-shortcode.php",
-            "line": 556,
+            "line": 567,
             "kind": "read",
             "enforces": false
           }
@@ -797,13 +787,13 @@
         "writtenAt": [
           {
             "file": "includes/class-roadmap-demo-import.php",
-            "line": 75,
+            "line": 80,
             "kind": "write",
             "enforces": false
           },
           {
             "file": "includes/class-roadmap-demo-import.php",
-            "line": 317,
+            "line": 322,
             "kind": "write",
             "enforces": false
           }
@@ -831,7 +821,7 @@
         "writtenAt": [
           {
             "file": "includes/class-roadmap-demo-import.php",
-            "line": 316,
+            "line": 321,
             "kind": "write",
             "enforces": false
           }
@@ -969,7 +959,7 @@
           },
           {
             "file": "product-roadmap.php",
-            "line": 244,
+            "line": 283,
             "kind": "read",
             "enforces": false
           }
@@ -1089,13 +1079,13 @@
         "writtenAt": [
           {
             "file": "product-roadmap.php",
-            "line": 117,
+            "line": 119,
             "kind": "write",
             "enforces": false
           },
           {
             "file": "product-roadmap.php",
-            "line": 206,
+            "line": 208,
             "kind": "write",
             "enforces": false
           }
@@ -1103,7 +1093,7 @@
         "readAt": [
           {
             "file": "product-roadmap.php",
-            "line": 102,
+            "line": 99,
             "kind": "read",
             "enforces": false
           }
@@ -1116,7 +1106,7 @@
         "writtenAt": [
           {
             "file": "product-roadmap.php",
-            "line": 132,
+            "line": 134,
             "kind": "write",
             "enforces": false
           }
@@ -1146,6 +1136,10 @@
       },
       {
         "hook": "roadmap_api_filter_by_product",
+        "listeners": []
+      },
+      {
+        "hook": "roadmap_api_query_args",
         "listeners": []
       },
       {
@@ -1253,11 +1247,19 @@
         "listeners": []
       },
       {
+        "hook": "roadmap_after_main_content",
+        "listeners": []
+      },
+      {
         "hook": "roadmap_changelog_shortcode_args",
         "listeners": []
       },
       {
         "hook": "roadmap_enqueue_assets",
+        "listeners": []
+      },
+      {
+        "hook": "roadmap_item_viewed",
         "listeners": []
       },
       {
@@ -1275,7 +1277,7 @@
       {
         "tableSuffix": "roadmap_votes",
         "file": "includes/class-roadmap-api.php",
-        "line": 451
+        "line": 460
       }
     ],
     "templates": [
@@ -1423,45 +1425,51 @@
         },
         {
           "type": "filter",
+          "hookName": "roadmap_api_query_args",
+          "file": "includes/class-roadmap-api.php",
+          "line": 366
+        },
+        {
+          "type": "filter",
           "hookName": "roadmap_api_format_item",
           "file": "includes/class-roadmap-api.php",
-          "line": 431
+          "line": 440
         },
         {
           "type": "action",
           "hookName": "roadmap_vote_submitted",
           "file": "includes/class-roadmap-api.php",
-          "line": 598
+          "line": 607
         },
         {
           "type": "action",
           "hookName": "roadmap_suggestion_submitted",
           "file": "includes/class-roadmap-api.php",
-          "line": 671
+          "line": 680
         },
         {
           "type": "action",
           "hookName": "roadmap_settings_updated",
           "file": "includes/class-roadmap-api.php",
-          "line": 988
+          "line": 997
         },
         {
           "type": "action",
           "hookName": "roadmap_comment_submitted",
           "file": "includes/class-roadmap-api.php",
-          "line": 1023
+          "line": 1032
         },
         {
           "type": "filter",
           "hookName": "roadmap_api_changelog_args",
           "file": "includes/class-roadmap-api.php",
-          "line": 1113
+          "line": 1122
         },
         {
           "type": "filter",
           "hookName": "roadmap_guest_user_ip",
           "file": "includes/class-roadmap-api.php",
-          "line": 1269
+          "line": 1278
         },
         {
           "type": "filter",
@@ -1542,22 +1550,34 @@
           "line": 97
         },
         {
+          "type": "action",
+          "hookName": "roadmap_after_main_content",
+          "file": "includes/class-roadmap-shortcode.php",
+          "line": 122
+        },
+        {
           "type": "filter",
           "hookName": "roadmap_changelog_shortcode_args",
           "file": "includes/class-roadmap-shortcode.php",
-          "line": 179
+          "line": 190
         },
         {
           "type": "action",
           "hookName": "roadmap_enqueue_assets",
           "file": "includes/class-roadmap-shortcode.php",
-          "line": 528
+          "line": 539
+        },
+        {
+          "type": "action",
+          "hookName": "roadmap_item_viewed",
+          "file": "includes/class-roadmap-template.php",
+          "line": 35
         },
         {
           "type": "action",
           "hookName": "roadmap_plugin_loaded",
           "file": "product-roadmap.php",
-          "line": 82
+          "line": 76
         }
       ],
       "consumed": [
@@ -1617,28 +1637,10 @@
         },
         {
           "type": "action",
-          "hookName": "wp_ajax_roadmap_vote",
-          "callback": "handle_vote",
-          "file": "includes/class-roadmap-voting.php",
-          "line": 19,
-          "priority": 10,
-          "acceptedArgs": 1
-        },
-        {
-          "type": "action",
-          "hookName": "wp_ajax_nopriv_roadmap_vote",
-          "callback": "handle_vote",
-          "file": "includes/class-roadmap-voting.php",
-          "line": 20,
-          "priority": 10,
-          "acceptedArgs": 1
-        },
-        {
-          "type": "action",
           "hookName": "init",
           "callback": "init",
           "file": "product-roadmap.php",
-          "line": 64,
+          "line": 61,
           "priority": 10,
           "acceptedArgs": 1
         },
@@ -1647,7 +1649,7 @@
           "hookName": "upgrader_process_complete",
           "callback": "handle_plugin_update",
           "file": "product-roadmap.php",
-          "line": 65,
+          "line": 62,
           "priority": 10,
           "acceptedArgs": 2
         },
@@ -1656,7 +1658,7 @@
           "hookName": "admin_init",
           "callback": "check_migration",
           "file": "product-roadmap.php",
-          "line": 93,
+          "line": 90,
           "priority": 10,
           "acceptedArgs": 1
         },
@@ -1665,7 +1667,7 @@
           "hookName": "admin_init",
           "callback": "check_version_update",
           "file": "product-roadmap.php",
-          "line": 94,
+          "line": 91,
           "priority": 10,
           "acceptedArgs": 1
         }
@@ -1676,13 +1678,13 @@
         "type": "activation",
         "callback": "activate",
         "file": "product-roadmap.php",
-        "line": 61
+        "line": 58
       },
       {
         "type": "deactivation",
         "callback": "deactivate",
         "file": "product-roadmap.php",
-        "line": 62
+        "line": 59
       }
     ],
     "customRoles": [],
@@ -1795,24 +1797,6 @@
         "line": 112
       },
       {
-        "type": "dead-handler",
-        "severity": "medium",
-        "source": "includes/class-roadmap-voting.php:19",
-        "target": "roadmap_vote",
-        "details": "PHP handler \"roadmap_vote\" registered but never called from JS",
-        "file": "includes/class-roadmap-voting.php",
-        "line": 19
-      },
-      {
-        "type": "nonce-mismatch",
-        "severity": "critical",
-        "source": "includes/class-roadmap-voting.php:19",
-        "target": "roadmap_vote",
-        "details": "AJAX handler \"roadmap_vote\" has no nonce verification (CSRF risk)",
-        "file": "includes/class-roadmap-voting.php",
-        "line": 19
-      },
-      {
         "type": "orphaned-selector",
         "severity": "high",
         "source": "templates/single-roadmap_item.php:103",
@@ -1833,10 +1817,10 @@
     ]
   },
   "stats": {
-    "phpFiles": 21,
+    "phpFiles": 19,
     "jsFiles": 13,
-    "cssFiles": 9,
-    "totalLines": 10281
+    "cssFiles": 10,
+    "totalLines": 10326
   },
   "generated": {
     "generator": "wp-plugin-qa scanner",
@@ -1846,17 +1830,7 @@
     "namespace": "",
     "endpoints": []
   },
-  "ajax": [
-    {
-      "action": "roadmap_vote",
-      "callback": "handle_vote",
-      "loggedIn": true,
-      "loggedOut": true,
-      "hasNonceCheck": false,
-      "file": "includes/class-roadmap-voting.php",
-      "line": 19
-    }
-  ],
+  "ajax": [],
   "admin_pages": [
     {
       "page": "roadmap-changelog",
@@ -1916,39 +1890,44 @@
       "file": "includes/class-roadmap-api.php:331"
     },
     {
+      "hook": "roadmap_api_query_args",
+      "type": "filter",
+      "file": "includes/class-roadmap-api.php:366"
+    },
+    {
       "hook": "roadmap_api_format_item",
       "type": "filter",
-      "file": "includes/class-roadmap-api.php:431"
+      "file": "includes/class-roadmap-api.php:440"
     },
     {
       "hook": "roadmap_vote_submitted",
       "type": "action",
-      "file": "includes/class-roadmap-api.php:598"
+      "file": "includes/class-roadmap-api.php:607"
     },
     {
       "hook": "roadmap_suggestion_submitted",
       "type": "action",
-      "file": "includes/class-roadmap-api.php:671"
+      "file": "includes/class-roadmap-api.php:680"
     },
     {
       "hook": "roadmap_settings_updated",
       "type": "action",
-      "file": "includes/class-roadmap-api.php:988"
+      "file": "includes/class-roadmap-api.php:997"
     },
     {
       "hook": "roadmap_comment_submitted",
       "type": "action",
-      "file": "includes/class-roadmap-api.php:1023"
+      "file": "includes/class-roadmap-api.php:1032"
     },
     {
       "hook": "roadmap_api_changelog_args",
       "type": "filter",
-      "file": "includes/class-roadmap-api.php:1113"
+      "file": "includes/class-roadmap-api.php:1122"
     },
     {
       "hook": "roadmap_guest_user_ip",
       "type": "filter",
-      "file": "includes/class-roadmap-api.php:1269"
+      "file": "includes/class-roadmap-api.php:1278"
     },
     {
       "hook": "roadmap_changelog_post_type_args",
@@ -2016,19 +1995,29 @@
       "file": "includes/class-roadmap-shortcode.php:97"
     },
     {
+      "hook": "roadmap_after_main_content",
+      "type": "action",
+      "file": "includes/class-roadmap-shortcode.php:122"
+    },
+    {
       "hook": "roadmap_changelog_shortcode_args",
       "type": "filter",
-      "file": "includes/class-roadmap-shortcode.php:179"
+      "file": "includes/class-roadmap-shortcode.php:190"
     },
     {
       "hook": "roadmap_enqueue_assets",
       "type": "action",
-      "file": "includes/class-roadmap-shortcode.php:528"
+      "file": "includes/class-roadmap-shortcode.php:539"
+    },
+    {
+      "hook": "roadmap_item_viewed",
+      "type": "action",
+      "file": "includes/class-roadmap-template.php:35"
     },
     {
       "hook": "roadmap_plugin_loaded",
       "type": "action",
-      "file": "product-roadmap.php:82"
+      "file": "product-roadmap.php:76"
     }
   ],
   "cron": [],
