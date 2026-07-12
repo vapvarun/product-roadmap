@@ -633,7 +633,9 @@ const submitSuggestion = async (suggestionData) => {
       title: suggestionData.title,
       description: suggestionData.description,
       category: suggestionData.category || '',
-      priority: suggestionData.priority || 'medium'
+      priority: suggestionData.priority || 'medium',
+      // Associate the suggestion with the product whose roadmap it was made on.
+      product: selectedProduct.value || props.config.product || 'main'
     }
 
     // If guest and Pro with guest suggestions enabled

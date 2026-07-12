@@ -662,8 +662,15 @@ class Roadmap_API {
 				wp_set_object_terms( $post_id, $category, 'roadmap_category' );
 			}
 
-			// Set default product
-			update_post_meta( $post_id, '_roadmap_product', get_option( 'roadmap_default_product', 'main' ) );
+			// Assign the product taxonomy: use the product the suggestion was made
+			// on (passed from the shortcode's current product), falling back to the
+			// configured default product. (Matches create_item; the taxonomy is the
+			// single source of truth for product association.)
+			$product = $request->get_param( 'product' );
+			if ( empty( $product ) ) {
+				$product = get_option( 'roadmap_default_product', 'main' );
+			}
+			wp_set_object_terms( $post_id, sanitize_text_field( $product ), 'roadmap_product' );
 
 			// Set priority if provided
 			$priority = $request->get_param( 'priority' );
