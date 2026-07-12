@@ -136,7 +136,7 @@ After completing the wizard, you can:
 3. Change the page template if needed
 4. Modify shortcode parameters:
    ```
-   [roadmap product="main" sort="votes" template="board"]
+   [roadmap product="main" sort="votes" template="minimal"]
    ```
 
 ## Troubleshooting

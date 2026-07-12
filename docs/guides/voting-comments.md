@@ -29,8 +29,10 @@ Voting lets users show which features they want most. Each user can vote once pe
 **For Users:**
 1. Click vote button on any item
 2. Vote count increases
-3. Button changes to "Voted" (highlighted green)
+3. Button changes to a clear "Voted" state (checkmark + pill)
 4. Click again to remove vote
+
+Since 1.7.0 the "Voted" state stays visible even on themes that heavily restyle buttons.
 
 **For Admins:**
 1. See vote counts on all items
@@ -54,10 +56,11 @@ Voting lets users show which features they want most. Each user can vote once pe
 | Already voted | Solid green | Vote registered |
 | Voted + hover down | Orange | "Remove your vote" |
 
-**Idea Box Template:**
+**Idea Box Template (Pro):**
 - Dedicated upvote button per idea
 - Click to vote, click again to unvote
 - Sort by "Top Voted", "Newest", or "Active"
+- Requires the Pro addon; free installs use the minimal layout
 
 ## Setting Up Voting
 
@@ -85,15 +88,17 @@ Voting is now active!
   - Less reliable
   - Higher spam risk
 
-**Guest Voting Settings** (Advanced)
+**Guest Voting Settings**
 
 If you allow guest voting:
 
-1. **Roadmap > Settings > Advanced**
-2. Find **Guest Voting** section
-3. Configure:
-   - **Vote Tracking**: Cookie or IP address
-   - **Vote Expiry**: How long guest votes last (days)
+1. **Roadmap > Settings**
+2. Enable guest voting
+3. Guest votes are tracked by IP address to limit duplicates
+
+**Spam Defense (v1.7.0, automatic)**
+
+Votes and suggestions are rate-limited (per user, or per IP for guests), and the suggestion form includes a hidden honeypot field to catch bots. There is nothing to configure - these protections are always on.
 
 ### Where Votes Appear
 

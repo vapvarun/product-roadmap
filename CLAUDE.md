@@ -4,6 +4,15 @@
 >
 > ⚠️ `manifest_refresh: agent-enumeration-only` — the deterministic generator (`write-manifest.mjs`) reports `rest:0 / cpt:0 / shortcodes:0` because this plugin registers via wrapper/registry methods the tracer can't follow. Trust the ground-truth counts above and grep, not the manifest's REST/CPT/shortcode sections.
 
+## 1.7.0 status (resolved)
+The 2026-07-11 onboarding-audit "headline issues" below were **fixed in 1.7.0**:
+free/pro analytics hook contract, multi-product taxonomy consolidation, votes-table
+indexes + bounded queries, security hardening (nonce/cap, sanitize, rate-limit +
+suggestion honeypot), `uninstall.php`, `load_plugin_textdomain`, a11y labels, enum
+consolidation, and the notification per-type toggles. The whole frontend is now
+theme-token-driven and dark-mode-aware (theme toggle only). PHPStan (level 5) and
+the contract audit both pass. Treat the older ⚠️ warnings as historical.
+
 ## Quick reference
 - **Main file**: `product-roadmap.php`
 - **Version**: `1.7.0` (readme Stable tag: 1.7.0 ✓)

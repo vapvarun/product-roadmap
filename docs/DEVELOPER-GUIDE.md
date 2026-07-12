@@ -1,10 +1,10 @@
 # WordPress Product Roadmap Plugin - Developer Guide
 
-**Version:** 1.3.1
+**Version:** 1.7.0
 
 ## Table of Contents
 - [Architecture Overview](#architecture-overview)
-- [What's New in v1.3.1](#whats-new-in-v131)
+- [What's New in v1.7.0](#whats-new-in-v170)
 - [Hooks Reference](#hooks-reference)
   - [Action Hooks](#action-hooks)
   - [Filter Hooks](#filter-hooks)
@@ -48,6 +48,18 @@ product-roadmap/
 - **Roadmap_API**: REST API implementation
 - **Roadmap_Shortcode**: Shortcode rendering
 - **Roadmap_Voting**: Vote management
+
+## What's New in v1.7.0
+
+This release focuses on theme integration, spam defense, and data-layer hardening.
+
+**Highlights for developers:**
+- **Theme tokens and dark mode.** The frontend is now token-driven and adopts the active theme's accent color via `--wp--preset--color--primary` (falling back to the plugin blue). Dark mode is driven only by the theme's own light/dark toggle, not the visitor's OS preference. This applies to the board, the changelog (shortcode, single, and archive), and all other surfaces.
+- **Voting.** A persistent "Voted" state (checkmark + pill) survives themes that restyle buttons. Guest voting by IP is gated behind a setting.
+- **Spam defense (automatic).** Votes and suggestions are rate-limited (per user, or per IP for guests), and the suggestion form carries a honeypot field. No configuration required.
+- **Notifications.** Status-change emails to voters and commenters include an unsubscribe link, and the per-type notification toggles (vote/comment/suggestion) are now honored.
+- **Data layer.** The votes table is indexed and queries are bounded for large roadmaps. An `uninstall.php` now cleans up plugin data, strings are wrapped for translation via `load_plugin_textdomain()`, and frontend assets cache-bust on rebuild.
+- **Layouts.** The free version ships the `minimal` layout only; `board`, `list`, `cards`, `timeline`, and `ideabox` are Pro and fall back to `minimal` on free installs.
 
 ## What's New in v1.3.1
 

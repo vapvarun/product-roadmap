@@ -22,56 +22,42 @@ Choose how your roadmap is laid out.
 
 ![Frontend Roadmap Display](images/frontend-homepage.png)
 
-### Kanban Board (Default)
+### Minimal (Default, Free)
 
 ```
-[roadmap template="kanban"]
+[roadmap template="minimal"]
 ```
 
-Items organized in columns by status. Drag and drop support with Pro addon.
+A clean, single-column layout that lists your items with status, votes, and progress. This is the layout the free version ships, and it is the default when no `template` is set.
 
-**Best for:** Visual project tracking, agile workflows
+**Best for:** A simple public roadmap that reads well on any theme
 
-### List View
+**Theme and dark mode (v1.7.0):** The minimal layout - like every view - adopts your active theme's accent color (falling back to the plugin blue if your theme sets none) and follows your theme's own light/dark toggle. There is no separate dark-mode switch.
 
-```
-[roadmap template="list"]
-```
+### Pro Layouts
 
-Simple vertical list of items with status badges.
-
-**Best for:** Detailed item views, mobile-friendly display
-
-### Grid View
+The following layouts require the Pro addon. On free installs they fall back to the minimal layout.
 
 ```
-[roadmap template="grid"]
-```
-
-Card-based grid layout, responsive columns.
-
-**Best for:** Feature showcases, visual portfolios
-
-### Idea Box
-
-```
-[roadmap template="ideabox"]
+[roadmap template="board"]      // Kanban columns by status (Pro)
+[roadmap template="list"]       // Vertical list with badges (Pro)
+[roadmap template="cards"]      // Responsive card grid (Pro)
+[roadmap template="timeline"]   // Gantt chart (Pro)
+[roadmap template="ideabox"]    // Vote-focused idea collection (Pro)
 ```
 
 ![Idea Box Template](images/frontend-idea-box.png)
 
-Vote-focused layout with prominent voting buttons and suggestion form.
-
-**Best for:** Feature request pages, user feedback collection
-
 ### Template Comparison
 
-| Template | Layout | Voting Focus | Best For |
-|----------|--------|--------------|----------|
-| Kanban | Columns | Moderate | Project tracking |
-| List | Vertical | Low | Documentation, mobile |
-| Grid | Cards | Moderate | Visual showcase |
-| Idea Box | Vertical | High | Feedback collection |
+| Template | Availability | Layout | Best For |
+|----------|--------------|--------|----------|
+| Minimal | Free | Single column | Simple public roadmap |
+| Board | Pro | Columns | Project tracking |
+| List | Pro | Vertical | Documentation, mobile |
+| Cards | Pro | Card grid | Visual showcase |
+| Timeline | Pro | Gantt | Release planning |
+| Idea Box | Pro | Vertical | Feedback collection |
 
 ---
 
@@ -268,7 +254,7 @@ If styles conflict with your theme:
 
 ```
 [roadmap
-    template="kanban"
+    template="minimal"
     status="planned,in-progress"
     category="features"
     tag="mobile"

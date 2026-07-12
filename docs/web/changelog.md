@@ -103,6 +103,8 @@ Entries are also available at: `yoursite.com/roadmap-changelog/`
 
 Each entry has its own page: `yoursite.com/roadmap-changelog/version-2-1-0/`
 
+As of 1.7.0, the shortcode, single entry, and archive views all adopt your theme's accent color and follow your theme's light/dark toggle, with a left-aligned header. The archive keeps entries that have no release date set and orders entries by release date.
+
 ---
 
 ## Linking Items to Releases {#linking}
@@ -264,6 +266,16 @@ GET /wp-json/roadmap/v1/changelog/{id}
 ## Plugin Changelog {#plugin-changelog}
 
 ### What's New in Product Roadmap
+
+**Version 1.7.0 (July 2026)**
+- New: Theme integration - board and all views adopt the active theme's accent color
+- New: Dark mode driven by your theme's own light/dark toggle
+- New: Clear "Voted" button state that survives themes which restyle buttons
+- New: Guest voting by IP address via a setting
+- Improved: Votes and suggestions are rate-limited, and the suggestion form has a honeypot
+- Improved: Status-change emails include an unsubscribe link; per-type notification toggles now take effect
+- Improved: Changelog shortcode, single, and archive are theme and dark-mode aware; archive keeps undated entries and orders by release date
+- Improved: Indexed votes table with bounded queries for large roadmaps; uninstall cleanup; translation-ready strings
 
 **Version 1.3.1 (January 2026)**
 - Security: Fixed vote protection improvements

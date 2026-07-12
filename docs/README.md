@@ -136,17 +136,19 @@ docs/
 ## 🔄 Documentation Updates
 
 This documentation is for:
-- **Plugin Version**: 1.3.1
+- **Plugin Version**: 1.7.0
 - **WordPress**: 5.8+
 - **PHP**: 7.4+
 
-**What's New in 1.3.1:**
-- Security: Fixed IP spoofing vulnerability in guest voting
-- Performance: Fixed N+1 query issue in REST API
-- Performance: Optimized dashboard stats queries
-- Enhancement: New hooks for Pro addon changelog integration
+**What's New in 1.7.0:**
+- Theme integration: the board and all views adopt your active theme's accent color, and dark mode now follows your theme's own light/dark toggle
+- Voting: a clear "Voted" state (checkmark + pill) that survives themes which restyle buttons; guest voting by IP is available via a setting
+- Spam defense: votes and suggestions are rate-limited, and the suggestion form has a honeypot - nothing to configure, it is automatic
+- Notifications: status-change emails include an unsubscribe link, and the per-type notification toggles (vote/comment/suggestion) now take effect
+- Changelog: shortcode, single, and archive views are theme and dark-mode aware; the archive keeps undated entries and orders by release date
+- Under the hood: indexed votes table with bounded queries for large roadmaps, uninstall cleanup, and translation-ready strings
 
-Last updated: January 2026
+Last updated: July 2026
 
 ## 💡 Quick Tips
 

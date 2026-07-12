@@ -50,18 +50,20 @@ Pro version: Any product slug
 
 Display style:
 ```
-[roadmap product="main" template="board"]
+[roadmap product="main" template="minimal"]
 ```
 
 Available templates:
-- `board` - Kanban board (default, free)
-- `ideabox` - Idea collection with voting (NEW in 1.3.0)
-- `timeline` - Gantt chart (Pro)
+- `minimal` - Clean single-column layout (default, free)
+- `board` - Kanban board (Pro)
 - `list` - Simple list (Pro)
 - `cards` - Grid of cards (Pro)
-- `minimal` - Compact view (Pro)
+- `timeline` - Gantt chart (Pro)
+- `ideabox` - Idea collection with voting (Pro)
 
-**Idea Box Template (v1.3.0)**
+The free version ships the `minimal` layout. The other layouts require the Pro addon; if you use them without Pro, the roadmap falls back to `minimal`.
+
+**Idea Box Template (Pro)**
 ```
 [roadmap product="main" template="ideabox"]
 ```
