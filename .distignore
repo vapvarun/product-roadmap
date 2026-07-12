@@ -80,3 +80,9 @@ phpstan-baseline.neon
 audit
 plan
 .contract-audit-baseline.json
+
+# Repo documentation (not shipped to customers)
+docs
+
+# Internal marketing assets (not shipped)
+marketing
