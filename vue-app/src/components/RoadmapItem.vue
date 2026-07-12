@@ -57,14 +57,17 @@
     
     <div class="roadmap-item-footer">
       <div class="roadmap-item-stats">
-        <button 
+        <button
           @click="handleVote"
           class="roadmap-item-vote"
           :class="{ 'voted': item.user_voted }"
           :disabled="!canVote"
-          title="Vote for this item"
+          :aria-pressed="item.user_voted ? 'true' : 'false'"
+          :title="item.user_voted ? 'You have voted for this item' : 'Vote for this item'"
         >
-          👍 {{ item.votes || 0 }} {{ item.votes === 1 ? 'Vote' : 'Votes' }}
+          <span class="roadmap-vote-icon" aria-hidden="true">{{ item.user_voted ? '✓' : '👍' }}</span>
+          {{ item.votes || 0 }} {{ item.votes === 1 ? 'Vote' : 'Votes' }}
+          <span v-if="item.user_voted" class="roadmap-vote-tag">Voted</span>
         </button>
         
         <a 
@@ -280,6 +283,29 @@ const handleItemClick = (event) => {
       background: var(--roadmap-accent-tint, #e3f2fd);
       border-color: var(--roadmap-accent, #2196f3);
       color: var(--roadmap-accent, #2196f3);
+    }
+  }
+
+  // Voted affordance carried in content, not background, so it survives themes
+  // (e.g. BuddyX) that repaint every bare <button> with their own accent and
+  // would otherwise flatten the .voted background. currentColor keeps the pill
+  // legible on both a solid themed button (white text) and the tinted state.
+  &-vote {
+    .roadmap-vote-icon {
+      font-style: normal;
+      line-height: 1;
+    }
+
+    &.voted .roadmap-vote-tag {
+      margin-inline-start: 4px;
+      padding: 1px 6px;
+      border: 1px solid currentColor;
+      border-radius: 10px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      line-height: 1.4;
     }
   }
   
