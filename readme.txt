@@ -1,8 +1,8 @@
 === Product Roadmap ===
 Contributors: wbcomdesigns, vapvarun
-Tags: roadmap, product roadmap, feature voting, user feedback, product management
+Tags: roadmap, feature requests, user feedback, changelog, feature voting
 Requires at least: 5.8
-Tested up to: 6.8
+Tested up to: 7.0
 Stable tag: 1.7.0
 Requires PHP: 7.4
 License: GPLv2 or later
@@ -38,25 +38,34 @@ Every day, your customers have ideas about how to improve your product. Most bus
 
 **Free Version Includes Everything You Need:**
 
-* **Public Roadmap Page** - Beautiful, responsive display of your plans
-* **Voting System** - Let users upvote features they want most
-* **Feature Suggestions** - Customers can submit their own ideas
-* **Progress Tracking** - Show what's planned, in-progress, or completed
-* **Categories** - Organize features for easy browsing
-* **Comments** - Enable discussions on each item
-* **Simple Shortcode** - Add to any page with [roadmap product="main"]
+* **Public Roadmap Board** - Beautiful, responsive, translation-ready display of your product plans
+* **Feature Voting** - Logged-in users or guests (by IP) upvote the features they want most, with a clear "Voted" state
+* **Feature Requests & Suggestions** - Customers submit their own ideas, with a moderation queue and built-in spam protection (rate limiting plus a honeypot, no captcha)
+* **Comments & Discussion** - Enable conversations on every roadmap item
+* **Custom Statuses & Categories** - Organize features (Planned, In Progress, Completed, or your own) and let visitors filter and sort
+* **Changelog & Release Notes** - Publish per-release changelogs with a shortcode plus dedicated single and archive pages
+* **Status-Change Emails** - Automatically notify the people who voted or commented when an item moves forward, with a one-click unsubscribe link
+* **Automatic Dark Mode & Theme Colours** - The roadmap adopts your theme's accent colour and follows its light/dark toggle, with zero custom CSS
+* **Simple Shortcodes** - Drop [roadmap] and [roadmap_changelog] onto any page
+* **Developer Friendly** - REST API, 25+ action and filter hooks, and clean uninstall
 
 **Pro Version - For Growing Teams:**
 
-* **Multiple Products** - Separate roadmaps for each product line
-* **Board View** - Kanban-style board layout
-* **Timeline View** - Visual representation of your plans
-* **Priority Levels** - Mark features as critical, high, or nice-to-have
-* **Advanced Analytics** - Understand voting patterns
-* **Email Notifications** - Stay informed of user engagement
-* **Custom Styling** - Match your brand perfectly
-* **Data Export** - Analyze feedback in your favorite tools
-* **Priority Support** - Get help when you need it
+* **Multiple Product Roadmaps** - A separate roadmap for each product or service
+* **4 Premium Layouts** - Board (Kanban), Timeline, Cards, and List views (Minimal is included free)
+* **Analytics Dashboard** - Track votes, comments, views, and engagement with charts, popular items, and CSV export
+* **Advanced Filters** - Filter by priority, progress, assignee, and date
+* **Guest Suggestions & Feedback Widget** - Collect ideas from logged-out visitors and a floating feedback button
+* **Email Digest & Custom Templates** - Scheduled activity digests and branded notification emails
+* **Webhooks & Custom Fields** - Connect to your stack and store your own item data
+* **Gutenberg Block** - Build roadmaps visually in the block editor
+* **Priority Support** - Direct help from our team
+
+== Part of the Wbcom Designs Ecosystem ==
+
+Product Roadmap is built by Wbcom Designs, makers of a large family of WordPress and community products - including the BuddyX and Reign themes and dozens of BuddyPress, bbPress, and WooCommerce extensions. Pair Product Roadmap with your community or membership site to close the loop between what your members ask for and what you build next.
+
+Explore more at [wbcomdesigns.com](https://wbcomdesigns.com/).
 
 == Installation ==
 

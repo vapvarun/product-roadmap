@@ -8,6 +8,10 @@
  * @since 1.3.0
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 get_header();
 
 while (have_posts()) : the_post();

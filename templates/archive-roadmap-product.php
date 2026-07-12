@@ -3,6 +3,10 @@
  * Product Roadmap Archive Template
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 get_header();
 
 // Support both URL patterns:

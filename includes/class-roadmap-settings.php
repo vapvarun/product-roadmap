@@ -1496,8 +1496,8 @@ class Roadmap_Settings {
 					<strong><?php esc_html_e( 'Roadmap Submissions:', 'product-roadmap' ); ?></strong>
 					<?php
 					printf(
-						/* translators: %s: Number of pending submissions */
-						esc_html(
+												esc_html(
+							/* translators: %s: Number of pending submissions */
 							_n(
 								'You have %s pending submission awaiting review.',
 								'You have %s pending submissions awaiting review.',
