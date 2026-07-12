@@ -277,9 +277,9 @@ const handleItemClick = (event) => {
     }
     
     &.voted {
-      background: #e3f2fd;
-      border-color: #2196f3;
-      color: #2196f3;
+      background: var(--roadmap-accent-tint, #e3f2fd);
+      border-color: var(--roadmap-accent, #2196f3);
+      color: var(--roadmap-accent, #2196f3);
     }
   }
   

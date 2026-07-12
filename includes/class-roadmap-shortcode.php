@@ -468,6 +468,15 @@ class Roadmap_Shortcode {
 			}
 		} else {
 			// Production mode - use built assets.
+			// Bust the browser cache on every rebuilt bundle, not just on a version
+			// bump: a hotfix rebuild under the same tag otherwise serves the stale
+			// asset to anyone who already cached it. filemtime() changes whenever the
+			// file is rewritten and falls back to the plugin version if unreadable.
+			$js_path  = ROADMAP_PLUGIN_PATH . 'assets/js/roadmap-app.js';
+			$css_path = ROADMAP_PLUGIN_PATH . 'assets/css/roadmap-app.css';
+			$js_ver   = file_exists( $js_path ) ? filemtime( $js_path ) : $version;
+			$css_ver  = file_exists( $css_path ) ? filemtime( $css_path ) : $version;
+
 			// No 'wp-api' dependency: the Vue app talks to REST via fetch(), and
 			// depending on wp-api loads wp-includes/js/wp-api.min.js, which throws
 			// "_.each is not a function" on newer WordPress/Underscore builds.
@@ -475,7 +484,7 @@ class Roadmap_Shortcode {
 				'roadmap-vue-app',
 				ROADMAP_PLUGIN_URL . 'assets/js/roadmap-app.js',
 				array(),
-				$version,
+				$js_ver,
 				true
 			);
 
@@ -483,7 +492,7 @@ class Roadmap_Shortcode {
 				'roadmap-vue-app',
 				ROADMAP_PLUGIN_URL . 'assets/css/roadmap-app.css',
 				array(),
-				$version
+				$css_ver
 			);
 
 			// Enqueue RTL styles if needed
