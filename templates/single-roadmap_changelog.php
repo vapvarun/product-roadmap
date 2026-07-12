@@ -131,17 +131,30 @@ while (have_posts()) :
 
             <footer class="changelog-entry-footer">
                 <?php
-                // Navigation to other changelogs
+                // Navigate by release date (matching the archive order), not the
+                // post publish date, so "Previous/Next Release" reflect the actual
+                // release chronology rather than the order entries were authored.
+                $this_release_date = get_post_meta(get_the_ID(), '_changelog_release_date', true);
+                if (empty($this_release_date)) {
+                    $this_release_date = get_the_date('Y-m-d');
+                }
+
                 $nav_args = [
                     'post_type' => 'roadmap_changelog',
                     'posts_per_page' => 1,
-                    'orderby' => 'date',
+                    'meta_key' => '_changelog_release_date',
+                    'orderby' => 'meta_value',
                 ];
 
-                // Get previous changelog
+                // Get previous changelog (the newest release dated before this one)
                 $prev_args = array_merge($nav_args, [
-                    'date_query' => [
-                        ['before' => get_the_date('Y-m-d H:i:s')]
+                    'meta_query' => [
+                        [
+                            'key' => '_changelog_release_date',
+                            'value' => $this_release_date,
+                            'compare' => '<',
+                            'type' => 'DATE',
+                        ],
                     ],
                     'order' => 'DESC',
                 ]);
@@ -161,10 +174,15 @@ while (have_posts()) :
                 $prev_post = $prev_query->have_posts() ? $prev_query->posts[0] : null;
                 wp_reset_postdata();
 
-                // Get next changelog
+                // Get next changelog (the oldest release dated after this one)
                 $next_args = array_merge($nav_args, [
-                    'date_query' => [
-                        ['after' => get_the_date('Y-m-d H:i:s')]
+                    'meta_query' => [
+                        [
+                            'key' => '_changelog_release_date',
+                            'value' => $this_release_date,
+                            'compare' => '>',
+                            'type' => 'DATE',
+                        ],
                     ],
                     'order' => 'ASC',
                 ]);
