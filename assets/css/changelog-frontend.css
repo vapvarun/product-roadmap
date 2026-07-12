@@ -432,7 +432,7 @@
 }
 
 .changelog-archive-header {
-    text-align: center;
+    text-align: left;
     margin-bottom: 40px;
 }
 
@@ -837,7 +837,7 @@
 .roadmap-plugin-product-filter {
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     gap: 12px;
     margin-top: 20px;
 }
