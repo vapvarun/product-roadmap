@@ -467,11 +467,14 @@ class Roadmap_Shortcode {
 				);
 			}
 		} else {
-			// Production mode - use built assets
+			// Production mode - use built assets.
+			// No 'wp-api' dependency: the Vue app talks to REST via fetch(), and
+			// depending on wp-api loads wp-includes/js/wp-api.min.js, which throws
+			// "_.each is not a function" on newer WordPress/Underscore builds.
 			wp_enqueue_script(
 				'roadmap-vue-app',
 				ROADMAP_PLUGIN_URL . 'assets/js/roadmap-app.js',
-				array( 'wp-api' ),
+				array(),
 				$version,
 				true
 			);
