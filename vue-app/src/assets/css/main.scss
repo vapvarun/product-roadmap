@@ -347,36 +347,68 @@ $white: #ffffff;
 }
 
 // Dark Mode
-.roadmap-dark {
+// Shared dark styles, applied both by the plugin's own toggle (.roadmap-dark)
+// and automatically when the active theme is in dark mode.
+@mixin roadmap-dark-theme {
   background: $dark-bg;
   color: #e2e4e7;
-  
+
+  // Headings and item titles otherwise use a dark light-mode text colour, which
+  // becomes invisible on a dark surface.
+  h1, h2, h3, h4, h5, h6,
+  [class*="-title"],
+  [class*="-heading"],
+  [class*="-count"],
+  [class*="-name"] {
+    color: #e2e4e7;
+  }
+
   .roadmap-card,
-  .roadmap-modal-dialog {
+  .roadmap-modal-dialog,
+  [class*="-column"],
+  [class*="-item"] {
     background: color.adjust($dark-bg, $lightness: 5%);
     border-color: color.adjust($dark-bg, $lightness: 10%);
     color: #e2e4e7;
   }
-  
+
   .roadmap-form-control {
     background: color.adjust($dark-bg, $lightness: 10%);
     border-color: color.adjust($dark-bg, $lightness: 15%);
     color: #e2e4e7;
-    
+
     &:focus {
       border-color: $primary-color;
     }
   }
-  
+
   .roadmap-btn-secondary {
     background: color.adjust($dark-bg, $lightness: 10%);
     border-color: color.adjust($dark-bg, $lightness: 15%);
     color: #e2e4e7;
-    
+
     &:hover:not(:disabled) {
       background: color.adjust($dark-bg, $lightness: 15%);
     }
   }
+}
+
+// The plugin's own dark toggle.
+.roadmap-dark {
+  @include roadmap-dark-theme;
+}
+
+// Follow the active theme's dark mode, driven ONLY by the theme's own
+// light/dark toggle (never the OS / prefers-color-scheme). BuddyX / BuddyX-Pro
+// and Reign flip html[data-bx-mode="dark"] and set a body dark class when the
+// user toggles dark from the theme header.
+html[data-bx-mode="dark"] .roadmap-app,
+html[data-mode="dark"] .roadmap-app,
+body.buddyx-dark-theme .roadmap-app,
+body.buddyx-dark-style-variation .roadmap-app,
+body.dark-scheme .roadmap-app,
+body.reign-ld-dark-theme .roadmap-app {
+  @include roadmap-dark-theme;
 }
 
 // Checkbox Group
