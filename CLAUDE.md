@@ -6,7 +6,7 @@
 
 ## Quick reference
 - **Main file**: `product-roadmap.php`
-- **Version**: `1.6.0` (readme Stable tag: 1.6.0 ✓)
+- **Version**: `1.7.0` (readme Stable tag: 1.7.0 ✓)
 - **Namespace**: none (class prefix `Roadmap_*`, main class `RoadmapPlugin`)
 - **Text domain**: `product-roadmap`
 - **Constant**: `ROADMAP_VERSION` (Pro detects Free via this constant / `RoadmapPlugin` class)

@@ -228,7 +228,7 @@ class Roadmap_Notifications {
         $old_status_name = '';
         if (!empty($old_tt_ids)) {
             $old_term = get_term_by('term_taxonomy_id', $old_tt_ids[0]);
-            if ($old_term && !is_wp_error($old_term)) {
+            if ($old_term) {
                 $old_status_name = $old_term->name;
             }
         }
@@ -349,22 +349,39 @@ class Roadmap_Notifications {
     }
     
     private function should_send_notification($type) {
-        if (get_option('roadmap_enable_notifications', 'yes') !== 'yes') {
+        // Read from the roadmap_global_settings array that the settings UI
+        // actually writes (sanitize_global_settings stores each toggle as a
+        // bool). The old standalone roadmap_notify_on_* options were never
+        // written, so the per-type toggles had no effect - disabling a
+        // notification in settings did nothing. Defaults mirror the settings.
+        $settings = get_option('roadmap_global_settings', array());
+
+        $enabled = array_key_exists('enable_notifications', $settings)
+            ? $settings['enable_notifications']
+            : true;
+        if (empty($enabled)) {
             return false;
         }
-        
-        switch ($type) {
-            case 'vote':
-                return get_option('roadmap_notify_on_vote', 'yes') === 'yes';
-            case 'comment':
-                return get_option('roadmap_notify_on_comment', 'yes') === 'yes';
-            case 'suggestion':
-                return get_option('roadmap_notify_on_suggestion', 'yes') === 'yes';
-            case 'status_change':
-                return get_option('roadmap_notify_on_status_change', 'yes') === 'yes';
-            default:
-                return false;
+
+        // status_change has no UI toggle; it is on whenever notifications are on
+        // (this is how voters/commenters get notified of a status change).
+        if ('status_change' === $type) {
+            return true;
         }
+
+        $defaults = array(
+            'vote'       => false,
+            'comment'    => true,
+            'suggestion' => true,
+        );
+        if (!array_key_exists($type, $defaults)) {
+            return false;
+        }
+
+        $key = 'notify_on_' . $type;
+        return array_key_exists($key, $settings)
+            ? ! empty($settings[$key])
+            : $defaults[$type];
     }
     
     private function send_notification($subject, $message) {

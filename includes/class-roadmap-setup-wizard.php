@@ -554,8 +554,8 @@ class Roadmap_Setup_Wizard {
             'comment_status' => 'closed'
         );
         
-        $page_id = wp_insert_post($page_data);
-        
+        $page_id = wp_insert_post($page_data, true);
+
         if ($page_id && !is_wp_error($page_id)) {
             update_option('roadmap_page_id', $page_id);
             return $page_id;

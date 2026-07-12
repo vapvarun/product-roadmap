@@ -822,7 +822,7 @@ class Roadmap_Changelog {
 	/**
 	 * Filter changelog archive by product
 	 */
-	public function filter_changelog_by_product( $query ) {
+	public function filter_changelog_by_product( \WP_Query $query ) {
 		if ( is_admin() || ! $query->is_main_query() ) {
 			return;
 		}

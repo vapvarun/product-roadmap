@@ -416,7 +416,7 @@ class Roadmap_API {
 			'title'           => html_entity_decode( $post->post_title, ENT_QUOTES, 'UTF-8' ),
 			'content'         => html_entity_decode( $post->post_content, ENT_QUOTES, 'UTF-8' ),
 			'excerpt'         => html_entity_decode( wp_trim_words( $post->post_content, 20 ), ENT_QUOTES, 'UTF-8' ),
-			'author'          => get_the_author_meta( 'display_name', $post->post_author ),
+			'author'          => get_the_author_meta( 'display_name', (int) $post->post_author ),
 			'date'            => $post->post_date,
 			'modified'        => $post->post_modified,
 			'votes'           => (int) get_post_meta( $post->ID, '_roadmap_votes', true ),
@@ -811,7 +811,7 @@ class Roadmap_API {
 			'post_status'  => 'publish',
 		);
 
-		$post_id = wp_insert_post( $post_data );
+		$post_id = wp_insert_post( $post_data, true );
 
 		if ( $post_id && ! is_wp_error( $post_id ) ) {
 			// Get default status from settings
@@ -877,7 +877,7 @@ class Roadmap_API {
 			$post_data['post_content'] = $request->get_param( 'content' );
 		}
 
-		$updated = wp_update_post( $post_data );
+		$updated = wp_update_post( $post_data, true );
 
 		if ( $updated && ! is_wp_error( $updated ) ) {
 			// Update taxonomies
