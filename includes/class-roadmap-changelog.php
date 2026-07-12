@@ -31,8 +31,9 @@ class Roadmap_Changelog {
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_assets' ) );
 		add_action( 'admin_menu', array( $this, 'add_changelog_menu' ), 26 );
 
-		// AJAX handlers for changelog items
-		add_action( 'wp_ajax_roadmap_add_changelog_item', array( $this, 'ajax_add_item_row' ) );
+		// AJAX handler for saving change-type colours (Settings > Changelog Types).
+		// Note: item rows are added client-side by cloning a hidden template, so
+		// there is no server-side add-item AJAX handler.
 		add_action( 'wp_ajax_roadmap_save_changelog_type_color', array( $this, 'ajax_save_changelog_type_color' ) );
 
 		// Share product taxonomy with changelog
