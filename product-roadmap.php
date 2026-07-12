@@ -50,9 +50,6 @@ class RoadmapPlugin {
         require_once ROADMAP_PLUGIN_PATH . 'includes/class-roadmap-admin.php';
         require_once ROADMAP_PLUGIN_PATH . 'includes/class-roadmap-demo-import.php';
         require_once ROADMAP_PLUGIN_PATH . 'includes/class-roadmap-setup-wizard.php';
-        require_once ROADMAP_PLUGIN_PATH . 'includes/class-roadmap-voting.php';
-        require_once ROADMAP_PLUGIN_PATH . 'includes/class-roadmap-comments.php';
-        require_once ROADMAP_PLUGIN_PATH . 'includes/class-roadmap-suggestions.php';
         require_once ROADMAP_PLUGIN_PATH . 'includes/class-roadmap-template.php';
         require_once ROADMAP_PLUGIN_PATH . 'includes/class-roadmap-changelog.php';
     }
@@ -72,9 +69,6 @@ class RoadmapPlugin {
         Roadmap_Permissions::get_instance();
         Roadmap_Notifications::get_instance();
         Roadmap_Admin::get_instance();
-        Roadmap_Voting::get_instance();
-        Roadmap_Comments::get_instance();
-        Roadmap_Suggestions::get_instance();
         Roadmap_Template::get_instance();
         Roadmap_Changelog::get_instance();
 
