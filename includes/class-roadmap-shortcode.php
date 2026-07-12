@@ -110,6 +110,17 @@ class Roadmap_Shortcode {
 		</div>
 		<?php
 
+		/**
+		 * Fires after the main roadmap app container is output.
+		 *
+		 * Lets the Pro addon inject additional UI (such as the analytics tab)
+		 * after the board. Receives the resolved shortcode attributes,
+		 * including 'product'.
+		 *
+		 * @param array $atts The resolved shortcode attributes.
+		 */
+		do_action( 'roadmap_after_main_content', $atts );
+
 		return ob_get_clean();
 	}
 
