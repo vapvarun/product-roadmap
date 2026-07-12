@@ -58,17 +58,18 @@ $white: #ffffff;
 
   // Semantic status palette: a solid (text / card border) and a tint (chip
   // background) per status. Kept distinct on purpose so status reads at a glance.
+  // Solids are tuned so the badge text clears WCAG AA (>=4.5:1) on its own tint.
   --rm-planned: #2563eb;   --rm-planned-tint: #e8f0fe;
-  --rm-progress: #d97706;  --rm-progress-tint: #fef1e0;
-  --rm-hold: #64748b;      --rm-hold-tint: #eef1f4;
+  --rm-progress: #b45309;  --rm-progress-tint: #fef1e0;
+  --rm-hold: #475569;      --rm-hold-tint: #eef1f4;
   --rm-review: #7c3aed;    --rm-review-tint: #f3e9fd;
-  --rm-done: #16a34a;      --rm-done-tint: #e6f5ec;
-  --rm-cancelled: #dc2626; --rm-cancelled-tint: #fdeaea;
+  --rm-done: #15803d;      --rm-done-tint: #e6f5ec;
+  --rm-cancelled: #b91c1c; --rm-cancelled-tint: #fdeaea;
 
   // Priority palette (a separate scale from status): low..critical.
-  --rm-priority-low: #1e7e34;      --rm-priority-low-tint: #d9f4e1;
-  --rm-priority-medium: #8a6d0b;   --rm-priority-medium-tint: #fdf3d3;
-  --rm-priority-high: #b45309;     --rm-priority-high-tint: #fde8cf;
+  --rm-priority-low: #176e2f;      --rm-priority-low-tint: #d9f4e1;
+  --rm-priority-medium: #7a5f0a;   --rm-priority-medium-tint: #fdf3d3;
+  --rm-priority-high: #92400e;     --rm-priority-high-tint: #fde8cf;
   --rm-priority-critical: #b42318; --rm-priority-critical-tint: #fbe2e0;
 
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
