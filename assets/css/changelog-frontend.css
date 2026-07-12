@@ -9,8 +9,7 @@
    the archive, and the shortcode wrappers. Adopt the theme accent, fall back
    to plugin blue; release-type badge colours are intentionally left semantic. */
 .roadmap-changelog-wrapper,
-.roadmap-changelog-archive-wrapper,
-.roadmap-changelog-archive-list {
+.roadmap-changelog-archive-wrapper {
     --roadmap-accent: var(--wp--preset--color--primary, #2271b1);
     --roadmap-accent-hover: color-mix(in srgb, var(--roadmap-accent) 85%, #000);
     --rc-surface: #ffffff;
@@ -355,21 +354,6 @@
     font-weight: 600;
 }
 
-.roadmap-changelog-single .changelog-release-type--major {
-    background: #fee2e2;
-    color: #dc2626;
-}
-
-.roadmap-changelog-single .changelog-release-type--minor {
-    background: #dcfce7;
-    color: #16a34a;
-}
-
-.roadmap-changelog-single .changelog-release-type--patch {
-    background: #fef9c3;
-    color: #ca8a04;
-}
-
 .roadmap-changelog-single .changelog-product {
     background: var(--rc-surface-alt);
     color: var(--rc-text);
@@ -447,52 +431,6 @@
     font-size: 18px;
     color: var(--rc-muted);
     margin: 0 0 24px;
-}
-
-/* Product Filter Dropdown */
-.changelog-product-filter {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-}
-
-.changelog-product-filter .filter-label {
-    color: var(--rc-muted);
-    font-size: 14px;
-    font-weight: 500;
-}
-
-.changelog-product-dropdown {
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    background: var(--rc-surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") no-repeat right 12px center;
-    border: 1px solid var(--rc-border);
-    border-radius: 8px;
-    padding: 10px 40px 10px 16px;
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--rc-fg);
-    cursor: pointer;
-    min-width: 200px;
-    transition: all 0.2s;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-}
-
-.changelog-product-dropdown:hover {
-    border-color: var(--rc-border-soft);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
-}
-
-.changelog-product-dropdown:focus {
-    outline: none;
-    border-color: var(--roadmap-accent);
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
-}
-
-.changelog-product-dropdown option {
-    padding: 8px;
 }
 
 /* Back link for product-specific pages */
@@ -798,16 +736,6 @@
         font-size: 16px;
     }
 
-    .changelog-product-filter {
-        flex-direction: column;
-        gap: 8px;
-    }
-
-    .changelog-product-dropdown {
-        min-width: 100%;
-        max-width: 300px;
-    }
-
     .changelog-archive-item > a {
         padding: 20px;
     }
@@ -1009,12 +937,12 @@
 /* Driven ONLY by the theme's own light/dark toggle (never the OS colour
    scheme). Every chrome rule reads the tokens above, so dark mode is a pure
    token swap; semantic release-type badge colours are left unchanged. */
-html[data-bx-mode="dark"] :is(.roadmap-changelog-wrapper, .roadmap-changelog-archive-wrapper, .roadmap-changelog-archive-list),
-html[data-mode="dark"] :is(.roadmap-changelog-wrapper, .roadmap-changelog-archive-wrapper, .roadmap-changelog-archive-list),
-body.buddyx-dark-theme :is(.roadmap-changelog-wrapper, .roadmap-changelog-archive-wrapper, .roadmap-changelog-archive-list),
-body.buddyx-dark-style-variation :is(.roadmap-changelog-wrapper, .roadmap-changelog-archive-wrapper, .roadmap-changelog-archive-list),
-body.dark-scheme :is(.roadmap-changelog-wrapper, .roadmap-changelog-archive-wrapper, .roadmap-changelog-archive-list),
-body.reign-ld-dark-theme :is(.roadmap-changelog-wrapper, .roadmap-changelog-archive-wrapper, .roadmap-changelog-archive-list) {
+html[data-bx-mode="dark"] :is(.roadmap-changelog-wrapper, .roadmap-changelog-archive-wrapper),
+html[data-mode="dark"] :is(.roadmap-changelog-wrapper, .roadmap-changelog-archive-wrapper),
+body.buddyx-dark-theme :is(.roadmap-changelog-wrapper, .roadmap-changelog-archive-wrapper),
+body.buddyx-dark-style-variation :is(.roadmap-changelog-wrapper, .roadmap-changelog-archive-wrapper),
+body.dark-scheme :is(.roadmap-changelog-wrapper, .roadmap-changelog-archive-wrapper),
+body.reign-ld-dark-theme :is(.roadmap-changelog-wrapper, .roadmap-changelog-archive-wrapper) {
     --rc-surface: #2a2f36;
     --rc-surface-alt: #23272e;
     --rc-border: #3a4048;
