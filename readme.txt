@@ -132,6 +132,7 @@ Multiple product roadmaps are available in the Pro version. Free version support
 * Improve  - Status-update emails now include an unsubscribe link, and the per-type notification toggles (vote, comment, suggestion) now take effect.
 * Improve  - Board bundle is isolated so it renders on themes that define a global script variable named wp (such as Reign), instead of stalling on Loading.
 * Improve  - Buttons, badges, chips and the timeline header adapt their text colour to the active theme accent, staying readable on light-accent themes in both light and dark mode.
+* Improve  - Status, priority and changelog badges meet WCAG AA contrast in light mode.
 * Fix      - Roadmap board rendered empty when the Pro addon was active due to a product filter type mismatch.
 * Fix      - Changelog version header was unreadable under a dark theme; it now follows the theme toggle.
 * Dev      - Version the built board assets by file modification time so a rebuilt bundle busts the browser cache.
