@@ -71,7 +71,9 @@ phpcs.xml.dist
 # - package.json (dependencies)
 # - README.md (documentation)
 # Dev tooling added for release gating (not for distribution)
-vendor
+# Anchor to /vendor: drop ONLY the top-level composer dir, NEVER
+# assets/vendor/* (runtime libs like select2 must ship).
+/vendor
 composer.json
 composer.lock
 phpstan.neon
@@ -86,10 +88,7 @@ docs
 
 # Internal marketing assets (not shipped)
 marketing
-CLAUDE.md
-DEVELOPER-GUIDE.md
-FUTURE-ROADMAP.md
-CAPABILITIES.md
-README.md
-PRO-DEVELOPER-GUIDE.md
-PRO-USER-GUIDE.md
+
+# All Markdown is internal docs (WordPress uses readme.txt, not .md).
+# Blanket-exclude so a new internal .md can never leak into a build again.
+*.md
