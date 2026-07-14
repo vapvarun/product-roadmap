@@ -30,6 +30,7 @@ class Roadmap_Shortcode {
 				'class'               => '',
 				'template'            => 'minimal',
 				'sort'                => '', // Default sort: votes, recent, comments, priority
+				'show_filters'        => 'true', // Show the status/category/product/sort filter bar.
 			),
 			$atts,
 			'roadmap'
@@ -82,6 +83,7 @@ class Roadmap_Shortcode {
 			'product'             => $atts['product'],
 			'template'            => $atts['template'],
 			'default_sort'        => $atts['sort'],
+			'show_filters'        => filter_var( $atts['show_filters'], FILTER_VALIDATE_BOOLEAN ),
 			'is_pro'              => ( defined( 'ROADMAP_PRO_ACTIVE' ) && ROADMAP_PRO_ACTIVE ),
 			'settings'            => array(
 				'enable_voting'      => $global_settings['enable_voting'] ?? ( get_option( 'roadmap_enable_voting', 'yes' ) === 'yes' ),
@@ -668,6 +670,9 @@ class Roadmap_Shortcode {
 				$item_singular
 			),
 			'vote_submitted'       => __( 'Your vote has been submitted', 'product-roadmap' ),
+			'vote_removed'         => __( 'Your vote has been removed', 'product-roadmap' ),
+			'suggested'            => __( 'Suggested', 'product-roadmap' ),
+			'user_suggested_title' => __( 'Suggested by a user', 'product-roadmap' ),
 			'comment_submitted'    => __( 'Your comment has been submitted', 'product-roadmap' ),
 			'suggestion_submitted' => __( 'Your suggestion has been submitted', 'product-roadmap' ),
 			'login_required'       => __( 'Please login to perform this action', 'product-roadmap' ),

@@ -74,16 +74,63 @@
 
         // Product settings modal functions
         window.editProductSettings = function(productId) {
+            var $form = $('#product-settings-form');
+
             $('#product_id').val(productId);
             $('#product-settings-modal').css('display', 'block');
 
-            // Load existing settings via AJAX if needed
-            // This is a placeholder for future AJAX implementation
+            // Reset color to the field default while we fetch; avoids showing
+            // the previously-open product's color for a flash.
+            $('#product_theme_color').val('#2271b1');
+
+            // Load the saved settings for this product so the modal reflects
+            // what is actually stored, not the hardcoded HTML default.
+            $.post(roadmap_admin.ajax_url, {
+                action: 'roadmap_get_product_settings',
+                product_id: productId,
+                nonce: $('#roadmap_nonce').val()
+            }).done(function(response) {
+                if (response && response.success && response.data) {
+                    if (response.data.theme_color) {
+                        $('#product_theme_color').val(response.data.theme_color);
+                    }
+                    if (response.data.default_status) {
+                        $('#product_default_status').val(response.data.default_status);
+                    }
+                }
+            });
         };
 
         window.closeProductModal = function() {
             $('#product-settings-modal').css('display', 'none');
         };
+
+        // Persist product settings via AJAX. The endpoint (wp_ajax_roadmap_save_product_settings)
+        // already existed but was never called from JS.
+        $('#product-settings-form').on('submit', function(e) {
+            e.preventDefault();
+
+            var $form   = $(this);
+            var $button = $form.find('button[type="submit"]');
+            var originalText = $button.text();
+
+            $button.prop('disabled', true);
+
+            $.post(roadmap_admin.ajax_url, $form.serialize() + '&action=roadmap_save_product_settings')
+                .done(function(response) {
+                    if (response && response.success) {
+                        closeProductModal();
+                    } else {
+                        window.alert(roadmap_admin.save_error || 'Error saving settings. Please try again.');
+                    }
+                })
+                .fail(function() {
+                    window.alert(roadmap_admin.save_error || 'Error saving settings. Please try again.');
+                })
+                .always(function() {
+                    $button.prop('disabled', false).text(originalText);
+                });
+        });
 
         // Attach event listener to close button
         $('.roadmap-modal-close').on('click', function() {

@@ -16,6 +16,7 @@
       
       <!-- Filters -->
       <RoadmapFilters
+        v-if="config.show_filters !== false"
         v-model:status="selectedStatus"
         v-model:category="selectedCategory"
         v-model:product="selectedProduct"
@@ -50,6 +51,8 @@
           :mode="currentMode"
           :can-edit="canEdit"
           :pro-features="config.pro_features"
+          :show-votes="config.settings.enable_voting !== false"
+          :show-comments="config.settings.enable_comments !== false"
           @update-item="updateItem"
           @delete-item="deleteItem"
           @vote="submitVote"
@@ -66,6 +69,8 @@
           :mode="currentMode"
           :can-edit="canEdit"
           :pro-features="config.pro_features"
+          :show-votes="config.settings.enable_voting !== false"
+          :show-comments="config.settings.enable_comments !== false"
           @update-item="updateItem"
           @delete-item="deleteItem"
           @vote="submitVote"
@@ -137,6 +142,8 @@
           :mode="currentMode"
           :can-edit="canEdit"
           :pro-features="config.pro_features"
+          :show-votes="config.settings.enable_voting !== false"
+          :show-comments="config.settings.enable_comments !== false"
           @update-item="updateItem"
           @delete-item="deleteItem"
           @vote="submitVote"
@@ -595,7 +602,12 @@ const submitVote = async (itemId, voteValue) => {
       item.user_voted = voteValue
     }
     
-    showNotification(props.config.i18n.vote_submitted, 'success')
+    showNotification(
+      voteValue === 0
+        ? (props.config.i18n.vote_removed || 'Your vote has been removed')
+        : props.config.i18n.vote_submitted,
+      'success'
+    )
   } catch (err) {
     showNotification(err.message || props.config.i18n.error, 'error')
   }

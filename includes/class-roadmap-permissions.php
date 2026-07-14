@@ -89,22 +89,22 @@ class Roadmap_Permissions {
     public function filter_capabilities($allcaps, $caps, $args, $user) {
         $global_settings = get_option('roadmap_global_settings', []);
 
-        // Check if voting is enabled
+        // Revoke the feature cap when the corresponding feature is disabled, so
+        // current_user_can('roadmap_vote'|'roadmap_comment'|'roadmap_suggest')
+        // reflects the setting for third-party callers too.
         $voting_enabled = $global_settings['enable_voting'] ?? (get_option('roadmap_enable_voting', 'yes') === 'yes');
-        if (in_array('roadmap_vote', $caps) && !$voting_enabled) {
-            return $allcaps;
+        if (in_array('roadmap_vote', $caps, true) && !$voting_enabled) {
+            $allcaps['roadmap_vote'] = false;
         }
 
-        // Check if comments are enabled
         $comments_enabled = $global_settings['enable_comments'] ?? (get_option('roadmap_enable_comments', 'yes') === 'yes');
-        if (in_array('roadmap_comment', $caps) && !$comments_enabled) {
-            return $allcaps;
+        if (in_array('roadmap_comment', $caps, true) && !$comments_enabled) {
+            $allcaps['roadmap_comment'] = false;
         }
 
-        // Check if suggestions are enabled
         $suggestions_enabled = $global_settings['enable_suggestions'] ?? (get_option('roadmap_enable_suggestions', 'yes') === 'yes');
-        if (in_array('roadmap_suggest', $caps) && !$suggestions_enabled) {
-            return $allcaps;
+        if (in_array('roadmap_suggest', $caps, true) && !$suggestions_enabled) {
+            $allcaps['roadmap_suggest'] = false;
         }
 
         return $allcaps;

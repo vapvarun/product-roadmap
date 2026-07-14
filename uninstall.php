@@ -40,3 +40,6 @@ $wpdb->query(
 	 WHERE option_name LIKE '\_transient\_roadmap\_%'
 	    OR option_name LIKE '\_transient\_timeout\_roadmap\_%'"
 );
+
+// Delete per-user notification opt-out meta for all users.
+delete_metadata( 'user', 0, 'roadmap_notifications_optout', '', true );

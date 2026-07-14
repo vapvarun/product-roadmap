@@ -41,8 +41,15 @@
             <div class="roadmap-minimal-item-content">
               <h3 class="roadmap-minimal-item-title">
                 {{ item.title }}
-                <span 
-                  v-if="item.priority" 
+                <span
+                  v-if="item.is_suggestion"
+                  class="roadmap-minimal-source-badge"
+                  :title="i18n.user_suggested_title || 'Suggested by a user'"
+                >
+                  {{ i18n.suggested || 'Suggested' }}
+                </span>
+                <span
+                  v-if="item.priority"
                   class="roadmap-minimal-priority"
                   :title="`${i18n.priority || 'Priority'}: ${item.priority}`"
                 >
@@ -55,11 +62,11 @@
               </p>
               
               <div class="roadmap-minimal-item-meta">
-                <div class="roadmap-minimal-votes">
+                <div v-if="showVotes" class="roadmap-minimal-votes">
                   <span class="roadmap-minimal-vote-icon">👍</span>
                   {{ item.votes || 0 }}
                 </div>
-                <div class="roadmap-minimal-comments">
+                <div v-if="showComments" class="roadmap-minimal-comments">
                   <span class="roadmap-minimal-comment-icon">💬</span>
                   {{ item.comment_count || 0 }}
                 </div>
@@ -147,6 +154,14 @@ const props = defineProps({
   proFeatures: {
     type: Object,
     default: () => ({})
+  },
+  showVotes: {
+    type: Boolean,
+    default: true
+  },
+  showComments: {
+    type: Boolean,
+    default: true
   }
 })
 
@@ -456,6 +471,21 @@ const formatDate = (date) => {
   &.roadmap-status-under-review {
     background: var(--rm-review);
   }
+}
+
+.roadmap-minimal-source-badge {
+  display: inline-block;
+  margin-inline-start: 8px;
+  padding: 2px 8px;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1.6;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  vertical-align: middle;
+  border-radius: 10px;
+  color: var(--rm-review, #7c3aed);
+  background: color-mix(in srgb, var(--rm-review, #7c3aed) 14%, transparent);
 }
 
 .roadmap-minimal-votes,
