@@ -121,6 +121,7 @@ Multiple product roadmaps are available in the Pro version. Free version support
 
 * Fix      - Product theme colour now saves; the settings modal was missing its AJAX submit handler, so the Save button did nothing.
 * Fix      - Product settings modal now loads the saved colour and default status when opened, instead of always resetting to the default blue.
+* Fix      - Saved product theme colour now recolours the [roadmap] and [roadmap_changelog] frontend; the accent was previously wired only to the site theme colour and ignored the setting.
 * Fix      - show_filters="false" on the [roadmap] shortcode and the Show Filters block toggle now hide the filter bar; the attribute was previously ignored.
 * Fix      - Admin Vote Count now matches the frontend; the edit screen read a separate key that only demo import wrote, so the two never agreed.
 * Fix      - Removing a vote now shows "Your vote has been removed" instead of the "vote submitted" message.

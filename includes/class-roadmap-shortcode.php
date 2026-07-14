@@ -102,8 +102,10 @@ class Roadmap_Shortcode {
 		$app_id = 'roadmap-app-' . uniqid();
 
 		ob_start();
+		// Apply the site owner's saved per-product Theme Color, scoped to this instance.
+		echo $this->accent_inline_style( $app_id, $this->get_product_accent_color( $atts['product'] ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- returns escaped, self-contained <style>.
 		?>
-		<div id="<?php echo esc_attr( $app_id ); ?>" 
+		<div id="<?php echo esc_attr( $app_id ); ?>"
 			class="roadmap-app <?php echo esc_attr( $atts['class'] ); ?> <?php echo esc_attr( $atts['product'] ? 'roadmap-single-product' : '' ); ?>"
 			data-config='<?php echo esc_attr( json_encode( $app_data ) ); ?>'>
 			<div class="roadmap-loading">
@@ -206,9 +208,13 @@ class Roadmap_Shortcode {
 		// Enqueue changelog styles
 		$this->enqueue_changelog_assets();
 
+		$changelog_id = 'roadmap-changelog-' . uniqid();
+
 		ob_start();
+		// Apply the site owner's saved per-product Theme Color, scoped to this instance.
+		echo $this->accent_inline_style( $changelog_id, $this->get_product_accent_color( $atts['product'] ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- returns escaped, self-contained <style>.
 		?>
-		<div class="roadmap-changelog <?php echo esc_attr( $atts['class'] ); ?>" <?php echo $collapsible ? 'data-collapsible="true"' : ''; ?>>
+		<div id="<?php echo esc_attr( $changelog_id ); ?>" class="roadmap-changelog <?php echo esc_attr( $atts['class'] ); ?>" <?php echo $collapsible ? 'data-collapsible="true"' : ''; ?>>
 			<?php
 			while ( $changelogs->have_posts() ) :
 				$changelogs->the_post();
@@ -292,6 +298,66 @@ class Roadmap_Shortcode {
 		<?php
 
 		return ob_get_clean();
+	}
+
+	/**
+	 * Resolve a product slug to its saved per-product accent (Theme Color) setting.
+	 *
+	 * Site owners set this under Product Roadmap > Products > Settings; it is stored
+	 * in the `roadmap_product_settings` term meta on the roadmap_product taxonomy.
+	 * Returns a sanitized hex color, or '' when none is set (the frontend then falls
+	 * back to the site theme's --wp--preset--color--primary).
+	 *
+	 * @param string $product_slug Product slug from the shortcode `product` attribute.
+	 * @return string Hex color (e.g. #2271b1) or '' if unset/invalid.
+	 */
+	private function get_product_accent_color( $product_slug ) {
+		if ( empty( $product_slug ) ) {
+			return '';
+		}
+
+		$term = get_term_by( 'slug', $product_slug, 'roadmap_product' );
+		if ( ! $term instanceof WP_Term ) {
+			return '';
+		}
+
+		$settings = get_term_meta( $term->term_id, 'roadmap_product_settings', true );
+		if ( empty( $settings['theme_color'] ) ) {
+			return '';
+		}
+
+		return (string) sanitize_hex_color( $settings['theme_color'] );
+	}
+
+	/**
+	 * Build a scoped inline <style> that overrides the roadmap accent for one instance.
+	 *
+	 * Only --roadmap-accent is set: every derived token (hover/tint/text/contrast) is
+	 * computed from it via color-mix()/oklch(), so this single override cascades through
+	 * the whole widget. Returns '' when no color is given, leaving the theme-driven default.
+	 *
+	 * The Vue app re-declares --roadmap-accent on the inner `.roadmap-container`, so an
+	 * override on the outer element alone would be shadowed for everything inside it; we
+	 * therefore target the wrapper AND `#id .roadmap-container` (id specificity wins).
+	 * The changelog declares the token on its own element, which the wrapper rule covers.
+	 *
+	 * @param string $element_id Container element id to scope the override to.
+	 * @param string $color      Sanitized hex color, or '' to skip.
+	 * @return string Safe <style> markup, or ''.
+	 */
+	private function accent_inline_style( $element_id, $color ) {
+		if ( empty( $color ) || empty( $element_id ) ) {
+			return '';
+		}
+
+		$id    = esc_attr( $element_id );
+		$color = esc_attr( $color );
+
+		return sprintf(
+			'<style>#%1$s,#%1$s .roadmap-container{--roadmap-accent:%2$s;}</style>',
+			$id,
+			$color
+		);
 	}
 
 	/**
