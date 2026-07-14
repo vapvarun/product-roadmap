@@ -301,13 +301,41 @@ class Roadmap_Changelog {
 						),
 					),
 				),
-				'single'        => true,
-				'type'          => 'array',
-				'auth_callback' => function () {
+				'single'            => true,
+				'type'              => 'array',
+				'sanitize_callback' => array( $this, 'sanitize_changelog_items' ),
+				'auth_callback'     => function () {
 					return current_user_can( 'edit_posts' );
 				},
 			)
 		);
+	}
+
+	/**
+	 * Sanitize the _changelog_items meta (array of {type, description}).
+	 *
+	 * REST writes were previously stored unsanitized; this normalizes each row.
+	 *
+	 * @param mixed $items Raw meta value.
+	 * @return array Sanitized list of changelog items.
+	 */
+	public function sanitize_changelog_items( $items ) {
+		if ( ! is_array( $items ) ) {
+			return array();
+		}
+
+		$clean = array();
+		foreach ( $items as $item ) {
+			if ( ! is_array( $item ) ) {
+				continue;
+			}
+			$clean[] = array(
+				'type'        => isset( $item['type'] ) ? sanitize_text_field( $item['type'] ) : '',
+				'description' => isset( $item['description'] ) ? sanitize_textarea_field( $item['description'] ) : '',
+			);
+		}
+
+		return $clean;
 	}
 
 	/**
@@ -1009,9 +1037,41 @@ class Roadmap_Changelog {
 			return;
 		}
 
+		/**
+		 * Allow a theme to take over changelog styling entirely.
+		 *
+		 * Return false (e.g. add_filter( 'roadmap_changelog_enqueue_frontend_css', '__return_false' ))
+		 * to stop the plugin from loading its own changelog CSS so the theme can
+		 * provide its own.
+		 *
+		 * @param bool $load Whether to enqueue the plugin's changelog CSS.
+		 */
+		if ( ! apply_filters( 'roadmap_changelog_enqueue_frontend_css', true ) ) {
+			return;
+		}
+
+		// Prefer a theme override if the active (child or parent) theme ships
+		// `roadmap/changelog-frontend.css`, so themes can style the changelog
+		// without a filter. Fall back to the plugin's stylesheet otherwise.
+		$relative = 'roadmap/changelog-frontend.css';
+		if ( file_exists( trailingslashit( get_stylesheet_directory() ) . $relative ) ) {
+			$css_url = trailingslashit( get_stylesheet_directory_uri() ) . $relative;
+		} elseif ( file_exists( trailingslashit( get_template_directory() ) . $relative ) ) {
+			$css_url = trailingslashit( get_template_directory_uri() ) . $relative;
+		} else {
+			$css_url = ROADMAP_PLUGIN_URL . 'assets/css/changelog-frontend.css';
+		}
+
+		/**
+		 * Filter the final changelog CSS URL (theme override already applied).
+		 *
+		 * @param string $css_url Stylesheet URL that will be enqueued.
+		 */
+		$css_url = apply_filters( 'roadmap_changelog_frontend_css_url', $css_url );
+
 		wp_enqueue_style(
 			'roadmap-changelog-frontend',
-			ROADMAP_PLUGIN_URL . 'assets/css/changelog-frontend.css',
+			$css_url,
 			array(),
 			ROADMAP_VERSION
 		);

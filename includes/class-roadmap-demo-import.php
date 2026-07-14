@@ -22,9 +22,6 @@ class Roadmap_Demo_Import {
         // Only show the setup notice - demo import is handled by setup wizard
         add_action('admin_notices', array($this, 'show_setup_notice'));
         add_action('wp_ajax_roadmap_dismiss_setup_notice', array($this, 'dismiss_setup_notice'));
-        
-        // Legacy hook - kept to prevent errors during transition
-        add_action('admin_init', array($this, 'handle_demo_import'));
     }
     
     
@@ -80,22 +77,19 @@ class Roadmap_Demo_Import {
         update_option('roadmap_setup_notice_dismissed', true);
         wp_die();
     }
-    
-    
-    /**
-     * Legacy demo import handler - now handled by setup wizard
-     * Kept to prevent errors during transition
-     */
-    public function handle_demo_import() {
-        // This functionality is now handled by the setup wizard
-        // This method is kept empty to prevent errors
-        return;
-    }
-    
+
+
     /**
      * Import demo content - public wrapper
      */
     public function import_demo_content_direct() {
+        // Guard against duplicate imports: re-running the wizard (e.g. after
+        // Start Over) must not create a second set of demo items. The demo can
+        // be re-imported only after the roadmap_demo_imported flag is cleared.
+        if (get_option('roadmap_demo_imported')) {
+            return false;
+        }
+
         // Ensure post type and taxonomies are registered
         if (!post_type_exists('roadmap_item')) {
             Roadmap_CPT::get_instance()->register_post_types();
@@ -274,7 +268,7 @@ class Roadmap_Demo_Import {
                 
                 // Update meta fields with proper values
                 update_post_meta($post_id, '_roadmap_priority', $item['priority']);
-                update_post_meta($post_id, '_roadmap_vote_count', $item['votes']);
+                update_post_meta($post_id, '_roadmap_votes', $item['votes']);
                 
                 // Set target date if provided
                 if (isset($item['target_date'])) {

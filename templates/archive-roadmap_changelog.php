@@ -96,9 +96,21 @@ if ( ! is_wp_error( $all_products ) ) {
 		wp_reset_postdata();
 	}
 }
+
+// When the archive is filtered to one product, apply that product's saved Theme
+// Color to the changelog accent, scoped to this wrapper. An unfiltered (mixed
+// products) archive has no single accent, so it keeps the theme default.
+$rm_accent = '';
+if ( $current_product_term && ! is_wp_error( $current_product_term ) ) {
+	$rm_settings = get_term_meta( $current_product_term->term_id, 'roadmap_product_settings', true );
+	$rm_accent   = ! empty( $rm_settings['theme_color'] ) ? sanitize_hex_color( $rm_settings['theme_color'] ) : '';
+}
 ?>
 
-<div class="roadmap-changelog-archive-wrapper">
+<?php if ( $rm_accent ) : ?>
+	<style>#roadmap-changelog-archive-wrapper{--roadmap-accent:<?php echo esc_attr( $rm_accent ); ?>;}</style>
+<?php endif; ?>
+<div id="roadmap-changelog-archive-wrapper" class="roadmap-changelog-archive-wrapper">
 	<header class="changelog-archive-header">
 		<h1 class="changelog-archive-title">
 			<?php

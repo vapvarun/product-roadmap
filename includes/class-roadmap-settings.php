@@ -805,7 +805,7 @@ class Roadmap_Settings {
 					<p><?php esc_html_e( 'Create your first product to start building roadmaps your users will love.', 'product-roadmap' ); ?></p>
 					<a href="<?php echo esc_url( admin_url( 'edit-tags.php?taxonomy=roadmap_product&post_type=roadmap_item' ) ); ?>"
 						class="button button-primary button-hero">
-						<span class="dashicons dashicons-plus-alt2" style="margin-top: 4px;"></span>
+						<span class="dashicons dashicons-plus-alt2"></span>
 						<?php esc_html_e( 'Create Your First Product', 'product-roadmap' ); ?>
 					</a>
 				</div>
@@ -813,7 +813,7 @@ class Roadmap_Settings {
 				<div class="products-header-actions">
 					<a href="<?php echo esc_url( admin_url( 'edit-tags.php?taxonomy=roadmap_product&post_type=roadmap_item' ) ); ?>"
 						class="button button-primary">
-						<span class="dashicons dashicons-plus-alt2" style="margin-top: 4px;"></span>
+						<span class="dashicons dashicons-plus-alt2"></span>
 						<?php esc_html_e( 'Add New Product', 'product-roadmap' ); ?>
 					</a>
 				</div>
@@ -903,16 +903,16 @@ class Roadmap_Settings {
 							<div class="product-actions">
 								<a href="<?php echo esc_url( admin_url( 'edit.php?post_type=roadmap_item&roadmap_product=' . $product->slug ) ); ?>"
 									class="button button-primary">
-									<span class="dashicons dashicons-visibility" style="margin-top: 4px;"></span>
+									<span class="dashicons dashicons-visibility"></span>
 									<?php esc_html_e( 'View Items', 'product-roadmap' ); ?>
 								</a>
 								<a href="<?php echo esc_url( get_term_link( $product, 'roadmap_product' ) ); ?>"
 									class="button" target="_blank">
-									<span class="dashicons dashicons-external" style="margin-top: 4px;"></span>
+									<span class="dashicons dashicons-external"></span>
 									<?php esc_html_e( 'View Roadmap', 'product-roadmap' ); ?>
 								</a>
 								<a href="#" class="button" onclick="editProductSettings('<?php echo esc_attr( (string) $product->term_id ); ?>'); return false;">
-									<span class="dashicons dashicons-admin-generic" style="margin-top: 4px;"></span>
+									<span class="dashicons dashicons-admin-generic"></span>
 									<?php esc_html_e( 'Settings', 'product-roadmap' ); ?>
 								</a>
 							</div>
@@ -1096,6 +1096,7 @@ class Roadmap_Settings {
 				'import_success'      => __( 'Demo data imported successfully!', 'product-roadmap' ),
 				'import_error'        => __( 'Error importing demo data. Please try again.', 'product-roadmap' ),
 				'import_demo_text'    => __( 'Import Demo Data', 'product-roadmap' ),
+				'save_error'          => __( 'Error saving settings. Please try again.', 'product-roadmap' ),
 			)
 		);
 

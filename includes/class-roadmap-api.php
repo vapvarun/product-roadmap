@@ -266,27 +266,7 @@ class Roadmap_API {
 			)
 		);
 
-		// Comment endpoints
-		register_rest_route(
-			$this->namespace,
-			'/comment',
-			array(
-				'methods'             => 'POST',
-				'callback'            => array( $this, 'submit_comment' ),
-				'permission_callback' => array( $this, 'can_comment' ),
-				'args'                => array(
-					'item_id' => array(
-						'required'          => true,
-						'sanitize_callback' => 'absint',
-					),
-					'content' => array(
-						'required'          => true,
-						'sanitize_callback' => 'sanitize_textarea_field',
-					),
-				),
-			)
-		);
-
+		// Comment listing endpoint (the POST /comment route is registered above).
 		register_rest_route(
 			$this->namespace,
 			'/items/(?P<id>\d+)/comments',
@@ -435,6 +415,7 @@ class Roadmap_API {
 			'user_voted'      => $user_voted,
 			'product'         => $this->get_item_terms( $post->ID, 'roadmap_product' ),
 			'link'            => get_permalink( $post->ID ),
+			'is_suggestion'   => ( 'suggestion' === get_post_meta( $post->ID, '_roadmap_source', true ) ),
 		);
 
 		return apply_filters( 'roadmap_api_format_item', $item, $post );
@@ -705,6 +686,10 @@ class Roadmap_API {
 		$post_id = wp_insert_post( $post_data, true );
 
 		if ( $post_id && ! is_wp_error( $post_id ) ) {
+			// Flag this item as user-suggested so it can be told apart from
+			// admin-created items even after it is approved and published.
+			update_post_meta( $post_id, '_roadmap_source', 'suggestion' );
+
 			// Set status based on settings - use configured default status for all suggestions
 			$default_status = $global_settings['suggestion_default_status'] ?? 'planned';
 			wp_set_object_terms( $post_id, $default_status, 'roadmap_status' );

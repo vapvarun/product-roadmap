@@ -25,8 +25,40 @@ class Roadmap_Setup_Wizard {
         
         // Handle start over before any output
         add_action('admin_init', array($this, 'handle_start_over'), 1);
+
+        // Redirect to the wizard once, right after activation.
+        add_action('admin_init', array($this, 'maybe_activation_redirect'));
     }
-    
+
+    /**
+     * Redirect to the setup wizard on the first admin load after activation.
+     *
+     * The activation hook sets the roadmap_activation_redirect transient; this
+     * consumes it exactly once. Skipped for bulk/network activations and AJAX.
+     */
+    public function maybe_activation_redirect() {
+        if (! get_transient('roadmap_activation_redirect')) {
+            return;
+        }
+
+        // Don't consume the flag on AJAX/heartbeat, network admin, or bulk
+        // activation - otherwise a background heartbeat request clears it before
+        // the real admin page load gets a chance to redirect.
+        if (wp_doing_ajax() || is_network_admin() || isset($_GET['activate-multi'])) {
+            return;
+        }
+
+        // Real admin page load: consume the flag exactly once so we never loop.
+        delete_transient('roadmap_activation_redirect');
+
+        if (! current_user_can('manage_options')) {
+            return;
+        }
+
+        wp_safe_redirect(admin_url('admin.php?page=roadmap-setup-wizard'));
+        exit;
+    }
+
     /**
      * Handle start over action early before any output
      */
@@ -465,7 +497,23 @@ class Roadmap_Setup_Wizard {
                 $product_name = isset($_POST['product_name']) ? sanitize_text_field(wp_unslash($_POST['product_name'])) : '';
                 $item_singular = isset($_POST['item_singular']) ? sanitize_text_field(wp_unslash($_POST['item_singular'])) : 'Feature';
                 $item_plural = isset($_POST['item_plural']) ? sanitize_text_field(wp_unslash($_POST['item_plural'])) : 'Features';
-                
+
+                // Never persist an empty product name. The form marks it required,
+                // but a direct POST can bypass that; fall back to any existing name,
+                // then the site title, then a sane default.
+                if ('' === $product_name) {
+                    $product_name = (string) get_option('roadmap_product_name');
+                    if ('' === $product_name) {
+                        $product_name = get_bloginfo('name') ? get_bloginfo('name') : __('My Product', 'product-roadmap');
+                    }
+                }
+                if ('' === $item_singular) {
+                    $item_singular = 'Feature';
+                }
+                if ('' === $item_plural) {
+                    $item_plural = 'Features';
+                }
+
                 update_option('roadmap_product_name', $product_name);
                 update_option('roadmap_item_singular_label', $item_singular);
                 update_option('roadmap_item_plural_label', $item_plural);

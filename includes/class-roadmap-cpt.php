@@ -40,6 +40,10 @@ class Roadmap_CPT {
 		add_filter( 'views_edit-roadmap_item', array( $this, 'add_pending_post_status_view' ) );
 
 		// Quick approve/reject actions
+		// Show a Source column so admin-created and user-suggested items are easy to tell apart.
+		add_filter( 'manage_roadmap_item_posts_columns', array( $this, 'add_source_column' ) );
+		add_action( 'manage_roadmap_item_posts_custom_column', array( $this, 'render_source_column' ), 10, 2 );
+
 		add_filter( 'post_row_actions', array( $this, 'add_quick_approve_actions' ), 10, 2 );
 		add_action( 'admin_action_approve_roadmap_item', array( $this, 'handle_approve_action' ) );
 		add_action( 'admin_action_reject_roadmap_item', array( $this, 'handle_reject_action' ) );
@@ -442,7 +446,7 @@ class Roadmap_CPT {
 				'free'        => true,
 			),
 			array(
-				'id'          => '_roadmap_vote_count',
+				'id'          => '_roadmap_votes',
 				'label'       => __( 'Vote Count', 'product-roadmap' ),
 				'type'        => 'number',
 				'readonly'    => true,
@@ -881,6 +885,56 @@ class Roadmap_CPT {
 		}
 
 		return $template;
+	}
+
+	/**
+	 * Add a "Source" column to the roadmap item list table.
+	 *
+	 * Inserted after the title so it's the first thing scanned.
+	 *
+	 * @param array $columns Existing columns.
+	 * @return array
+	 */
+	public function add_source_column( $columns ) {
+		$new = array();
+		foreach ( $columns as $key => $label ) {
+			$new[ $key ] = $label;
+			if ( 'title' === $key ) {
+				$new['roadmap_source'] = __( 'Source', 'product-roadmap' );
+			}
+		}
+		// Fallback if there was no title column for some reason.
+		if ( ! isset( $new['roadmap_source'] ) ) {
+			$new['roadmap_source'] = __( 'Source', 'product-roadmap' );
+		}
+		return $new;
+	}
+
+	/**
+	 * Render the Source column: user-suggested vs admin-created.
+	 *
+	 * @param string $column  Column key.
+	 * @param int    $post_id Post ID.
+	 * @return void
+	 */
+	public function render_source_column( $column, $post_id ) {
+		if ( 'roadmap_source' !== $column ) {
+			return;
+		}
+
+		$is_suggestion = ( 'suggestion' === get_post_meta( $post_id, '_roadmap_source', true ) );
+
+		if ( $is_suggestion ) {
+			printf(
+				'<span class="roadmap-source-badge roadmap-source-badge--suggested" style="display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;color:#7c3aed;background:#f3e8ff;">%s</span>',
+				esc_html__( 'Suggested', 'product-roadmap' )
+			);
+		} else {
+			printf(
+				'<span class="roadmap-source-badge roadmap-source-badge--created" style="display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;color:#334155;background:#e2e8f0;">%s</span>',
+				esc_html__( 'Created', 'product-roadmap' )
+			);
+		}
 	}
 
 	/**

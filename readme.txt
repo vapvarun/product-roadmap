@@ -3,7 +3,7 @@ Contributors: wbcomdesigns, vapvarun
 Tags: roadmap, feature requests, user feedback, changelog, feature voting
 Requires at least: 5.8
 Tested up to: 7.0
-Stable tag: 1.7.0
+Stable tag: 1.7.1
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -116,6 +116,27 @@ Multiple product roadmaps are available in the Pro version. Free version support
 8. Individual roadmap item with voting and comments
 
 == Changelog ==
+
+= 1.7.1 - July 2026 =
+
+* Fix      - Product theme colour now saves; the settings modal was missing its AJAX submit handler, so the Save button did nothing.
+* Fix      - Product settings modal now loads the saved colour and default status when opened, instead of always resetting to the default blue.
+* Fix      - Saved product theme colour now recolours the [roadmap] and [roadmap_changelog] frontend; the accent was previously wired only to the site theme colour and ignored the setting.
+* Fix      - show_filters="false" on the [roadmap] shortcode and the Show Filters block toggle now hide the filter bar; the attribute was previously ignored.
+* Fix      - Admin Vote Count now matches the frontend; the edit screen read a separate key that only demo import wrote, so the two never agreed.
+* Fix      - Removing a vote now shows "Your vote has been removed" instead of the "vote submitted" message.
+* Fix      - Setup wizard now opens automatically on first activation; the redirect flag was set but never acted on.
+* Fix      - Demo content no longer imports twice when the wizard is re-run, which previously duplicated the sample items.
+* Fix      - Setup wizard no longer accepts an empty product name submitted by a direct request; it falls back to the site title.
+* Fix      - Disabling voting, comments or suggestions now revokes the matching capability so current_user_can() reports it correctly.
+* Improve  - Product card action buttons (View Items, View Roadmap, Settings) and the Add New Product button align their icons with the label.
+* Improve  - Vote and comment counts are hidden on the board when voting or comments are disabled, so a disabled feature no longer looks actionable.
+* Improve  - User-suggested items now carry a Suggested badge on the board and a Source column in the admin list, so they are easy to tell apart from admin-created items.
+* Improve  - Changelog frontend styling can be overridden by the theme (drop roadmap/changelog-frontend.css in the theme, or use the roadmap_changelog_enqueue_frontend_css filter).
+* Security - Sanitize changelog items saved through the REST meta endpoint.
+* Dev      - Remove a duplicate REST POST /comment route registration and an empty legacy demo-import hook.
+* Dev      - uninstall.php now also removes the per-user notification opt-out meta.
+* Compat   - Aligned with Product Roadmap Pro 1.7.1. Install both updates together.
 
 = 1.7.0 - July 2026 =
 

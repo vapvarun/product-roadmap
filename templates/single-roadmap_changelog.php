@@ -18,9 +18,19 @@ while (have_posts()) :
     $changelog = Roadmap_Changelog::get_changelog_data(get_the_ID());
     $products = $changelog['product'] ?? [];
     $product = !empty($products) ? $products[0] : null;
+
+    // Apply the product's saved Theme Color to the changelog accent, scoped to
+    // this instance. The accent token is declared on .roadmap-changelog-wrapper,
+    // so overriding it via the id (higher specificity) cascades to every shade.
+    $rm_settings = $product ? get_term_meta($product->term_id, 'roadmap_product_settings', true) : '';
+    $rm_accent   = !empty($rm_settings['theme_color']) ? sanitize_hex_color($rm_settings['theme_color']) : '';
+    $rm_wrap_id  = 'roadmap-changelog-wrapper-' . get_the_ID();
     ?>
 
-    <div class="roadmap-changelog-wrapper">
+    <?php if ($rm_accent): ?>
+        <style>#<?php echo esc_attr($rm_wrap_id); ?>{--roadmap-accent:<?php echo esc_attr($rm_accent); ?>;}</style>
+    <?php endif; ?>
+    <div id="<?php echo esc_attr($rm_wrap_id); ?>" class="roadmap-changelog-wrapper">
         <article id="changelog-<?php the_ID(); ?>" <?php post_class('roadmap-changelog-article'); ?>>
 
             <header class="changelog-entry-header">

@@ -390,11 +390,36 @@
     align-items: center;
     justify-content: center;
     gap: 6px;
+    min-height: 40px;
     padding: 10px 16px !important;
     font-size: 13px;
     font-weight: 500;
+    line-height: 1.4;
+    box-sizing: border-box;
     border-radius: 8px !important;
     transition: all 0.2s ease;
+}
+
+/* Consistent icon + label alignment for every action button in the roadmap admin.
+   Buttons carry a leading dashicon; without this they render the icon low-left of
+   the label. inline-flex + centered gap keeps icon and text on one baseline. */
+.roadmap-settings-wrap .products-header-actions .button,
+.roadmap-settings-wrap .roadmap-empty-state .button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.roadmap-product-card .product-actions .button .dashicons,
+.roadmap-settings-wrap .products-header-actions .button .dashicons,
+.roadmap-settings-wrap .roadmap-empty-state .button .dashicons {
+    width: 18px;
+    height: 18px;
+    font-size: 18px;
+    line-height: 1;
+    margin: 0;
+    flex-shrink: 0;
 }
 
 .roadmap-product-card .product-actions .button-primary {
