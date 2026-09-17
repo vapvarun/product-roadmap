@@ -263,7 +263,7 @@ Use this content for website ROI sections, sales conversations, and value-based 
 
 **Headline:** Try Pro Risk-Free
 
-**Copy:** Not sure if Pro is right for you? Try it for 30 days. If it doesn't meet your needs, we'll refund your purchase. No questions asked.
+**Copy:** Not sure if Pro is right for you? Try it for 30 days. If it doesn't meet your needs, we'll refund your purchase.
 
 **Why it works:**
 - Removes purchase barrier

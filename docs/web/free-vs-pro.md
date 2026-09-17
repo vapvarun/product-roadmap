@@ -364,7 +364,7 @@ If you need analytics, multi-product support, timeline view, or any Pro feature:
 - Priority email support
 - Automatic updates
 - Full documentation
-- 14-day money-back guarantee (check current terms)
+- 30-day money-back guarantee
 
 ---
 

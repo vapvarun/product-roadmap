@@ -302,7 +302,7 @@ One-time purchase. Lifetime updates.
 **30-Day Money-Back Guarantee**
 
 ### Content
-Try Pro risk-free. If it doesn't meet your needs within 30 days, we'll refund your purchase. No questions asked.
+Try Pro risk-free. If it doesn't meet your needs within 30 days, we'll refund your purchase.
 
 ---
 
