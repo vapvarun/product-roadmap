@@ -121,6 +121,11 @@ class RoadmapPlugin {
             // indexes via upgrade_votes_indexes().
             $this->create_tables();
 
+            // Recompute the cached vote counts. They used to store
+            // SUM(vote_value), a net score, while everything that reads them
+            // presents "Votes" as a number of voters.
+            $this->recount_votes();
+
             // Update stored version
             update_option('roadmap_version', ROADMAP_VERSION);
         }
@@ -259,6 +264,39 @@ class RoadmapPlugin {
      * explicitly and idempotently. Speeds up every date-window vote query
      * (analytics charts, digests) at scale.
      */
+    /**
+     * Rebuild the cached vote counts from the votes table.
+     *
+     * Runs once per version change. On a board that has ever received a
+     * downvote the displayed numbers go UP, because the stored value was a net
+     * score and is now a count of voters - that change is called out in the
+     * changelog.
+     *
+     * Done in one grouped query rather than per item so it stays cheap on a
+     * large board.
+     *
+     * @return void
+     */
+    private function recount_votes() {
+        global $wpdb;
+
+        $table = $wpdb->prefix . 'roadmap_votes';
+
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) !== $table ) {
+            return;
+        }
+
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        $counts = $wpdb->get_results(
+            "SELECT item_id, COUNT(*) AS total FROM {$table} WHERE vote_value > 0 GROUP BY item_id"
+        );
+
+        foreach ( $counts as $row ) {
+            update_post_meta( (int) $row->item_id, '_roadmap_votes', (int) $row->total );
+        }
+    }
+
     private function upgrade_votes_indexes() {
         global $wpdb;
         $table = $wpdb->prefix . 'roadmap_votes';

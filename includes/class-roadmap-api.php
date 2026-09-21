@@ -684,10 +684,16 @@ class Roadmap_API {
 		global $wpdb;
 		$table = $wpdb->prefix . 'roadmap_votes';
 
+		// COUNT, not SUM. The stored value is displayed as "Votes" on the board
+		// and in the admin, and SUM(vote_value) is a net score that downvotes
+		// silently reduce - so a board could show fewer votes than it had
+		// voters, and Pro's analytics (which counts rows) never reconciled with
+		// it. One meaning of "Votes" everywhere: how many people voted.
+		// A removed vote deletes its row, so it stops counting either way.
 		$vote_count = $wpdb->get_var(
 			$wpdb->prepare(
             // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-				"SELECT SUM(vote_value) FROM {$table} WHERE item_id = %d",
+				"SELECT COUNT(*) FROM {$table} WHERE item_id = %d AND vote_value > 0",
 				$item_id
 			)
 		); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table, vote count is cached in post meta
