@@ -945,9 +945,33 @@ class Roadmap_Changelog {
 			return $data;
 		}
 
-		// Only process on publish or if slug is empty/auto-draft
-		if ( empty( $data['post_name'] ) || $data['post_name'] === 'auto-draft' ) {
-			$version = isset( $postarr['_changelog_version'] ) ? $postarr['_changelog_version'] : '';
+		// Never derive a slug while WordPress is creating the auto-draft: at
+		// that point the title is "Auto Draft" and no product is assigned, so
+		// this produced "general-auto-draft" and wrote it to post_name. Being
+		// non-empty from then on, the guard below never fired again and the
+		// slug was stuck for the life of the entry.
+		if ( 'auto-draft' === ( $data['post_status'] ?? '' ) ) {
+			return $data;
+		}
+
+		if ( empty( $data['post_title'] ) || 'Auto Draft' === $data['post_title'] ) {
+			return $data;
+		}
+
+		// Re-derive when the slug is missing, or when it is the artefact a
+		// previous version of this code left behind.
+		$needs_slug = empty( $data['post_name'] )
+			|| 'auto-draft' === $data['post_name']
+			|| (bool) preg_match( '/-auto-draft(-\d+)?$/', $data['post_name'] );
+
+		if ( $needs_slug ) {
+			// The version arrives in the POST body, not in $postarr - reading
+			// $postarr['_changelog_version'] meant the product-vX.Y.Z branch
+			// below never ran.
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- slug derivation only; the save itself is nonce-checked
+			$version = isset( $_POST['_changelog_version'] )
+				? sanitize_text_field( wp_unslash( $_POST['_changelog_version'] ) )
+				: (string) get_post_meta( $postarr['ID'] ?? 0, '_changelog_version', true );
 
 			// Get product slug if available
 			$product_slug = 'general';

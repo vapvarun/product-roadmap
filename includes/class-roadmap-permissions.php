@@ -18,6 +18,7 @@ class Roadmap_Permissions {
     private function __construct() {
         add_action( 'init', [ $this, 'maybe_add_capabilities' ] );
         add_filter( 'user_has_cap', [ $this, 'filter_capabilities' ], 10, 4 );
+        add_filter( 'comments_open', [ __CLASS__, 'filter_comments_open' ], 10, 2 );
     }
 
     /**
@@ -155,6 +156,32 @@ class Roadmap_Permissions {
      * @param int|null $user_id Defaults to the current user.
      * @return bool
      */
+    /**
+     * Close WordPress comments on roadmap items when the feature is off.
+     *
+     * The board and the REST route were both gated correctly, but the single
+     * item template asks core via comments_open(), which knows nothing about
+     * this plugin's setting - so the full reply form still rendered and a
+     * posted comment was accepted and auto-approved. Filtering comments_open
+     * fixes the template, the REST route and any theme at once, which is why
+     * it belongs here rather than in the template.
+     *
+     * @param bool $open    Whether comments are open.
+     * @param int  $post_id Post being checked.
+     * @return bool
+     */
+    public static function filter_comments_open($open, $post_id) {
+        if ('roadmap_item' !== get_post_type($post_id)) {
+            return $open;
+        }
+
+        $global_settings  = get_option('roadmap_global_settings', []);
+        $comments_enabled = $global_settings['enable_comments']
+            ?? (get_option('roadmap_enable_comments', 'yes') === 'yes');
+
+        return $comments_enabled ? $open : false;
+    }
+
     public static function can_edit_item($post_id, $user_id = null) {
         if (!$user_id) {
             $user_id = get_current_user_id();

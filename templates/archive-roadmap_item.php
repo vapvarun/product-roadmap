@@ -346,6 +346,40 @@ $current_status = isset( $_GET['status'] ) ? sanitize_text_field( $_GET['status'
 		grid-template-columns: 1fr;
 	}
 }
+
+/*
+ * Dark mode. This page hardcoded near-black text on a white card, so on a
+ * dark theme the heading rendered invisible against the page background. The
+ * 1.7.0 dark-mode work covered the changelog and the Vue board but matched
+ * only .roadmap-changelog-* wrappers, never this page's .roadmap-archive-wrapper.
+ */
+@media (prefers-color-scheme: dark) {
+	.roadmap-archive-title {
+		color: #f1f5f9;
+	}
+
+	.roadmap-archive-description,
+	.roadmap-no-products h2 {
+		color: #cbd5e1;
+	}
+
+	.roadmap-no-products p {
+		color: #94a3b8;
+	}
+
+	.roadmap-product-card {
+		background: #1e293b;
+		border-color: #334155;
+	}
+
+	.roadmap-product-card-title {
+		color: #f1f5f9;
+	}
+
+	.roadmap-product-card-description {
+		color: #cbd5e1;
+	}
+}
 </style>
 
 <?php get_footer(); ?>

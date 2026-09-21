@@ -2,21 +2,21 @@
 # This file is distributed under the GPL v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Product Roadmap 1.7.1\n"
+"Project-Id-Version: Product Roadmap 1.8.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/product-roadmap\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-21T11:09:40+00:00\n"
+"POT-Creation-Date: 2026-09-21T12:06:12+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: product-roadmap\n"
 
 #. Plugin Name of the plugin
 #: product-roadmap.php
-#: templates/archive-roadmap_item.php:107
+#: templates/archive-roadmap_item.php:96
 msgid "Product Roadmap"
 msgstr ""
 
@@ -40,51 +40,51 @@ msgstr ""
 msgid "https://wbcomdesigns.com/"
 msgstr ""
 
-#: includes/class-roadmap-api.php:544
+#: includes/class-roadmap-api.php:608
 msgid "You are doing that too often. Please slow down and try again shortly."
 msgstr ""
 
-#: includes/class-roadmap-api.php:632
+#: includes/class-roadmap-api.php:696
 msgid "Your vote could not be saved. Please try again."
 msgstr ""
 
-#: includes/class-roadmap-api.php:741
+#: includes/class-roadmap-api.php:811
 msgid "Thank you for your suggestion!"
 msgstr ""
 
-#: includes/class-roadmap-api.php:748
+#: includes/class-roadmap-api.php:818
 msgid "Failed to submit suggestion"
 msgstr ""
 
-#: includes/class-roadmap-api.php:861
+#: includes/class-roadmap-api.php:1091
 msgid "Failed to create item"
 msgstr ""
 
-#: includes/class-roadmap-api.php:917
+#: includes/class-roadmap-api.php:1147
 msgid "Failed to update item"
 msgstr ""
 
-#: includes/class-roadmap-api.php:927
+#: includes/class-roadmap-api.php:1157
 msgid "Failed to delete item"
 msgstr ""
 
-#: includes/class-roadmap-api.php:1068
+#: includes/class-roadmap-api.php:1298
 msgid "Invalid roadmap item"
 msgstr ""
 
-#: includes/class-roadmap-api.php:1094
+#: includes/class-roadmap-api.php:1324
 msgid "Failed to add comment"
 msgstr ""
 
-#: includes/class-roadmap-api.php:1101
+#: includes/class-roadmap-api.php:1331
 msgid "Comment added successfully"
 msgstr ""
 
-#: includes/class-roadmap-api.php:1156
+#: includes/class-roadmap-api.php:1386
 msgid "Multiple products require the Pro version. Use product=main for free version."
 msgstr ""
 
-#: includes/class-roadmap-api.php:1203
+#: includes/class-roadmap-api.php:1433
 msgid "Changelog not found"
 msgstr ""
 
@@ -248,7 +248,7 @@ msgstr ""
 
 #: includes/class-roadmap-changelog.php:547
 #: includes/class-roadmap-settings.php:1407
-#: includes/class-roadmap-shortcode.php:746
+#: includes/class-roadmap-shortcode.php:748
 msgid "Description"
 msgstr ""
 
@@ -268,23 +268,23 @@ msgstr ""
 msgid "Remove"
 msgstr ""
 
-#: includes/class-roadmap-changelog.php:1111
+#: includes/class-roadmap-changelog.php:1135
 #: templates/single-roadmap_changelog.php:75
 msgid "Major Release"
 msgstr ""
 
-#: includes/class-roadmap-changelog.php:1112
+#: includes/class-roadmap-changelog.php:1136
 #: templates/single-roadmap_changelog.php:76
 msgid "Minor Release"
 msgstr ""
 
-#: includes/class-roadmap-changelog.php:1113
+#: includes/class-roadmap-changelog.php:1137
 #: templates/archive-roadmap_changelog.php:195
 #: templates/single-roadmap_changelog.php:77
 msgid "Patch"
 msgstr ""
 
-#: includes/class-roadmap-changelog.php:1135
+#: includes/class-roadmap-changelog.php:1159
 msgid "Changes"
 msgstr ""
 
@@ -304,7 +304,7 @@ msgstr ""
 
 #. translators: %s: Singular item label
 #: includes/class-roadmap-cpt.php:79
-#: includes/class-roadmap-shortcode.php:708
+#: includes/class-roadmap-shortcode.php:710
 #, php-format
 msgid "Edit %s"
 msgstr ""
@@ -329,7 +329,7 @@ msgstr ""
 
 #. translators: %s: Plural item label (lowercase)
 #: includes/class-roadmap-cpt.php:99
-#: includes/class-roadmap-shortcode.php:682
+#: includes/class-roadmap-shortcode.php:684
 #, php-format
 msgid "No %s found"
 msgstr ""
@@ -354,7 +354,7 @@ msgid "Statuses"
 msgstr ""
 
 #: includes/class-roadmap-cpt.php:141
-#: includes/class-roadmap-shortcode.php:747
+#: includes/class-roadmap-shortcode.php:749
 msgid "Status"
 msgstr ""
 
@@ -363,7 +363,7 @@ msgid "Search Statuses"
 msgstr ""
 
 #: includes/class-roadmap-cpt.php:143
-#: includes/class-roadmap-shortcode.php:697
+#: includes/class-roadmap-shortcode.php:699
 msgid "All Statuses"
 msgstr ""
 
@@ -387,12 +387,12 @@ msgstr ""
 #: includes/class-roadmap-cpt.php:173
 #: includes/class-roadmap-settings.php:103
 #: includes/class-roadmap-settings.php:104
-#: includes/class-roadmap-shortcode.php:838
+#: includes/class-roadmap-shortcode.php:840
 msgid "Categories"
 msgstr ""
 
 #: includes/class-roadmap-cpt.php:166
-#: includes/class-roadmap-shortcode.php:748
+#: includes/class-roadmap-shortcode.php:750
 msgid "Category"
 msgstr ""
 
@@ -401,7 +401,7 @@ msgid "Search Categories"
 msgstr ""
 
 #: includes/class-roadmap-cpt.php:168
-#: includes/class-roadmap-shortcode.php:698
+#: includes/class-roadmap-shortcode.php:700
 msgid "All Categories"
 msgstr ""
 
@@ -439,7 +439,7 @@ msgid "Search Products"
 msgstr ""
 
 #: includes/class-roadmap-cpt.php:193
-#: includes/class-roadmap-shortcode.php:803
+#: includes/class-roadmap-shortcode.php:805
 msgid "All Products"
 msgstr ""
 
@@ -500,7 +500,7 @@ msgid "Pro Features"
 msgstr ""
 
 #: includes/class-roadmap-cpt.php:365
-#: includes/class-roadmap-shortcode.php:749
+#: includes/class-roadmap-shortcode.php:751
 msgid "Priority"
 msgstr ""
 
@@ -509,22 +509,22 @@ msgid "-- Select Priority --"
 msgstr ""
 
 #: includes/class-roadmap-cpt.php:369
-#: includes/class-roadmap-shortcode.php:751
+#: includes/class-roadmap-shortcode.php:753
 msgid "Low"
 msgstr ""
 
 #: includes/class-roadmap-cpt.php:370
-#: includes/class-roadmap-shortcode.php:752
+#: includes/class-roadmap-shortcode.php:754
 msgid "Medium"
 msgstr ""
 
 #: includes/class-roadmap-cpt.php:371
-#: includes/class-roadmap-shortcode.php:753
+#: includes/class-roadmap-shortcode.php:755
 msgid "High"
 msgstr ""
 
 #: includes/class-roadmap-cpt.php:372
-#: includes/class-roadmap-shortcode.php:754
+#: includes/class-roadmap-shortcode.php:756
 msgid "Critical"
 msgstr ""
 
@@ -533,7 +533,7 @@ msgid "Set the priority level for this item."
 msgstr ""
 
 #: includes/class-roadmap-cpt.php:379
-#: includes/class-roadmap-shortcode.php:791
+#: includes/class-roadmap-shortcode.php:793
 msgid "Progress"
 msgstr ""
 
@@ -550,7 +550,7 @@ msgid "Notes about what was completed (shown to customers on completed items)"
 msgstr ""
 
 #: includes/class-roadmap-cpt.php:397
-#: includes/class-roadmap-shortcode.php:750
+#: includes/class-roadmap-shortcode.php:752
 msgid "Target Date"
 msgstr ""
 
@@ -559,7 +559,7 @@ msgid "Expected completion date"
 msgstr ""
 
 #: includes/class-roadmap-cpt.php:404
-#: includes/class-roadmap-shortcode.php:792
+#: includes/class-roadmap-shortcode.php:794
 msgid "Start Date"
 msgstr ""
 
@@ -568,7 +568,7 @@ msgid "When work begins on this item"
 msgstr ""
 
 #: includes/class-roadmap-cpt.php:411
-#: includes/class-roadmap-shortcode.php:793
+#: includes/class-roadmap-shortcode.php:795
 msgid "End Date"
 msgstr ""
 
@@ -577,42 +577,42 @@ msgid "When work was completed"
 msgstr ""
 
 #: includes/class-roadmap-cpt.php:418
-#: includes/class-roadmap-shortcode.php:794
+#: includes/class-roadmap-shortcode.php:796
 msgid "Effort Estimate"
 msgstr ""
 
 #: includes/class-roadmap-cpt.php:421
-#: includes/class-roadmap-shortcode.php:846
+#: includes/class-roadmap-shortcode.php:848
 msgid "-- Select Effort --"
 msgstr ""
 
 #: includes/class-roadmap-cpt.php:422
-#: includes/class-roadmap-shortcode.php:847
+#: includes/class-roadmap-shortcode.php:849
 msgid "XS - Very Small (1-2 days)"
 msgstr ""
 
 #: includes/class-roadmap-cpt.php:423
-#: includes/class-roadmap-shortcode.php:848
+#: includes/class-roadmap-shortcode.php:850
 msgid "S - Small (3-5 days)"
 msgstr ""
 
 #: includes/class-roadmap-cpt.php:424
-#: includes/class-roadmap-shortcode.php:849
+#: includes/class-roadmap-shortcode.php:851
 msgid "M - Medium (1-2 weeks)"
 msgstr ""
 
 #: includes/class-roadmap-cpt.php:425
-#: includes/class-roadmap-shortcode.php:850
+#: includes/class-roadmap-shortcode.php:852
 msgid "L - Large (2-4 weeks)"
 msgstr ""
 
 #: includes/class-roadmap-cpt.php:426
-#: includes/class-roadmap-shortcode.php:851
+#: includes/class-roadmap-shortcode.php:853
 msgid "XL - Extra Large (1-2 months)"
 msgstr ""
 
 #: includes/class-roadmap-cpt.php:427
-#: includes/class-roadmap-shortcode.php:852
+#: includes/class-roadmap-shortcode.php:854
 msgid "XXL - Huge (2+ months)"
 msgstr ""
 
@@ -621,7 +621,7 @@ msgid "Estimated effort required"
 msgstr ""
 
 #: includes/class-roadmap-cpt.php:434
-#: includes/class-roadmap-shortcode.php:844
+#: includes/class-roadmap-shortcode.php:846
 msgid "GitHub Issue URL"
 msgstr ""
 
@@ -630,7 +630,7 @@ msgid "Link to related GitHub issue"
 msgstr ""
 
 #: includes/class-roadmap-cpt.php:442
-#: includes/class-roadmap-shortcode.php:763
+#: includes/class-roadmap-shortcode.php:765
 msgid "External Link"
 msgstr ""
 
@@ -648,7 +648,7 @@ msgstr ""
 
 #: includes/class-roadmap-cpt.php:472
 #: includes/class-roadmap-settings.php:1217
-#: includes/class-roadmap-shortcode.php:801
+#: includes/class-roadmap-shortcode.php:803
 msgid "Pro Feature"
 msgstr ""
 
@@ -656,59 +656,59 @@ msgstr ""
 msgid "Pending"
 msgstr ""
 
-#: includes/class-roadmap-cpt.php:909
-#: includes/class-roadmap-cpt.php:914
+#: includes/class-roadmap-cpt.php:941
+#: includes/class-roadmap-cpt.php:946
 msgid "Source"
 msgstr ""
 
-#: includes/class-roadmap-cpt.php:936
-#: includes/class-roadmap-shortcode.php:740
+#: includes/class-roadmap-cpt.php:968
+#: includes/class-roadmap-shortcode.php:742
 msgid "Suggested"
 msgstr ""
 
-#: includes/class-roadmap-cpt.php:941
-#: includes/class-roadmap-shortcode.php:864
+#: includes/class-roadmap-cpt.php:973
+#: includes/class-roadmap-shortcode.php:866
 msgid "Created"
 msgstr ""
 
-#: includes/class-roadmap-cpt.php:972
+#: includes/class-roadmap-cpt.php:1004
 msgid "Approve"
 msgstr ""
 
-#: includes/class-roadmap-cpt.php:979
+#: includes/class-roadmap-cpt.php:1011
 msgid "Are you sure you want to reject this submission?"
 msgstr ""
 
-#: includes/class-roadmap-cpt.php:980
+#: includes/class-roadmap-cpt.php:1012
 msgid "Reject"
 msgstr ""
 
-#: includes/class-roadmap-cpt.php:991
-#: includes/class-roadmap-cpt.php:1037
+#: includes/class-roadmap-cpt.php:1023
+#: includes/class-roadmap-cpt.php:1069
 msgid "No submission specified"
 msgstr ""
 
-#: includes/class-roadmap-cpt.php:1000
+#: includes/class-roadmap-cpt.php:1032
 msgid "You do not have permission to approve submissions"
 msgstr ""
 
-#: includes/class-roadmap-cpt.php:1005
-#: includes/class-roadmap-cpt.php:1051
+#: includes/class-roadmap-cpt.php:1037
+#: includes/class-roadmap-cpt.php:1083
 msgid "Invalid submission"
 msgstr ""
 
 #. translators: %s: Post title
-#: includes/class-roadmap-cpt.php:1022
+#: includes/class-roadmap-cpt.php:1054
 #, php-format
 msgid "\"%s\" has been approved and published!"
 msgstr ""
 
-#: includes/class-roadmap-cpt.php:1046
+#: includes/class-roadmap-cpt.php:1078
 msgid "You do not have permission to reject submissions"
 msgstr ""
 
 #. translators: %s: Post title
-#: includes/class-roadmap-cpt.php:1063
+#: includes/class-roadmap-cpt.php:1095
 #, php-format
 msgid "\"%s\" has been rejected and moved to trash."
 msgstr ""
@@ -845,26 +845,26 @@ msgstr ""
 msgid "Demo User"
 msgstr ""
 
-#: includes/class-roadmap-notifications.php:57
+#: includes/class-roadmap-notifications.php:67
 msgid "This unsubscribe link is invalid or has expired."
 msgstr ""
 
-#: includes/class-roadmap-notifications.php:62
+#: includes/class-roadmap-notifications.php:72
 msgid "You have been unsubscribed from roadmap update emails."
 msgstr ""
 
-#: includes/class-roadmap-notifications.php:63
+#: includes/class-roadmap-notifications.php:73
 msgid "Unsubscribed"
 msgstr ""
 
 #. translators: %1$s: Site name, %2$s: Item title
-#: includes/class-roadmap-notifications.php:82
+#: includes/class-roadmap-notifications.php:92
 #, php-format
 msgid "[%1$s] New vote on: %2$s"
 msgstr ""
 
 #. translators: %1$s: Item title, %2$s: User name, %3$s: Vote value, %4$s: Item URL
-#: includes/class-roadmap-notifications.php:89
+#: includes/class-roadmap-notifications.php:99
 #, php-format
 msgid ""
 "A new vote has been submitted on your roadmap:\n"
@@ -877,13 +877,13 @@ msgid ""
 msgstr ""
 
 #. translators: %1$s: Site name, %2$s: Item title
-#: includes/class-roadmap-notifications.php:114
+#: includes/class-roadmap-notifications.php:124
 #, php-format
 msgid "[%1$s] New comment on: %2$s"
 msgstr ""
 
 #. translators: %1$s: Item title, %2$s: User name, %3$s: Comment excerpt, %4$s: Item URL
-#: includes/class-roadmap-notifications.php:121
+#: includes/class-roadmap-notifications.php:131
 #, php-format
 msgid ""
 "A new comment has been posted on your roadmap:\n"
@@ -896,13 +896,13 @@ msgid ""
 msgstr ""
 
 #. translators: %1$s: Site name, %2$s: Suggestion title
-#: includes/class-roadmap-notifications.php:145
+#: includes/class-roadmap-notifications.php:155
 #, php-format
 msgid "[%1$s] New feature suggestion: %2$s"
 msgstr ""
 
 #. translators: %1$s: Suggestion title, %2$s: User name, %3$s: Description excerpt, %4$s: Admin URL
-#: includes/class-roadmap-notifications.php:152
+#: includes/class-roadmap-notifications.php:162
 #, php-format
 msgid ""
 "A new feature has been suggested:\n"
@@ -915,14 +915,14 @@ msgid ""
 msgstr ""
 
 #. translators: %1$s: Site name, %2$s: Item title
-#: includes/class-roadmap-notifications.php:187
-#: includes/class-roadmap-notifications.php:259
+#: includes/class-roadmap-notifications.php:197
+#: includes/class-roadmap-notifications.php:307
 #, php-format
 msgid "[%1$s] Status update: %2$s"
 msgstr ""
 
 #. translators: %1$s: Item title, %2$s: New status, %3$s: Item URL
-#: includes/class-roadmap-notifications.php:194
+#: includes/class-roadmap-notifications.php:204
 #, php-format
 msgid ""
 "A roadmap item you're following has been updated:\n"
@@ -933,19 +933,18 @@ msgid ""
 "View item: %3$s"
 msgstr ""
 
-#: includes/class-roadmap-notifications.php:196
+#: includes/class-roadmap-notifications.php:206
 msgid "Updated"
 msgstr ""
 
 #. translators: %s: unsubscribe URL
-#: includes/class-roadmap-notifications.php:204
-#: includes/class-roadmap-notifications.php:287
+#: includes/class-roadmap-notifications.php:252
 #, php-format
 msgid "You are receiving this because you voted on or commented on this item. Unsubscribe: %s"
 msgstr ""
 
 #. translators: %1$s: Item title, %2$s: Old status, %3$s: New status, %4$s: Item URL
-#: includes/class-roadmap-notifications.php:266
+#: includes/class-roadmap-notifications.php:314
 #, php-format
 msgid ""
 "A roadmap item you're following has changed status:\n"
@@ -957,15 +956,15 @@ msgid ""
 "View item: %4$s"
 msgstr ""
 
-#: includes/class-roadmap-notifications.php:268
-#: includes/class-roadmap-notifications.php:269
-#: includes/class-roadmap-shortcode.php:839
+#: includes/class-roadmap-notifications.php:316
+#: includes/class-roadmap-notifications.php:317
+#: includes/class-roadmap-shortcode.php:841
 msgid "None"
 msgstr ""
 
 #: includes/class-roadmap-settings.php:42
 #: includes/class-roadmap-settings.php:43
-#: includes/class-roadmap-shortcode.php:810
+#: includes/class-roadmap-shortcode.php:812
 #: templates/single-roadmap_item.php:116
 msgid "Roadmap"
 msgstr ""
@@ -977,14 +976,14 @@ msgstr ""
 
 #: includes/class-roadmap-settings.php:76
 #: includes/class-roadmap-settings.php:77
-#: includes/class-roadmap-shortcode.php:773
+#: includes/class-roadmap-shortcode.php:775
 msgid "All Items"
 msgstr ""
 
 #: includes/class-roadmap-settings.php:85
 #: includes/class-roadmap-settings.php:86
 #: includes/class-roadmap-settings.php:320
-#: includes/class-roadmap-shortcode.php:837
+#: includes/class-roadmap-shortcode.php:839
 msgid "Add New Item"
 msgstr ""
 
@@ -1054,7 +1053,7 @@ msgstr ""
 
 #: includes/class-roadmap-settings.php:406
 #: includes/class-roadmap-settings.php:766
-#: includes/class-roadmap-shortcode.php:802
+#: includes/class-roadmap-shortcode.php:804
 msgid "Upgrade to Pro"
 msgstr ""
 
@@ -1309,7 +1308,7 @@ msgid "Manage your product roadmaps. Each product has its own roadmap that can b
 msgstr ""
 
 #: includes/class-roadmap-settings.php:804
-#: templates/archive-roadmap_item.php:228
+#: templates/archive-roadmap_item.php:187
 msgid "No Products Yet"
 msgstr ""
 
@@ -1328,7 +1327,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #: includes/class-roadmap-settings.php:886
-#: includes/class-roadmap-shortcode.php:685
+#: includes/class-roadmap-shortcode.php:687
 msgid "Vote"
 msgid_plural "Votes"
 msgstr[0] ""
@@ -1350,7 +1349,7 @@ msgid "View Items"
 msgstr ""
 
 #: includes/class-roadmap-settings.php:912
-#: templates/archive-roadmap_item.php:211
+#: templates/archive-roadmap_item.php:170
 msgid "View Roadmap"
 msgstr ""
 
@@ -1515,7 +1514,7 @@ msgid "Actions"
 msgstr ""
 
 #: includes/class-roadmap-settings.php:1367
-#: includes/class-roadmap-shortcode.php:766
+#: includes/class-roadmap-shortcode.php:768
 msgid "Edit"
 msgstr ""
 
@@ -1813,603 +1812,603 @@ msgstr ""
 msgid "My Product"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:46
+#: includes/class-roadmap-shortcode.php:47
 msgid "Error: Product parameter is required. Example: [roadmap product=\"main\"]"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:52
+#: includes/class-roadmap-shortcode.php:53
 msgid "Multiple products require the Pro version. Upgrade to use different products."
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:112
+#: includes/class-roadmap-shortcode.php:114
 msgid "Loading roadmap..."
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:161
+#: includes/class-roadmap-shortcode.php:163
 msgid "Multiple products require the Pro version."
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:199
-#: includes/class-roadmap-shortcode.php:888
+#: includes/class-roadmap-shortcode.php:201
+#: includes/class-roadmap-shortcode.php:890
 msgid "No changelog entries found."
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:678
+#: includes/class-roadmap-shortcode.php:680
 msgid "Loading..."
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:679
+#: includes/class-roadmap-shortcode.php:681
 msgid "An error occurred"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:686
+#: includes/class-roadmap-shortcode.php:688
 msgid "votes"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:687
+#: includes/class-roadmap-shortcode.php:689
 msgid "Comment"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:688
+#: includes/class-roadmap-shortcode.php:690
 msgid "comments"
 msgstr ""
 
 #. translators: %s: Item singular label
-#: includes/class-roadmap-shortcode.php:691
+#: includes/class-roadmap-shortcode.php:693
 #, php-format
 msgid "Suggest %s"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:694
+#: includes/class-roadmap-shortcode.php:696
 msgid "Search..."
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:695
+#: includes/class-roadmap-shortcode.php:697
 msgid "Filter by Status"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:696
+#: includes/class-roadmap-shortcode.php:698
 msgid "Filter by Category"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:699
+#: includes/class-roadmap-shortcode.php:701
 msgid "View Mode"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:700
+#: includes/class-roadmap-shortcode.php:702
 msgid "Manage Mode"
 msgstr ""
 
 #. translators: %s: Item singular label
-#: includes/class-roadmap-shortcode.php:703
+#: includes/class-roadmap-shortcode.php:705
 #, php-format
 msgid "Add %s"
 msgstr ""
 
 #. translators: %s: Item singular label
-#: includes/class-roadmap-shortcode.php:713
+#: includes/class-roadmap-shortcode.php:715
 #, php-format
 msgid "Delete %s"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:716
+#: includes/class-roadmap-shortcode.php:718
 msgid "Save"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:717
+#: includes/class-roadmap-shortcode.php:719
 msgid "Cancel"
 msgstr ""
 
 #. translators: %s: Item singular label
-#: includes/class-roadmap-shortcode.php:720
+#: includes/class-roadmap-shortcode.php:722
 #, php-format
 msgid "Are you sure you want to delete this %s?"
 msgstr ""
 
 #. translators: %s: Item singular label
-#: includes/class-roadmap-shortcode.php:725
+#: includes/class-roadmap-shortcode.php:727
 #, php-format
 msgid "%s added successfully"
 msgstr ""
 
 #. translators: %s: Item singular label
-#: includes/class-roadmap-shortcode.php:730
+#: includes/class-roadmap-shortcode.php:732
 #, php-format
 msgid "%s updated successfully"
 msgstr ""
 
 #. translators: %s: Item singular label
-#: includes/class-roadmap-shortcode.php:735
+#: includes/class-roadmap-shortcode.php:737
 #, php-format
 msgid "%s deleted successfully"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:738
+#: includes/class-roadmap-shortcode.php:740
 msgid "Your vote has been submitted"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:739
+#: includes/class-roadmap-shortcode.php:741
 msgid "Your vote has been removed"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:741
+#: includes/class-roadmap-shortcode.php:743
 msgid "Suggested by a user"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:742
+#: includes/class-roadmap-shortcode.php:744
 msgid "Your comment has been submitted"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:743
+#: includes/class-roadmap-shortcode.php:745
 msgid "Your suggestion has been submitted"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:744
+#: includes/class-roadmap-shortcode.php:746
 msgid "Please login to perform this action"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:745
+#: includes/class-roadmap-shortcode.php:747
 msgid "Title"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:755
+#: includes/class-roadmap-shortcode.php:757
 msgid "Suggest a Feature"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:756
+#: includes/class-roadmap-shortcode.php:758
 msgid "Submit"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:757
+#: includes/class-roadmap-shortcode.php:759
 msgid "Submit Comment"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:758
+#: includes/class-roadmap-shortcode.php:760
 msgid "Your Comment"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:759
+#: includes/class-roadmap-shortcode.php:761
 msgid "Share your thoughts..."
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:760
+#: includes/class-roadmap-shortcode.php:762
 msgid "Feature Title"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:761
+#: includes/class-roadmap-shortcode.php:763
 msgid "Brief title for your feature idea"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:762
+#: includes/class-roadmap-shortcode.php:764
 msgid "Describe your feature idea in detail..."
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:764
+#: includes/class-roadmap-shortcode.php:766
 msgid "Link to more details or examples"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:765
+#: includes/class-roadmap-shortcode.php:767
 msgid "Optional"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:767
+#: includes/class-roadmap-shortcode.php:769
 msgid "Delete"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:768
+#: includes/class-roadmap-shortcode.php:770
 msgid "Vote for this item"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:769
+#: includes/class-roadmap-shortcode.php:771
 msgid "View comments"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:770
+#: includes/class-roadmap-shortcode.php:772
 msgid "Remove Vote"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:771
+#: includes/class-roadmap-shortcode.php:773
 msgid "Vote for This"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:772
+#: includes/class-roadmap-shortcode.php:774
 msgid "Search roadmap..."
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:774
+#: includes/class-roadmap-shortcode.php:776
 msgid "Other"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:775
+#: includes/class-roadmap-shortcode.php:777
 msgid "Unknown"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:776
+#: includes/class-roadmap-shortcode.php:778
 msgid "Future - Later"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:778
+#: includes/class-roadmap-shortcode.php:780
 msgid "January"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:779
+#: includes/class-roadmap-shortcode.php:781
 msgid "February"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:780
+#: includes/class-roadmap-shortcode.php:782
 msgid "March"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:781
+#: includes/class-roadmap-shortcode.php:783
 msgid "April"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:782
+#: includes/class-roadmap-shortcode.php:784
 msgid "May"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:783
+#: includes/class-roadmap-shortcode.php:785
 msgid "June"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:784
+#: includes/class-roadmap-shortcode.php:786
 msgid "July"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:785
+#: includes/class-roadmap-shortcode.php:787
 msgid "August"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:786
+#: includes/class-roadmap-shortcode.php:788
 msgid "September"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:787
+#: includes/class-roadmap-shortcode.php:789
 msgid "October"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:788
+#: includes/class-roadmap-shortcode.php:790
 msgid "November"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:789
+#: includes/class-roadmap-shortcode.php:791
 msgid "December"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:795
+#: includes/class-roadmap-shortcode.php:797
 msgid "GitHub Issue"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:796
+#: includes/class-roadmap-shortcode.php:798
 msgid "Assignee"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:797
+#: includes/class-roadmap-shortcode.php:799
 msgid "Select Status"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:798
+#: includes/class-roadmap-shortcode.php:800
 msgid "Select Category"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:799
+#: includes/class-roadmap-shortcode.php:801
 msgid "Select Priority"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:800
+#: includes/class-roadmap-shortcode.php:802
 msgid "Drag items to change status"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:804
+#: includes/class-roadmap-shortcode.php:806
 msgid "Sort By"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:805
+#: includes/class-roadmap-shortcode.php:807
 msgid "Most Voted"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:806
+#: includes/class-roadmap-shortcode.php:808
 msgid "Most Recent"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:807
+#: includes/class-roadmap-shortcode.php:809
 msgid "Most Discussed"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:808
+#: includes/class-roadmap-shortcode.php:810
 msgid "Highest Priority"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:811
+#: includes/class-roadmap-shortcode.php:813
 msgid "Product Roadmap Timeline"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:812
+#: includes/class-roadmap-shortcode.php:814
 msgid "Current Quarter"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:813
+#: includes/class-roadmap-shortcode.php:815
 msgid "Next 6 Months"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:814
+#: includes/class-roadmap-shortcode.php:816
 msgid "Next Year"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:815
+#: includes/class-roadmap-shortcode.php:817
 msgid "All Time"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:816
+#: includes/class-roadmap-shortcode.php:818
 msgid "Now"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:817
+#: includes/class-roadmap-shortcode.php:819
 #: templates/archive-roadmap_changelog.php:286
 msgid "Next"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:818
+#: includes/class-roadmap-shortcode.php:820
 msgid "Later"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:819
+#: includes/class-roadmap-shortcode.php:821
 msgid "Done"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:820
+#: includes/class-roadmap-shortcode.php:822
 msgid "Past"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:821
+#: includes/class-roadmap-shortcode.php:823
 msgid "& Beyond"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:822
+#: includes/class-roadmap-shortcode.php:824
 msgid "in progress"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:823
+#: includes/class-roadmap-shortcode.php:825
 msgid "completed"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:824
+#: includes/class-roadmap-shortcode.php:826
 msgid "total items"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:825
+#: includes/class-roadmap-shortcode.php:827
 msgid "No items in"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:826
+#: includes/class-roadmap-shortcode.php:828
 msgid "No items in progress"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:827
+#: includes/class-roadmap-shortcode.php:829
 msgid "No upcoming items"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:828
+#: includes/class-roadmap-shortcode.php:830
 msgid "No items in backlog"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:829
+#: includes/class-roadmap-shortcode.php:831
 msgid "Drag items here or create new ones"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:830
+#: includes/class-roadmap-shortcode.php:832
 msgid "Items will appear here when added"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:831
+#: includes/class-roadmap-shortcode.php:833
 msgid "Show completed items"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:832
+#: includes/class-roadmap-shortcode.php:834
 msgid "You have voted for this item"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:833
+#: includes/class-roadmap-shortcode.php:835
 msgid "Voted"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:834
+#: includes/class-roadmap-shortcode.php:836
 msgid "All"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:835
+#: includes/class-roadmap-shortcode.php:837
 msgid "Add Comment"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:836
+#: includes/class-roadmap-shortcode.php:838
 msgid "Post Comment"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:840
+#: includes/class-roadmap-shortcode.php:842
 msgid "Close"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:841
+#: includes/class-roadmap-shortcode.php:843
 msgid "Views"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:842
+#: includes/class-roadmap-shortcode.php:844
 msgid "Assigned To"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:843
+#: includes/class-roadmap-shortcode.php:845
 #: templates/single-roadmap_item.php:208
 msgid "What was delivered"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:845
+#: includes/class-roadmap-shortcode.php:847
 msgid "View Details & Comments"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:853
+#: includes/class-roadmap-shortcode.php:855
 msgid "Your Name"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:854
+#: includes/class-roadmap-shortcode.php:856
 msgid "Enter your name"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:855
+#: includes/class-roadmap-shortcode.php:857
 msgid "Your Email"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:856
+#: includes/class-roadmap-shortcode.php:858
 msgid "Enter your email address"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:857
+#: includes/class-roadmap-shortcode.php:859
 msgid "Nice to have"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:858
+#: includes/class-roadmap-shortcode.php:860
 msgid "Important"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:859
+#: includes/class-roadmap-shortcode.php:861
 msgid "Very important"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:860
+#: includes/class-roadmap-shortcode.php:862
 msgid "Must have"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:861
+#: includes/class-roadmap-shortcode.php:863
 msgid "Submit Suggestion"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:862
+#: includes/class-roadmap-shortcode.php:864
 msgid "Auto Layout"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:863
+#: includes/class-roadmap-shortcode.php:865
 msgid "Columns"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:865
+#: includes/class-roadmap-shortcode.php:867
 msgid "idea"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:866
+#: includes/class-roadmap-shortcode.php:868
 msgid "ideas"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:867
+#: includes/class-roadmap-shortcode.php:869
 msgid "No ideas yet"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:868
+#: includes/class-roadmap-shortcode.php:870
 msgid "Be the first to suggest a feature!"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:869
+#: includes/class-roadmap-shortcode.php:871
 msgid "Top Voted"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:870
+#: includes/class-roadmap-shortcode.php:872
 msgid "Newest"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:871
+#: includes/class-roadmap-shortcode.php:873
 msgid "Active"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:872
+#: includes/class-roadmap-shortcode.php:874
 msgid "Today"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:873
+#: includes/class-roadmap-shortcode.php:875
 msgid "Yesterday"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:874
+#: includes/class-roadmap-shortcode.php:876
 msgid "days ago"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:875
+#: includes/class-roadmap-shortcode.php:877
 msgid "weeks ago"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:876
+#: includes/class-roadmap-shortcode.php:878
 msgid "months ago"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:877
+#: includes/class-roadmap-shortcode.php:879
 msgid "Group by Status"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:878
+#: includes/class-roadmap-shortcode.php:880
 msgid "Group by Category"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:879
+#: includes/class-roadmap-shortcode.php:881
 msgid "Group by Priority"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:880
+#: includes/class-roadmap-shortcode.php:882
 msgid "No Grouping"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:881
+#: includes/class-roadmap-shortcode.php:883
 msgid "Sort by Created Date"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:882
+#: includes/class-roadmap-shortcode.php:884
 msgid "Sort by Votes"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:883
+#: includes/class-roadmap-shortcode.php:885
 msgid "Sort by Priority"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:884
+#: includes/class-roadmap-shortcode.php:886
 msgid "Sort by Title"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:885
+#: includes/class-roadmap-shortcode.php:887
 msgid "Load More"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:886
+#: includes/class-roadmap-shortcode.php:888
 msgid "Loading changelog..."
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:887
+#: includes/class-roadmap-shortcode.php:889
 msgid "Retry"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:889
+#: includes/class-roadmap-shortcode.php:891
 msgid "change"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:890
+#: includes/class-roadmap-shortcode.php:892
 msgid "changes"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:891
+#: includes/class-roadmap-shortcode.php:893
 msgid "Network error"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:892
+#: includes/class-roadmap-shortcode.php:894
 msgid "API call failed"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:893
+#: includes/class-roadmap-shortcode.php:895
 msgid "Failed to load changelog"
 msgstr ""
 
-#: includes/class-roadmap-shortcode.php:894
+#: includes/class-roadmap-shortcode.php:896
 msgid "Failed to load item for editing"
 msgstr ""
 
 #: templates/archive-roadmap_changelog.php:49
 #: templates/archive-roadmap_changelog.php:145
 #: templates/archive-roadmap_item.php:49
-#: templates/archive-roadmap_item.php:119
+#: templates/archive-roadmap_item.php:108
 msgid "Search products..."
 msgstr ""
 
@@ -2424,7 +2423,7 @@ msgid "Stay up to date with the latest changes and improvements."
 msgstr ""
 
 #: templates/archive-roadmap_changelog.php:142
-#: templates/archive-roadmap_item.php:116
+#: templates/archive-roadmap_item.php:105
 msgid "Jump to product:"
 msgstr ""
 
@@ -2466,17 +2465,17 @@ msgstr ""
 msgid "Check back soon for updates and release notes."
 msgstr ""
 
-#: templates/archive-roadmap_item.php:110
+#: templates/archive-roadmap_item.php:99
 msgid "Explore our product roadmaps and see what we're working on."
 msgstr ""
 
-#: templates/archive-roadmap_item.php:183
+#: templates/archive-roadmap_item.php:142
 msgid "item"
 msgid_plural "items"
 msgstr[0] ""
 msgstr[1] ""
 
-#: templates/archive-roadmap_item.php:229
+#: templates/archive-roadmap_item.php:188
 msgid "Check back soon for product roadmaps."
 msgstr ""
 

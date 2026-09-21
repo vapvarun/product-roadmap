@@ -766,9 +766,29 @@ class Roadmap_CPT {
 	}
 
 	/**
+	 * Whether a published Page already owns this top-level slug.
+	 *
+	 * @param string $slug Top-level slug to check.
+	 * @return bool
+	 */
+	private function slug_is_taken_by_a_page( $slug ) {
+		$page = get_page_by_path( $slug );
+
+		return ( $page instanceof WP_Post ) && 'publish' === $page->post_status;
+	}
+
+	/**
 	 * Add custom rewrite rules for product-specific URLs
 	 */
 	public function add_rewrite_rules() {
+		// These rules are registered 'top', so they win over WordPress's own
+		// page rules. If the site already has a Page at /roadmap/ (or a child
+		// page under it) that page became unreachable - it is the owner's
+		// content, and the plugin should not take the URL from them.
+		if ( $this->slug_is_taken_by_a_page( 'roadmap' ) ) {
+			return;
+		}
+
 		// All products index: /roadmap/
 		add_rewrite_rule(
 			'^roadmap/?$',
@@ -803,7 +823,16 @@ class Roadmap_CPT {
 	 * Customize permalinks for roadmap items
 	 */
 	public function custom_roadmap_permalinks( $permalink, $post ) {
-		if ( $post->post_type !== 'roadmap_item' ) {
+		if ( ! ( $post instanceof WP_Post ) || 'roadmap_item' !== $post->post_type ) {
+			return $permalink;
+		}
+
+		// Only rewrite the permalink for a post that actually has one. A
+		// pending or draft item has an empty post_name, so the pretty URL
+		// collapsed to /roadmap/{product}/ - the product archive - and the
+		// Preview button silently showed the board instead of the item.
+		// Leaving core's link alone keeps the working ?p=ID&preview=true form.
+		if ( empty( $post->post_name ) || ! in_array( $post->post_status, array( 'publish', 'private', 'future' ), true ) ) {
 			return $permalink;
 		}
 
@@ -856,13 +885,12 @@ class Roadmap_CPT {
 	public function custom_template( $template ) {
 		global $wp_query;
 
-		// Single roadmap item template
-		if ( is_singular( 'roadmap_item' ) ) {
-			$custom_template = ROADMAP_PLUGIN_PATH . 'templates/single-roadmap-item.php';
-			if ( file_exists( $custom_template ) ) {
-				return $custom_template;
-			}
-		}
+		// Single roadmap item templates are owned by Roadmap_Template, which
+		// also handles the theme override via locate_template(). This branch
+		// pointed at templates/single-roadmap-item.php - with a hyphen - while
+		// the shipped file uses an underscore, so file_exists() always failed
+		// and it silently did nothing. Two loaders for one job is how that goes
+		// unnoticed, so the dead one is removed rather than corrected.
 
 		// Product-specific archive template: /roadmap/{product}/
 		if ( get_query_var( 'roadmap_product' ) && ! is_singular() ) {

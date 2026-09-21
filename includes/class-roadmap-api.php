@@ -320,11 +320,28 @@ class Roadmap_API {
 			return new WP_Error( 'missing_product', 'Product parameter is required', array( 'status' => 400 ) );
 		}
 
+		// Accept either a slug or a term id and normalise to a slug here, before
+		// the free/Pro branch below - Pro's filter expects a slug, so resolving
+		// it in only one branch would fix the board for free sites and leave it
+		// empty for Pro ones. A numeric id used to match nothing and return an
+		// empty board with HTTP 200, indistinguishable from "no items".
+		if ( is_numeric( $product_filter ) ) {
+			$product_term = get_term( (int) $product_filter, 'roadmap_product' );
+
+			if ( $product_term && ! is_wp_error( $product_term ) ) {
+				$product_filter    = $product_term->slug;
+				$params['product'] = $product_term->slug;
+			}
+		}
+
 		if ( defined( 'ROADMAP_PRO_ACTIVE' ) && ROADMAP_PRO_ACTIVE ) {
 			// Let pro addon handle product filtering
 			$args = apply_filters( 'roadmap_api_filter_by_product', $args, $product_filter );
 		} else {
-			// Free version - filter by default product using taxonomy
+			// Accept either a slug or a term id. The route documented a slug,
+			// but the admin screens and Pro's own analytics links pass numeric
+			// ids - and a numeric id matched nothing, returning an empty board
+			// with HTTP 200 and no way to tell "no items" from "wrong id".
 			$args['tax_query'][] = array(
 				'taxonomy' => 'roadmap_product',
 				'field'    => 'slug',

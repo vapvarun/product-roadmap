@@ -121,9 +121,11 @@ Multiple product roadmaps are available in the Pro version. Free version support
 
 Security and data-integrity release. Sites upgrading from any earlier version pick up database repairs automatically on the first page view.
 
-* Security - REST routes that edit, delete or create roadmap items now check the capability against the specific post instead of the site-wide edit_posts. A Contributor could previously delete, rewrite or publish any post or page on the site through /roadmap/v1/items.
-* Security - Creating an item through the REST API no longer publishes on behalf of a user who lacks publish_posts.
-* Security - The pending-submissions notice dismissal now checks a capability alongside its nonce.
+* Improve  - "Votes" now means the number of people who voted, everywhere. It stored a net score that downvotes reduced, so an item could display fewer votes than it had voters and never matched the analytics. Existing counts are recalculated on upgrade, so boards that have received downvotes will show higher numbers than before.
+* Improve  - Status-change emails are queued and sent in the background instead of one blocking send per recipient inside the request that changed the status.
+* Improve  - The roadmap archive builds its per-product counts in two grouped queries instead of one unbounded query per product plus one per item.
+* Improve  - The public items endpoint caps how many items one request may ask for, and costs far fewer queries per page.
+* Improve  - Schema repairs run on the front end, not only in wp-admin, so a site whose owner rarely signs in still receives them.
 * Fix      - Database migrations now reach existing installs. dbDelta was passed "CREATE TABLE IF NOT EXISTS", which it cannot parse, so no column added since 1.0 ever reached an upgraded site.
 * Fix      - Guest voting works. It was blocked in four places at once: the board script, the single-item script, a votes table missing the columns the server writes to, and a vote handler that reported success on a failed write.
 * Fix      - The single-item page now recognises a guest who has already voted, instead of showing an un-voted button.
@@ -131,7 +133,21 @@ Security and data-integrity release. Sites upgrading from any earlier version pi
 * Fix      - Saving one Settings tab no longer resets the other. Saving Notifications previously turned voting, comments, suggestions and guest voting off and reset the items-per-page value, with no warning.
 * Fix      - Assignee and Dependencies keep their values. The saved selection did not re-render as selected, and the next unrelated save then destroyed it.
 * Fix      - The setup wizard's "Configure advanced settings" link pointed at a page that does not exist.
-* Improve  - Schema repairs run on the front end, not only in wp-admin, so a site whose owner rarely signs in still receives them.
+* Fix      - Filters and sort now apply to the whole board. They ran in the browser over the items already loaded, so on a board larger than one page filtering to a status showed only the matches that happened to be on the first page, and sorting by votes showed the top of that page rather than the top of the board.
+* Fix      - Edit and Delete now work on the Timeline, List and Cards views. The buttons rendered and did nothing.
+* Fix      - The timeline no longer shows most items twice. Anything without a start date was added to "Later" on top of the section its status had already placed it in, which inflated every count on the view.
+* Fix      - The board scrolls sideways instead of wrapping its status columns into rows, which stopped it reading as a board in a narrower content area. Below 640px it stacks.
+* Fix      - A Page at /roadmap/ is no longer hidden by the plugin's own rewrite rules.
+* Fix      - Changelog entry slugs are no longer stuck as "general-auto-draft". The slug was derived while WordPress was still creating the auto-draft, then never revisited.
+* Fix      - Preview on a pending or draft item opens the item instead of the product board.
+* Fix      - Turning comments off now closes them everywhere, including the single item page, which asked WordPress directly and still showed a working reply form.
+* Fix      - The roadmap archive is readable in dark mode; the heading was dark text on a dark background.
+* Fix      - The items endpoint accepts a product id as well as a slug. An id matched nothing and returned an empty board with no error.
+* Security - REST routes that edit, delete or create roadmap items now check the capability against the specific post instead of the site-wide edit_posts. A Contributor could previously delete, rewrite or publish any post or page on the site through /roadmap/v1/items.
+* Security - Creating an item through the REST API no longer publishes on behalf of a user who lacks publish_posts.
+* Security - The pending-submissions notice dismissal now checks a capability alongside its nonce.
+* Dev      - Added a show_title attribute to the [roadmap] shortcode.
+* Dev      - Added sort and search parameters to the items REST endpoint, and the roadmap_max_per_page filter for the page-size ceiling.
 * Dev      - Added Roadmap_Permissions::can_edit_item() and can_delete_item(); every route that mutates an item by id routes through them.
 * Dev      - Added the roadmap_tab_setting_keys filter so add-ons can register which settings keys their own tab owns.
 * Dev      - Roadmap_API::get_user_ip() is now public, so templates identify a guest the same way the API does.
