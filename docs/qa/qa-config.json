@@ -1,0 +1,32 @@
+{
+  "site": "http://roadmap.local",
+  "autologin_param": "autologin",
+  "themes": {
+    "primary": "buddyx",
+    "generic": "twentytwentyfive"
+  },
+  "pages": {
+    "board_default": "http://roadmap.local/board-view/",
+    "poll_roadmap": "http://roadmap.local/poll-roadmap/",
+    "timeline": "http://roadmap.local/timeline-view/",
+    "list": "http://roadmap.local/list-view/",
+    "cards": "http://roadmap.local/cards-view/",
+    "minimal": "http://roadmap.local/minimal-view/",
+    "scale": "http://roadmap.local/scale-test-alpha/",
+    "settings": "http://roadmap.local/wp-admin/admin.php?page=roadmap-settings",
+    "dashboard": "http://roadmap.local/wp-admin/admin.php?page=roadmap-dashboard"
+  },
+  "seed": {
+    "note": "Scale seed uses post meta _seeded=1 (~1000 items). Teardown: wp post delete $(wp post list --post_type=roadmap_item --meta_key=_seeded --meta_value=1 --format=ids) --force",
+    "items_meta_key": "_seeded",
+    "items_meta_value": "1"
+  },
+  "personas": [
+    { "login": "qa_member_owner", "role": "subscriber",    "email": "qa_member_owner@example.test", "rung": "member-owner", "note": "votes/comments/suggests; owns their own content" },
+    { "login": "qa_member_other", "role": "subscriber",    "email": "qa_member_other@example.test", "rung": "member-other", "note": "SAME role as member-owner; exists to catch ownership-vs-role gaps" },
+    { "login": "qa_contrib",      "role": "contributor",   "email": "qa_contrib@example.test",      "rung": "low-privilege", "note": "lowest rung holding edit_posts - the rung REST routes leak to" },
+    { "login": "qa_elevated",     "role": "editor",        "email": "qa_elevated@example.test",     "rung": "elevated",     "note": "roadmap_edit_items / roadmap_delete_items" },
+    { "login": "qa_admin",        "role": "administrator", "email": "qa_admin@example.test",        "rung": "admin",        "note": "control rung - never the only rung walked" }
+  ],
+  "anonymous": { "rung": "anonymous", "note": "guest voting + guest suggestions default ON — UI currently blocks guest vote (see Bugs 10317903306)" }
+}
