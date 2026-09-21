@@ -5,7 +5,15 @@ if (!defined('ABSPATH')) {
 }
 
 class Roadmap_Notifications {
-    
+
+    /**
+     * Recipients per queued email batch.
+     *
+     * Keeps each cron run short enough to finish well inside a request, so a
+     * large send makes progress in steps instead of timing out as one job.
+     */
+    const EMAIL_BATCH_SIZE = 50;
+
     private static $instance = null;
     
     public static function get_instance() {
@@ -22,6 +30,8 @@ class Roadmap_Notifications {
         add_action('transition_post_status', [$this, 'handle_status_change_notification'], 10, 3);
         add_action('set_object_terms', [$this, 'handle_roadmap_status_change'], 10, 6);
         add_action('init', [$this, 'handle_unsubscribe']);
+        // Delivery of queued status-change emails.
+        add_action('roadmap_send_status_emails', [$this, 'send_status_email_batch'], 10, 3);
     }
 
     /**
@@ -197,12 +207,50 @@ class Roadmap_Notifications {
             get_permalink($post->ID)
         );
         
-        // Send to each user with a per-user unsubscribe link appended.
-        foreach ($users_to_notify as $uid => $user_email) {
+        // Hand the send off to the background rather than looping wp_mail()
+        // inside the request that changed the status. A popular item can have
+        // thousands of voters, and every one of those was a blocking SMTP call
+        // in the admin's save request - a guaranteed gateway timeout with a
+        // partial send and no way to resume.
+        $this->queue_status_emails($users_to_notify, $subject, $message);
+    }
+
+    /**
+     * Queue status-change emails for background delivery, in batches.
+     *
+     * @param array<int,string> $recipients user_id => email.
+     * @param string            $subject    Email subject.
+     * @param string            $message    Email body, before the unsubscribe line.
+     * @return void
+     */
+    private function queue_status_emails($recipients, $subject, $message) {
+        if (empty($recipients)) {
+            return;
+        }
+
+        foreach (array_chunk($recipients, self::EMAIL_BATCH_SIZE, true) as $index => $batch) {
+            wp_schedule_single_event(
+                time() + ($index * MINUTE_IN_SECONDS),
+                'roadmap_send_status_emails',
+                [$batch, $subject, $message]
+            );
+        }
+    }
+
+    /**
+     * Deliver one queued batch of status-change emails.
+     *
+     * @param array<int,string> $recipients user_id => email.
+     * @param string            $subject    Email subject.
+     * @param string            $message    Email body.
+     * @return void
+     */
+    public function send_status_email_batch($recipients, $subject, $message) {
+        foreach ((array) $recipients as $uid => $user_email) {
             $body = $message . "\n\n---\n" . sprintf(
                 /* translators: %s: unsubscribe URL */
                 __('You are receiving this because you voted on or commented on this item. Unsubscribe: %s', 'product-roadmap'),
-                $this->get_unsubscribe_url($uid)
+                $this->get_unsubscribe_url((int) $uid)
             );
             wp_mail($user_email, $subject, $body);
         }
@@ -280,15 +328,10 @@ class Roadmap_Notifications {
          */
         do_action('roadmap_status_changed', $object_id, $new_status_name, $old_status_name);
 
-        // Send to each user with a per-user unsubscribe link appended.
-        foreach ($users_to_notify as $uid => $user_email) {
-            $body = $message . "\n\n---\n" . sprintf(
-                /* translators: %s: unsubscribe URL */
-                __('You are receiving this because you voted on or commented on this item. Unsubscribe: %s', 'product-roadmap'),
-                $this->get_unsubscribe_url($uid)
-            );
-            wp_mail($user_email, $subject, $body);
-        }
+        // Queued, not sent inline - see queue_status_emails(). This hook fires
+        // from wp_set_object_terms(), which runs inside the admin's save and
+        // inside the REST suggest path, so a popular item used to block both.
+        $this->queue_status_emails($users_to_notify, $subject, $message);
     }
 
     /**

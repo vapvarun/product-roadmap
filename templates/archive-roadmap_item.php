@@ -61,31 +61,20 @@ $all_products = get_terms(
 	)
 );
 
+// Counts for every product and every status in two grouped queries, rather
+// than a WP_Query per product here and an unbounded WP_Query plus a term query
+// per item further down. On ten products with 2000 items each that was roughly
+// 20,000 queries on a public page.
+$roadmap_counts = Roadmap_API::get_product_item_counts();
+
 if ( ! is_wp_error( $all_products ) ) {
 	foreach ( $all_products as $product ) {
-		// Check if this product has any roadmap_item posts
-		$item_count = new WP_Query(
-			array(
-				'post_type'      => 'roadmap_item',
-				'posts_per_page' => 1,
-				'post_status'    => 'publish',
-				'fields'         => 'ids',
-				'tax_query'      => array(
-					array(
-						'taxonomy' => 'roadmap_product',
-						'field'    => 'term_id',
-						'terms'    => $product->term_id,
-					),
-				),
-			)
-		);
+		$product_total = $roadmap_counts['totals'][ $product->term_id ] ?? 0;
 
-		if ( $item_count->found_posts > 0 ) {
-			// Update count to reflect roadmap item count
-			$product->count = $item_count->found_posts;
+		if ( $product_total > 0 ) {
+			$product->count = $product_total;
 			$products[]     = $product;
 		}
-		wp_reset_postdata();
 	}
 }
 
@@ -118,7 +107,7 @@ $current_status = isset( $_GET['status'] ) ? sanitize_text_field( $_GET['status'
 				<select id="roadmap-items-product-select" class="roadmap-plugin-select2">
 					<option value=""><?php esc_html_e( 'Search products...', 'product-roadmap' ); ?></option>
 					<?php foreach ( $products as $product ) : ?>
-						<option value="<?php echo esc_url( home_url( '/roadmap/' . $product->slug . '/' ) ); ?>" data-count="<?php echo esc_attr( $product->count ); ?>">
+						<option value="<?php echo esc_url( home_url( '/roadmap/' . $product->slug . '/' ) ); ?>" data-count="<?php echo esc_attr( (string) $product->count ); ?>">
 							<?php echo esc_html( $product->name ); ?>
 						</option>
 					<?php endforeach; ?>
@@ -131,39 +120,9 @@ $current_status = isset( $_GET['status'] ) ? sanitize_text_field( $_GET['status'
 		<?php if ( ! empty( $products ) ) : ?>
 			<?php
 			foreach ( $products as $product ) :
-				// Get items count by status for this product
-				$product_items = new WP_Query(
-					array(
-						'post_type'      => 'roadmap_item',
-						'posts_per_page' => -1,
-						'post_status'    => 'publish',
-						'tax_query'      => array(
-							array(
-								'taxonomy' => 'roadmap_product',
-								'field'    => 'term_id',
-								'terms'    => $product->term_id,
-							),
-						),
-					)
-				);
-
-				$total_items = $product_items->found_posts;
-
-				// Count by status
-				$status_counts = array();
-				if ( $product_items->have_posts() ) {
-					while ( $product_items->have_posts() ) {
-						$product_items->the_post();
-						$item_statuses = wp_get_object_terms( get_the_ID(), 'roadmap_status', array( 'fields' => 'slugs' ) );
-						foreach ( $item_statuses as $status_slug ) {
-							if ( ! isset( $status_counts[ $status_slug ] ) ) {
-								$status_counts[ $status_slug ] = 0;
-							}
-							++$status_counts[ $status_slug ];
-						}
-					}
-					wp_reset_postdata();
-				}
+				// Both numbers come from the grouped queries above.
+				$total_items   = $roadmap_counts['totals'][ $product->term_id ] ?? 0;
+				$status_counts = $roadmap_counts['statuses'][ $product->term_id ] ?? array();
 				?>
 
 				<article class="roadmap-product-card">

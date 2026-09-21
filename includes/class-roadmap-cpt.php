@@ -807,9 +807,13 @@ class Roadmap_CPT {
 			return $permalink;
 		}
 
-		// Get the product term
-		$product_terms = wp_get_object_terms( $post->ID, 'roadmap_product' );
-		$product_slug  = ! empty( $product_terms ) ? $product_terms[0]->slug : 'main';
+		// get_the_terms() reads the object term cache, which the REST layer
+		// primes for the whole page. wp_get_object_terms() bypasses it, so this
+		// filter alone cost one term query per item on every board request.
+		$product_terms = get_the_terms( $post->ID, 'roadmap_product' );
+		$product_slug  = ( ! is_wp_error( $product_terms ) && ! empty( $product_terms ) )
+			? $product_terms[0]->slug
+			: 'main';
 
 		return home_url( '/roadmap/' . $product_slug . '/' . $post->post_name . '/' );
 	}

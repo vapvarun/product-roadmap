@@ -48,6 +48,11 @@ class Roadmap_API {
 					'per_page' => array(
 						'default'           => 100,
 						'sanitize_callback' => 'absint',
+						// Capped: this route is public, and each item costs
+						// work. Without a ceiling an anonymous caller chose the
+						// page size, which on a large board is a cheap way to
+						// make the site do thousands of queries per request.
+						'validate_callback' => array( __CLASS__, 'validate_per_page' ),
 					),
 					'search'   => array(
 						'sanitize_callback' => 'sanitize_text_field',
@@ -454,7 +459,17 @@ class Roadmap_API {
 	}
 
 	private function get_item_terms( $post_id, $taxonomy ) {
-		$terms     = wp_get_post_terms( $post_id, $taxonomy );
+		// get_the_terms(), not wp_get_post_terms(). The latter builds a fresh
+		// WP_Term_Query and does not consult the object term cache that
+		// get_items() primes with update_object_term_cache(), so the priming
+		// bought nothing and each item cost three extra term queries - 300 on a
+		// default 100-item page.
+		$terms = get_the_terms( $post_id, $taxonomy );
+
+		if ( is_wp_error( $terms ) || empty( $terms ) ) {
+			return array();
+		}
+
 		$formatted = array();
 
 		foreach ( $terms as $term ) {
@@ -834,6 +849,97 @@ class Roadmap_API {
 				'count' => $status->count,
 			);
 		}
+
+		return $counts;
+	}
+
+	/**
+	 * Published item counts per product, and per status within each product.
+	 *
+	 * Two grouped queries for the whole archive, replacing what used to be an
+	 * unbounded WP_Query per product plus a term query per item - roughly
+	 * 20,000 queries on a ten-product, 2000-item site, on a public page.
+	 *
+	 * @return array{totals: array<int,int>, statuses: array<int, array<string,int>>}
+	 */
+	/**
+	 * Keep the public page size within a sane ceiling.
+	 *
+	 * Filterable so a site that genuinely wants larger pages can raise it
+	 * deliberately rather than by accident.
+	 *
+	 * @param mixed $value Submitted per_page.
+	 * @return bool
+	 */
+	public static function validate_per_page( $value ) {
+		$max = (int) apply_filters( 'roadmap_max_per_page', 200 );
+
+		return is_numeric( $value ) && (int) $value > 0 && (int) $value <= $max;
+	}
+
+	public static function get_product_item_counts() {
+		global $wpdb;
+
+		$cache_key = 'roadmap_product_item_counts';
+		$cached    = wp_cache_get( $cache_key, 'roadmap' );
+
+		if ( false !== $cached ) {
+			return $cached;
+		}
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- grouped aggregate, cached below
+		$rows = $wpdb->get_results(
+			"SELECT pt.term_id AS product_id, st.slug AS status_slug, COUNT(DISTINCT p.ID) AS total
+			   FROM {$wpdb->posts} p
+			   INNER JOIN {$wpdb->term_relationships} ptr ON ptr.object_id = p.ID
+			   INNER JOIN {$wpdb->term_taxonomy} ptt ON ptt.term_taxonomy_id = ptr.term_taxonomy_id AND ptt.taxonomy = 'roadmap_product'
+			   INNER JOIN {$wpdb->terms} pt ON pt.term_id = ptt.term_id
+			   LEFT JOIN {$wpdb->term_relationships} str ON str.object_id = p.ID
+			   LEFT JOIN {$wpdb->term_taxonomy} stt ON stt.term_taxonomy_id = str.term_taxonomy_id AND stt.taxonomy = 'roadmap_status'
+			   LEFT JOIN {$wpdb->terms} st ON st.term_id = stt.term_id
+			  WHERE p.post_type = 'roadmap_item' AND p.post_status = 'publish'
+			  GROUP BY pt.term_id, st.slug"
+		);
+
+		$totals   = array();
+		$statuses = array();
+
+		foreach ( $rows as $row ) {
+			$product_id = (int) $row->product_id;
+			$count      = (int) $row->total;
+
+			if ( ! isset( $statuses[ $product_id ] ) ) {
+				$statuses[ $product_id ] = array();
+			}
+
+			if ( ! empty( $row->status_slug ) ) {
+				$statuses[ $product_id ][ $row->status_slug ] = $count;
+			}
+		}
+
+		// A post with two status terms would be counted once per status, so the
+		// product total is taken from its own aggregate rather than summed.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- grouped aggregate, cached below
+		$total_rows = $wpdb->get_results(
+			"SELECT pt.term_id AS product_id, COUNT(DISTINCT p.ID) AS total
+			   FROM {$wpdb->posts} p
+			   INNER JOIN {$wpdb->term_relationships} ptr ON ptr.object_id = p.ID
+			   INNER JOIN {$wpdb->term_taxonomy} ptt ON ptt.term_taxonomy_id = ptr.term_taxonomy_id AND ptt.taxonomy = 'roadmap_product'
+			   INNER JOIN {$wpdb->terms} pt ON pt.term_id = ptt.term_id
+			  WHERE p.post_type = 'roadmap_item' AND p.post_status = 'publish'
+			  GROUP BY pt.term_id"
+		);
+
+		foreach ( $total_rows as $row ) {
+			$totals[ (int) $row->product_id ] = (int) $row->total;
+		}
+
+		$counts = array(
+			'totals'   => $totals,
+			'statuses' => $statuses,
+		);
+
+		wp_cache_set( $cache_key, $counts, 'roadmap', 5 * MINUTE_IN_SECONDS );
 
 		return $counts;
 	}
