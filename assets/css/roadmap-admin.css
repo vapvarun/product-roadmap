@@ -1463,9 +1463,16 @@
     user-select: all;
 }
 
-/* Enhanced Button Styles */
-.roadmap-settings-wrap .button,
-.roadmap-dashboard-section .button {
+/* Enhanced Button Styles
+ *
+ * Scoped away from .notice: WordPress renders admin notices inside our wrapper,
+ * and an inline <a class="button"> in a notice is laid out against core's own
+ * notice metrics. Restyling it here made the button ~60px tall inside a 94px
+ * notice, so it floated above the notice text and pushed the sentence onto the
+ * bottom border. Core's own buttons in our notices should look like core's.
+ */
+.roadmap-settings-wrap .button:not(.notice .button),
+.roadmap-dashboard-section .button:not(.notice .button) {
     border-radius: 8px !important;
     padding: 10px 20px !important;
     font-weight: 500 !important;
