@@ -69,8 +69,10 @@ jQuery(document).ready(function($) {
     function handleVote(action) {
         if (isVoting) return;
 
-        // Check if user is logged in
-        if (!roadmap_ajax.is_logged_in) {
+        // Same gate as the Vue board: a logged-out visitor may vote when the
+        // site allows guest voting. Checking is_logged_in alone made this page
+        // a second, independent blocker on the same feature.
+        if (!roadmap_ajax.is_logged_in && !roadmap_ajax.allow_guest_voting) {
             showNotification(roadmap_ajax.i18n.login_required, 'error');
             // Redirect to login after delay
             setTimeout(function() {

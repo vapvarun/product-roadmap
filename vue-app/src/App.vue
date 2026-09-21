@@ -581,7 +581,11 @@ const saveItem = async (itemData) => {
 }
 
 const submitVote = async (itemId, voteValue) => {
-  if (!props.config.user) {
+  // Gate on the capability, not on the presence of a user. The server has
+  // always accepted guest votes when allow_guest_voting is on (can_vote() in
+  // class-roadmap-api.php); this guard was blocking the request before the
+  // setting was ever consulted, so the feature was unreachable.
+  if (!props.config.user && !props.config.settings?.allow_guest_voting) {
     showNotification(props.config.i18n.login_required)
     return
   }

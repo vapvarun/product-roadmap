@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-21T11:07:18+00:00\n"
+"POT-Creation-Date: 2026-09-21T11:09:40+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: product-roadmap\n"
@@ -44,43 +44,47 @@ msgstr ""
 msgid "You are doing that too often. Please slow down and try again shortly."
 msgstr ""
 
-#: includes/class-roadmap-api.php:729
+#: includes/class-roadmap-api.php:632
+msgid "Your vote could not be saved. Please try again."
+msgstr ""
+
+#: includes/class-roadmap-api.php:741
 msgid "Thank you for your suggestion!"
 msgstr ""
 
-#: includes/class-roadmap-api.php:736
+#: includes/class-roadmap-api.php:748
 msgid "Failed to submit suggestion"
 msgstr ""
 
-#: includes/class-roadmap-api.php:849
+#: includes/class-roadmap-api.php:861
 msgid "Failed to create item"
 msgstr ""
 
-#: includes/class-roadmap-api.php:905
+#: includes/class-roadmap-api.php:917
 msgid "Failed to update item"
 msgstr ""
 
-#: includes/class-roadmap-api.php:915
+#: includes/class-roadmap-api.php:927
 msgid "Failed to delete item"
 msgstr ""
 
-#: includes/class-roadmap-api.php:1056
+#: includes/class-roadmap-api.php:1068
 msgid "Invalid roadmap item"
 msgstr ""
 
-#: includes/class-roadmap-api.php:1082
+#: includes/class-roadmap-api.php:1094
 msgid "Failed to add comment"
 msgstr ""
 
-#: includes/class-roadmap-api.php:1089
+#: includes/class-roadmap-api.php:1101
 msgid "Comment added successfully"
 msgstr ""
 
-#: includes/class-roadmap-api.php:1144
+#: includes/class-roadmap-api.php:1156
 msgid "Multiple products require the Pro version. Use product=main for free version."
 msgstr ""
 
-#: includes/class-roadmap-api.php:1191
+#: includes/class-roadmap-api.php:1203
 msgid "Changelog not found"
 msgstr ""
 
@@ -962,7 +966,7 @@ msgstr ""
 #: includes/class-roadmap-settings.php:42
 #: includes/class-roadmap-settings.php:43
 #: includes/class-roadmap-shortcode.php:810
-#: templates/single-roadmap_item.php:92
+#: templates/single-roadmap_item.php:116
 msgid "Roadmap"
 msgstr ""
 
@@ -2234,7 +2238,7 @@ msgid "Assigned To"
 msgstr ""
 
 #: includes/class-roadmap-shortcode.php:843
-#: templates/single-roadmap_item.php:184
+#: templates/single-roadmap_item.php:208
 msgid "What was delivered"
 msgstr ""
 
@@ -2494,38 +2498,38 @@ msgstr ""
 msgid "View all %s releases"
 msgstr ""
 
-#: templates/single-roadmap_item.php:76
+#: templates/single-roadmap_item.php:100
 msgid "Your vote has been submitted!"
 msgstr ""
 
-#: templates/single-roadmap_item.php:77
+#: templates/single-roadmap_item.php:101
 msgid "Your vote has been removed."
 msgstr ""
 
-#: templates/single-roadmap_item.php:78
+#: templates/single-roadmap_item.php:102
 msgid "An error occurred. Please try again."
 msgstr ""
 
-#: templates/single-roadmap_item.php:79
+#: templates/single-roadmap_item.php:103
 msgid "Please login to vote."
 msgstr ""
 
-#: templates/single-roadmap_item.php:108
+#: templates/single-roadmap_item.php:132
 msgid "Upvote this idea"
 msgstr ""
 
-#: templates/single-roadmap_item.php:115
+#: templates/single-roadmap_item.php:139
 msgid "vote"
 msgid_plural "votes"
 msgstr[0] ""
 msgstr[1] ""
 
-#: templates/single-roadmap_item.php:119
+#: templates/single-roadmap_item.php:143
 msgid "Downvote this idea"
 msgstr ""
 
 #. translators: %d: number of comments
-#: templates/single-roadmap_item.php:165
+#: templates/single-roadmap_item.php:189
 #, php-format
 msgid "%d comment"
 msgid_plural "%d comments"

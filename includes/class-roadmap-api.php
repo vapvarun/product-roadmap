@@ -611,7 +611,7 @@ class Roadmap_API {
 		if ( $existing_vote ) {
 			// Update existing vote
             // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table update
-			$wpdb->update(
+			$written = $wpdb->update(
 				$table,
 				array( 'vote_value' => $vote_value ),
 				$where_clause
@@ -619,7 +619,19 @@ class Roadmap_API {
 		} else {
 			// Insert new vote
             // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Custom table insert
-			$wpdb->insert( $table, $insert_data );
+			$written = $wpdb->insert( $table, $insert_data );
+		}
+
+		// Never report a vote as stored without checking the write. This
+		// returned success while silently dropping every guest vote on installs
+		// whose votes table was missing the guest_ip column, and the visitor was
+		// told their vote counted.
+		if ( false === $written ) {
+			return new WP_Error(
+				'vote_failed',
+				__( 'Your vote could not be saved. Please try again.', 'product-roadmap' ),
+				array( 'status' => 500 )
+			);
 		}
 
 		// Update vote count
@@ -1338,7 +1350,7 @@ class Roadmap_API {
 	 *
 	 * @return string The validated IP address or empty string.
 	 */
-	private function get_user_ip() {
+	public function get_user_ip() {
 		$ip = '';
 
 		// Only use REMOTE_ADDR for security - it cannot be spoofed by the client
