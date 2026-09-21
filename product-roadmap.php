@@ -59,6 +59,11 @@ class RoadmapPlugin {
         register_deactivation_hook(__FILE__, [$this, 'deactivate']);
 
         add_action('init', [$this, 'init']);
+        // Schema repair must NOT be admin-only: guest voting is a frontend
+        // feature, and a site whose owner rarely opens wp-admin would never
+        // pick up the votes-table columns it depends on. Version-gated, so on
+        // every other request this is a single get_option().
+        add_action('init', [$this, 'check_version_update'], 5);
         add_action('upgrader_process_complete', [$this, 'handle_plugin_update'], 10, 2);
         
         // Initialize components
@@ -87,8 +92,9 @@ class RoadmapPlugin {
 
         // Run migration check on admin init
         if (is_admin()) {
+            // The product->taxonomy data migration is expensive, so it stays on
+            // admin_init behind its own lock.
             add_action('admin_init', [$this, 'check_migration']);
-            add_action('admin_init', [$this, 'check_version_update']);
         }
     }
 
@@ -215,7 +221,7 @@ class RoadmapPlugin {
         
         // Votes table
         $votes_table = $wpdb->prefix . 'roadmap_votes';
-        $sql_votes = "CREATE TABLE IF NOT EXISTS $votes_table (
+        $sql_votes = "CREATE TABLE $votes_table (
             id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
             user_id bigint(20) unsigned DEFAULT NULL,
             item_id bigint(20) unsigned NOT NULL,
@@ -232,11 +238,17 @@ class RoadmapPlugin {
             KEY item_created (item_id, created_at)
         ) $charset_collate;";
         
+        // NOTE: the statement above must NOT say "CREATE TABLE IF NOT EXISTS".
+        // dbDelta parses the table name with preg_match('|CREATE TABLE ([^ ]*)|'),
+        // so "IF" is captured as the table name, dbDelta diffs a table called
+        // "IF", finds nothing to do, and every column added here after 1.0 is
+        // silently skipped on existing installs. dbDelta is already idempotent;
+        // the guard bought nothing and cost every migration since.
         require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
         dbDelta($sql_votes);
 
-        // Fresh tables get the indexes from the CREATE above; existing tables are
-        // migrated by upgrade_votes_indexes() (dbDelta won't add them reliably).
+        // dbDelta adds columns reliably but is unreliable about indexes on an
+        // existing table, so those are added explicitly and idempotently.
         $this->upgrade_votes_indexes();
     }
 
