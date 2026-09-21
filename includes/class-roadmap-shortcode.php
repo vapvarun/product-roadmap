@@ -21,6 +21,27 @@ class Roadmap_Shortcode {
 		add_action( 'wp_enqueue_scripts', array( $this, 'maybe_enqueue_assets' ) );
 	}
 
+	/**
+	 * The template an owner has configured as their default.
+	 *
+	 * Lives in the Pro templates option; free installs have no such setting and
+	 * fall through to 'minimal', which is the only template free ships.
+	 *
+	 * @return string
+	 */
+	public static function get_default_template() {
+		if ( ! defined( 'ROADMAP_PRO_ACTIVE' ) || ! ROADMAP_PRO_ACTIVE ) {
+			return 'minimal';
+		}
+
+		$pro_templates = get_option( 'roadmap_pro_templates', array() );
+		$default       = is_array( $pro_templates ) && ! empty( $pro_templates['default_template'] )
+			? sanitize_key( $pro_templates['default_template'] )
+			: 'minimal';
+
+		return $default;
+	}
+
 	public function render_shortcode( $atts ) {
 		$atts = shortcode_atts(
 			array(
@@ -28,7 +49,12 @@ class Roadmap_Shortcode {
 				'allow_frontend_edit' => 'false',
 				'product'             => '',
 				'class'               => '',
-				'template'            => 'minimal',
+				// Falls back to the owner's configured default rather than a
+				// hardcoded 'minimal'. The Templates setting was read in exactly
+				// one place - the /roadmap/{product}/ archive - so an owner who
+				// set a default template never saw it on the [roadmap] shortcode
+				// they had actually put on their page.
+				'template'            => self::get_default_template(),
 				'sort'                => '', // Default sort: votes, recent, comments, priority
 				'show_filters'        => 'true', // Show the status/category/product/sort filter bar.
 				'show_title'          => 'true', // Show the "<Product> Roadmap" heading above the board.

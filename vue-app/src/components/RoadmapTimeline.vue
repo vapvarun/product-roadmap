@@ -324,7 +324,32 @@ const props = defineProps({
 
 defineEmits(['item-click', 'update-item', 'edit-item', 'delete-item'])
 
-const currentView = ref('current')
+// Seeded from the owner's Timeline setting instead of being hardcoded.
+// The setting and this selector were written with different vocabularies
+// (month/quarter/year vs current/6months/year/all), so map rather than assume
+// they line up - an unmapped value falls back to the previous default.
+const timelineViewFromSetting = (value) => {
+  switch (value) {
+    case 'month':
+    case 'quarter':
+    case 'current':
+      return 'current'
+    case '6months':
+      return '6months'
+    case 'year':
+      return 'year'
+    case 'all':
+      return 'all'
+    default:
+      return 'current'
+  }
+}
+
+const currentView = ref(
+  timelineViewFromSetting(
+    props.proFeatures?.timeline_default_view || props.proFeatures?.timeline_scale
+  )
+)
 const now = new Date()
 const currentQuarter = Math.floor(now.getMonth() / 3) + 1
 const currentYear = now.getFullYear()
