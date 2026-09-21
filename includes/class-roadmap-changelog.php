@@ -170,8 +170,8 @@ class Roadmap_Changelog {
 		}
 
 		$term_id = isset( $_POST['term_id'] ) ? absint( $_POST['term_id'] ) : 0;
-		$field   = isset( $_POST['field'] ) ? sanitize_text_field( $_POST['field'] ) : '';
-		$value   = isset( $_POST['value'] ) ? sanitize_hex_color( $_POST['value'] ) : '';
+		$field   = isset( $_POST['field'] ) ? sanitize_text_field( wp_unslash( $_POST['field'] ) ) : '';
+		$value   = isset( $_POST['value'] ) ? sanitize_hex_color( wp_unslash( $_POST['value'] ) ) : '';
 
 		if ( ! $term_id || ! $field || ! $value ) {
 			wp_send_json_error( 'Invalid parameters' );
@@ -651,12 +651,21 @@ class Roadmap_Changelog {
 
 		// Save changelog items
 		if ( isset( $_POST['_changelog_items'] ) && is_array( $_POST['_changelog_items'] ) ) {
-			$items = array();
-			foreach ( $_POST['_changelog_items'] as $item ) {
+			// Unslash once at the boundary, then sanitize each field. WordPress
+			// slashes superglobals, so sanitizing without unslashing stores the
+			// escaped form and backslashes accumulate on every re-save.
+			$posted_items = map_deep( wp_unslash( $_POST['_changelog_items'] ), 'sanitize_text_field' );
+			$items        = array();
+
+			foreach ( $posted_items as $item ) {
+				if ( ! is_array( $item ) ) {
+					continue;
+				}
+
 				if ( ! empty( $item['type'] ) || ! empty( $item['description'] ) ) {
 					$items[] = array(
-						'type'        => sanitize_text_field( $item['type'] ),
-						'description' => sanitize_text_field( $item['description'] ),
+						'type'        => $item['type'] ?? '',
+						'description' => $item['description'] ?? '',
 					);
 				}
 			}

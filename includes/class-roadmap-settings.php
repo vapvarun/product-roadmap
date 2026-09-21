@@ -1162,11 +1162,6 @@ class Roadmap_Settings {
 			array(
 				'ajax_url'            => admin_url( 'admin-ajax.php' ),
 				'nonce'               => wp_create_nonce( 'roadmap_admin_nonce' ),
-				'confirm_demo_import' => __( 'Are you sure you want to import demo data? This will create sample roadmap items.', 'product-roadmap' ),
-				'importing_text'      => __( 'Importing...', 'product-roadmap' ),
-				'import_success'      => __( 'Demo data imported successfully!', 'product-roadmap' ),
-				'import_error'        => __( 'Error importing demo data. Please try again.', 'product-roadmap' ),
-				'import_demo_text'    => __( 'Import Demo Data', 'product-roadmap' ),
 				'save_error'          => __( 'Error saving settings. Please try again.', 'product-roadmap' ),
 			)
 		);

@@ -144,33 +144,14 @@
             }
         });
 
-        // Demo import functionality
-        $('.roadmap-import-demo').on('click', function(e) {
-            e.preventDefault();
-
-            if (!confirm(roadmap_admin.confirm_demo_import)) {
-                return;
-            }
-
-            var button = $(this);
-            button.prop('disabled', true).text(roadmap_admin.importing_text);
-
-            $.post(ajaxurl, {
-                action: 'roadmap_import_demo_data',
-                nonce: roadmap_admin.nonce
-            }, function(response) {
-                if (response.success) {
-                    alert(roadmap_admin.import_success);
-                    location.reload();
-                } else {
-                    alert(response.data || roadmap_admin.import_error);
-                    button.prop('disabled', false).text(roadmap_admin.import_demo_text);
-                }
-            }).fail(function() {
-                alert(roadmap_admin.import_error);
-                button.prop('disabled', false).text(roadmap_admin.import_demo_text);
-            });
-        });
+        // NOTE: the Dashboard demo-import binding was removed in 1.8.0. It
+        // listened on .roadmap-import-demo and posted roadmap_import_demo_data,
+        // and neither existed: no admin template rendered that class and no
+        // handler was registered for that action. Dead JS that looks like a
+        // working feature is how someone concludes demo import is broken rather
+        // than absent. Re-importing demo content from the Dashboard can be
+        // built deliberately - it needs markup, a handler, and the same guard
+        // that stops the setup wizard importing twice.
 
         // CPT admin functionality
         function initRoadmapAdmin() {
