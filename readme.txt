@@ -3,7 +3,7 @@ Contributors: wbcomdesigns, vapvarun
 Tags: roadmap, feature requests, user feedback, changelog, feature voting
 Requires at least: 5.8
 Tested up to: 7.0
-Stable tag: 1.7.1
+Stable tag: 1.8.0
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -116,6 +116,28 @@ Multiple product roadmaps are available in the Pro version. Free version support
 8. Individual roadmap item with voting and comments
 
 == Changelog ==
+
+= 1.8.0 - September 2026 =
+
+Security and data-integrity release. Sites upgrading from any earlier version pick up database repairs automatically on the first page view.
+
+* Security - REST routes that edit, delete or create roadmap items now check the capability against the specific post instead of the site-wide edit_posts. A Contributor could previously delete, rewrite or publish any post or page on the site through /roadmap/v1/items.
+* Security - Creating an item through the REST API no longer publishes on behalf of a user who lacks publish_posts.
+* Security - The pending-submissions notice dismissal now checks a capability alongside its nonce.
+* Fix      - Database migrations now reach existing installs. dbDelta was passed "CREATE TABLE IF NOT EXISTS", which it cannot parse, so no column added since 1.0 ever reached an upgraded site.
+* Fix      - Guest voting works. It was blocked in four places at once: the board script, the single-item script, a votes table missing the columns the server writes to, and a vote handler that reported success on a failed write.
+* Fix      - The single-item page now recognises a guest who has already voted, instead of showing an un-voted button.
+* Fix      - Voting now reports an error instead of claiming success when the vote cannot be saved.
+* Fix      - Saving one Settings tab no longer resets the other. Saving Notifications previously turned voting, comments, suggestions and guest voting off and reset the items-per-page value, with no warning.
+* Fix      - Assignee and Dependencies keep their values. The saved selection did not re-render as selected, and the next unrelated save then destroyed it.
+* Fix      - The setup wizard's "Configure advanced settings" link pointed at a page that does not exist.
+* Improve  - Schema repairs run on the front end, not only in wp-admin, so a site whose owner rarely signs in still receives them.
+* Dev      - Added Roadmap_Permissions::can_edit_item() and can_delete_item(); every route that mutates an item by id routes through them.
+* Dev      - Added the roadmap_tab_setting_keys filter so add-ons can register which settings keys their own tab owns.
+* Dev      - Roadmap_API::get_user_ip() is now public, so templates identify a guest the same way the API does.
+* Dev      - Removed the stale minified bundles and the build steps that silently never ran. The plugin has always enqueued the unminified files.
+* Dev      - Regenerated the translation template. 1.7.1 shipped a 1.7.0 POT, so seven strings from its own features were never available to translators.
+* Compat   - Aligned with Product Roadmap Pro 1.8.0. Install both updates together.
 
 = 1.7.1 - July 2026 =
 
