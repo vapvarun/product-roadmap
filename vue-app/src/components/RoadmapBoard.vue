@@ -126,10 +126,30 @@ const handleDrop = (event, newStatus) => {
 <style lang="scss" scoped>
 .roadmap-board {
   &-columns {
+    // A kanban needs one column per status side by side. auto-fit + 1fr wrapped
+    // them into rows as soon as the container was narrower than
+    // columns x 300px, which on a typical sidebar theme (~800px) turned five
+    // statuses into a three-row grid that no longer reads as a board.
+    // Scroll horizontally instead of wrapping.
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(300px, 1fr);
     gap: 20px;
     margin-top: 30px;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    padding-bottom: 8px;
+    scrollbar-width: thin;
+  }
+
+  @media (max-width: 640px) {
+    &-columns {
+      // On a phone a horizontal board is unusable, so stack instead. Each
+      // column gets full width and the list scrolls vertically as normal.
+      grid-auto-flow: row;
+      grid-auto-columns: auto;
+      overflow-x: visible;
+    }
   }
   
   &-column {

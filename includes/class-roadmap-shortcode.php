@@ -31,6 +31,7 @@ class Roadmap_Shortcode {
 				'template'            => 'minimal',
 				'sort'                => '', // Default sort: votes, recent, comments, priority
 				'show_filters'        => 'true', // Show the status/category/product/sort filter bar.
+				'show_title'          => 'true', // Show the "<Product> Roadmap" heading above the board.
 			),
 			$atts,
 			'roadmap'
@@ -84,6 +85,7 @@ class Roadmap_Shortcode {
 			'template'            => $atts['template'],
 			'default_sort'        => $atts['sort'],
 			'show_filters'        => filter_var( $atts['show_filters'], FILTER_VALIDATE_BOOLEAN ),
+			'show_title'          => filter_var( $atts['show_title'], FILTER_VALIDATE_BOOLEAN ),
 			'is_pro'              => ( defined( 'ROADMAP_PRO_ACTIVE' ) && ROADMAP_PRO_ACTIVE ),
 			'settings'            => array(
 				'enable_voting'      => $global_settings['enable_voting'] ?? ( get_option( 'roadmap_enable_voting', 'yes' ) === 'yes' ),

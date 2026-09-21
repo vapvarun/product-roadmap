@@ -379,8 +379,10 @@ const getDateFilteredItems = () => {
   })
 }
 
+const inProgressStatuses = ['in-progress', 'development', 'testing', 'in-development']
+const upcomingStatuses = ['planned', 'approved', 'scheduled']
+
 const currentItems = computed(() => {
-  const inProgressStatuses = ['in-progress', 'development', 'testing', 'in-development']
   const filteredItems = getDateFilteredItems()
 
   return filteredItems.filter(item => {
@@ -391,7 +393,6 @@ const currentItems = computed(() => {
 })
 
 const upcomingItems = computed(() => {
-  const upcomingStatuses = ['planned', 'approved', 'scheduled']
   const futureDate = new Date()
   futureDate.setMonth(futureDate.getMonth() + 3)
   const filteredItems = getDateFilteredItems()
@@ -414,6 +415,13 @@ const futureItems = computed(() => {
     const statusSlug = item.status?.[0]?.slug
     // Exclude completed items from Later section
     if (completedStatuses.includes(statusSlug)) return false
+    // Do not swallow items an earlier section has already claimed. The old
+    // predicate ended in `!item.start_date`, so every dateless item landed in
+    // Later on top of wherever its status had already placed it - most items
+    // have no start date, so most of the board rendered twice and every count
+    // on the view was inflated.
+    if (inProgressStatuses.includes(statusSlug)) return false
+    if (upcomingStatuses.includes(statusSlug)) return false
     return futureStatuses.includes(statusSlug) ||
            (!item.start_date || (item.start_date && new Date(item.start_date) > futureDate))
   })

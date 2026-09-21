@@ -1,6 +1,6 @@
 <template>
   <div class="roadmap-header">
-    <h1>{{ productName }} {{ i18n.roadmap || 'Roadmap' }}</h1>
+    <h1 v-if="showTitle">{{ productName }} {{ i18n.roadmap || 'Roadmap' }}</h1>
     <div class="roadmap-header-actions">
       <input
         type="search"
@@ -31,6 +31,7 @@
 import { inject } from 'vue'
 
 defineProps({
+  showTitle: { type: Boolean, default: true },
   mode: String,
   search: String,
   canManage: Boolean,

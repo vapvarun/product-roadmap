@@ -49,6 +49,15 @@ class Roadmap_API {
 						'default'           => 100,
 						'sanitize_callback' => 'absint',
 					),
+					'search'   => array(
+						'sanitize_callback' => 'sanitize_text_field',
+						'description'       => 'Free-text search across title and content.',
+					),
+					'sort'     => array(
+						'default'           => '',
+						'sanitize_callback' => 'sanitize_key',
+						'description'       => 'One of: votes, recent, comments, priority, title.',
+					),
 				),
 			)
 		);
@@ -336,6 +345,24 @@ class Roadmap_API {
 			);
 		}
 
+		// Free-text search. Applied server-side so it searches the whole board,
+		// not just the page the client happens to have loaded.
+		if ( ! empty( $params['search'] ) ) {
+			$args['s'] = $params['search'];
+		}
+
+		$args = $this->apply_sort_args( $args, $params['sort'] ?? '' );
+
+		// Priority is a word, not a number, so it needs an explicit ranking in
+		// SQL. Added and removed around this one query so nothing else on the
+		// request is affected.
+		$order_by_priority = ! empty( $args['roadmap_order_priority'] );
+		unset( $args['roadmap_order_priority'] );
+
+		if ( $order_by_priority ) {
+			add_filter( 'posts_orderby', array( $this, 'order_by_priority_rank' ), 10, 2 );
+		}
+
 		/**
 		 * Allow the pro addon to add advanced query filters (priority, progress,
 		 * assignee, date range, dependencies) to the roadmap items query.
@@ -347,6 +374,11 @@ class Roadmap_API {
 
 		// Run the query
 		$query = new WP_Query( $args );
+
+		if ( $order_by_priority ) {
+			remove_filter( 'posts_orderby', array( $this, 'order_by_priority_rank' ), 10 );
+		}
+
 		$items = array();
 
 		// Prime caches to avoid N+1 queries
@@ -798,6 +830,75 @@ class Roadmap_API {
 		}
 
 		return $counts;
+	}
+
+	/**
+	 * Order results by priority rank rather than alphabetically.
+	 *
+	 * Only attached around the single query that asked for it.
+	 *
+	 * @param string   $orderby Current ORDER BY clause.
+	 * @param WP_Query $query   Query being run.
+	 * @return string
+	 */
+	public function order_by_priority_rank( $orderby, $query ) {
+		global $wpdb;
+
+		return $wpdb->prepare(
+			"FIELD( {$wpdb->postmeta}.meta_value, %s, %s, %s, %s ) DESC, {$wpdb->posts}.post_date DESC",
+			'critical',
+			'high',
+			'medium',
+			'low'
+		);
+	}
+
+	/**
+	 * Translate the client's sort choice into WP_Query ordering.
+	 *
+	 * Sorting has to happen in the query, not in the browser: sorting the
+	 * loaded page only ever produced the top of page one, which on a large
+	 * board is not the top of the board.
+	 *
+	 * @param array  $args WP_Query args being built.
+	 * @param string $sort Requested sort key.
+	 * @return array
+	 */
+	private function apply_sort_args( $args, $sort ) {
+		switch ( $sort ) {
+			case 'votes':
+				$args['meta_key'] = '_roadmap_votes'; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- indexed via the postmeta key index; required for vote ordering
+				$args['orderby']  = 'meta_value_num';
+				$args['order']    = 'DESC';
+				break;
+
+			case 'comments':
+				$args['orderby'] = 'comment_count';
+				$args['order']   = 'DESC';
+				break;
+
+			case 'title':
+				$args['orderby'] = 'title';
+				$args['order']   = 'ASC';
+				break;
+
+			case 'priority':
+				// Priority is stored as a word in _roadmap_priority, so ordering
+				// by meta_value alphabetically would give critical, high, low,
+				// medium - wrong. Order by an explicit ranking instead, applied
+				// through a one-shot posts_orderby filter (see below).
+				$args['meta_key']              = '_roadmap_priority'; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- required for priority ordering
+				$args['roadmap_order_priority'] = true;
+				break;
+
+			case 'recent':
+			default:
+				$args['orderby'] = 'date';
+				$args['order']   = 'DESC';
+				break;
+		}
+
+		return $args;
 	}
 
 	public function create_item( $request ) {

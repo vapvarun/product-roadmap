@@ -12,6 +12,7 @@
         :product-name="currentProductName"
         @toggle-dark-mode="toggleDarkMode"
         @suggest="openSuggestionModal"
+        :show-title="config.show_title !== false"
       />
       
       <!-- Filters -->
@@ -90,6 +91,8 @@
           :pro-features="config.pro_features"
           @item-click="openDetailModal"
           @update-item="updateItem"
+          @edit-item="openItemModal"
+          @delete-item="deleteItem"
         />
         
         <!-- List View (Pro) -->
@@ -103,6 +106,8 @@
           :pro-features="config.pro_features"
           @item-click="openDetailModal"
           @update-item="updateItem"
+          @edit-item="openItemModal"
+          @delete-item="deleteItem"
         />
         
         <!-- Cards View (Pro) -->
@@ -116,6 +121,8 @@
           :pro-features="config.pro_features"
           @item-click="openDetailModal"
           @update-item="updateItem"
+          @edit-item="openItemModal"
+          @delete-item="deleteItem"
         />
 
         <!-- Idea Box View (Pro) -->
@@ -345,103 +352,26 @@ const currentProductName = computed(() => {
 })
 
 const filteredItems = computed(() => {
-  let filtered = items.value
-  
-  // Search filter
-  if (searchQuery.value) {
-    const query = searchQuery.value.toLowerCase()
-    filtered = filtered.filter(item => 
-      item.title.toLowerCase().includes(query) ||
-      item.content.toLowerCase().includes(query)
-    )
-  }
-  
-  // Status filter
-  if (selectedStatus.value) {
-    filtered = filtered.filter(item => 
-      item.status.some(s => s.slug === selectedStatus.value)
-    )
-  }
-  
-  // Category filter
-  if (selectedCategory.value) {
-    filtered = filtered.filter(item => 
-      item.categories.some(c => c.slug === selectedCategory.value)
-    )
-  }
-  
-  // Product filter (Pro). The server already scopes /items by the mandatory
-  // product param, so this is a client-side safety net for product switching.
-  // item.product may be a single object ({id,name,slug}) or an array; items
-  // without product data are not excluded (the server already filtered them).
-  if (selectedProduct.value && props.config.is_pro) {
-    filtered = filtered.filter(item => {
-      if (!item.product) return true
-      if (Array.isArray(item.product)) {
-        return item.product.some(p => p.slug === selectedProduct.value)
-      }
-      return item.product.slug === selectedProduct.value
-    })
-  }
-  
-  // Sort items
-  if (selectedSort.value) {
-    filtered = [...filtered].sort((a, b) => {
-      switch (selectedSort.value) {
-        case 'votes':
-          return (b.votes || 0) - (a.votes || 0)
-        case 'recent':
-          return new Date(b.date) - new Date(a.date)
-        case 'comments':
-          return (b.comment_count || 0) - (a.comment_count || 0)
-        case 'priority':
-          const priorityOrder = { critical: 4, high: 3, medium: 2, low: 1 }
-          const aPriority = priorityOrder[a.priority] || 0
-          const bPriority = priorityOrder[b.priority] || 0
-          return bPriority - aPriority
-        default:
-          return 0
-      }
-    })
-  }
-  
-  return filtered
+  // The server applies product, status, category, search and sort, so this is
+  // just the loaded list. Kept as a computed so the templates that bind to it
+  // do not all have to change.
+  return items.value
 })
 
-// API setup
-const apiCall = async (endpoint, options = {}) => {
-  const url = `${props.config.api_url}${endpoint}`
-  const defaultOptions = {
-    headers: {
-      'X-WP-Nonce': props.config.nonce,
-      'Content-Type': 'application/json'
-    }
-  }
-  
-  const response = await fetch(url, {
-    ...defaultOptions,
-    ...options,
-    headers: {
-      ...defaultOptions.headers,
-      ...options.headers
-    }
-  })
-  
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ message: props.config.i18n.network_error || 'Network error' }))
-    throw new Error(error.message || props.config.i18n.api_call_failed || 'API call failed')
-  }
-  
-  return response.json()
-}
-
-// Methods
 const fetchItemsPage = async (page) => {
+  // Filters and sort go to the server. Filtering the loaded page in the browser
+  // silently produced partial results on any board larger than one page - a
+  // "Completed" filter showed only the completed items that happened to be in
+  // the first 100, with no indication anything was missing.
   const params = new URLSearchParams({
     product: selectedProduct.value || props.config.product,
     per_page: props.config.settings?.items_per_page || 100,
     page: page
   })
+  if (selectedStatus.value) params.set('status', selectedStatus.value)
+  if (selectedCategory.value) params.set('category', selectedCategory.value)
+  if (searchQuery.value) params.set('search', searchQuery.value)
+  if (selectedSort.value) params.set('sort', selectedSort.value)
   return await apiCall(`/items?${params}`)
 }
 
@@ -763,6 +693,22 @@ watch(selectedProduct, () => {
   if (props.config.is_pro) {
     fetchItems()
   }
+})
+
+// Status, category and sort are server-side now, so changing one has to
+// re-query rather than re-filter what is already loaded.
+watch([selectedStatus, selectedCategory, selectedSort], () => {
+  fetchItems()
+})
+
+// Search is debounced so typing does not fire a request per keystroke.
+let searchDebounceTimer = null
+watch(searchQuery, () => {
+  if (searchDebounceTimer) clearTimeout(searchDebounceTimer)
+  searchDebounceTimer = setTimeout(() => {
+    searchDebounceTimer = null
+    fetchItems()
+  }, 350)
 })
 
 // Open single item for editing
