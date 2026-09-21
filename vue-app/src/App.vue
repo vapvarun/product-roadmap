@@ -358,6 +358,33 @@ const filteredItems = computed(() => {
   return items.value
 })
 
+const apiCall = async (endpoint, options = {}) => {
+  const url = `${props.config.api_url}${endpoint}`
+  const defaultOptions = {
+    headers: {
+      'X-WP-Nonce': props.config.nonce,
+      'Content-Type': 'application/json'
+    }
+  }
+
+  const response = await fetch(url, {
+    ...defaultOptions,
+    ...options,
+    headers: {
+      ...defaultOptions.headers,
+      ...options.headers
+    }
+  })
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ message: props.config.i18n.network_error || 'Network error' }))
+    throw new Error(error.message || props.config.i18n.api_call_failed || 'API call failed')
+  }
+
+  return response.json()
+}
+
+// Methods
 const fetchItemsPage = async (page) => {
   // Filters and sort go to the server. Filtering the loaded page in the browser
   // silently produced partial results on any board larger than one page - a
