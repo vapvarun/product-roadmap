@@ -81,9 +81,15 @@ class Roadmap_Setup_Wizard {
      * Add setup menu
      */
     public function add_setup_menu() {
-        // Add as submenu under Roadmap
+        // Once setup is done the wizard is not a place an owner needs to keep
+        // seeing; it was registered unconditionally, so it sat in the menu
+        // forever inviting a re-run that re-imports demo content. It stays
+        // reachable by URL, which is what the "Start over" link uses, so the
+        // page is registered without a visible menu entry after completion.
+        $wizard_completed = (bool) get_option('roadmap_wizard_completed');
+
         add_submenu_page(
-            'roadmap-dashboard',
+            $wizard_completed ? null : 'roadmap-dashboard',
             __('Setup Wizard', 'product-roadmap'),
             __('Setup Wizard', 'product-roadmap'),
             'manage_options',
