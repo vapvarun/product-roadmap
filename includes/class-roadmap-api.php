@@ -144,7 +144,7 @@ class Roadmap_API {
 				array(
 					'methods'             => 'PUT',
 					'callback'            => array( $this, 'update_item' ),
-					'permission_callback' => array( $this, 'can_edit_items' ),
+					'permission_callback' => array( $this, 'can_edit_this_item' ),
 					'args'                => array(
 						'title'       => array(
 							'sanitize_callback' => 'sanitize_text_field',
@@ -169,7 +169,7 @@ class Roadmap_API {
 				array(
 					'methods'             => 'DELETE',
 					'callback'            => array( $this, 'delete_item' ),
-					'permission_callback' => array( $this, 'can_edit_items' ),
+					'permission_callback' => array( $this, 'can_delete_this_item' ),
 				),
 			)
 		);
@@ -180,7 +180,7 @@ class Roadmap_API {
 			array(
 				'methods'             => 'POST',
 				'callback'            => array( $this, 'create_item' ),
-				'permission_callback' => array( $this, 'can_edit_items' ),
+				'permission_callback' => array( $this, 'can_create_item' ),
 				'args'                => array(
 					'title'       => array(
 						'required'          => true,
@@ -789,11 +789,13 @@ class Roadmap_API {
 	}
 
 	public function create_item( $request ) {
+		// Never hardcode 'publish': a Contributor holds edit_posts but not
+		// publish_posts, and publishing on their behalf is an escalation.
 		$post_data = array(
 			'post_title'   => $request->get_param( 'title' ),
 			'post_content' => $request->get_param( 'content' ),
 			'post_type'    => 'roadmap_item',
-			'post_status'  => 'publish',
+			'post_status'  => current_user_can( 'publish_posts' ) ? 'publish' : 'pending',
 		);
 
 		$post_id = wp_insert_post( $post_data, true );
@@ -946,7 +948,7 @@ class Roadmap_API {
 				'vote'            => $this->can_vote(),
 				'comment'         => $this->can_comment(),
 				'suggest'         => $this->can_suggest(),
-				'edit_items'      => $this->can_edit_items(),
+				'edit_items'      => Roadmap_Permissions::can_edit_items(),
 				'manage_settings' => $this->can_manage_settings(),
 			),
 		);
@@ -1284,8 +1286,40 @@ class Roadmap_API {
 		return Roadmap_Permissions::can_suggest();
 	}
 
-	public function can_edit_items() {
-		return current_user_can( 'edit_posts' );
+	/**
+	 * Permission callback for PUT /items/<id>.
+	 *
+	 * Checks the capability against *this* post, not the blanket `edit_posts`.
+	 * See Roadmap_Permissions::can_edit_item() for why that matters.
+	 *
+	 * @param WP_REST_Request $request Request being authorised.
+	 * @return bool
+	 */
+	public function can_edit_this_item( $request ) {
+		return Roadmap_Permissions::can_edit_item( (int) $request->get_param( 'id' ) );
+	}
+
+	/**
+	 * Permission callback for DELETE /items/<id>.
+	 *
+	 * @param WP_REST_Request $request Request being authorised.
+	 * @return bool
+	 */
+	public function can_delete_this_item( $request ) {
+		return Roadmap_Permissions::can_delete_item( (int) $request->get_param( 'id' ) );
+	}
+
+	/**
+	 * Permission callback for POST /items.
+	 *
+	 * There is no object yet, so this is the one place a capability check is
+	 * legitimately post-type-wide rather than per-object.
+	 *
+	 * @return bool
+	 */
+	public function can_create_item() {
+		return Roadmap_Permissions::can_edit_items()
+			|| current_user_can( 'roadmap_edit_own_items' );
 	}
 
 	public function can_manage_settings() {

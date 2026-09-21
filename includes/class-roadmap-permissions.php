@@ -143,6 +143,66 @@ class Roadmap_Permissions {
         return user_can($user_id, 'roadmap_suggest') && $suggestions_enabled;
     }
     
+    /**
+     * Whether a user may edit one specific roadmap item.
+     *
+     * The blanket `edit_posts` capability is NOT sufficient: it is held by
+     * Contributors and says nothing about *this* post. Every REST route that
+     * mutates a post by id must route through here so the post-type guard and
+     * the per-object capability check cannot be forgotten at a call site.
+     *
+     * @param int      $post_id Post to check.
+     * @param int|null $user_id Defaults to the current user.
+     * @return bool
+     */
+    public static function can_edit_item($post_id, $user_id = null) {
+        if (!$user_id) {
+            $user_id = get_current_user_id();
+        }
+
+        $post = get_post($post_id);
+
+        // Only ever act on our own post type. Without this the route regex
+        // /items/(?P<id>\d+) matches every post, page and product on the site.
+        if (!$post || 'roadmap_item' !== $post->post_type) {
+            return false;
+        }
+
+        // WordPress decides ownership and post-level locking; we only add our
+        // own capability on top of it.
+        if (!user_can($user_id, 'edit_post', $post_id)) {
+            return false;
+        }
+
+        return user_can($user_id, 'roadmap_edit_items')
+            || user_can($user_id, 'roadmap_edit_own_items');
+    }
+
+    /**
+     * Whether a user may delete one specific roadmap item.
+     *
+     * @param int      $post_id Post to check.
+     * @param int|null $user_id Defaults to the current user.
+     * @return bool
+     */
+    public static function can_delete_item($post_id, $user_id = null) {
+        if (!$user_id) {
+            $user_id = get_current_user_id();
+        }
+
+        $post = get_post($post_id);
+
+        if (!$post || 'roadmap_item' !== $post->post_type) {
+            return false;
+        }
+
+        if (!user_can($user_id, 'delete_post', $post_id)) {
+            return false;
+        }
+
+        return user_can($user_id, 'roadmap_delete_items');
+    }
+
     public static function can_edit_items($user_id = null) {
         if (!$user_id) {
             $user_id = get_current_user_id();

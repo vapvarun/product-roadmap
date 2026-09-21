@@ -518,6 +518,12 @@ class Roadmap_CPT {
 				$is_multiple     = isset( $field['multiple'] ) && $field['multiple'];
 				$name_attr       = $is_multiple ? $field['id'] . '[]' : $field['id'];
 				$selected_values = $is_multiple && is_array( $value ) ? $value : array( $value );
+				// Option keys arrive as ints (e.g. $options[ $user->ID ]) while post
+				// meta always reads back as a string, so a strict in_array() below
+				// never matches and the field re-renders as unselected. That is not
+				// just cosmetic: the blank control then posts an empty value on the
+				// next save and destroys the stored one. Compare as strings.
+				$selected_values = array_map( 'strval', $selected_values );
 				?>
 				<select id="<?php echo esc_attr( $field['id'] ); ?>"
 						name="<?php echo esc_attr( $name_attr ); ?>"
@@ -526,7 +532,7 @@ class Roadmap_CPT {
 						<?php echo esc_attr( $readonly ); ?>>
 					<?php foreach ( $field['options'] as $option_value => $option_label ) : ?>
 						<option value="<?php echo esc_attr( $option_value ); ?>"
-								<?php echo in_array( $option_value, $selected_values, true ) ? 'selected' : ''; ?>>
+								<?php echo in_array( (string) $option_value, $selected_values, true ) ? 'selected' : ''; ?>>
 							<?php echo esc_html( $option_label ); ?>
 						</option>
 					<?php endforeach; ?>

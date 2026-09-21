@@ -1534,6 +1534,12 @@ class Roadmap_Settings {
 	public function ajax_dismiss_pending_notice() {
 		check_ajax_referer( 'roadmap_dismiss_pending_notice', 'nonce' );
 
+		// The notice is only ever shown to users who can act on it, so the
+		// dismissal needs the same gate. Matches the sibling AJAX handlers.
+		if ( ! current_user_can( 'edit_posts' ) ) {
+			wp_send_json_error( array( 'message' => __( 'You are not allowed to do that.', 'product-roadmap' ) ), 403 );
+		}
+
 		$user_id       = get_current_user_id();
 		$pending_count = wp_count_posts( 'roadmap_item' )->pending;
 
