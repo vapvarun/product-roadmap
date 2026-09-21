@@ -428,6 +428,14 @@ class Roadmap_Settings {
 
 						echo '<form method="post" action="options.php" class="roadmap-settings-form">';
 						settings_fields( $settings_group );
+						// Tell the sanitizer which tab is posting. Every tab shares
+						// one option, so without this it cannot tell "unticked on
+						// this tab" from "not rendered by this tab" and wipes the
+						// other tab's values. See sanitize_global_settings().
+						printf(
+							'<input type="hidden" name="roadmap_global_settings[_tab]" value="%s">',
+							esc_attr( $active_tab )
+						);
 					}
 
 					switch ( $active_tab ) {
@@ -1029,19 +1037,72 @@ class Roadmap_Settings {
 		return ( $input === 'yes' ) ? 'yes' : 'no';
 	}
 
-	public function sanitize_global_settings( $input ) {
-		$sanitized = array();
+	/**
+	 * Which settings keys each tab is allowed to write.
+	 *
+	 * The Settings screen splits one option across several tabs, and a browser
+	 * only posts the fields it rendered. Rebuilding the whole option from a
+	 * single tab's POST therefore reset every field the other tabs own - saving
+	 * Notifications silently turned voting, comments, suggestions and guest
+	 * voting off and reset items_per_page. This map is what makes a partial
+	 * save safe.
+	 *
+	 * @return array<string, string[]> Tab slug => keys that tab owns.
+	 */
+	private function get_tab_setting_keys() {
+		return apply_filters(
+			'roadmap_tab_setting_keys',
+			array(
+				'general'       => array(
+					'default_status',
+					'items_per_page',
+					'enable_voting',
+					'allow_guest_voting',
+					'enable_comments',
+					'enable_suggestions',
+					'suggestion_requires_login',
+					'auto_approve_suggestions',
+					'suggestion_default_status',
+				),
+				'notifications' => array(
+					'enable_notifications',
+					'notification_email',
+					'notify_on_vote',
+					'notify_on_comment',
+					'notify_on_suggestion',
+				),
+			)
+		);
+	}
 
-		$sanitized['default_status']            = sanitize_text_field( $input['default_status'] ?? 'planned' );
-		$sanitized['items_per_page']            = absint( $input['items_per_page'] ?? 100 );
-		$sanitized['enable_voting']             = ! empty( $input['enable_voting'] );
-		$sanitized['allow_guest_voting']        = ! empty( $input['allow_guest_voting'] );
-		$sanitized['enable_comments']           = ! empty( $input['enable_comments'] );
-		$sanitized['enable_suggestions']        = ! empty( $input['enable_suggestions'] );
-		$sanitized['suggestion_requires_login'] = ! empty( $input['suggestion_requires_login'] );
-		$sanitized['auto_approve_suggestions']  = ! empty( $input['auto_approve_suggestions'] );
-		$sanitized['suggestion_default_status'] = sanitize_text_field( $input['suggestion_default_status'] ?? 'under-review' );
-		$sanitized['enable_notifications']      = ! empty( $input['enable_notifications'] );
+	public function sanitize_global_settings( $input ) {
+		// Start from what is already stored so keys this tab does not render
+		// survive the save untouched.
+		$stored    = get_option( 'roadmap_global_settings', array() );
+		$sanitized = is_array( $stored ) ? $stored : array();
+
+		$posting_tab = isset( $input['_tab'] ) ? sanitize_key( $input['_tab'] ) : '';
+		$tab_keys    = $this->get_tab_setting_keys();
+
+		// An unknown tab (or a programmatic save with no marker) keeps the old
+		// whole-option behaviour, so nothing that writes this option directly
+		// silently stops working.
+		$owned = $tab_keys[ $posting_tab ] ?? null;
+
+		unset( $input['_tab'] );
+
+		$candidate = array();
+
+		$candidate['default_status']            = sanitize_text_field( $input['default_status'] ?? 'planned' );
+		$candidate['items_per_page']            = absint( $input['items_per_page'] ?? 100 );
+		$candidate['enable_voting']             = ! empty( $input['enable_voting'] );
+		$candidate['allow_guest_voting']        = ! empty( $input['allow_guest_voting'] );
+		$candidate['enable_comments']           = ! empty( $input['enable_comments'] );
+		$candidate['enable_suggestions']        = ! empty( $input['enable_suggestions'] );
+		$candidate['suggestion_requires_login'] = ! empty( $input['suggestion_requires_login'] );
+		$candidate['auto_approve_suggestions']  = ! empty( $input['auto_approve_suggestions'] );
+		$candidate['suggestion_default_status'] = sanitize_text_field( $input['suggestion_default_status'] ?? 'under-review' );
+		$candidate['enable_notifications']      = ! empty( $input['enable_notifications'] );
 
 		// Sanitize notification email(s) - supports multiple emails (one per line)
 		if ( ! empty( $input['notification_email'] ) ) {
@@ -1049,14 +1110,24 @@ class Roadmap_Settings {
 			$emails                          = array_filter( $emails ); // Remove empty lines
 			$emails                          = array_map( 'sanitize_email', $emails );
 			$emails                          = array_filter( $emails ); // Remove invalid emails
-			$sanitized['notification_email'] = implode( "\n", $emails );
+			$candidate['notification_email'] = implode( "\n", $emails );
 		} else {
-			$sanitized['notification_email'] = '';
+			$candidate['notification_email'] = '';
 		}
 
-		$sanitized['notify_on_vote']       = ! empty( $input['notify_on_vote'] );
-		$sanitized['notify_on_comment']    = ! empty( $input['notify_on_comment'] );
-		$sanitized['notify_on_suggestion'] = ! empty( $input['notify_on_suggestion'] );
+		$candidate['notify_on_vote']       = ! empty( $input['notify_on_vote'] );
+		$candidate['notify_on_comment']    = ! empty( $input['notify_on_comment'] );
+		$candidate['notify_on_suggestion'] = ! empty( $input['notify_on_suggestion'] );
+
+		if ( null === $owned ) {
+			return $candidate;
+		}
+
+		foreach ( $owned as $key ) {
+			if ( array_key_exists( $key, $candidate ) ) {
+				$sanitized[ $key ] = $candidate[ $key ];
+			}
+		}
 
 		return $sanitized;
 	}

@@ -457,7 +457,7 @@ class Roadmap_Setup_Wizard {
                 </a>
             </li>
             <li>
-                <a href="<?php echo esc_url(admin_url('edit.php?post_type=roadmap_item&page=roadmap-settings')); ?>">
+                <a href="<?php echo esc_url(admin_url('admin.php?page=roadmap-settings')); ?>">
                     <?php esc_html_e('Configure advanced settings', 'product-roadmap'); ?>
                 </a>
             </li>
