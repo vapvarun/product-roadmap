@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-21T18:42:07+00:00\n"
+"POT-Creation-Date: 2026-09-22T07:08:11+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: product-roadmap\n"
@@ -91,7 +91,7 @@ msgstr ""
 #: includes/class-roadmap-changelog.php:68
 #: includes/class-roadmap-changelog.php:69
 #: includes/class-roadmap-changelog.php:192
-#: templates/archive-roadmap_changelog.php:121
+#: templates/archive-roadmap_changelog.php:120
 #: templates/single-roadmap_changelog.php:39
 msgid "Changelog"
 msgstr ""
@@ -247,7 +247,7 @@ msgid "Type"
 msgstr ""
 
 #: includes/class-roadmap-changelog.php:547
-#: includes/class-roadmap-settings.php:1478
+#: includes/class-roadmap-settings.php:1473
 #: includes/class-roadmap-shortcode.php:774
 msgid "Description"
 msgstr ""
@@ -268,23 +268,23 @@ msgstr ""
 msgid "Remove"
 msgstr ""
 
-#: includes/class-roadmap-changelog.php:1135
+#: includes/class-roadmap-changelog.php:1144
 #: templates/single-roadmap_changelog.php:75
 msgid "Major Release"
 msgstr ""
 
-#: includes/class-roadmap-changelog.php:1136
+#: includes/class-roadmap-changelog.php:1145
 #: templates/single-roadmap_changelog.php:76
 msgid "Minor Release"
 msgstr ""
 
-#: includes/class-roadmap-changelog.php:1137
-#: templates/archive-roadmap_changelog.php:195
+#: includes/class-roadmap-changelog.php:1146
+#: templates/archive-roadmap_changelog.php:194
 #: templates/single-roadmap_changelog.php:77
 msgid "Patch"
 msgstr ""
 
-#: includes/class-roadmap-changelog.php:1159
+#: includes/class-roadmap-changelog.php:1168
 msgid "Changes"
 msgstr ""
 
@@ -495,7 +495,7 @@ msgid "Roadmap Item Details"
 msgstr ""
 
 #: includes/class-roadmap-cpt.php:335
-#: includes/class-roadmap-settings.php:1346
+#: includes/class-roadmap-settings.php:1341
 msgid "Pro Features"
 msgstr ""
 
@@ -647,7 +647,7 @@ msgid "Total number of votes (automatically calculated)"
 msgstr ""
 
 #: includes/class-roadmap-cpt.php:472
-#: includes/class-roadmap-settings.php:1288
+#: includes/class-roadmap-settings.php:1283
 #: includes/class-roadmap-shortcode.php:829
 msgid "Pro Feature"
 msgstr ""
@@ -1062,8 +1062,8 @@ msgid "Unlock advanced features like multiple products, timeline view, and more.
 msgstr ""
 
 #: includes/class-roadmap-settings.php:409
-#: includes/class-roadmap-settings.php:1299
-#: includes/class-roadmap-settings.php:1356
+#: includes/class-roadmap-settings.php:1294
+#: includes/class-roadmap-settings.php:1351
 msgid "Get Pro Version"
 msgstr ""
 
@@ -1334,12 +1334,12 @@ msgstr[0] ""
 msgstr[1] ""
 
 #: includes/class-roadmap-settings.php:900
-#: includes/class-roadmap-settings.php:1186
+#: includes/class-roadmap-settings.php:1181
 msgid "Shortcode"
 msgstr ""
 
 #: includes/class-roadmap-settings.php:905
-#: includes/class-roadmap-settings.php:1202
+#: includes/class-roadmap-settings.php:1197
 #: includes/class-roadmap-setup-wizard.php:445
 msgid "Copy to clipboard"
 msgstr ""
@@ -1366,220 +1366,200 @@ msgid "Theme Color"
 msgstr ""
 
 #: includes/class-roadmap-settings.php:1165
-msgid "Are you sure you want to import demo data? This will create sample roadmap items."
-msgstr ""
-
-#: includes/class-roadmap-settings.php:1166
-msgid "Importing..."
-msgstr ""
-
-#: includes/class-roadmap-settings.php:1167
-msgid "Demo data imported successfully!"
-msgstr ""
-
-#: includes/class-roadmap-settings.php:1168
-msgid "Error importing demo data. Please try again."
-msgstr ""
-
-#: includes/class-roadmap-settings.php:1169
-msgid "Import Demo Data"
-msgstr ""
-
-#: includes/class-roadmap-settings.php:1170
 msgid "Error saving settings. Please try again."
 msgstr ""
 
-#: includes/class-roadmap-settings.php:1273
+#: includes/class-roadmap-settings.php:1268
 msgid "Template Settings"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:1275
+#: includes/class-roadmap-settings.php:1270
 msgid "Customize the appearance and layout of your roadmap."
 msgstr ""
 
-#: includes/class-roadmap-settings.php:1282
+#: includes/class-roadmap-settings.php:1277
 msgid "Template Options"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:1289
+#: includes/class-roadmap-settings.php:1284
 msgid "Unlock multiple template layouts and customization options with the Pro version."
 msgstr ""
 
-#: includes/class-roadmap-settings.php:1291
+#: includes/class-roadmap-settings.php:1286
 msgid "Timeline view template"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:1292
+#: includes/class-roadmap-settings.php:1287
 msgid "Grid view template"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:1293
+#: includes/class-roadmap-settings.php:1288
 msgid "Kanban board template"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:1294
+#: includes/class-roadmap-settings.php:1289
 msgid "Compact list template"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:1295
+#: includes/class-roadmap-settings.php:1290
 msgid "Custom CSS editor"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:1296
+#: includes/class-roadmap-settings.php:1291
 msgid "Dark mode support"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:1315
+#: includes/class-roadmap-settings.php:1310
 msgid "Advanced Settings"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:1317
+#: includes/class-roadmap-settings.php:1312
 msgid "Fine-tune your roadmap with advanced configuration options."
 msgstr ""
 
-#: includes/class-roadmap-settings.php:1323
+#: includes/class-roadmap-settings.php:1318
 msgid "Performance Settings"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:1327
+#: includes/class-roadmap-settings.php:1322
 msgid "Cache Expiry (seconds)"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:1331
+#: includes/class-roadmap-settings.php:1326
 msgid "How long to cache roadmap data. Set to 0 to disable caching."
 msgstr ""
 
-#: includes/class-roadmap-settings.php:1340
+#: includes/class-roadmap-settings.php:1335
 msgid "More Advanced Options"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:1347
+#: includes/class-roadmap-settings.php:1342
 msgid "Access more advanced settings and customization options with the Pro version."
 msgstr ""
 
-#: includes/class-roadmap-settings.php:1349
+#: includes/class-roadmap-settings.php:1344
 msgid "Custom post type slug"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:1350
+#: includes/class-roadmap-settings.php:1345
 msgid "Advanced permissions"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:1351
+#: includes/class-roadmap-settings.php:1346
 msgid "API access control"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:1352
+#: includes/class-roadmap-settings.php:1347
 msgid "Export/Import settings"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:1353
+#: includes/class-roadmap-settings.php:1348
 msgid "Database optimization"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:1381
+#: includes/class-roadmap-settings.php:1376
 msgid "Changelog Badge Types"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:1383
+#: includes/class-roadmap-settings.php:1378
 msgid "Customize the badge types used in your changelogs. Each type can have its own color scheme."
 msgstr ""
 
-#: includes/class-roadmap-settings.php:1389
+#: includes/class-roadmap-settings.php:1384
 msgid "Badge Types"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:1396
+#: includes/class-roadmap-settings.php:1391
 msgid "Name"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:1397
+#: includes/class-roadmap-settings.php:1392
 msgid "Slug"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:1398
+#: includes/class-roadmap-settings.php:1393
 msgid "Preview"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:1399
+#: includes/class-roadmap-settings.php:1394
 msgid "Text Color"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:1400
+#: includes/class-roadmap-settings.php:1395
 msgid "Background"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:1401
+#: includes/class-roadmap-settings.php:1396
 msgid "Actions"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:1438
+#: includes/class-roadmap-settings.php:1433
 #: includes/class-roadmap-shortcode.php:794
 msgid "Edit"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:1446
+#: includes/class-roadmap-settings.php:1441
 msgid "No changelog types found. They will be created automatically when you add your first changelog."
 msgstr ""
 
-#: includes/class-roadmap-settings.php:1452
+#: includes/class-roadmap-settings.php:1447
 msgid "Manage All Types"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:1461
+#: includes/class-roadmap-settings.php:1456
 msgid "How to Use Changelogs"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:1464
+#: includes/class-roadmap-settings.php:1459
 msgid "To display your changelog on your site, use this shortcode:"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:1469
+#: includes/class-roadmap-settings.php:1464
 #: includes/class-roadmap-setup-wizard.php:447
 msgid "Copy"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:1473
+#: includes/class-roadmap-settings.php:1468
 msgid "Shortcode Options"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:1477
+#: includes/class-roadmap-settings.php:1472
 msgid "Attribute"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:1479
+#: includes/class-roadmap-settings.php:1474
 msgid "Example"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:1485
+#: includes/class-roadmap-settings.php:1480
 msgid "Number of changelog entries to show"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:1490
+#: includes/class-roadmap-settings.php:1485
 msgid "Filter by product slug (Pro)"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:1495
+#: includes/class-roadmap-settings.php:1490
 msgid "Make versions expandable"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:1568
+#: includes/class-roadmap-settings.php:1563
 msgid "Roadmap Submissions:"
 msgstr ""
 
 #. translators: %s: Number of pending submissions
-#: includes/class-roadmap-settings.php:1573
+#: includes/class-roadmap-settings.php:1568
 #, php-format
 msgid "You have %s pending submission awaiting review."
 msgid_plural "You have %s pending submissions awaiting review."
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/class-roadmap-settings.php:1584
+#: includes/class-roadmap-settings.php:1579
 msgid "Review Now"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:1611
+#: includes/class-roadmap-settings.php:1606
 msgid "You are not allowed to do that."
 msgstr ""
 
@@ -2144,7 +2124,7 @@ msgid "Now"
 msgstr ""
 
 #: includes/class-roadmap-shortcode.php:845
-#: templates/archive-roadmap_changelog.php:286
+#: templates/archive-roadmap_changelog.php:285
 msgid "Next"
 msgstr ""
 
@@ -2405,42 +2385,42 @@ msgstr ""
 msgid "Failed to load item for editing"
 msgstr ""
 
-#: templates/archive-roadmap_changelog.php:49
-#: templates/archive-roadmap_changelog.php:145
+#: templates/archive-roadmap_changelog.php:48
+#: templates/archive-roadmap_changelog.php:144
 #: templates/archive-roadmap_item.php:49
 #: templates/archive-roadmap_item.php:108
 msgid "Search products..."
 msgstr ""
 
 #. translators: %s: product name
-#: templates/archive-roadmap_changelog.php:119
+#: templates/archive-roadmap_changelog.php:118
 #, php-format
 msgid "%s Changelog"
 msgstr ""
 
-#: templates/archive-roadmap_changelog.php:132
+#: templates/archive-roadmap_changelog.php:131
 msgid "Stay up to date with the latest changes and improvements."
 msgstr ""
 
-#: templates/archive-roadmap_changelog.php:142
+#: templates/archive-roadmap_changelog.php:141
 #: templates/archive-roadmap_item.php:105
 msgid "Jump to product:"
 msgstr ""
 
-#: templates/archive-roadmap_changelog.php:159
+#: templates/archive-roadmap_changelog.php:158
 msgid "View all product changelogs"
 msgstr ""
 
-#: templates/archive-roadmap_changelog.php:193
+#: templates/archive-roadmap_changelog.php:192
 msgid "Major"
 msgstr ""
 
-#: templates/archive-roadmap_changelog.php:194
+#: templates/archive-roadmap_changelog.php:193
 msgid "Minor"
 msgstr ""
 
 #. translators: %d: number of changes
-#: templates/archive-roadmap_changelog.php:216
+#: templates/archive-roadmap_changelog.php:215
 #, php-format
 msgid "%d change"
 msgid_plural "%d changes"
@@ -2448,20 +2428,20 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %d: number of more changes
-#: templates/archive-roadmap_changelog.php:269
+#: templates/archive-roadmap_changelog.php:268
 #, php-format
 msgid "+ %d more changes"
 msgstr ""
 
-#: templates/archive-roadmap_changelog.php:285
+#: templates/archive-roadmap_changelog.php:284
 msgid "Previous"
 msgstr ""
 
-#: templates/archive-roadmap_changelog.php:301
+#: templates/archive-roadmap_changelog.php:300
 msgid "No Releases Yet"
 msgstr ""
 
-#: templates/archive-roadmap_changelog.php:302
+#: templates/archive-roadmap_changelog.php:301
 msgid "Check back soon for updates and release notes."
 msgstr ""
 

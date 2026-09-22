@@ -352,33 +352,68 @@ $current_status = isset( $_GET['status'] ) ? sanitize_text_field( $_GET['status'
  * dark theme the heading rendered invisible against the page background. The
  * 1.7.0 dark-mode work covered the changelog and the Vue board but matched
  * only .roadmap-changelog-* wrappers, never this page's .roadmap-archive-wrapper.
+ *
+ * A previous fix here used `@media (prefers-color-scheme: dark)`, which
+ * tracks the OS setting rather than the theme's own dark-mode toggle - the
+ * rest of this plugin's frontend is dark-mode-aware via theme toggle only
+ * (see the same selector list in assets/css/changelog-frontend.css), so an
+ * OS-dark + theme-light visitor got an unreadable heading on a light page.
+ * Matching that selector list keeps this page consistent with every other
+ * dark-mode-aware surface in the plugin, instead of tracking the OS setting.
  */
-@media (prefers-color-scheme: dark) {
-	.roadmap-archive-title {
-		color: #f1f5f9;
-	}
+html[data-bx-mode="dark"] .roadmap-archive-title,
+html[data-mode="dark"] .roadmap-archive-title,
+body.buddyx-dark-theme .roadmap-archive-title,
+body.buddyx-dark-style-variation .roadmap-archive-title,
+body.dark-scheme .roadmap-archive-title,
+body.reign-ld-dark-theme .roadmap-archive-title {
+	color: #f1f5f9;
+}
 
-	.roadmap-archive-description,
-	.roadmap-no-products h2 {
-		color: #cbd5e1;
-	}
+html[data-bx-mode="dark"] :is(.roadmap-archive-description, .roadmap-no-products h2),
+html[data-mode="dark"] :is(.roadmap-archive-description, .roadmap-no-products h2),
+body.buddyx-dark-theme :is(.roadmap-archive-description, .roadmap-no-products h2),
+body.buddyx-dark-style-variation :is(.roadmap-archive-description, .roadmap-no-products h2),
+body.dark-scheme :is(.roadmap-archive-description, .roadmap-no-products h2),
+body.reign-ld-dark-theme :is(.roadmap-archive-description, .roadmap-no-products h2) {
+	color: #cbd5e1;
+}
 
-	.roadmap-no-products p {
-		color: #94a3b8;
-	}
+html[data-bx-mode="dark"] .roadmap-no-products p,
+html[data-mode="dark"] .roadmap-no-products p,
+body.buddyx-dark-theme .roadmap-no-products p,
+body.buddyx-dark-style-variation .roadmap-no-products p,
+body.dark-scheme .roadmap-no-products p,
+body.reign-ld-dark-theme .roadmap-no-products p {
+	color: #94a3b8;
+}
 
-	.roadmap-product-card {
-		background: #1e293b;
-		border-color: #334155;
-	}
+html[data-bx-mode="dark"] .roadmap-product-card,
+html[data-mode="dark"] .roadmap-product-card,
+body.buddyx-dark-theme .roadmap-product-card,
+body.buddyx-dark-style-variation .roadmap-product-card,
+body.dark-scheme .roadmap-product-card,
+body.reign-ld-dark-theme .roadmap-product-card {
+	background: #1e293b;
+	border-color: #334155;
+}
 
-	.roadmap-product-card-title {
-		color: #f1f5f9;
-	}
+html[data-bx-mode="dark"] .roadmap-product-card-title,
+html[data-mode="dark"] .roadmap-product-card-title,
+body.buddyx-dark-theme .roadmap-product-card-title,
+body.buddyx-dark-style-variation .roadmap-product-card-title,
+body.dark-scheme .roadmap-product-card-title,
+body.reign-ld-dark-theme .roadmap-product-card-title {
+	color: #f1f5f9;
+}
 
-	.roadmap-product-card-description {
-		color: #cbd5e1;
-	}
+html[data-bx-mode="dark"] .roadmap-product-card-description,
+html[data-mode="dark"] .roadmap-product-card-description,
+body.buddyx-dark-theme .roadmap-product-card-description,
+body.buddyx-dark-style-variation .roadmap-product-card-description,
+body.dark-scheme .roadmap-product-card-description,
+body.reign-ld-dark-theme .roadmap-product-card-description {
+	color: #cbd5e1;
 }
 </style>
 

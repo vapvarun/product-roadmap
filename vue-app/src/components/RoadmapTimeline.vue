@@ -1,5 +1,8 @@
 <template>
-  <div class="roadmap-template-timeline roadmap-timeline">
+  <div
+    class="roadmap-template-timeline roadmap-timeline"
+    :class="{ 'roadmap-timeline--hide-votes': !showVotes, 'roadmap-timeline--hide-comments': !showComments }"
+  >
     <div class="roadmap-timeline-header">
       <h2 class="roadmap-timeline-title">{{ i18n.roadmap_timeline || 'Product Roadmap Timeline' }}</h2>
       <div class="roadmap-timeline-filters">
@@ -38,7 +41,16 @@
               @click="$emit('item-click', item)"
             >
               <div class="roadmap-timeline-item-content">
-                <h4>{{ item.title }}</h4>
+                <h4>
+                  {{ item.title }}
+                  <span
+                    v-if="item.is_suggestion"
+                    class="roadmap-timeline-source-badge"
+                    :title="i18n.user_suggested_title || 'Suggested by a user'"
+                  >
+                    {{ i18n.suggested || 'Suggested' }}
+                  </span>
+                </h4>
                 <p>{{ item.excerpt || item.content.substring(0, 100) + '...' }}</p>
                 <div class="roadmap-timeline-item-footer">
                   <div class="roadmap-timeline-item-meta">
@@ -112,7 +124,16 @@
               @click="$emit('item-click', item)"
             >
               <div class="roadmap-timeline-item-content">
-                <h4>{{ item.title }}</h4>
+                <h4>
+                  {{ item.title }}
+                  <span
+                    v-if="item.is_suggestion"
+                    class="roadmap-timeline-source-badge"
+                    :title="i18n.user_suggested_title || 'Suggested by a user'"
+                  >
+                    {{ i18n.suggested || 'Suggested' }}
+                  </span>
+                </h4>
                 <p>{{ item.excerpt || item.content.substring(0, 100) + '...' }}</p>
                 <div class="roadmap-timeline-item-footer">
                   <div class="roadmap-timeline-item-meta">
@@ -183,7 +204,16 @@
               @click="$emit('item-click', item)"
             >
               <div class="roadmap-timeline-item-content">
-                <h4>{{ item.title }}</h4>
+                <h4>
+                  {{ item.title }}
+                  <span
+                    v-if="item.is_suggestion"
+                    class="roadmap-timeline-source-badge"
+                    :title="i18n.user_suggested_title || 'Suggested by a user'"
+                  >
+                    {{ i18n.suggested || 'Suggested' }}
+                  </span>
+                </h4>
                 <p>{{ item.excerpt || item.content.substring(0, 100) + '...' }}</p>
                 <div class="roadmap-timeline-item-footer">
                   <div class="roadmap-timeline-item-meta">
@@ -238,7 +268,16 @@
               @click="$emit('item-click', item)"
             >
               <div class="roadmap-timeline-item-content">
-                <h4>{{ item.title }}</h4>
+                <h4>
+                  {{ item.title }}
+                  <span
+                    v-if="item.is_suggestion"
+                    class="roadmap-timeline-source-badge"
+                    :title="i18n.user_suggested_title || 'Suggested by a user'"
+                  >
+                    {{ i18n.suggested || 'Suggested' }}
+                  </span>
+                </h4>
                 <p>{{ item.excerpt || item.content.substring(0, 100) + '...' }}</p>
                 <div class="roadmap-timeline-item-footer">
                   <div class="roadmap-timeline-item-meta">
@@ -323,6 +362,13 @@ const props = defineProps({
 })
 
 defineEmits(['item-click', 'update-item', 'edit-item', 'delete-item'])
+
+// Hide vote/comment stats entirely when the feature is off, matching the fix
+// already shipped for the Minimal template (RoadmapMinimal.vue showVotes/showComments).
+// Applied as a class on the root element (below) rather than per-section v-if,
+// since the same markup repeats across the Now/Next/Later/Done sections.
+const showVotes = computed(() => config.settings?.enable_voting !== false)
+const showComments = computed(() => config.settings?.enable_comments !== false)
 
 // Seeded from the owner's Timeline setting instead of being hardcoded.
 // The setting and this selector were written with different vocabularies
@@ -480,6 +526,26 @@ const formatDate = (date) => {
 </script>
 
 <style lang="scss" scoped>
+.roadmap-timeline--hide-votes .roadmap-timeline-votes,
+.roadmap-timeline--hide-comments .roadmap-timeline-comments {
+  display: none;
+}
+
+.roadmap-timeline-source-badge {
+  display: inline-block;
+  margin-inline-start: 8px;
+  padding: 2px 8px;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1.6;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  vertical-align: middle;
+  border-radius: 10px;
+  color: var(--rm-review, #7c3aed);
+  background: color-mix(in srgb, var(--rm-review, #7c3aed) 14%, transparent);
+}
+
 .roadmap-timeline {
   background: var(--rm-surface);
   border-radius: 12px;

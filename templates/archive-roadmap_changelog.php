@@ -18,13 +18,12 @@ wp_enqueue_style(
 	'4.1.0'
 );
 
-// Enqueue shared frontend styles (includes Select2 theme styles)
-wp_enqueue_style(
-	'roadmap-changelog-frontend',
-	ROADMAP_PLUGIN_URL . 'assets/css/changelog-frontend.css',
-	array( 'roadmap-select2' ),
-	ROADMAP_VERSION
-);
+// The shared frontend stylesheet (includes Select2 theme styles) is enqueued
+// by Roadmap_Changelog::enqueue_frontend_assets() (hooked on wp_enqueue_scripts,
+// fired inside get_header() below) - not here. That method has the theme-
+// override / filter support this stylesheet's own header promises; enqueuing
+// the same handle here too registered it first with a hardcoded plugin URL,
+// which silently won the handle and made the override always a no-op.
 
 wp_enqueue_script(
 	'roadmap-select2',

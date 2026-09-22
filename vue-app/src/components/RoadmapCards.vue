@@ -42,13 +42,22 @@
               {{ status.name }}
             </span>
           </div>
-          <div class="roadmap-card-votes">
+          <div v-if="showVotes" class="roadmap-card-votes">
             <span class="roadmap-vote-icon">👍</span>
             <span class="roadmap-vote-count">{{ item.votes || 0 }}</span>
           </div>
         </div>
 
-        <h3 class="roadmap-card-title">{{ item.title }}</h3>
+        <h3 class="roadmap-card-title">
+          {{ item.title }}
+          <span
+            v-if="item.is_suggestion"
+            class="roadmap-card-source-badge"
+            :title="i18n.user_suggested_title || 'Suggested by a user'"
+          >
+            {{ i18n.suggested || 'Suggested' }}
+          </span>
+        </h3>
         
         <div class="roadmap-card-content">
           {{ item.excerpt || item.content.substring(0, 150) + '...' }}
@@ -85,7 +94,7 @@
           </div>
           
           <div class="roadmap-card-stats">
-            <span class="roadmap-card-stat">💬 {{ item.comment_count || 0 }}</span>
+            <span v-if="showComments" class="roadmap-card-stat">💬 {{ item.comment_count || 0 }}</span>
             <div v-if="item.assignee" class="roadmap-card-assignee">
               <img 
                 v-if="item.assignee.avatar" 
@@ -172,6 +181,11 @@ const props = defineProps({
 
 defineEmits(['item-click', 'update-item', 'edit-item', 'delete-item'])
 
+// Hide vote/comment stats entirely when the feature is off, matching the fix
+// already shipped for the Minimal template (RoadmapMinimal.vue showVotes/showComments).
+const showVotes = computed(() => config.settings?.enable_voting !== false)
+const showComments = computed(() => config.settings?.enable_comments !== false)
+
 const columns = ref('auto')
 const sortBy = ref('votes')
 
@@ -206,6 +220,21 @@ const formatDate = (date) => {
 </script>
 
 <style lang="scss" scoped>
+.roadmap-card-source-badge {
+  display: inline-block;
+  margin-inline-start: 8px;
+  padding: 2px 8px;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1.6;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  vertical-align: middle;
+  border-radius: 10px;
+  color: var(--rm-review, #7c3aed);
+  background: color-mix(in srgb, var(--rm-review, #7c3aed) 14%, transparent);
+}
+
 .roadmap-cards-header {
   margin-bottom: 20px;
   display: flex;

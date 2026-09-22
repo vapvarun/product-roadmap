@@ -170,7 +170,12 @@ const i18n = config?.i18n || {}
 const commentCount = ref(props.item.comment_count || 0)
 
 // Computed
-const canVote = computed(() => config.user?.can_vote && config.settings?.enable_voting)
+// Same guest-voting fix as RoadmapItem.vue: config.user is null for a guest,
+// so fall back to the allow_guest_voting flag instead of always reading false.
+const canVote = computed(() => {
+  if (!config.settings?.enable_voting) return false
+  return config.user ? !!config.user.can_vote : !!config.settings?.allow_guest_voting
+})
 const canComment = computed(() => config.user?.can_comment && config.settings?.enable_comments)
 
 // Methods

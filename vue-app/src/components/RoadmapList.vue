@@ -48,7 +48,16 @@
               @click="$emit('item-click', item)"
             >
               <div class="roadmap-list-item-main">
-                <h4 class="roadmap-list-item-title">{{ item.title }}</h4>
+                <h4 class="roadmap-list-item-title">
+                  {{ item.title }}
+                  <span
+                    v-if="item.is_suggestion"
+                    class="roadmap-list-source-badge"
+                    :title="i18n.user_suggested_title || 'Suggested by a user'"
+                  >
+                    {{ i18n.suggested || 'Suggested' }}
+                  </span>
+                </h4>
                 <p class="roadmap-list-item-excerpt">
                   {{ item.excerpt || item.content.substring(0, 200) + '...' }}
                 </p>
@@ -80,10 +89,10 @@
                 </div>
 
                 <div class="roadmap-list-item-stats">
-                  <div class="roadmap-list-stat">
+                  <div v-if="showVotes" class="roadmap-list-stat">
                     <i>👍</i> {{ item.votes || 0 }}
                   </div>
-                  <div class="roadmap-list-stat">
+                  <div v-if="showComments" class="roadmap-list-stat">
                     <i>💬</i> {{ item.comment_count || 0 }}
                   </div>
                   <div v-if="item.target_date" class="roadmap-list-stat">
@@ -163,6 +172,11 @@ const props = defineProps({
 })
 
 defineEmits(['item-click', 'update-item', 'edit-item', 'delete-item'])
+
+// Hide vote/comment stats entirely when the feature is off, matching the fix
+// already shipped for the Minimal template (RoadmapMinimal.vue showVotes/showComments).
+const showVotes = computed(() => config.settings?.enable_voting !== false)
+const showComments = computed(() => config.settings?.enable_comments !== false)
 
 const groupBy = ref('status')
 const sortBy = ref('created')
@@ -279,6 +293,21 @@ onMounted(() => {
 </script>
 
 <style lang="scss" scoped>
+.roadmap-list-source-badge {
+  display: inline-block;
+  margin-inline-start: 8px;
+  padding: 2px 8px;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1.6;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  vertical-align: middle;
+  border-radius: 10px;
+  color: var(--rm-review, #7c3aed);
+  background: color-mix(in srgb, var(--rm-review, #7c3aed) 14%, transparent);
+}
+
 .roadmap-list {
   background: var(--rm-surface);
   border-radius: 8px;
