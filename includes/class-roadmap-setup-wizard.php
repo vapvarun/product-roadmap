@@ -532,11 +532,27 @@ class Roadmap_Setup_Wizard {
                     return;
                 }
                 
-                // Save settings
-                update_option('roadmap_enable_voting', isset($_POST['voting_enabled']) ? 'yes' : 'no');
-                update_option('roadmap_allow_guest_voting', isset($_POST['guest_voting']) ? 'yes' : 'no');
-                update_option('roadmap_enable_comments', isset($_POST['comments_enabled']) ? 'yes' : 'no');
-                
+                // Save settings. Legacy options kept for back-compat with any
+                // code still reading them directly, but every real read path
+                // (class-roadmap-shortcode.php, class-roadmap-api.php) checks
+                // roadmap_global_settings first and only falls back to these
+                // when that key is absent - so once the Settings screen has
+                // ever been saved once, roadmap_global_settings exists and the
+                // wizard's choice here was silently ignored. Write both.
+                $roadmap_wizard_voting_enabled = isset($_POST['voting_enabled']) ? 'yes' : 'no';
+                $roadmap_wizard_guest_voting   = isset($_POST['guest_voting']) ? 'yes' : 'no';
+                $roadmap_wizard_comments_enabled = isset($_POST['comments_enabled']) ? 'yes' : 'no';
+
+                update_option('roadmap_enable_voting', $roadmap_wizard_voting_enabled);
+                update_option('roadmap_allow_guest_voting', $roadmap_wizard_guest_voting);
+                update_option('roadmap_enable_comments', $roadmap_wizard_comments_enabled);
+
+                $roadmap_wizard_global_settings = get_option('roadmap_global_settings', array());
+                $roadmap_wizard_global_settings['enable_voting']       = ('yes' === $roadmap_wizard_voting_enabled);
+                $roadmap_wizard_global_settings['allow_guest_voting']  = ('yes' === $roadmap_wizard_guest_voting);
+                $roadmap_wizard_global_settings['enable_comments']     = ('yes' === $roadmap_wizard_comments_enabled);
+                update_option('roadmap_global_settings', $roadmap_wizard_global_settings);
+
                 wp_redirect(admin_url('admin.php?page=roadmap-setup-wizard&step=3'));
                 exit;
                 

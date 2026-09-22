@@ -397,26 +397,63 @@ const currentView = ref(
   )
 )
 const now = new Date()
-const currentQuarter = Math.floor(now.getMonth() / 3) + 1
-const currentYear = now.getFullYear()
+
+// These three labels used to be hardcoded to a fixed 3-month/quarter span
+// regardless of currentView, so switching Templates -> Timeline Scale to
+// Year (or picking a different period from the dropdown) correctly changed
+// which items were bucketed but left the header text always reading a
+// 3-month "Now"/one-quarter "Next" range. Derive them from the same overall
+// window getDateFilteredItems() actually uses, split into three chunks.
+const viewSpanMonths = computed(() => {
+  switch (currentView.value) {
+    case '6months':
+      return 6
+    case 'year':
+      return 12
+    case 'all':
+      return null // open-ended - no fixed window to describe
+    default:
+      return 3
+  }
+})
+
+const monthLabel = (date) => {
+  const months = i18n.months || ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+  return months[date.getMonth()]
+}
+
+const addMonths = (date, count) => {
+  const d = new Date(date)
+  d.setMonth(d.getMonth() + count)
+  return d
+}
 
 const currentPeriod = computed(() => {
-  const months = i18n.months || ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
-  return `${months[now.getMonth()]} - ${months[now.getMonth() + 2] || months[0]} ${currentYear}`
+  if (viewSpanMonths.value === null) {
+    return i18n.all_time || 'All Time'
+  }
+  const chunk = Math.max(1, Math.round(viewSpanMonths.value / 3))
+  const end = addMonths(now, chunk - 1)
+  return `${monthLabel(now)} - ${monthLabel(end)} ${end.getFullYear()}`
 })
 
 const nextPeriod = computed(() => {
-  const nextQ = currentQuarter === 4 ? 1 : currentQuarter + 1
-  const nextY = currentQuarter === 4 ? currentYear + 1 : currentYear
-  return `Q${nextQ} ${nextY}`
+  if (viewSpanMonths.value === null) {
+    return i18n.all_time || 'All Time'
+  }
+  const chunk = Math.max(1, Math.round(viewSpanMonths.value / 3))
+  const start = addMonths(now, chunk)
+  const end = addMonths(now, chunk * 2 - 1)
+  return `${monthLabel(start)} - ${monthLabel(end)} ${end.getFullYear()}`
 })
 
 const futurePeriod = computed(() => {
-  const futureDate = new Date()
-  futureDate.setMonth(futureDate.getMonth() + 3)
-  const futureYear = futureDate.getFullYear()
-  const futureMonth = futureDate.toLocaleDateString('en-US', { month: 'long' })
-  return `${futureMonth} ${futureYear} ${i18n.and_beyond || '& Beyond'}`
+  if (viewSpanMonths.value === null) {
+    return i18n.all_time || 'All Time'
+  }
+  const chunk = Math.max(1, Math.round(viewSpanMonths.value / 3))
+  const start = addMonths(now, chunk * 2)
+  return `${monthLabel(start)} ${start.getFullYear()} ${i18n.and_beyond || '& Beyond'}`
 })
 
 // Filter items based on selected time period

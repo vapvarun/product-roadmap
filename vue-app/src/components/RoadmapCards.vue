@@ -8,25 +8,19 @@
           <option value="3">3 {{ i18n.columns_label || 'Columns' }}</option>
           <option value="4">4 {{ i18n.columns_label || 'Columns' }}</option>
         </select>
-        <select v-model="sortBy" class="roadmap-form-control">
-          <option value="votes">{{ i18n.sort_by || 'Sort by' }} {{ i18n.votes || 'Votes' }}</option>
-          <option value="created">{{ i18n.sort_by || 'Sort by' }} {{ i18n.created_label || 'Created' }}</option>
-          <option value="priority">{{ i18n.sort_by || 'Sort by' }} {{ i18n.priority || 'Priority' }}</option>
-          <option value="title">{{ i18n.sort_by || 'Sort by' }} {{ i18n.title || 'Title' }}</option>
-        </select>
       </div>
     </div>
 
-    <div 
+    <div
       class="roadmap-cards-grid"
       :class="`roadmap-cards-columns-${columns}`"
     >
-      <div v-if="sortedItems.length === 0" class="roadmap-cards-empty">
+      <div v-if="items.length === 0" class="roadmap-cards-empty">
         <p>{{ i18n.no_items || 'No roadmap items found' }}</p>
       </div>
-      
-      <div 
-        v-for="item in sortedItems" 
+
+      <div
+        v-for="item in items"
         :key="item.id"
         class="roadmap-card"
         @click="$emit('item-click', item)"
@@ -187,28 +181,15 @@ const showVotes = computed(() => config.settings?.enable_voting !== false)
 const showComments = computed(() => config.settings?.enable_comments !== false)
 
 const columns = ref('auto')
-const sortBy = ref('votes')
 
-const sortedItems = computed(() => {
-  return [...props.items].sort(getSortFunction())
-})
-
-const getSortFunction = () => {
-  return (a, b) => {
-    switch (sortBy.value) {
-      case 'votes':
-        return (b.votes || 0) - (a.votes || 0)
-      case 'priority':
-        const priorityOrder = { critical: 4, high: 3, medium: 2, low: 1 }
-        return (priorityOrder[b.priority] || 0) - (priorityOrder[a.priority] || 0)
-      case 'title':
-        return a.title.localeCompare(b.title)
-      case 'created':
-      default:
-        return new Date(b.created_at || 0) - new Date(a.created_at || 0)
-    }
-  }
-}
+// This template used to have its own Sort By dropdown (votes/created/priority/
+// title) that client-side re-sorted props.items independently of the shared
+// filter bar's Sort By control above it (RoadmapFilters.vue, which already
+// drives a real server-side `sort` REST param - see App.vue's selectedSort).
+// Two identically-labeled "Sort By" controls was confusing on its own, and
+// this one defaulted to 'votes' and silently overrode whatever sort the
+// visitor had actually picked in the real filter. Removed; items render in
+// the order the server already returned them.
 
 const formatDate = (date) => {
   return date ? new Date(date).toLocaleDateString('en-US', { 
