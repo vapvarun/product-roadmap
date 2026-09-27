@@ -56,6 +56,10 @@ By default, only administrators can drag items. Configure permissions:
 5. Drag to the target status column
 6. Release to drop
 
+### Deleting an Item from the Board
+
+In Manage mode, each card has a trash icon. Click it once and it changes to **Confirm delete**; click again within 5 seconds to remove the item. The item goes to **Roadmap > All Items > Trash**, with its votes and comments kept, and **Restore** puts it back on the board as it was.
+
 ### Visual Feedback
 
 - **Grabbing**: Cursor changes to grab hand

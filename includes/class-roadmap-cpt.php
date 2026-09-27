@@ -48,12 +48,29 @@ class Roadmap_CPT {
 		add_action( 'admin_action_approve_roadmap_item', array( $this, 'handle_approve_action' ) );
 		add_action( 'admin_action_reject_roadmap_item', array( $this, 'handle_reject_action' ) );
 		add_action( 'admin_notices', array( $this, 'show_action_notices' ) );
+
+		// Restoring a trashed item (board delete, rejected suggestion) puts it
+		// back where it was, not into Draft (the core default since 5.6).
+		add_filter( 'wp_untrash_post_status', array( $this, 'untrash_to_previous_status' ), 10, 3 );
+	}
+
+	/**
+	 * Restore roadmap items to their status before they were trashed.
+	 *
+	 * @param string $new_status      Status core would restore to.
+	 * @param int    $post_id         Post ID.
+	 * @param string $previous_status Status before trashing.
+	 * @return string
+	 */
+	public function untrash_to_previous_status( $new_status, $post_id, $previous_status ) {
+		return 'roadmap_item' === get_post_type( $post_id ) && $previous_status ? $previous_status : $new_status;
 	}
 
 	public function register_post_types() {
 		// Get custom labels
-		$item_singular = get_option( 'roadmap_item_singular_label', 'Feature' );
-		$item_plural   = get_option( 'roadmap_item_plural_label', 'Features' );
+		$item_labels   = Roadmap_Settings::item_labels();
+		$item_singular = $item_labels['singular'];
+		$item_plural   = $item_labels['plural'];
 		$product_name  = get_option( 'roadmap_product_name', 'Product' );
 
 		$labels = array(

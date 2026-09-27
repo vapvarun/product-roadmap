@@ -288,10 +288,13 @@ class Roadmap_Shortcode {
 			$atts['product'] = 'main';
 		}
 
-		// Handle template fallback for pro templates when pro is not active
-		$pro_templates = array( 'timeline', 'list', 'cards', 'board' );
-		if ( ( ! defined( 'ROADMAP_PRO_ACTIVE' ) || ! ROADMAP_PRO_ACTIVE ) && in_array( $atts['template'], $pro_templates ) ) {
-			$atts['template'] = 'minimal'; // Fallback to default minimal template
+		// A template that isn't offered (Pro inactive, a template the owner
+		// switched off, a typo) renders the default one, and minimal if the
+		// default itself isn't offered.
+		$available = self::option_choices( 'templates' );
+		if ( ! isset( $available[ $atts['template'] ] ) ) {
+			$default          = self::get_default_template();
+			$atts['template'] = isset( $available[ $default ] ) ? $default : 'minimal';
 		}
 
 		// Check permissions for manage mode
@@ -882,8 +885,9 @@ class Roadmap_Shortcode {
 
 	public function get_translations() {
 		// Get custom labels
-		$item_singular = get_option( 'roadmap_item_singular_label', 'Feature' );
-		$item_plural   = get_option( 'roadmap_item_plural_label', 'Features' );
+		$item_labels   = Roadmap_Settings::item_labels();
+		$item_singular = $item_labels['singular'];
+		$item_plural   = $item_labels['plural'];
 		$product_name  = get_option( 'roadmap_product_name', 'Product' );
 
 		return array(
@@ -945,7 +949,7 @@ class Roadmap_Shortcode {
 			),
 			'item_deleted'         => sprintf(
 				/* translators: %s: Item singular label */
-				__( '%s deleted successfully', 'product-roadmap' ),
+				__( '%s moved to the trash.', 'product-roadmap' ),
 				$item_singular
 			),
 			'vote_submitted'       => __( 'Your vote has been submitted', 'product-roadmap' ),

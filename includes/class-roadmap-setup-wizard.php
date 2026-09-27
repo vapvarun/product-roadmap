@@ -249,8 +249,9 @@ class Roadmap_Setup_Wizard {
      */
     private function render_step_product() {
         $product_name = get_option('roadmap_product_name', '');
-        $item_singular = get_option('roadmap_item_singular_label', 'Feature');
-        $item_plural = get_option('roadmap_item_plural_label', 'Features');
+        $item_labels   = Roadmap_Settings::item_labels();
+        $item_singular = $item_labels['singular'];
+        $item_plural   = $item_labels['plural'];
         ?>
         <h2><?php esc_html_e('Configure Your Product', 'product-roadmap'); ?></h2>
         <p><?php esc_html_e('Let\'s personalize your roadmap. In the free version, you can manage one product roadmap.', 'product-roadmap'); ?></p>

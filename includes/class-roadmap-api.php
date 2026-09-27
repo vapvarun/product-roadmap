@@ -703,7 +703,15 @@ class Roadmap_API {
 		);
 	}
 
-	private function update_vote_count( $item_id ) {
+	/**
+	 * Recount an item's votes into _roadmap_votes (the one place that does).
+	 *
+	 * Public so Pro (item merge) stores the same number the board shows.
+	 *
+	 * @param int $item_id Roadmap item ID.
+	 * @return void
+	 */
+	public function update_vote_count( $item_id ) {
 		global $wpdb;
 		$table = $wpdb->prefix . 'roadmap_votes';
 
@@ -1157,7 +1165,9 @@ class Roadmap_API {
 	public function delete_item( $request ) {
 		$post_id = $request->get_param( 'id' );
 
-		if ( wp_delete_post( $post_id, true ) ) {
+		// Trash, never delete: a board delete must be recoverable (Items >
+		// Trash, votes and comments intact), the same as deleting in the admin.
+		if ( wp_trash_post( $post_id ) ) {
 			return new WP_REST_Response( array( 'success' => true ), 200 );
 		}
 

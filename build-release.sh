@@ -216,7 +216,6 @@ if [ -d "$PRO_ADDON_PATH" ]; then
         "assets/css/roadmap-pro-rtl.css"
         "assets/css/admin.css"
         "assets/js/roadmap-pro.js"
-        "assets/js/timeline.js"
         "assets/js/admin.js"
     )
 

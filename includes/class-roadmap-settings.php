@@ -194,6 +194,23 @@ class Roadmap_Settings {
 	}
 
 	/**
+	 * The item labels (Settings > General), or the defaults for a label saved
+	 * empty. get_option()'s default only covers a missing option, so an owner
+	 * clearing the field left headings and messages without a noun.
+	 *
+	 * @return array{singular: string, plural: string}
+	 */
+	public static function item_labels() {
+		$singular = trim( (string) get_option( 'roadmap_item_singular_label', '' ) );
+		$plural   = trim( (string) get_option( 'roadmap_item_plural_label', '' ) );
+
+		return array(
+			'singular' => '' !== $singular ? $singular : __( 'Feature', 'product-roadmap' ),
+			'plural'   => '' !== $plural ? $plural : __( 'Features', 'product-roadmap' ),
+		);
+	}
+
+	/**
 	 * One global setting, or all of them, with the defaults applied.
 	 *
 	 * The only reader of roadmap_global_settings: every surface (shortcode,
@@ -555,8 +572,9 @@ class Roadmap_Settings {
 			)
 		);
 		$product_name  = get_option( 'roadmap_product_name', 'Product' );
-		$item_singular = get_option( 'roadmap_item_singular_label', 'Feature' );
-		$item_plural   = get_option( 'roadmap_item_plural_label', 'Features' );
+		$item_labels   = self::item_labels();
+		$item_singular = $item_labels['singular'];
+		$item_plural   = $item_labels['plural'];
 		?>
 		<div class="roadmap-settings-section">
 			<h2><?php esc_html_e( 'General Settings', 'product-roadmap' ); ?></h2>

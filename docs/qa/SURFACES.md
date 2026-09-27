@@ -17,7 +17,7 @@ The single-file companion for Pro is `roadmap-pro-addon/docs/qa/SURFACES.md`, wh
 
 | Group | Surfaces |
 |---|---|
-| **Frontend board (Vue)** | `F:vue-app/src/App.vue` (shell, toasts, modals) and views `RoadmapBoard`, `RoadmapCards`, `RoadmapList`, `RoadmapTimeline`, `RoadmapMinimal`, `RoadmapIdeaBox`; item card `RoadmapItem`; modals `ItemDetailModal`, `ItemModal`, `CommentModal`, `SuggestionModal`; `RoadmapHeader`, `RoadmapFilters`, `RoadmapFooter`, `LoadingSpinner`. (`RoadmapChangelog.vue` is in the tree but never imported: dead code, see P3.) |
+| **Frontend board (Vue)** | `F:vue-app/src/App.vue` (shell, toasts, modals) and views `RoadmapBoard`, `RoadmapCards`, `RoadmapList`, `RoadmapTimeline`, `RoadmapMinimal`, `RoadmapIdeaBox`; item card `RoadmapItem`; modals `ItemDetailModal`, `ItemModal`, `CommentModal`, `SuggestionModal`; `RoadmapHeader`, `RoadmapFilters`, `RoadmapFooter`, `LoadingSpinner` |
 | **Frontend PHP templates** | `F:templates/archive-roadmap_item.php`, `single-roadmap_item.php`, `archive-roadmap_changelog.php`, `single-roadmap_changelog.php`, `archive-roadmap-product.php` |
 | **Entry points to the board** | shortcode `[roadmap]` `F:includes/class-roadmap-shortcode.php:19`; shortcode `[roadmap_changelog]` `:20`; block `roadmap-pro/roadmap` `P:includes/class-roadmap-pro-blocks.php:49`; shortcode `[roadmap_user_profile]` `P:includes/class-roadmap-pro-user-profiles.php:35`; Pro feedback widget `P:includes/class-roadmap-pro-feedback-widget.php` + `P:assets/js/feedback-widget.js` |
 | **Admin: editors** | block editor: Free "Roadmap Details" panel `F:assets/js/block-editor.js`, Pro single-product panel `P:assets/js/single-product-selector.js`; classic editor meta boxes `F:includes/class-roadmap-cpt.php`, `F:includes/class-roadmap-changelog.php`, Pro radio product box `P:includes/class-roadmap-pro-products.php:184` |
@@ -83,7 +83,6 @@ Re-verify: `roadmap_api_filter_by_product|get_the_terms\([^)]*roadmap_product|wp
 | Archive template pill | `F:templates/archive-roadmap_item.php` | yes |
 | Single item page chip | `F:templates/single-roadmap_item.php` | yes (it used to read `_roadmap_status_color`, which nothing wrote) |
 | Pro analytics doughnut | `P:includes/class-roadmap-pro-templates.php` | yes (it reads `--rm-status` through a probe element) |
-| Pro legacy timeline bars | `P:assets/css/roadmap-pro.css` | yes, but the rule is unreachable (`.legacy-timeline` is never added; see the timeline.js card) |
 
 Re-verify: `roadmap-status-|--rm-status|statusColors|getStatusStyle|_roadmap_status_color`. The only hit should be the tokens file and the class names in markup.
 
@@ -215,7 +214,6 @@ Re-verify: `/suggest|/guest-suggest|submitSuggestion|enable_suggestions|guest_su
 |---|---|
 | CPT, meta boxes, slug, permalink, admin menu | `F:includes/class-roadmap-changelog.php` (menu `:67-96`, slug `:952-1010`, permalink `:938-946`) |
 | Shortcode `[roadmap_changelog]` | `F:includes/class-roadmap-shortcode.php:163-330` |
-| Vue changelog | `F:vue-app/src/components/RoadmapChangelog.vue`: never imported, not rendered (dead code) |
 | Templates | `F:templates/archive-roadmap_changelog.php`, `single-roadmap_changelog.php` |
 | REST | Free `F:includes/class-roadmap-api.php:253,272,282`; core `wp/v2/changelogs`; Pro `P:includes/class-roadmap-pro-changelog.php` (2 routes, bulk actions `:39-40,215`) |
 | Settings | `F:includes/class-roadmap-settings.php:1432-1522` |
