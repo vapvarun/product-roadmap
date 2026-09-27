@@ -22,7 +22,7 @@ class Roadmap_CPT {
 		add_action( 'add_meta_boxes', array( $this, 'add_meta_boxes' ) );
 		add_action( 'save_post_roadmap_item', array( $this, 'save_meta_boxes' ), 10, 2 );
 		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_block_editor_assets' ) );
-		add_action( 'wp_insert_post', array( $this, 'set_default_product_on_create' ), 10, 3 );
+		add_action( 'wp_insert_post', array( $this, 'set_default_product_if_missing' ), 10, 2 );
 
 		// Custom permalink structure
 		add_filter( 'post_type_link', array( $this, 'custom_roadmap_permalinks' ), 10, 2 );
@@ -710,9 +710,20 @@ class Roadmap_CPT {
 		);
 	}
 
-	public function set_default_product_on_create( $post_id, $post, $update ) {
-		// Only for new roadmap items
-		if ( $update || $post->post_type !== 'roadmap_item' ) {
+	/**
+	 * Give a saved roadmap item the default product when it has none.
+	 *
+	 * Runs on real saves only, never on the auto-draft WordPress creates when
+	 * "Add New" opens. Assigning it there pre-ticked the default product in the
+	 * block editor's Products panel, so every new item also landed on the
+	 * default board unless the owner noticed and unticked it. On a REST save
+	 * the chosen terms are applied after this hook and replace the default.
+	 *
+	 * @param int     $post_id Post ID.
+	 * @param WP_Post $post    Post object.
+	 */
+	public function set_default_product_if_missing( $post_id, $post ) {
+		if ( 'roadmap_item' !== $post->post_type || 'auto-draft' === $post->post_status ) {
 			return;
 		}
 
