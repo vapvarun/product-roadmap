@@ -3,6 +3,7 @@
     <h1 v-if="showTitle">{{ productName }} {{ i18n.roadmap || 'Roadmap' }}</h1>
     <div class="roadmap-header-actions">
       <input
+        v-if="showSearch"
         type="search"
         :value="search"
         @input="$emit('update:search', $event.target.value)"
@@ -32,6 +33,7 @@ import { inject } from 'vue'
 
 defineProps({
   showTitle: { type: Boolean, default: true },
+  showSearch: { type: Boolean, default: true },
   mode: String,
   search: String,
   canManage: Boolean,

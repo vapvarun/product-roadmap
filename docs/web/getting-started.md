@@ -116,7 +116,7 @@ Add the roadmap to any page or post.
 [roadmap]                           // Default display (minimal layout)
 [roadmap status="planned"]          // Show only planned items
 [roadmap template="list"]           // List view (Pro; free falls back to minimal)
-[roadmap show_votes="true"]         // Display vote counts
+[roadmap show_voting="hide"]        // Hide voting on this board
 ```
 
 [See all shortcode options →](display-options.md)

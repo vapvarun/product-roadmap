@@ -142,9 +142,9 @@ See who voted on an item:
 3. Items sorted by vote count
 
 **On Frontend:**
-Use shortcode parameter:
+Use the `sort` shortcode parameter:
 ```
-[roadmap product="main" orderby="votes" order="desc"]
+[roadmap product="main" sort="votes"]
 ```
 
 Shows most-voted items first.

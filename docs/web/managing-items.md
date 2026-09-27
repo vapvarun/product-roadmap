@@ -136,14 +136,15 @@ Tags add flexible, cross-cutting labels.
 - `mobile` - Related to mobile experience
 - `breaking-change` - Requires migration
 
-### Filtering by Category or Tag
+### Filtering by Category
 
 Display specific groups on your roadmap:
 
 ```
 [roadmap category="user-interface"]
-[roadmap tag="customer-requested"]
 ```
+
+Tags are a way to label items internally in the admin; the shortcode filters by `status` and `category`, not tags.
 
 ---
 
@@ -209,26 +210,28 @@ Assign items to specific products:
 
 [Learn about Multi-Product →](multi-product.md)
 
-### Dependencies
-
-Link related items together:
-
-1. Edit an item
-2. Find the **Dependencies** section
-3. Select items this depends on
-4. Update to create the relationship
-
-Dependencies show which items must be completed before others can start.
-
-### Assignees
-
-Track who's responsible for each item:
-
-1. Edit an item
-2. Select a user from the **Assignee** dropdown
-3. Assignee avatars display on the roadmap
-
 ---
+
+### Dependencies (Pro)
+
+Record which items an item depends on:
+
+1. Edit an item
+2. Find the **Dependencies** field
+3. Select the items this one depends on
+4. Update the item
+
+Dependencies are saved with the item and returned by the REST API. They are not drawn on the public board.
+
+### Assignees (Pro)
+
+Track who is responsible for each item:
+
+1. Edit an item
+2. Select a user in the **Assignee** field
+3. Update the item
+
+The assignee's avatar and name show on the item on the roadmap.
 
 ## Best Practices
 

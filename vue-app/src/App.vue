@@ -13,6 +13,7 @@
         @toggle-dark-mode="toggleDarkMode"
         @suggest="openSuggestionModal"
         :show-title="config.show_title !== false"
+        :show-search="config.show_search !== false"
       />
       
       <!-- Filters -->
@@ -173,7 +174,7 @@
 
         <!-- Load more -->
         <div
-          v-if="!loading && totalItems > items.length"
+          v-if="!boardLimit && !loading && totalItems > items.length"
           class="roadmap-load-more"
           style="text-align:center; margin:24px 0;"
         >
@@ -293,10 +294,14 @@ const currentMode = ref(props.config.mode || 'view')
 const viewMode = ref(props.config.template || 'minimal')
 const darkMode = ref(false)
 const searchQuery = ref('')
-const selectedStatus = ref('')
-const selectedCategory = ref('')
+const selectedStatus = ref(props.config.status || '')
+const selectedCategory = ref(props.config.category || '')
 const selectedProduct = ref(props.config.product || '')
 const selectedSort = ref(props.config.default_sort || '')
+// A board's "Number of items" option (limit) shows exactly that many, with no
+// Load more; otherwise pages follow the global items-per-page setting.
+const boardLimit = Number(props.config.limit) || 0
+const pageSize = computed(() => boardLimit || props.config.settings?.items_per_page || 100)
 
 // Modal State
 const showItemModal = ref(false)
@@ -392,13 +397,17 @@ const fetchItemsPage = async (page) => {
   // the first 100, with no indication anything was missing.
   const params = new URLSearchParams({
     product: selectedProduct.value || props.config.product,
-    per_page: props.config.settings?.items_per_page || 100,
+    per_page: pageSize.value,
     page: page
   })
   if (selectedStatus.value) params.set('status', selectedStatus.value)
   if (selectedCategory.value) params.set('category', selectedCategory.value)
   if (searchQuery.value) params.set('search', searchQuery.value)
   if (selectedSort.value) params.set('sort', selectedSort.value)
+  // Fixed board filters set by the owner (Pro API): priority and target-date range.
+  ;['priority', 'date_from', 'date_to'].forEach((key) => {
+    if (props.config[key]) params.set(key, props.config[key])
+  })
   return await apiCall(`/items?${params}`)
 }
 
@@ -423,7 +432,7 @@ const fetchItems = async () => {
 
 // Append the next page of items (Load more), preserving the loaded list.
 const loadMore = async () => {
-  if (loadingMore.value || items.value.length >= totalItems.value) {
+  if (boardLimit || loadingMore.value || items.value.length >= totalItems.value) {
     return
   }
   loadingMore.value = true
@@ -442,7 +451,7 @@ const loadMore = async () => {
     // Stop showing the button once the server runs out of rows, even if the
     // reported total disagrees with the number of rows actually returned
     // (deleted items, or a pro filter that makes count and rows disagree).
-    const perPage = props.config.settings?.items_per_page || 100
+    const perPage = pageSize.value
     if (fetched.length < perPage || next >= totalPages.value) {
       totalItems.value = items.value.length
     }

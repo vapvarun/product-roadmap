@@ -1003,9 +1003,25 @@ class Roadmap_API {
 	private function apply_sort_args( $args, $sort ) {
 		switch ( $sort ) {
 			case 'votes':
-				$args['meta_key'] = '_roadmap_votes'; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- indexed via the postmeta key index; required for vote ordering
-				$args['orderby']  = 'meta_value_num';
-				$args['order']    = 'DESC';
+				// meta_key alone is an INNER JOIN, which dropped every item nobody has
+				// voted on yet (no _roadmap_votes row): 2 of 200 on a real board. A
+				// named clause OR'd with NOT EXISTS keeps them, sorted as zero. Nested
+				// so clauses added later (Pro filters) are ANDed, not OR'd, with it.
+				$args['meta_query'][] = array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- required for vote ordering
+					'relation'      => 'OR',
+					'roadmap_votes' => array(
+						'key'  => '_roadmap_votes',
+						'type' => 'NUMERIC',
+					),
+					array(
+						'key'     => '_roadmap_votes',
+						'compare' => 'NOT EXISTS',
+					),
+				);
+				$args['orderby']      = array(
+					'roadmap_votes' => 'DESC',
+					'date'          => 'DESC',
+				);
 				break;
 
 			case 'comments':

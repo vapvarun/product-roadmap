@@ -42,26 +42,238 @@ class Roadmap_Shortcode {
 		return $default;
 	}
 
-	public function render_shortcode( $atts ) {
-		$atts = shortcode_atts(
-			array(
-				'mode'                => 'view',
-				'allow_frontend_edit' => 'false',
-				'product'             => '',
-				'class'               => '',
-				// Falls back to the owner's configured default rather than a
-				// hardcoded 'minimal'. The Templates setting was read in exactly
-				// one place - the /roadmap/{product}/ archive - so an owner who
-				// set a default template never saw it on the [roadmap] shortcode
-				// they had actually put on their page.
-				'template'            => self::get_default_template(),
-				'sort'                => '', // Default sort: votes, recent, comments, priority
-				'show_filters'        => 'true', // Show the status/category/product/sort filter bar.
-				'show_title'          => 'true', // Show the "<Product> Roadmap" heading above the board.
+	/**
+	 * Every [roadmap] option: the one list the shortcode, the Pro block and the
+	 * docs share. Adding an option here makes it work everywhere.
+	 *
+	 * Keys: type (string|boolean|integer), default, label, help, group (block
+	 * sidebar panel), choices (value => label, or a token resolved by
+	 * option_choices() so a normal page render runs no term queries), min/max
+	 * for integers, format => 'date' (YYYY-MM-DD), pro => true for options that
+	 * need Pro's API filters, block => false for options the block gets natively.
+	 *
+	 * @return array
+	 */
+	public static function options() {
+		return array(
+			'product'             => array(
+				'type'    => 'string',
+				'default' => '',
+				'label'   => __( 'Product', 'product-roadmap' ),
+				'help'    => __( 'Leave empty to show your default product.', 'product-roadmap' ),
+				'group'   => 'content',
+				'choices' => 'products',
 			),
-			$atts,
-			'roadmap'
+			'template'            => array(
+				'type'    => 'string',
+				'default' => self::get_default_template(),
+				'label'   => __( 'Layout', 'product-roadmap' ),
+				'group'   => 'content',
+				'choices' => 'templates',
+			),
+			'status'              => array(
+				'type'    => 'string',
+				'default' => '',
+				'label'   => __( 'Show only this status', 'product-roadmap' ),
+				'help'    => __( 'Visitors can still change it from the filter bar unless you hide the filters.', 'product-roadmap' ),
+				'group'   => 'filter',
+				'choices' => 'statuses',
+			),
+			'category'            => array(
+				'type'    => 'string',
+				'default' => '',
+				'label'   => __( 'Show only this category', 'product-roadmap' ),
+				'group'   => 'filter',
+				'choices' => 'categories',
+			),
+			'priority'            => array(
+				'type'    => 'string',
+				'default' => '',
+				'label'   => __( 'Show only this priority', 'product-roadmap' ),
+				'group'   => 'filter',
+				'pro'     => true,
+				'choices' => array(
+					''         => __( 'All priorities', 'product-roadmap' ),
+					'low'      => __( 'Low', 'product-roadmap' ),
+					'medium'   => __( 'Medium', 'product-roadmap' ),
+					'high'     => __( 'High', 'product-roadmap' ),
+					'critical' => __( 'Critical', 'product-roadmap' ),
+				),
+			),
+			'date_from'           => array(
+				'type'    => 'string',
+				'format'  => 'date',
+				'default' => '',
+				'label'   => __( 'Target date from', 'product-roadmap' ),
+				'help'    => __( 'Only items with a target date on or after this day.', 'product-roadmap' ),
+				'group'   => 'filter',
+				'pro'     => true,
+			),
+			'date_to'             => array(
+				'type'    => 'string',
+				'format'  => 'date',
+				'default' => '',
+				'label'   => __( 'Target date to', 'product-roadmap' ),
+				'help'    => __( 'Only items with a target date on or before this day.', 'product-roadmap' ),
+				'group'   => 'filter',
+				'pro'     => true,
+			),
+			'sort'                => array(
+				'type'    => 'string',
+				'default' => '',
+				'label'   => __( 'Sort by', 'product-roadmap' ),
+				'group'   => 'filter',
+				'choices' => array(
+					''         => __( 'Default', 'product-roadmap' ),
+					'votes'    => __( 'Most votes', 'product-roadmap' ),
+					'recent'   => __( 'Newest', 'product-roadmap' ),
+					'comments' => __( 'Most comments', 'product-roadmap' ),
+					'priority' => __( 'Priority', 'product-roadmap' ),
+					'title'    => __( 'Title', 'product-roadmap' ),
+				),
+			),
+			'limit'               => array(
+				'type'    => 'integer',
+				'default' => 0,
+				'label'   => __( 'Number of items', 'product-roadmap' ),
+				'help'    => __( '0 shows every item, with a Load more button.', 'product-roadmap' ),
+				'group'   => 'filter',
+				'min'     => 0,
+				'max'     => 100,
+			),
+			'show_title'          => array(
+				'type'    => 'boolean',
+				'default' => true,
+				'label'   => __( 'Show the title', 'product-roadmap' ),
+				'group'   => 'display',
+			),
+			'show_filters'        => array(
+				'type'    => 'boolean',
+				'default' => true,
+				'label'   => __( 'Show the filter bar', 'product-roadmap' ),
+				'group'   => 'display',
+			),
+			'show_search'         => array(
+				'type'    => 'boolean',
+				'default' => true,
+				'label'   => __( 'Show the search box', 'product-roadmap' ),
+				'group'   => 'display',
+			),
+			'show_voting'         => array(
+				'type'    => 'string',
+				'default' => '',
+				'label'   => __( 'Voting on this board', 'product-roadmap' ),
+				'help'    => __( 'Can hide voting here; it can only be on where voting is enabled in Settings.', 'product-roadmap' ),
+				'group'   => 'display',
+				'choices' => array(
+					''     => __( 'Follow the global setting', 'product-roadmap' ),
+					'hide' => __( 'Hide on this board', 'product-roadmap' ),
+				),
+			),
+			'show_comments'       => array(
+				'type'    => 'string',
+				'default' => '',
+				'label'   => __( 'Comments on this board', 'product-roadmap' ),
+				'help'    => __( 'Can hide comments here; they can only be on where comments are enabled in Settings.', 'product-roadmap' ),
+				'group'   => 'display',
+				'choices' => array(
+					''     => __( 'Follow the global setting', 'product-roadmap' ),
+					'hide' => __( 'Hide on this board', 'product-roadmap' ),
+				),
+			),
+			'mode'                => array(
+				'type'    => 'string',
+				'default' => 'view',
+				'label'   => __( 'Mode', 'product-roadmap' ),
+				'help'    => __( 'Manage lets editors add and edit items on the page; visitors always see View.', 'product-roadmap' ),
+				'group'   => 'advanced',
+				'choices' => array(
+					'view'   => __( 'View', 'product-roadmap' ),
+					'manage' => __( 'Manage', 'product-roadmap' ),
+				),
+			),
+			'allow_frontend_edit' => array(
+				'type'    => 'boolean',
+				'default' => false,
+				'label'   => __( 'Allow editing items on the page', 'product-roadmap' ),
+				'group'   => 'advanced',
+			),
+			'class'               => array(
+				'type'    => 'string',
+				'default' => '',
+				'label'   => __( 'Extra CSS class', 'product-roadmap' ),
+				'group'   => 'advanced',
+				'block'   => false,
+			),
 		);
+	}
+
+	/**
+	 * Resolve a choices token from options() into value => label.
+	 *
+	 * @param string $token products|templates|statuses|categories.
+	 * @return array
+	 */
+	public static function option_choices( $token ) {
+		$terms = array(
+			'products'   => array( 'roadmap_product', __( 'Default product', 'product-roadmap' ) ),
+			'statuses'   => array( 'roadmap_status', __( 'All statuses', 'product-roadmap' ) ),
+			'categories' => array( 'roadmap_category', __( 'All categories', 'product-roadmap' ) ),
+		);
+		if ( isset( $terms[ $token ] ) ) {
+			$choices = array( '' => $terms[ $token ][1] );
+			$found   = get_terms(
+				array(
+					'taxonomy'   => $terms[ $token ][0],
+					'hide_empty' => false,
+				)
+			);
+			foreach ( is_wp_error( $found ) ? array() : $found as $term ) {
+				$choices[ $term->slug ] = $term->name;
+			}
+			return $choices;
+		}
+		if ( 'templates' === $token ) {
+			$templates = ( defined( 'ROADMAP_PRO_ACTIVE' ) && ROADMAP_PRO_ACTIVE ) ? (array) apply_filters( 'roadmap_available_templates', array() ) : array();
+			$choices   = array();
+			foreach ( $templates as $key => $template ) {
+				$choices[ $key ] = is_array( $template ) && isset( $template['name'] ) ? $template['name'] : $key;
+			}
+			return $choices ? $choices : array( 'minimal' => __( 'Minimal', 'product-roadmap' ) );
+		}
+		return array();
+	}
+
+	/**
+	 * Cast and constrain resolved [roadmap] attributes to their option types.
+	 *
+	 * @param array $atts Attributes after shortcode_atts().
+	 * @return array
+	 */
+	private static function normalize_options( $atts ) {
+		foreach ( self::options() as $name => $option ) {
+			$value = $atts[ $name ] ?? $option['default'];
+			if ( 'boolean' === $option['type'] ) {
+				$value = filter_var( $value, FILTER_VALIDATE_BOOLEAN );
+			} elseif ( 'integer' === $option['type'] ) {
+				$value = min( max( absint( $value ), $option['min'] ?? 0 ), $option['max'] ?? PHP_INT_MAX );
+			} else {
+				$value = sanitize_text_field( (string) $value );
+				if ( isset( $option['format'] ) && 'date' === $option['format'] && ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $value ) ) {
+					$value = '';
+				}
+				// Fixed choice lists are whitelisted; term-based ones stay free-form slugs.
+				if ( isset( $option['choices'] ) && is_array( $option['choices'] ) && ! array_key_exists( $value, $option['choices'] ) ) {
+					$value = $option['default'];
+				}
+			}
+			$atts[ $name ] = $value;
+		}
+		return $atts;
+	}
+
+	public function render_shortcode( $atts ) {
+		$atts = self::normalize_options( shortcode_atts( wp_list_pluck( self::options(), 'default' ), $atts, 'roadmap' ) );
 
 		// Visitors always get a working board. A missing product, or one the
 		// shortcode parser could not read (a curly quote pasted from an email),
@@ -82,12 +294,6 @@ class Roadmap_Shortcode {
 			$atts['template'] = 'minimal'; // Fallback to default minimal template
 		}
 
-		// Validate mode
-		$allowed_modes = array( 'view', 'manage' );
-		if ( ! in_array( $atts['mode'], $allowed_modes ) ) {
-			$atts['mode'] = 'view';
-		}
-
 		// Check permissions for manage mode
 		if ( $atts['mode'] === 'manage' && ! current_user_can( 'edit_posts' ) ) {
 			$atts['mode'] = 'view';
@@ -103,17 +309,26 @@ class Roadmap_Shortcode {
 			'api_url'             => rest_url( 'roadmap/v1' ),
 			'nonce'               => wp_create_nonce( 'wp_rest' ),
 			'mode'                => $atts['mode'],
-			'allow_frontend_edit' => filter_var( $atts['allow_frontend_edit'], FILTER_VALIDATE_BOOLEAN ),
+			'allow_frontend_edit' => $atts['allow_frontend_edit'],
 			'product'             => $atts['product'],
 			'template'            => $atts['template'],
 			'default_sort'        => $atts['sort'],
-			'show_filters'        => filter_var( $atts['show_filters'], FILTER_VALIDATE_BOOLEAN ),
-			'show_title'          => filter_var( $atts['show_title'], FILTER_VALIDATE_BOOLEAN ),
+			'status'              => $atts['status'],
+			'category'            => $atts['category'],
+			'priority'            => $atts['priority'],
+			'date_from'           => $atts['date_from'],
+			'date_to'             => $atts['date_to'],
+			'limit'               => $atts['limit'],
+			'show_filters'        => $atts['show_filters'],
+			'show_title'          => $atts['show_title'],
+			'show_search'         => $atts['show_search'],
 			'is_pro'              => ( defined( 'ROADMAP_PRO_ACTIVE' ) && ROADMAP_PRO_ACTIVE ),
 			'settings'            => array(
-				'enable_voting'      => (bool) $global_settings['enable_voting'],
+				// A board can hide voting/comments, never turn on what Settings turned off
+				// (the REST API would reject it).
+				'enable_voting'      => $global_settings['enable_voting'] && 'hide' !== $atts['show_voting'],
 				'allow_guest_voting' => (bool) $global_settings['allow_guest_voting'],
-				'enable_comments'    => (bool) $global_settings['enable_comments'],
+				'enable_comments'    => $global_settings['enable_comments'] && 'hide' !== $atts['show_comments'],
 				'enable_suggestions' => (bool) $global_settings['enable_suggestions'],
 				'items_per_page'     => (int) $global_settings['items_per_page'],
 			),

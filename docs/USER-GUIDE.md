@@ -409,7 +409,7 @@ Products let you manage separate roadmaps. The free version includes basic produ
 
 - **Main** product is created automatically
 - Use for single-product roadmaps
-- Required parameter in shortcodes
+- Leave `product` empty in the shortcode to use it
 
 ### Viewing Products
 
@@ -485,8 +485,13 @@ The Changelog lets you document releases, updates, and changes to your product o
 
 **Parameters:**
 - `product` - Filter by product slug
+- `id` - Show a single changelog entry by ID
 - `limit` - Number of entries to show
-- `order` - ASC or DESC (default: DESC)
+- `show_date` - Show/hide the release date (`true`/`false`)
+- `collapsible` - Collapse entries until clicked (`true`/`false`)
+- `class` - Extra CSS class
+
+Entries are always ordered by release date, newest first.
 
 **Example - Show last 5 releases:**
 ```
@@ -514,12 +519,12 @@ Each change item displays with a colored badge:
 
 ### Basic Shortcode
 
-**Minimum required shortcode:**
+**Simplest shortcode:**
 ```
-[roadmap product="main"]
+[roadmap]
 ```
 
-The `product` parameter is mandatory. Use "main" for the default product.
+`product` is optional. Leave it out to show your default product, or set it to a product slug.
 
 ### Copy Shortcode Feature (v1.1.0)
 
@@ -535,29 +540,28 @@ The `product` parameter is mandatory. Use "main" for the default product.
 
 ### Shortcode Parameters
 
-**Full example with all parameters:**
+**Full example:**
 ```
 [roadmap
     product="main"
     template="minimal"
-    status="planned,in-progress"
+    status="planned"
     category="feature"
     limit="50"
-    orderby="votes"
-    order="desc"
+    sort="votes"
 ]
 ```
 
 **Available Parameters:**
 
-**product** (Required)
+**product** (Optional)
 - Which product to display
 - Value: product slug (e.g., "main", "mobile-app")
-- Example: `product="main"`
+- Leave empty for your default product
 
 **template** (Optional)
 - Display style
-- Default: "minimal"
+- Default: your default layout in Settings
 - Free version: "minimal" (the clean, single-column layout)
 - Pro version: adds "board", "cards", "list", "timeline", and "ideabox"
 - Example: `template="minimal"`
@@ -570,36 +574,27 @@ The `product` parameter is mandatory. Use "main" for the default product.
 
 **status** (Optional)
 - Filter by status
-- Single: `status="planned"`
-- Multiple: `status="planned,in-progress,completed"`
-- Comma-separated status slugs
+- One status slug: `status="planned"`
+- Visitors can still change it from the filter bar unless you hide filters
 
 **category** (Optional)
 - Filter by category
-- Single: `category="feature"`
-- Multiple: `category="feature,enhancement"`
-- Comma-separated category slugs
+- One category slug: `category="feature"`
 
 **limit** (Optional)
 - How many items to show
-- Default: 100
+- Default: 0 (all items, with a Load more button)
 - Example: `limit="20"`
 
-**orderby** (Optional)
+**sort** (Optional)
 - Sort items by field
-- Values: "date", "title", "votes", "modified"
-- Default: "date"
-- Example: `orderby="votes"`
-
-**order** (Optional)
-- Sort direction
-- Values: "ASC" (ascending), "DESC" (descending)
-- Default: "DESC"
-- Example: `order="desc"`
+- Values: "votes", "recent", "comments", "priority", "title"
+- Default: (empty) uses the default order
+- Example: `sort="votes"`
 
 **mode** (Optional)
 - Display mode
-- Values: "view" (default), "manage" (Pro - enables drag & drop)
+- Values: "view" (default), "manage" (editors can add/edit items on the page)
 - Example: `mode="view"`
 
 ### Display Examples
@@ -616,13 +611,14 @@ The `product` parameter is mandatory. Use "main" for the default product.
 
 **Show top voted items:**
 ```
-[roadmap product="main" orderby="votes" order="desc" limit="10"]
+[roadmap product="main" sort="votes" limit="10"]
 ```
 
-**Show in-progress and testing items:**
+**Show one status at a time:**
 ```
-[roadmap product="main" status="in-progress,testing"]
+[roadmap product="main" status="in-progress"]
 ```
+Use two boards (one per status) or leave `status` off and let visitors use the filter bar to see multiple statuses.
 
 ### Adding to Pages
 
@@ -1121,9 +1117,8 @@ Move items left to right through statuses.
 
 **Solutions:**
 1. **Check shortcode syntax:**
-   - Must have `product` parameter
-   - Correct: `[roadmap product="main"]`
-   - Wrong: `[roadmap]`
+   - `[roadmap]` alone shows your default product
+   - If you set `product`, check the slug is correct
 
 2. **Verify items exist:**
    - Go to Roadmap > All Items

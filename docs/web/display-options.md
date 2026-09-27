@@ -12,7 +12,7 @@ Add a roadmap to any page or post:
 [roadmap]
 ```
 
-This shows all published roadmap items using your default template.
+This shows your default product using your default template, with every published item (0 = all, with a Load more button).
 
 ---
 
@@ -39,10 +39,10 @@ A clean, single-column layout that lists your items with status, votes, and prog
 The following layouts require the Pro addon. On free installs they fall back to the minimal layout.
 
 ```
-[roadmap template="board"]      // Kanban columns by status (Pro)
+[roadmap template="board"]      // Kanban-style columns by status (Pro)
 [roadmap template="list"]       // Vertical list with badges (Pro)
 [roadmap template="cards"]      // Responsive card grid (Pro)
-[roadmap template="timeline"]   // Gantt chart (Pro)
+[roadmap template="timeline"]   // Visual timeline by target date (Pro)
 [roadmap template="ideabox"]    // Vote-focused idea collection (Pro)
 ```
 
@@ -56,7 +56,7 @@ The following layouts require the Pro addon. On free installs they fall back to 
 | Board | Pro | Columns | Project tracking |
 | List | Pro | Vertical | Documentation, mobile |
 | Cards | Pro | Card grid | Visual showcase |
-| Timeline | Pro | Gantt | Release planning |
+| Timeline | Pro | Horizontal timeline | Release planning |
 | Idea Box | Pro | Vertical | Feedback collection |
 
 ---
@@ -69,8 +69,9 @@ Show only specific items.
 
 ```
 [roadmap status="in-progress"]
-[roadmap status="planned,in-progress"]
 ```
+
+`status` takes one status slug. Visitors can still change it from the filter bar unless you add `show_filters="false"`.
 
 | Status | Slug |
 |--------|------|
@@ -83,23 +84,14 @@ Show only specific items.
 
 ```
 [roadmap category="features"]
-[roadmap category="features,improvements"]
 ```
 
-Use category slugs, comma-separated for multiple.
+`category` also takes one category slug. To show more than one status or category on the same page, use two shortcodes (one per value) or leave the parameter off and let visitors pick from the filter bar.
 
-### Filter by Tag
-
-```
-[roadmap tag="mobile"]
-[roadmap tag="mobile,priority"]
-```
-
-### Filter by Priority
+### Filter by Priority (Pro)
 
 ```
 [roadmap priority="high"]
-[roadmap priority="high,critical"]
 ```
 
 | Priority | Slug |
@@ -109,6 +101,16 @@ Use category slugs, comma-separated for multiple.
 | High | `high` |
 | Critical | `critical` |
 
+`priority` requires the Pro addon and takes one value.
+
+### Filter by Target Date (Pro)
+
+```
+[roadmap date_from="2026-01-01" date_to="2026-03-31"]
+```
+
+Shows only items whose target date falls in that range.
+
 ### Combining Filters
 
 Use multiple filters together:
@@ -117,44 +119,37 @@ Use multiple filters together:
 [roadmap status="in-progress" priority="high" category="features"]
 ```
 
-Shows only high-priority features that are in progress.
+Shows only high-priority features that are in progress. `priority` requires Pro.
 
 ---
 
 ## Sorting Options
 
-Control the order items appear.
-
-### Sort Parameters
+Control the order items appear with `sort`.
 
 ```
-[roadmap orderby="date" order="desc"]
+[roadmap sort="votes"]
 ```
 
-| orderby | Result |
-|---------|--------|
-| `date` | Sort by publish date |
+| sort | Result |
+|------|--------|
+| (empty) | Default order |
+| `votes` | Most votes first |
+| `recent` | Newest first |
+| `comments` | Most comments first |
+| `priority` | Highest priority first |
 | `title` | Alphabetical by title |
-| `votes` | Most voted first |
-| `priority` | Critical → Low |
-| `progress` | Completion percentage |
-| `modified` | Recently updated first |
-
-| order | Result |
-|-------|--------|
-| `asc` | Ascending (A-Z, oldest first) |
-| `desc` | Descending (Z-A, newest first) |
 
 ### Popular Items First
 
 ```
-[roadmap orderby="votes" order="desc"]
+[roadmap sort="votes"]
 ```
 
 ### Most Recent First
 
 ```
-[roadmap orderby="date" order="desc"]
+[roadmap sort="recent"]
 ```
 
 ---
@@ -166,18 +161,18 @@ Control what information appears.
 ### Show/Hide Elements
 
 ```
-[roadmap show_votes="true" show_progress="true" show_status="false"]
+[roadmap show_title="false" show_filters="false" show_search="false"]
 ```
 
 | Parameter | Options | Default |
 |-----------|---------|---------|
-| `show_votes` | true/false | true |
-| `show_progress` | true/false | true |
-| `show_status` | true/false | true |
-| `show_priority` | true/false | false |
-| `show_category` | true/false | false |
-| `show_date` | true/false | false |
-| `show_comments` | true/false | false |
+| `show_title` | true/false | true |
+| `show_filters` | true/false | true |
+| `show_search` | true/false | true |
+| `show_voting` | (empty)/`hide` | (empty) follows Settings |
+| `show_comments` | (empty)/`hide` | (empty) follows Settings |
+
+`show_voting` and `show_comments` can only hide voting or comments on this board - they can't turn either on if it's disabled in **Roadmap > Settings**.
 
 ### Limit Items
 
@@ -185,15 +180,7 @@ Control what information appears.
 [roadmap limit="10"]
 ```
 
-Shows only the first 10 items (after filtering and sorting).
-
-### Pagination
-
-```
-[roadmap paginate="true" per_page="20"]
-```
-
-Adds pagination when you have many items.
+`limit` defaults to `0`, which shows every matching item with a Load more button. Set it 1-100 to cap the number shown.
 
 ---
 
@@ -254,23 +241,27 @@ If styles conflict with your theme:
 
 ```
 [roadmap
+    product="main"
     template="minimal"
-    status="planned,in-progress"
+    status="planned"
     category="features"
-    tag="mobile"
     priority="high"
-    orderby="votes"
-    order="desc"
+    date_from="2026-01-01"
+    date_to="2026-12-31"
+    sort="votes"
     limit="20"
-    paginate="true"
-    per_page="10"
-    show_votes="true"
-    show_progress="true"
-    show_status="true"
-    show_suggest="true"
+    show_title="true"
+    show_filters="true"
+    show_search="true"
+    show_voting="hide"
+    show_comments="hide"
+    mode="view"
+    allow_frontend_edit="false"
     class="my-roadmap"
 ]
 ```
+
+Every parameter is optional. `priority`, `date_from`, and `date_to` require the Pro addon.
 
 ### Changelog Shortcode
 
@@ -299,38 +290,35 @@ Display your changelog:
 
 ### Multi-Product Roadmaps
 
-Show items from specific products:
+Show items from a specific product:
 
 ```
 [roadmap product="mobile-app"]
-[roadmap product="mobile-app,web-platform"]
 ```
 
 [Learn about Multi-Product →](multi-product.md)
 
 ### Timeline View
 
-Interactive Gantt chart display:
+Lay items out on a horizontal timeline by their target date:
 
 ```
 [roadmap template="timeline"]
 ```
 
-Configure view modes: Day, Week, Month, Quarter, Year
+Items need a target date set to appear. Combine with `date_from`/`date_to` to focus on a specific window.
 
 [Learn about Timeline →](timeline-view.md)
 
 ### Advanced Filtering
 
-Pro adds more filter options:
+Pro adds priority and target-date filters on top of the free `status`/`category` filters:
 
 ```
 [roadmap
-    date_from="2024-01-01"
-    date_to="2024-12-31"
-    assignee="5"
-    min_progress="50"
-    has_dependencies="true"
+    priority="high"
+    date_from="2026-01-01"
+    date_to="2026-12-31"
 ]
 ```
 
@@ -341,16 +329,19 @@ Visual builder in the WordPress editor:
 1. Add the "Product Roadmap" block
 2. Configure in the sidebar panel
 3. See live preview while editing
-4. No shortcode syntax needed
+4. The block's **Shortcode** panel shows the exact shortcode for your settings
 
 Block includes all shortcode options in a friendly interface.
 
 ### Drag & Drop
 
-With Pro, kanban boards support drag and drop:
-- Drag items between status columns
-- Changes save automatically
-- Permission-based (admin or allowed roles only)
+Set `mode="manage"` to let editors manage items directly from the page, including dragging items between status columns on the board layout:
+
+```
+[roadmap template="board" mode="manage"]
+```
+
+Visitors always see the read-only view regardless of `mode`.
 
 [Learn about Drag & Drop →](drag-drop.md)
 
@@ -363,7 +354,7 @@ With Pro, kanban boards support drag and drop:
 Show in-progress work:
 
 ```
-[roadmap status="in-progress" orderby="priority" order="desc"]
+[roadmap status="in-progress" sort="priority"]
 ```
 
 ### "Feature Requests" Page
@@ -371,7 +362,7 @@ Show in-progress work:
 Collect and show user ideas:
 
 ```
-[roadmap template="ideabox" status="under-review" show_suggest="true"]
+[roadmap template="ideabox" status="under-review"]
 ```
 
 ### "Recently Shipped" Page
@@ -379,7 +370,7 @@ Collect and show user ideas:
 Show completed items:
 
 ```
-[roadmap status="complete" orderby="modified" order="desc" limit="10"]
+[roadmap status="complete" sort="recent" limit="10"]
 ```
 
 ### Sidebar Widget
@@ -387,7 +378,7 @@ Show completed items:
 Compact display of top voted items:
 
 ```
-[roadmap template="list" orderby="votes" order="desc" limit="5" show_progress="false"]
+[roadmap template="list" sort="votes" limit="5"]
 ```
 
 ### Team Internal View
@@ -395,8 +386,10 @@ Compact display of top voted items:
 High-priority items for team review:
 
 ```
-[roadmap priority="high,critical" status="planned,in-progress"]
+[roadmap priority="high" status="planned" mode="manage"]
 ```
+
+Run a second board with `status="in-progress"` for the next stage, since `status` and `priority` each take one value.
 
 ---
 
@@ -412,7 +405,7 @@ High-priority items for team review:
 
 - Check that items are published (not draft)
 - Verify filter parameters match actual content
-- Ensure items have the specified status/category/tag
+- Remember `status`, `category`, and `priority` each accept only one value - a comma-separated list returns an empty board
 
 ### Styles not loading
 
@@ -420,10 +413,9 @@ High-priority items for team review:
 - Check for CSS conflicts with your theme
 - Verify plugin CSS isn't blocked by optimization plugins
 
-### Pagination not working
+### Not all items showing
 
-- Ensure `paginate="true"` is set
-- Check that you have more items than `per_page` value
+- `limit="0"` (the default) shows everything with a Load more button - make sure visitors are clicking it
 - Clear caching plugins
 
 ---

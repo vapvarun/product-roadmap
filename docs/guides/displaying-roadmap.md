@@ -32,153 +32,66 @@ Add the shortcode to:
 - **Widgets** - Sidebar or footer
 - **Page Builders** - Elementor, Divi, etc.
 
-## Shortcode Parameters
+## Shortcode and Block Options
 
-Customize the roadmap display with these parameters:
+The `[roadmap]` shortcode and the **Roadmap** block (Pro) share one list of options, so anything you can set in the block sidebar you can also write in the shortcode, and the block's **Shortcode** panel shows the exact shortcode for your block. Every option is optional: a bare `[roadmap]` shows your default product with your default layout.
 
-### product (Required)
+| Option | What it does | Default | Values | Notes |
+|---|---|---|---|---|
+| `product` | Product | (empty) | a product slug | Leave empty to show your default product. |
+| `template` | Layout | your default layout (Settings) | `board`, `timeline`, `list`, `cards`, `minimal`, `ideabox` (Pro; Free has `minimal`) |  |
+| `status` | Show only this status | (empty) | one status slug | Visitors can still change it from the filter bar unless you hide the filters. |
+| `category` | Show only this category | (empty) | one category slug |  |
+| `priority` | Show only this priority | (empty) | (empty) All priorities, `low` Low, `medium` Medium, `high` High, `critical` Critical | **Pro.** |
+| `date_from` | Target date from | (empty) | `YYYY-MM-DD` | **Pro.** Only items with a target date on or after this day. |
+| `date_to` | Target date to | (empty) | `YYYY-MM-DD` | **Pro.** Only items with a target date on or before this day. |
+| `sort` | Sort by | (empty) | (empty) Default, `votes` Most votes, `recent` Newest, `comments` Most comments, `priority` Priority, `title` Title |  |
+| `limit` | Number of items | 0 | 0-100 | 0 shows every item, with a Load more button. |
+| `show_title` | Show the title | true | `true` / `false` |  |
+| `show_filters` | Show the filter bar | true | `true` / `false` |  |
+| `show_search` | Show the search box | true | `true` / `false` |  |
+| `show_voting` | Voting on this board | (empty) | (empty) Follow the global setting, `hide` Hide on this board | Can hide voting here; it can only be on where voting is enabled in Settings. |
+| `show_comments` | Comments on this board | (empty) | (empty) Follow the global setting, `hide` Hide on this board | Can hide comments here; they can only be on where comments are enabled in Settings. |
+| `mode` | Mode | view | `view` View, `manage` Manage | Manage lets editors add and edit items on the page; visitors always see View. |
+| `allow_frontend_edit` | Allow editing items on the page | false | `true` / `false` |  |
+| `class` | Extra CSS class | (empty) | text |  |
 
-Which product roadmap to show:
-```
-[roadmap product="main"]
-```
+This table is generated from `Roadmap_Shortcode::options()` in `includes/class-roadmap-shortcode.php`, the single source for the shortcode and the block. After adding or changing an option there, regenerate it and run `wp eval-file wp-content/plugins/product-roadmap/bin/check-board-options.php` to prove the option reaches the board from both.
 
-Free version: Only `"main"` available
-Pro version: Any product slug
-
-### template
-
-Display style:
-```
-[roadmap product="main" template="minimal"]
-```
-
-Available templates:
-- `minimal` - Clean single-column layout (default, free)
-- `board` - Kanban board (Pro)
-- `list` - Simple list (Pro)
-- `cards` - Grid of cards (Pro)
-- `timeline` - Gantt chart (Pro)
-- `ideabox` - Idea collection with voting (Pro)
-
-The free version ships the `minimal` layout. The other layouts require the Pro addon; if you use them without Pro, the roadmap falls back to `minimal`.
-
-**Idea Box Template (Pro)**
-```
-[roadmap product="main" template="ideabox"]
-```
-Perfect for collecting user ideas with prominent voting. Features:
-- Large upvote buttons
-- Sort by votes, newest, or activity
-- Clean, focused design for idea collection
-
-### status
-
-Filter by status:
-```
-[roadmap product="main" status="planned"]
-```
-
-**Single status:**
-```
-status="in-progress"
-```
-
-**Multiple statuses:**
-```
-status="planned,in-progress,testing"
-```
-
-Use status slugs, separated by commas.
-
-### category
-
-Filter by category:
-```
-[roadmap product="main" category="feature"]
-```
-
-**Single category:**
-```
-category="enhancement"
-```
-
-**Multiple categories:**
-```
-category="feature,enhancement,bug-fix"
-```
-
-### limit
-
-How many items to show:
-```
-[roadmap product="main" limit="20"]
-```
-
-Default: 100
-Set lower for faster loading.
-
-### orderby
-
-Sort items by:
-```
-[roadmap product="main" orderby="votes"]
-```
-
-Options:
-- `date` - Publish date (default)
-- `votes` - Vote count
-- `title` - Alphabetical
-- `modified` - Last updated
-- `priority` - Priority level (Pro)
-
-### order
-
-Sort direction:
-```
-[roadmap product="main" orderby="votes" order="desc"]
-```
-
-- `DESC` - Descending (default)
-- `ASC` - Ascending
+**Filters vs the filter bar.** `status` and `category` set what the board starts on. Visitors can still change them from the filter bar; add `show_filters="false"` to lock the board to that view. One status and one category per board.
 
 ## Common Examples
 
-### Show All Items
+### Show all items
 ```
-[roadmap product="main"]
+[roadmap]
 ```
-Simple board with all items.
 
-### Most Voted Features
+### Most voted, top 10
 ```
-[roadmap product="main" orderby="votes" order="desc" limit="10"]
+[roadmap sort="votes" limit="10"]
 ```
-Top 10 voted items.
 
-### In-Progress Items
+### Recently shipped (locked)
 ```
-[roadmap product="main" status="in-progress"]
+[roadmap status="completed" sort="recent" show_filters="false"]
 ```
-Only items being worked on.
 
-### Planned Features
+### Planned features only
 ```
-[roadmap product="main" status="planned" category="feature"]
+[roadmap status="planned" category="features"]
 ```
-Upcoming features only.
 
-### Recent Updates
+### A read-only board (no voting, no comments)
 ```
-[roadmap product="main" orderby="modified" order="desc" limit="5"]
+[roadmap show_voting="hide" show_comments="hide"]
 ```
-Last 5 updated items.
+Hides voting and comments on this board only; other boards follow your Settings.
 
-### Multiple Statuses
+### Pro: a product in the board layout
 ```
-[roadmap product="main" status="in-progress,testing,completed"]
+[roadmap product="mobile-app" template="board"]
 ```
-Active and done items.
 
 ## Adding to Pages
 
@@ -319,7 +232,7 @@ Now users can access roadmap from navigation.
 
 **Page 3: Top voted**
 ```
-[roadmap product="main" orderby="votes" limit="10"]
+[roadmap sort="votes" limit="10"]
 ```
 
 ### Pro: Multiple Products
@@ -432,7 +345,7 @@ Test on mobile:
 
 **Filter by status:**
 ```
-[roadmap product="main" status="planned,in-progress"]
+[roadmap status="planned"]
 ```
 Shows fewer items, loads faster.
 
