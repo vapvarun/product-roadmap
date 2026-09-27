@@ -19,7 +19,8 @@
             <span 
               v-for="status in item.status" 
               :key="status.id"
-              class="roadmap-badge roadmap-badge-primary"
+              class="roadmap-badge"
+              :class="'roadmap-status-' + (status.slug || 'default')"
             >
               {{ status.name }}
             </span>
@@ -309,13 +310,13 @@ const handleCommentAdded = () => {
     flex: 1;
     max-width: 300px;
     height: 10px;
-    background: #eee;
+    background: var(--rm-border-soft, #f0f1f3);
     border-radius: 5px;
     overflow: hidden;
     
     &-bar {
       height: 100%;
-      background: #4caf50;
+      background: var(--rm-done, #15803d);
       transition: width 0.3s ease;
     }
   }
@@ -323,7 +324,7 @@ const handleCommentAdded = () => {
   .roadmap-progress-text {
     font-size: 16px;
     font-weight: 600;
-    color: #4caf50;
+    color: var(--rm-done, #15803d);
   }
 }
 

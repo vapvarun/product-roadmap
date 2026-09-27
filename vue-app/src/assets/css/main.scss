@@ -265,10 +265,12 @@ $white: #ffffff;
 .roadmap-error {
   text-align: center;
   padding: 40px 20px;
-  background: color.adjust($danger-color, $lightness: 45%);
-  border: 1px solid color.adjust($danger-color, $lightness: 30%);
+  // Fallbacks cover the editor-only notice PHP prints before .roadmap-app,
+  // where the tokens are not in scope.
+  background: var(--rm-cancelled-tint, #fdeaea);
+  border: 1px solid var(--rm-cancelled, #b91c1c);
   border-radius: 4px;
-  color: $danger-color;
+  color: var(--rm-cancelled, #b91c1c);
   
   p {
     margin: 0 0 20px;
@@ -515,6 +517,13 @@ $white: #ffffff;
   // of a glaring near-white block. Accent text then follows the same swap.
   --roadmap-accent-tint: color-mix(in srgb, var(--roadmap-accent) 22%, #1a1d21);
   --roadmap-accent-text: var(--roadmap-accent);
+
+  // The error toast sits on the elevated surface, not the badge tint the dark
+  // --rm-cancelled is tuned for; lighten its text from the same token to clear
+  // WCAG AA (the border keeps the token).
+  .roadmap-notification-error {
+    color: color-mix(in srgb, var(--rm-cancelled) 65%, #fff);
+  }
 
   background: $dark-bg;
   color: #e2e4e7;

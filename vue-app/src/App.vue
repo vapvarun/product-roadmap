@@ -793,8 +793,10 @@ defineExpose({
   left: 50%;
   transform: translate(-50%, -50%) scale(0.8);
   padding: 20px 30px;
-  background: #fff;
-  color: #333;
+  // Status colours come from the plugin's token palette: each solid clears
+  // WCAG AA on the surface, and the dark theme block swaps them.
+  background: var(--rm-elevated);
+  color: var(--rm-text);
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   font-size: 16px;
@@ -804,8 +806,8 @@ defineExpose({
   z-index: 99999;
   
   &-success {
-    color: #4caf50;
-    border: 2px solid #4caf50;
+    color: var(--rm-done);
+    border: 2px solid var(--rm-done);
     
     &::before {
       content: "✓ ";
@@ -816,8 +818,8 @@ defineExpose({
   }
   
   &-error {
-    color: #f44336;
-    border: 2px solid #f44336;
+    color: var(--rm-cancelled);
+    border: 2px solid var(--rm-cancelled);
     
     &::before {
       content: "✕ ";
@@ -827,29 +829,7 @@ defineExpose({
     }
   }
   
-  &-warning {
-    color: #ff9800;
-    border: 2px solid #ff9800;
-    
-    &::before {
-      content: "⚠ ";
-      font-size: 20px;
-      font-weight: bold;
-      margin-right: 8px;
-    }
-  }
   
-  &-info {
-    color: #2196f3;
-    border: 2px solid #2196f3;
-    
-    &::before {
-      content: "ℹ ";
-      font-size: 20px;
-      font-weight: bold;
-      margin-right: 8px;
-    }
-  }
 }
 
 // Notification transition
