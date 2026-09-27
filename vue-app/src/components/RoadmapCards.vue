@@ -212,8 +212,8 @@ const formatDate = (date) => {
   letter-spacing: 0.03em;
   vertical-align: middle;
   border-radius: 10px;
-  color: var(--rm-review, #7c3aed);
-  background: color-mix(in srgb, var(--rm-review, #7c3aed) 14%, transparent);
+  color: var(--rm-review);
+  background: color-mix(in srgb, var(--rm-review) 14%, transparent);
 }
 
 .roadmap-cards-header {
@@ -270,7 +270,7 @@ const formatDate = (date) => {
 
   &:hover {
     border-color: var(--roadmap-accent);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px var(--rm-shadow);
     transform: translateY(-2px);
   }
 }
@@ -370,25 +370,9 @@ const formatDate = (date) => {
   border-radius: 10px;
   font-weight: 500;
 
-  &.roadmap-priority-low {
-    background: var(--rm-priority-low-tint);
-    color: var(--rm-priority-low);
-  }
-
-  &.roadmap-priority-medium {
-    background: var(--rm-priority-medium-tint);
-    color: var(--rm-priority-medium);
-  }
-
-  &.roadmap-priority-high {
-    background: var(--rm-priority-high-tint);
-    color: var(--rm-priority-high);
-  }
-
-  &.roadmap-priority-critical {
-    background: var(--rm-priority-critical-tint);
-    color: var(--rm-priority-critical);
-  }
+  // roadmap-tokens.css maps the roadmap-priority-{slug} class to the pair.
+  background: var(--rm-priority-tint, transparent);
+  color: var(--rm-priority-color, currentColor);
 }
 
 .roadmap-card-date {
@@ -423,7 +407,7 @@ const formatDate = (date) => {
     height: 24px;
     border-radius: 50%;
     background: var(--roadmap-accent);
-    color: var(--roadmap-accent-contrast, #fff);
+    color: var(--roadmap-accent-contrast);
     display: flex;
     align-items: center;
     justify-content: center;

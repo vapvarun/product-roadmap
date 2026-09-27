@@ -26,7 +26,12 @@ npm install
 
 # Build Vue app
 echo "Building Vue app for production..."
-npm run build
+# Stop here on a failed build: the steps below would otherwise copy the
+# previous dist/ bundle and report success.
+if ! npm run build; then
+    echo "✗ Vue build failed - nothing copied."
+    exit 1
+fi
 
 # IIFE-wrap the JS bundle so its top-level declarations (Vue's internal
 # `const wp`, etc.) stay function-scoped instead of leaking into the page's

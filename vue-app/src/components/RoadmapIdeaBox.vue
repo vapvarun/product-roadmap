@@ -55,7 +55,7 @@
             <span
               v-if="item.status && item.status.length"
               class="roadmap-ideabox-tag roadmap-ideabox-tag-status"
-              :style="getStatusStyle(item.status[0])"
+              :class="`roadmap-status-${item.status[0].slug}`"
             >
               {{ item.status[0].name }}
             </span>
@@ -68,8 +68,8 @@
             </span>
             <span
               v-if="item.priority"
-              class="roadmap-ideabox-tag"
-              :class="`roadmap-ideabox-tag-${getPriorityClass(item.priority)}`"
+              class="roadmap-ideabox-tag roadmap-ideabox-tag-priority"
+              :class="`roadmap-priority-${item.priority}`"
             >
               {{ item.priority }}
             </span>
@@ -182,15 +182,6 @@ const sortTabs = [
   { key: 'active', label: i18n.active || 'Active' }
 ]
 
-// Status colors mapping
-const statusColors = {
-  'planned': { bg: '#e8f4fd', text: '#1d4ed8' },
-  'in-progress': { bg: '#fef3c7', text: '#b45309' },
-  'completed': { bg: '#d1fae5', text: '#059669' },
-  'cancelled': { bg: '#fee2e2', text: '#dc2626' },
-  'under-review': { bg: '#f3e8ff', text: '#7c3aed' }
-}
-
 // Computed
 const filteredItems = computed(() => {
   return props.items || []
@@ -239,24 +230,6 @@ const handleVote = async (item) => {
   }
 }
 
-const getStatusStyle = (status) => {
-  const colors = statusColors[status.slug] || { bg: '#f3f4f6', text: '#374151' }
-  return {
-    backgroundColor: colors.bg,
-    color: colors.text
-  }
-}
-
-const getPriorityClass = (priority) => {
-  switch (priority) {
-    case 'critical': return 'critical'
-    case 'high': return 'high'
-    case 'medium': return 'medium'
-    case 'low': return 'low'
-    default: return 'default'
-  }
-}
-
 const truncateContent = (content, length) => {
   if (!content) return ''
   const stripped = content.replace(/<[^>]*>/g, '')
@@ -282,7 +255,7 @@ const formatDate = (date) => {
 
 <style lang="scss" scoped>
 .roadmap-ideabox {
-  background: #fff;
+  background: var(--rm-surface);
   border-radius: 8px;
   overflow: hidden;
 }
@@ -292,8 +265,8 @@ const formatDate = (date) => {
   justify-content: space-between;
   align-items: center;
   padding: 16px 20px;
-  border-bottom: 1px solid #e5e7eb;
-  background: #f9fafb;
+  border-bottom: 1px solid var(--rm-border);
+  background: var(--rm-surface-alt);
 }
 
 .roadmap-ideabox-tabs {
@@ -305,7 +278,7 @@ const formatDate = (date) => {
   padding: 8px 16px;
   border: none;
   background: transparent;
-  color: #6b7280;
+  color: var(--rm-muted);
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
@@ -313,19 +286,19 @@ const formatDate = (date) => {
   transition: all 0.2s ease;
 
   &:hover {
-    background: #e5e7eb;
-    color: #374151;
+    background: var(--rm-border);
+    color: var(--rm-heading);
   }
 
   &.active {
-    background: #2271b1;
-    color: #fff;
+    background: var(--roadmap-accent);
+    color: var(--roadmap-accent-contrast);
   }
 }
 
 .roadmap-ideabox-count {
   font-size: 14px;
-  color: #6b7280;
+  color: var(--rm-muted);
 }
 
 .roadmap-ideabox-list {
@@ -336,7 +309,7 @@ const formatDate = (date) => {
 .roadmap-ideabox-item {
   display: flex;
   padding: 20px;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid var(--rm-border);
   transition: background-color 0.2s ease;
 
   &:last-child {
@@ -344,14 +317,14 @@ const formatDate = (date) => {
   }
 
   &:hover {
-    background: #f9fafb;
+    background: var(--rm-surface-alt);
   }
 
   &.roadmap-ideabox-item-voted {
     .roadmap-ideabox-vote-btn {
-      background: var(--roadmap-accent, #2271b1);
-      color: var(--roadmap-accent-contrast, #fff);
-      border-color: var(--roadmap-accent, #2271b1);
+      background: var(--roadmap-accent);
+      color: var(--roadmap-accent-contrast);
+      border-color: var(--roadmap-accent);
       padding: 0;
     }
   }
@@ -370,22 +343,22 @@ const formatDate = (date) => {
   width: 48px;
   height: 48px;
   padding: 0;
-  border: 2px solid #d1d5db;
-  background: #fff;
+  border: 2px solid var(--rm-control-border);
+  background: var(--rm-surface);
   border-radius: 8px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #6b7280;
+  color: var(--rm-muted);
   transition: all 0.2s ease;
 
   &:hover:not(:disabled):not(.voted) {
-    border-color: #10b981;
-    color: #10b981;
-    background: #f0fdf4;
+    border-color: var(--rm-done);
+    color: var(--rm-done);
+    background: var(--rm-done-tint);
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+    box-shadow: 0 4px 12px var(--rm-shadow);
   }
 
   &:disabled {
@@ -394,15 +367,16 @@ const formatDate = (date) => {
   }
 
   &.voted {
-    background: #10b981;
-    border-color: #10b981;
-    color: #fff;
+    background: var(--rm-done);
+    border-color: var(--rm-done);
+    color: var(--rm-done-tint);
 
     &:hover:not(:disabled) {
-      background: #f97316;
-      border-color: #f97316;
+      background: var(--rm-progress);
+      border-color: var(--rm-progress);
+      color: var(--rm-progress-tint);
       transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(249, 115, 22, 0.2);
+      box-shadow: 0 4px 12px var(--rm-shadow);
     }
   }
 }
@@ -415,14 +389,14 @@ const formatDate = (date) => {
 .roadmap-ideabox-vote-count {
   font-size: 20px;
   font-weight: 700;
-  color: #1f2937;
+  color: var(--rm-heading);
   margin-top: 8px;
   line-height: 1;
 }
 
 .roadmap-ideabox-vote-label {
   font-size: 11px;
-  color: #9ca3af;
+  color: var(--rm-muted);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   margin-top: 2px;
@@ -438,19 +412,19 @@ const formatDate = (date) => {
   margin: 0 0 8px;
   font-size: 17px;
   font-weight: 600;
-  color: #1f2937;
+  color: var(--rm-heading);
   line-height: 1.4;
   transition: color 0.2s ease;
 
   &:hover {
-    color: #2271b1;
+    color: var(--roadmap-accent-text);
   }
 }
 
 .roadmap-ideabox-excerpt {
   margin: 0 0 12px;
   font-size: 14px;
-  color: #6b7280;
+  color: var(--rm-muted);
   line-height: 1.6;
 }
 
@@ -468,37 +442,24 @@ const formatDate = (date) => {
   font-size: 12px;
   font-weight: 500;
   border-radius: 20px;
-  background: #f3f4f6;
-  color: #374151;
+  background: var(--rm-surface-alt);
+  color: var(--rm-text);
 }
 
 .roadmap-ideabox-tag-status {
   font-weight: 600;
+  background: var(--rm-status-tint);
+  color: var(--rm-status);
+}
+
+.roadmap-ideabox-tag-priority {
+  background: var(--rm-priority-tint, var(--rm-surface-alt));
+  color: var(--rm-priority-color, var(--rm-text));
 }
 
 .roadmap-ideabox-tag-category {
-  background: #e5e7eb;
-  color: #4b5563;
-}
-
-.roadmap-ideabox-tag-critical {
-  background: #fee2e2;
-  color: #dc2626;
-}
-
-.roadmap-ideabox-tag-high {
-  background: #fef3c7;
-  color: #b45309;
-}
-
-.roadmap-ideabox-tag-medium {
-  background: #e0f2fe;
-  color: #0369a1;
-}
-
-.roadmap-ideabox-tag-low {
-  background: #d1fae5;
-  color: #059669;
+  background: var(--rm-border);
+  color: var(--rm-text);
 }
 
 .roadmap-ideabox-meta {
@@ -506,7 +467,7 @@ const formatDate = (date) => {
   flex-wrap: wrap;
   gap: 16px;
   font-size: 13px;
-  color: #9ca3af;
+  color: var(--rm-muted);
 }
 
 .roadmap-ideabox-meta-item {
@@ -520,7 +481,7 @@ const formatDate = (date) => {
 }
 
 .roadmap-ideabox-meta-comments {
-  color: #6b7280;
+  color: var(--rm-muted);
   font-weight: 500;
 }
 
@@ -529,43 +490,43 @@ const formatDate = (date) => {
   flex-direction: column;
   gap: 8px;
   padding-left: 16px;
-  border-left: 1px solid #e5e7eb;
+  border-left: 1px solid var(--rm-border);
   margin-left: 16px;
 }
 
 .roadmap-ideabox-action-btn {
   width: 36px;
   height: 36px;
-  border: 1px solid #d1d5db;
-  background: #fff;
+  border: 1px solid var(--rm-control-border);
+  background: var(--rm-surface);
   border-radius: 6px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #6b7280;
+  color: var(--rm-muted);
   transition: all 0.2s ease;
 
   &:hover {
-    background: #f3f4f6;
-    color: #374151;
+    background: var(--rm-surface-alt);
+    color: var(--rm-heading);
   }
 
   &.roadmap-ideabox-action-danger:hover {
-    background: #fee2e2;
-    color: #dc2626;
-    border-color: #fecaca;
+    background: var(--rm-cancelled-tint);
+    color: var(--rm-cancelled);
+    border-color: var(--rm-cancelled);
   }
 }
 
 .roadmap-ideabox-empty {
   text-align: center;
   padding: 60px 20px;
-  color: #9ca3af;
+  color: var(--rm-muted);
 
   h3 {
     margin: 16px 0 8px;
-    color: #6b7280;
+    color: var(--rm-muted);
     font-size: 18px;
   }
 
@@ -577,97 +538,6 @@ const formatDate = (date) => {
 
 .roadmap-ideabox-empty-icon {
   opacity: 0.4;
-}
-
-// Dark mode
-.roadmap-dark .roadmap-ideabox {
-  background: #1f2937;
-}
-
-.roadmap-dark .roadmap-ideabox-header {
-  background: #111827;
-  border-bottom-color: #374151;
-}
-
-.roadmap-dark .roadmap-ideabox-tab {
-  color: #9ca3af;
-
-  &:hover {
-    background: #374151;
-    color: #e5e7eb;
-  }
-
-  &.active {
-    background: #2271b1;
-    color: #fff;
-  }
-}
-
-.roadmap-dark .roadmap-ideabox-item {
-  border-bottom-color: #374151;
-
-  &:hover {
-    background: #111827;
-  }
-}
-
-.roadmap-dark .roadmap-ideabox-vote-btn {
-  background: #374151;
-  border-color: #4b5563;
-  color: #d1d5db;
-
-  &:hover:not(:disabled):not(.voted) {
-    border-color: #10b981;
-    color: #10b981;
-    background: #064e3b;
-  }
-
-  &.voted {
-    background: #10b981;
-    border-color: #10b981;
-    color: #fff;
-
-    &:hover:not(:disabled) {
-      background: #f97316;
-      border-color: #f97316;
-    }
-  }
-}
-
-.roadmap-dark .roadmap-ideabox-vote-count {
-  color: #e5e7eb;
-}
-
-.roadmap-dark .roadmap-ideabox-title {
-  color: #f3f4f6;
-
-  &:hover {
-    color: #60a5fa;
-  }
-}
-
-.roadmap-dark .roadmap-ideabox-excerpt {
-  color: #9ca3af;
-}
-
-.roadmap-dark .roadmap-ideabox-tag {
-  background: #374151;
-  color: #d1d5db;
-}
-
-.roadmap-dark .roadmap-ideabox-actions {
-  border-left-color: #374151;
-}
-
-.roadmap-dark .roadmap-ideabox-action-btn {
-  background: #374151;
-  border-color: #4b5563;
-  color: #d1d5db;
-
-  &:hover {
-    background: #4b5563;
-    color: #f3f4f6;
-  }
 }
 
 // Responsive
@@ -715,7 +585,7 @@ const formatDate = (date) => {
     flex-direction: row;
     width: 100%;
     border-left: none;
-    border-top: 1px solid #e5e7eb;
+    border-top: 1px solid var(--rm-border);
     padding-left: 0;
     padding-top: 12px;
     margin-left: 0;

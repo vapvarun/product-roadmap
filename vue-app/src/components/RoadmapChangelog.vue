@@ -86,7 +86,7 @@
                 >
                   <span
                     class="roadmap-changelog-badge"
-                    :style="{ backgroundColor: item.type_color }"
+                    :style="{ backgroundColor: item.type_background, color: item.type_color }"
                   >
                     {{ item.type_name }}
                   </span>
@@ -238,11 +238,11 @@ defineExpose({
 .roadmap-changelog-empty {
   text-align: center;
   padding: 40px 20px;
-  color: #666;
+  color: var(--rm-muted);
 }
 
 .roadmap-changelog-error {
-  color: #dc3545;
+  color: var(--rm-cancelled);
 }
 
 .roadmap-changelog-list {
@@ -252,14 +252,14 @@ defineExpose({
 }
 
 .roadmap-changelog-entry {
-  background: #fff;
-  border: 1px solid #e0e0e0;
+  background: var(--rm-surface);
+  border: 1px solid var(--rm-border);
   border-radius: 12px;
   overflow: hidden;
   transition: box-shadow 0.2s ease;
 
   &:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 4px 12px var(--rm-shadow);
   }
 }
 
@@ -268,12 +268,12 @@ defineExpose({
   justify-content: space-between;
   align-items: center;
   padding: 20px 24px;
-  background: linear-gradient(135deg, #f8f9fa 0%, #fff 100%);
-  border-bottom: 1px solid #e0e0e0;
+  background: linear-gradient(135deg, var(--rm-surface-alt) 0%, var(--rm-surface) 100%);
+  border-bottom: 1px solid var(--rm-border);
   user-select: none;
 
   &:hover {
-    background: linear-gradient(135deg, #f0f1f2 0%, #f8f9fa 100%);
+    background: linear-gradient(135deg, var(--rm-border-soft) 0%, var(--rm-surface-alt) 100%);
   }
 }
 
@@ -285,7 +285,7 @@ defineExpose({
   margin: 0 0 8px;
   font-size: 20px;
   font-weight: 600;
-  color: #1a1a1a;
+  color: var(--rm-heading);
   display: flex;
   align-items: center;
   gap: 8px;
@@ -293,7 +293,7 @@ defineExpose({
 
 .roadmap-changelog-toggle {
   font-size: 12px;
-  color: #666;
+  color: var(--rm-muted);
   transition: transform 0.2s ease;
 }
 
@@ -308,8 +308,8 @@ defineExpose({
   display: inline-flex;
   align-items: center;
   padding: 4px 10px;
-  background: #2271b1;
-  color: #fff;
+  background: var(--roadmap-accent);
+  color: var(--roadmap-accent-contrast);
   font-size: 12px;
   font-weight: 600;
   border-radius: 20px;
@@ -317,15 +317,15 @@ defineExpose({
 
 .roadmap-changelog-date {
   font-size: 14px;
-  color: #666;
+  color: var(--rm-muted);
 }
 
 .roadmap-changelog-product {
   display: inline-flex;
   align-items: center;
   padding: 3px 8px;
-  background: #e8f0fe;
-  color: #1967d2;
+  background: var(--roadmap-accent-tint);
+  color: var(--roadmap-accent-text);
   font-size: 12px;
   font-weight: 500;
   border-radius: 4px;
@@ -337,7 +337,7 @@ defineExpose({
 
 .roadmap-changelog-item-count {
   font-size: 13px;
-  color: #888;
+  color: var(--rm-muted);
 }
 
 .roadmap-changelog-entry-content {
@@ -346,7 +346,7 @@ defineExpose({
 
 .roadmap-changelog-description {
   margin-bottom: 20px;
-  color: #444;
+  color: var(--rm-text);
   font-size: 15px;
   line-height: 1.7;
 
@@ -369,12 +369,12 @@ defineExpose({
   align-items: flex-start;
   gap: 12px;
   padding: 12px 16px;
-  background: #f9fafb;
+  background: var(--rm-surface-alt);
   border-radius: 8px;
   transition: background-color 0.2s ease;
 
   &:hover {
-    background: #f3f4f6;
+    background: var(--rm-border-soft);
   }
 }
 
@@ -384,7 +384,10 @@ defineExpose({
   justify-content: center;
   min-width: 90px;
   padding: 4px 12px;
-  color: #fff;
+  // The owner's type colours arrive inline; this is the fallback for a type
+  // with none saved.
+  background: var(--rm-surface-alt);
+  color: var(--rm-text);
   font-size: 11px;
   font-weight: 600;
   text-transform: uppercase;
@@ -394,7 +397,7 @@ defineExpose({
 }
 
 .roadmap-changelog-item-text {
-  color: #333;
+  color: var(--rm-text);
   font-size: 14px;
   line-height: 1.5;
   flex: 1;
@@ -414,12 +417,12 @@ defineExpose({
   }
 
   .roadmap-btn-secondary {
-    background: #f0f0f0;
-    color: #333;
-    border: 1px solid #ddd;
+    background: var(--rm-surface-alt);
+    color: var(--rm-text);
+    border: 1px solid var(--rm-border);
 
     &:hover {
-      background: #e5e5e5;
+      background: var(--rm-border-soft);
     }
   }
 }
@@ -451,54 +454,6 @@ defineExpose({
   max-height: 0;
 }
 
-// Dark mode
-.roadmap-dark {
-  .roadmap-changelog-entry {
-    background: #23282d;
-    border-color: #3c434a;
-  }
-
-  .roadmap-changelog-entry-header {
-    background: linear-gradient(135deg, #32373c 0%, #23282d 100%);
-    border-bottom-color: #3c434a;
-
-    &:hover {
-      background: linear-gradient(135deg, #3a4046 0%, #32373c 100%);
-    }
-  }
-
-  .roadmap-changelog-version {
-    color: #e2e4e7;
-  }
-
-  .roadmap-changelog-date,
-  .roadmap-changelog-item-count {
-    color: #a0a5aa;
-  }
-
-  .roadmap-changelog-description {
-    color: #c3c4c7;
-  }
-
-  .roadmap-changelog-item {
-    background: #32373c;
-
-    &:hover {
-      background: #3a4046;
-    }
-  }
-
-  .roadmap-changelog-item-text {
-    color: #d4d4d4;
-  }
-
-  .roadmap-changelog-loading,
-  .roadmap-changelog-empty {
-    color: #a0a5aa;
-  }
-}
-
-// Responsive
 @media (max-width: 768px) {
   .roadmap-changelog-entry-header {
     flex-direction: column;

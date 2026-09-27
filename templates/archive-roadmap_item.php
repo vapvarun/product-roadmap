@@ -22,7 +22,7 @@ wp_enqueue_style(
 wp_enqueue_style(
 	'roadmap-changelog-frontend',
 	ROADMAP_PLUGIN_URL . 'assets/css/changelog-frontend.css',
-	array( 'roadmap-select2' ),
+	array( 'roadmap-select2', 'roadmap-tokens' ),
 	ROADMAP_VERSION
 );
 
@@ -145,19 +145,10 @@ $current_status = isset( $_GET['status'] ) ? sanitize_text_field( $_GET['status'
 							<?php if ( ! empty( $status_counts ) ) : ?>
 								<div class="roadmap-product-status-summary">
 									<?php
-									$status_colors = array(
-										'planned'      => '#6366f1',
-										'in-progress'  => '#f59e0b',
-										'completed'    => '#10b981',
-										'on-hold'      => '#6b7280',
-										'under-review' => '#8b5cf6',
-									);
-
 									foreach ( $status_counts as $status_slug => $count ) :
 										$status_term = get_term_by( 'slug', $status_slug, 'roadmap_status' );
-										$color       = $status_colors[ $status_slug ] ?? '#6b7280';
 										?>
-										<span class="roadmap-status-badge" style="background-color: <?php echo esc_attr( $color ); ?>20; color: <?php echo esc_attr( $color ); ?>; border: 1px solid <?php echo esc_attr( $color ); ?>40;">
+										<span class="roadmap-status-badge roadmap-status-<?php echo esc_attr( $status_slug ); ?>">
 											<?php echo esc_html( $count ); ?> <?php echo esc_html( $status_term ? $status_term->name : ucfirst( $status_slug ) ); ?>
 										</span>
 									<?php endforeach; ?>
@@ -207,13 +198,13 @@ $current_status = isset( $_GET['status'] ) ? sanitize_text_field( $_GET['status'
 .roadmap-archive-title {
 	font-size: 2.5rem;
 	font-weight: 700;
-	color: #1e293b;
+	color: var(--rm-heading);
 	margin-bottom: 12px;
 }
 
 .roadmap-archive-description {
 	font-size: 1.125rem;
-	color: #64748b;
+	color: var(--rm-muted);
 	margin-bottom: 24px;
 }
 
@@ -224,16 +215,16 @@ $current_status = isset( $_GET['status'] ) ? sanitize_text_field( $_GET['status'
 }
 
 .roadmap-product-card {
-	background: #fff;
+	background: var(--rm-surface);
 	border-radius: 12px;
-	border: 1px solid #e2e8f0;
+	border: 1px solid var(--rm-border);
 	overflow: hidden;
 	transition: transform 0.2s, box-shadow 0.2s;
 }
 
 .roadmap-product-card:hover {
 	transform: translateY(-4px);
-	box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+	box-shadow: 0 12px 24px var(--rm-shadow-strong);
 }
 
 .roadmap-product-card-link {
@@ -250,13 +241,13 @@ $current_status = isset( $_GET['status'] ) ? sanitize_text_field( $_GET['status'
 .roadmap-product-card-title {
 	font-size: 1.375rem;
 	font-weight: 600;
-	color: #1e293b;
+	color: var(--rm-heading);
 	margin: 0 0 8px 0;
 }
 
 .roadmap-product-card-description {
 	font-size: 0.9375rem;
-	color: #64748b;
+	color: var(--rm-muted);
 	margin: 0;
 	line-height: 1.5;
 }
@@ -268,14 +259,14 @@ $current_status = isset( $_GET['status'] ) ? sanitize_text_field( $_GET['status'
 .roadmap-product-stat.total {
 	display: block;
 	font-size: 0.9375rem;
-	color: #475569;
+	color: var(--rm-text);
 	margin-bottom: 12px;
 }
 
 .roadmap-product-stat.total strong {
 	font-size: 1.5rem;
 	font-weight: 700;
-	color: #1e293b;
+	color: var(--rm-heading);
 	margin-right: 4px;
 }
 
@@ -292,11 +283,14 @@ $current_status = isset( $_GET['status'] ) ? sanitize_text_field( $_GET['status'
 	font-size: 0.8125rem;
 	font-weight: 500;
 	border-radius: 9999px;
+	background-color: var(--rm-status-tint);
+	color: var(--rm-status);
+	border: 1px solid color-mix(in srgb, var(--rm-status) 25%, transparent);
 }
 
 .roadmap-product-card-footer {
 	padding-top: 16px;
-	border-top: 1px solid #f1f5f9;
+	border-top: 1px solid var(--rm-border-soft);
 }
 
 .roadmap-view-link {
@@ -305,7 +299,7 @@ $current_status = isset( $_GET['status'] ) ? sanitize_text_field( $_GET['status'
 	gap: 8px;
 	font-size: 0.9375rem;
 	font-weight: 500;
-	color: #6366f1;
+	color: var(--roadmap-accent-text);
 	transition: gap 0.2s;
 }
 
@@ -317,23 +311,23 @@ $current_status = isset( $_GET['status'] ) ? sanitize_text_field( $_GET['status'
 	grid-column: 1 / -1;
 	text-align: center;
 	padding: 60px 20px;
-	background: #f8fafc;
+	background: var(--rm-surface-alt);
 	border-radius: 12px;
 }
 
 .roadmap-no-products svg {
-	color: #94a3b8;
+	color: var(--rm-muted);
 	margin-bottom: 16px;
 }
 
 .roadmap-no-products h2 {
 	font-size: 1.5rem;
-	color: #475569;
+	color: var(--rm-heading);
 	margin: 0 0 8px 0;
 }
 
 .roadmap-no-products p {
-	color: #64748b;
+	color: var(--rm-muted);
 	margin: 0;
 }
 
@@ -345,75 +339,6 @@ $current_status = isset( $_GET['status'] ) ? sanitize_text_field( $_GET['status'
 	.roadmap-products-grid {
 		grid-template-columns: 1fr;
 	}
-}
-
-/*
- * Dark mode. This page hardcoded near-black text on a white card, so on a
- * dark theme the heading rendered invisible against the page background. The
- * 1.7.0 dark-mode work covered the changelog and the Vue board but matched
- * only .roadmap-changelog-* wrappers, never this page's .roadmap-archive-wrapper.
- *
- * A previous fix here used `@media (prefers-color-scheme: dark)`, which
- * tracks the OS setting rather than the theme's own dark-mode toggle - the
- * rest of this plugin's frontend is dark-mode-aware via theme toggle only
- * (see the same selector list in assets/css/changelog-frontend.css), so an
- * OS-dark + theme-light visitor got an unreadable heading on a light page.
- * Matching that selector list keeps this page consistent with every other
- * dark-mode-aware surface in the plugin, instead of tracking the OS setting.
- */
-html[data-bx-mode="dark"] .roadmap-archive-title,
-html[data-mode="dark"] .roadmap-archive-title,
-body.buddyx-dark-theme .roadmap-archive-title,
-body.buddyx-dark-style-variation .roadmap-archive-title,
-body.dark-scheme .roadmap-archive-title,
-body.reign-ld-dark-theme .roadmap-archive-title {
-	color: #f1f5f9;
-}
-
-html[data-bx-mode="dark"] :is(.roadmap-archive-description, .roadmap-no-products h2),
-html[data-mode="dark"] :is(.roadmap-archive-description, .roadmap-no-products h2),
-body.buddyx-dark-theme :is(.roadmap-archive-description, .roadmap-no-products h2),
-body.buddyx-dark-style-variation :is(.roadmap-archive-description, .roadmap-no-products h2),
-body.dark-scheme :is(.roadmap-archive-description, .roadmap-no-products h2),
-body.reign-ld-dark-theme :is(.roadmap-archive-description, .roadmap-no-products h2) {
-	color: #cbd5e1;
-}
-
-html[data-bx-mode="dark"] .roadmap-no-products p,
-html[data-mode="dark"] .roadmap-no-products p,
-body.buddyx-dark-theme .roadmap-no-products p,
-body.buddyx-dark-style-variation .roadmap-no-products p,
-body.dark-scheme .roadmap-no-products p,
-body.reign-ld-dark-theme .roadmap-no-products p {
-	color: #94a3b8;
-}
-
-html[data-bx-mode="dark"] .roadmap-product-card,
-html[data-mode="dark"] .roadmap-product-card,
-body.buddyx-dark-theme .roadmap-product-card,
-body.buddyx-dark-style-variation .roadmap-product-card,
-body.dark-scheme .roadmap-product-card,
-body.reign-ld-dark-theme .roadmap-product-card {
-	background: #1e293b;
-	border-color: #334155;
-}
-
-html[data-bx-mode="dark"] .roadmap-product-card-title,
-html[data-mode="dark"] .roadmap-product-card-title,
-body.buddyx-dark-theme .roadmap-product-card-title,
-body.buddyx-dark-style-variation .roadmap-product-card-title,
-body.dark-scheme .roadmap-product-card-title,
-body.reign-ld-dark-theme .roadmap-product-card-title {
-	color: #f1f5f9;
-}
-
-html[data-bx-mode="dark"] .roadmap-product-card-description,
-html[data-mode="dark"] .roadmap-product-card-description,
-body.buddyx-dark-theme .roadmap-product-card-description,
-body.buddyx-dark-style-variation .roadmap-product-card-description,
-body.dark-scheme .roadmap-product-card-description,
-body.reign-ld-dark-theme .roadmap-product-card-description {
-	color: #cbd5e1;
 }
 </style>
 

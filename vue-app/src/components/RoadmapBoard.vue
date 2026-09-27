@@ -174,7 +174,8 @@ const handleDrop = (event, newStatus) => {
   
   &-count {
     background: var(--rm-border);
-    color: var(--rm-muted);
+    // Muted text on the border-grey pill is under 4.5:1 in both modes.
+    color: var(--rm-text);
     padding: 2px 8px;
     border-radius: 12px;
     font-size: 12px;

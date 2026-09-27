@@ -90,6 +90,11 @@ class RoadmapPlugin {
             define('ROADMAP_PRO_ACTIVE', false);
         }
 
+        // Colour tokens + shared status/priority chips. Every frontend stylesheet
+        // (Free and Pro) lists this handle as a dependency; see the file header.
+        $tokens = ROADMAP_PLUGIN_PATH . 'assets/css/roadmap-tokens.css';
+        wp_register_style( 'roadmap-tokens', ROADMAP_PLUGIN_URL . 'assets/css/roadmap-tokens.css', array(), file_exists( $tokens ) ? (string) filemtime( $tokens ) : ROADMAP_VERSION );
+
         // Run migration check on admin init
         if (is_admin()) {
             // The product->taxonomy data migration is expensive, so it stays on

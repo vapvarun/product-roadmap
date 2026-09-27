@@ -807,7 +807,7 @@ defineExpose({
   background: var(--rm-elevated);
   color: var(--rm-text);
   border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 12px var(--rm-shadow-strong);
   font-size: 16px;
   font-weight: 500;
   text-align: center;
@@ -827,7 +827,9 @@ defineExpose({
   }
   
   &-error {
-    color: var(--rm-cancelled);
+    // The dark --rm-cancelled is tuned for its tint, not the elevated surface;
+    // mixing toward the heading colour keeps the text AA in both modes.
+    color: color-mix(in srgb, var(--rm-cancelled) 65%, var(--rm-heading));
     border: 2px solid var(--rm-cancelled);
     
     &::before {

@@ -249,7 +249,10 @@ const handleSubmit = () => {
   height: 8px;
   -webkit-appearance: none;
   appearance: none;
-  background: #e0e0e0;
+  /* The track is the slider boundary (>= 3:1); themes add a generic input
+     border, which a slider does not need. */
+  background: var(--rm-control-border);
+  border: 0;
   border-radius: 4px;
   outline: none;
 }
@@ -259,7 +262,7 @@ const handleSubmit = () => {
   appearance: none;
   width: 20px;
   height: 20px;
-  background: #0073aa;
+  background: var(--roadmap-accent);
   border-radius: 50%;
   cursor: pointer;
 }
@@ -267,7 +270,7 @@ const handleSubmit = () => {
 .roadmap-range-input::-moz-range-thumb {
   width: 20px;
   height: 20px;
-  background: #0073aa;
+  background: var(--roadmap-accent);
   border-radius: 50%;
   cursor: pointer;
   border: none;
@@ -276,7 +279,7 @@ const handleSubmit = () => {
 .roadmap-range-value {
   min-width: 45px;
   font-weight: 600;
-  color: #0073aa;
+  color: var(--roadmap-accent-text);
   font-size: 14px;
 }
 

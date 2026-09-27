@@ -20,8 +20,8 @@ while (have_posts()) :
     $product = !empty($products) ? $products[0] : null;
 
     // Apply the product's saved Theme Color to the changelog accent, scoped to
-    // this instance. The accent token is declared on .roadmap-changelog-wrapper,
-    // so overriding it via the id (higher specificity) cascades to every shade.
+    // this instance. roadmap-tokens.css recomputes the derived accent shades on
+    // .roadmap-changelog-wrapper, so this one override reaches all of them.
     $rm_settings = $product ? get_term_meta($product->term_id, 'roadmap_product_settings', true) : '';
     $rm_accent   = !empty($rm_settings['theme_color']) ? sanitize_hex_color($rm_settings['theme_color']) : '';
     $rm_wrap_id  = 'roadmap-changelog-wrapper-' . get_the_ID();
@@ -120,8 +120,8 @@ while (have_posts()) :
                     <ul class="changelog-items-list">
                         <?php foreach ($changelog['items'] as $item):
                             $type_data = $item['type_data'] ?? null;
-                            $bg_color = $type_data['background'] ?? '#e2e3e5';
-                            $text_color = $type_data['color'] ?? '#383d41';
+                            $bg_color = $type_data['background'] ?? 'var(--rm-surface-alt)';
+                            $text_color = $type_data['color'] ?? 'var(--rm-text)';
                             $type_name = $type_data['name'] ?? ucfirst($item['type'] ?? 'Update');
                             $icon = $type_data['icon'] ?? 'marker';
                             ?>

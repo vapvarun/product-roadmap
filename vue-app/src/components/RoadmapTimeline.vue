@@ -37,7 +37,7 @@
               v-for="item in currentItems" 
               :key="item.id"
               class="roadmap-timeline-item"
-              :class="`status-${getStatusSlug(item)}`"
+              :class="`roadmap-status-${getStatusSlug(item)}`"
               @click="$emit('item-click', item)"
             >
               <div class="roadmap-timeline-item-content">
@@ -54,7 +54,7 @@
                 <p>{{ item.excerpt || item.content.substring(0, 100) + '...' }}</p>
                 <div class="roadmap-timeline-item-footer">
                   <div class="roadmap-timeline-item-meta">
-                    <span class="roadmap-timeline-status">{{ getStatusName(item) }}</span>
+                    <span class="roadmap-timeline-status" :class="`roadmap-status-${getStatusSlug(item)}`">{{ getStatusName(item) }}</span>
                     <span v-if="item.progress" class="roadmap-timeline-progress">
                       <div class="roadmap-progress-bar">
                         <div class="roadmap-progress-fill" :style="{ width: item.progress + '%' }"></div>
@@ -120,7 +120,7 @@
               v-for="item in upcomingItems" 
               :key="item.id"
               class="roadmap-timeline-item"
-              :class="`status-${getStatusSlug(item)}`"
+              :class="`roadmap-status-${getStatusSlug(item)}`"
               @click="$emit('item-click', item)"
             >
               <div class="roadmap-timeline-item-content">
@@ -137,7 +137,7 @@
                 <p>{{ item.excerpt || item.content.substring(0, 100) + '...' }}</p>
                 <div class="roadmap-timeline-item-footer">
                   <div class="roadmap-timeline-item-meta">
-                    <span class="roadmap-timeline-status">{{ getStatusName(item) }}</span>
+                    <span class="roadmap-timeline-status" :class="`roadmap-status-${getStatusSlug(item)}`">{{ getStatusName(item) }}</span>
                     <span v-if="item.categories && item.categories.length" class="roadmap-timeline-category">
                       {{ item.categories[0].name }}
                     </span>
@@ -200,7 +200,7 @@
               v-for="item in futureItems" 
               :key="item.id"
               class="roadmap-timeline-item"
-              :class="`status-${getStatusSlug(item)}`"
+              :class="`roadmap-status-${getStatusSlug(item)}`"
               @click="$emit('item-click', item)"
             >
               <div class="roadmap-timeline-item-content">
@@ -217,7 +217,7 @@
                 <p>{{ item.excerpt || item.content.substring(0, 100) + '...' }}</p>
                 <div class="roadmap-timeline-item-footer">
                   <div class="roadmap-timeline-item-meta">
-                    <span class="roadmap-timeline-status">{{ getStatusName(item) }}</span>
+                    <span class="roadmap-timeline-status" :class="`roadmap-status-${getStatusSlug(item)}`">{{ getStatusName(item) }}</span>
                     <span v-if="item.categories && item.categories.length" class="roadmap-timeline-category">
                       {{ item.categories[0].name }}
                     </span>
@@ -264,7 +264,7 @@
             <div
               v-for="item in completedItems"
               :key="item.id"
-              class="roadmap-timeline-item status-completed"
+              class="roadmap-timeline-item roadmap-status-completed"
               @click="$emit('item-click', item)"
             >
               <div class="roadmap-timeline-item-content">
@@ -579,15 +579,15 @@ const formatDate = (date) => {
   letter-spacing: 0.03em;
   vertical-align: middle;
   border-radius: 10px;
-  color: var(--rm-review, #7c3aed);
-  background: color-mix(in srgb, var(--rm-review, #7c3aed) 14%, transparent);
+  color: var(--rm-review);
+  background: color-mix(in srgb, var(--rm-review) 14%, transparent);
 }
 
 .roadmap-timeline {
   background: var(--rm-surface);
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 8px var(--rm-shadow);
 }
 
 .roadmap-timeline-header {
@@ -596,27 +596,25 @@ const formatDate = (date) => {
   align-items: center;
   padding: 1.5rem 2rem;
   background: linear-gradient(135deg, var(--roadmap-accent) 0%, var(--roadmap-accent-hover) 100%);
-  color: var(--roadmap-accent-contrast, #fff);
+  color: var(--roadmap-accent-contrast);
 
   .roadmap-timeline-title {
     margin: 0;
     font-size: 1.5rem;
     font-weight: 600;
-    // The gradient header is a light/brand accent surface even under a dark
-    // theme, so its text must follow accent-contrast. !important is deliberate:
-    // it overrides the broad dark-mode heading rule (which forces every
-    // [class*="-title"] to a light colour) that would otherwise wash the title
-    // out on a pale theme accent (Reign).
-    color: var(--roadmap-accent-contrast, #fff) !important;
+    // The gradient header is an accent surface in both modes, so its text
+    // follows accent-contrast.
+    color: var(--roadmap-accent-contrast);
   }
 
   .roadmap-select {
     // Translucent version of the contrast colour so the control adapts: a subtle
     // dark tint on light accents, a subtle light tint on dark ones - never the
     // invisible white-on-pale-blue it was before.
-    background: color-mix(in srgb, var(--roadmap-accent-contrast, #fff) 15%, transparent);
-    color: var(--roadmap-accent-contrast, #fff);
-    border: 1px solid color-mix(in srgb, var(--roadmap-accent-contrast, #fff) 35%, transparent);
+    background: color-mix(in srgb, var(--roadmap-accent-contrast) 15%, transparent);
+    color: var(--roadmap-accent-contrast);
+    // Solid boundary: a control on the accent header needs >= 3:1 (WCAG 1.4.11).
+    border: 1px solid var(--roadmap-accent-contrast);
     padding: 0.5rem 1rem;
     border-radius: 6px;
     font-size: 14px;
@@ -624,7 +622,7 @@ const formatDate = (date) => {
 
     option {
       background: var(--roadmap-accent);
-      color: var(--roadmap-accent-contrast, #fff);
+      color: var(--roadmap-accent-contrast);
     }
   }
 }
@@ -686,7 +684,7 @@ const formatDate = (date) => {
 
     .roadmap-timeline-period {
       background: var(--rm-done);
-      color: white;
+      color: var(--rm-done-tint);
     }
   }
 }
@@ -731,7 +729,7 @@ const formatDate = (date) => {
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px var(--rm-shadow);
     border-color: var(--roadmap-accent);
 
     &:before {
@@ -739,31 +737,10 @@ const formatDate = (date) => {
     }
   }
 
-  &.status-in-progress:before,
-  &.status-development:before {
-    background: var(--rm-progress);
-  }
-
-  &.status-planned:before,
-  &.status-approved:before {
-    background: var(--rm-planned);
-  }
-
-  &.status-completed:before,
-  &.status-released:before,
-  &.status-done:before,
-  &.status-shipped:before {
-    background: var(--rm-done);
-  }
-
-  .roadmap-status-completed {
-    background: var(--rm-done-tint) !important;
-    color: var(--rm-done) !important;
-  }
-
-  &.status-idea:before,
-  &.status-under-review:before {
-    background: var(--rm-review);
+  // Status stripe: roadmap-tokens.css maps the item's roadmap-status-{slug}
+  // class to --rm-status.
+  &[class*="roadmap-status-"]:before {
+    background: var(--rm-status);
   }
 
   .roadmap-timeline-item-content {
@@ -796,8 +773,8 @@ const formatDate = (date) => {
         font-size: 12px;
         padding: 0.25rem 0.75rem;
         border-radius: 20px;
-        background: var(--rm-planned-tint);
-        color: var(--rm-planned);
+        background: var(--rm-status-tint);
+        color: var(--rm-status);
         font-weight: 500;
       }
 
@@ -900,7 +877,7 @@ const formatDate = (date) => {
         background: var(--rm-surface);
         border: 3px solid var(--roadmap-accent);
         border-radius: 50%;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 2px 4px var(--rm-shadow);
       }
 
       &.active:before {
@@ -916,7 +893,7 @@ const formatDate = (date) => {
         background: var(--rm-surface);
         padding: 0.25rem 0.75rem;
         border-radius: 20px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        box-shadow: 0 2px 4px var(--rm-shadow);
       }
     }
   }

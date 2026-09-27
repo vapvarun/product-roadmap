@@ -22,11 +22,7 @@ const i18n = config?.i18n || {}
 .roadmap-footer {
   margin-top: 40px;
   padding-top: 20px;
-  border-top: 1px solid #ddd;
+  border-top: 1px solid var(--rm-border);
   text-align: center;
-}
-
-.roadmap-dark .roadmap-footer {
-  border-top-color: #50575e;
 }
 </style>

@@ -551,7 +551,7 @@ class Roadmap_Shortcode {
 	 * back to the site theme's --wp--preset--color--primary).
 	 *
 	 * @param string $product_slug Product slug from the shortcode `product` attribute.
-	 * @return string Hex color (e.g. #2271b1) or '' if unset/invalid.
+	 * @return string Sanitized hex color string, or '' if unset/invalid.
 	 */
 	private function get_product_accent_color( $product_slug ) {
 		if ( empty( $product_slug ) ) {
@@ -574,14 +574,10 @@ class Roadmap_Shortcode {
 	/**
 	 * Build a scoped inline <style> that overrides the roadmap accent for one instance.
 	 *
-	 * Only --roadmap-accent is set: every derived token (hover/tint/text/contrast) is
-	 * computed from it via color-mix()/oklch(), so this single override cascades through
-	 * the whole widget. Returns '' when no color is given, leaving the theme-driven default.
-	 *
-	 * The Vue app re-declares --roadmap-accent on the inner `.roadmap-container`, so an
-	 * override on the outer element alone would be shadowed for everything inside it; we
-	 * therefore target the wrapper AND `#id .roadmap-container` (id specificity wins).
-	 * The changelog declares the token on its own element, which the wrapper rule covers.
+	 * Only --roadmap-accent is set: roadmap-tokens.css recomputes the derived tokens
+	 * (hover/tint/text/contrast) on .roadmap-app and .roadmap-changelog, so this single
+	 * override reaches the whole instance. Returns '' when no color is given, leaving
+	 * the theme-driven default.
 	 *
 	 * @param string $element_id Container element id to scope the override to.
 	 * @param string $color      Sanitized hex color, or '' to skip.
@@ -596,7 +592,7 @@ class Roadmap_Shortcode {
 		$color = esc_attr( $color );
 
 		return sprintf(
-			'<style>#%1$s,#%1$s .roadmap-container{--roadmap-accent:%2$s;}</style>',
+			'<style>#%1$s{--roadmap-accent:%2$s;}</style>',
 			$id,
 			$color
 		);
@@ -609,7 +605,7 @@ class Roadmap_Shortcode {
 		$version = ROADMAP_VERSION;
 
 		// Inline CSS for changelog
-		wp_register_style( 'roadmap-changelog', false, array(), $version );
+		wp_register_style( 'roadmap-changelog', false, array( 'roadmap-tokens' ), $version );
 		wp_enqueue_style( 'roadmap-changelog' );
 		wp_add_inline_style(
 			'roadmap-changelog',
@@ -617,20 +613,10 @@ class Roadmap_Shortcode {
             .roadmap-changelog {
                 max-width: 800px;
                 margin: 0 auto;
-                /* Chrome tokens: adopt the theme accent, fall back to plugin blue. */
-                --roadmap-accent: var(--wp--preset--color--primary, #2271b1);
-                --rc-surface: #ffffff;
-                --rc-surface-alt: #f9fafb;
-                --rc-border: #e5e7eb;
-                --rc-border-soft: #f3f4f6;
-                --rc-fg: #1f2937;
-                --rc-text: #374151;
-                --rc-desc: #4b5563;
-                --rc-muted: #6b7280;
             }
             .roadmap-changelog-version {
-                background: var(--rc-surface);
-                border: 1px solid var(--rc-border);
+                background: var(--rm-surface);
+                border: 1px solid var(--rm-border);
                 border-radius: 8px;
                 margin-bottom: 20px;
                 overflow: hidden;
@@ -640,29 +626,29 @@ class Roadmap_Shortcode {
                 justify-content: space-between;
                 align-items: center;
                 padding: 16px 20px;
-                background: var(--rc-surface-alt);
-                border-bottom: 1px solid var(--rc-border);
+                background: var(--rm-surface-alt);
+                border-bottom: 1px solid var(--rm-border);
             }
             .roadmap-changelog-title {
                 margin: 0;
                 font-size: 18px;
                 font-weight: 600;
-                color: var(--rc-fg);
+                color: var(--rm-heading);
             }
             .roadmap-changelog-title .version-number {
-                color: var(--rc-fg);
+                color: var(--rm-heading);
             }
             .roadmap-changelog-date {
-                color: var(--rc-muted);
+                color: var(--rm-muted);
                 font-size: 14px;
             }
             .roadmap-changelog-content {
                 padding: 20px;
-                background: var(--rc-surface);
+                background: var(--rm-surface);
             }
             .roadmap-changelog-description {
                 margin-bottom: 16px;
-                color: var(--rc-desc);
+                color: var(--rm-text);
                 line-height: 1.6;
             }
             .roadmap-changelog-items {
@@ -675,7 +661,7 @@ class Roadmap_Shortcode {
                 align-items: flex-start;
                 gap: 12px;
                 padding: 10px 0;
-                border-bottom: 1px solid var(--rc-border-soft);
+                border-bottom: 1px solid var(--rm-border-soft);
             }
             .roadmap-changelog-item:last-child {
                 border-bottom: none;
@@ -690,7 +676,7 @@ class Roadmap_Shortcode {
                 flex-shrink: 0;
             }
             .roadmap-changelog-item-text {
-                color: var(--rc-text);
+                color: var(--rm-text);
                 line-height: 1.5;
             }
             .roadmap-changelog-toggle {
@@ -718,33 +704,17 @@ class Roadmap_Shortcode {
             .roadmap-changelog-empty {
                 text-align: center;
                 padding: 40px;
-                color: var(--rc-muted);
+                color: var(--rm-muted);
             }
-            /* Release type badges (semantic colours kept intentionally). */
+            /* Release type accents, from the semantic status palette. */
             .changelog-major .roadmap-changelog-header {
-                border-left: 4px solid #dc2626;
+                border-left: 4px solid var(--rm-cancelled);
             }
             .changelog-minor .roadmap-changelog-header {
-                border-left: 4px solid #2563eb;
+                border-left: 4px solid var(--rm-planned);
             }
             .changelog-patch .roadmap-changelog-header {
-                border-left: 4px solid #16a34a;
-            }
-            /* Dark mode: driven only by the theme own toggle (never OS). Pure token swap. */
-            html[data-bx-mode="dark"] .roadmap-changelog,
-            html[data-mode="dark"] .roadmap-changelog,
-            body.buddyx-dark-theme .roadmap-changelog,
-            body.buddyx-dark-style-variation .roadmap-changelog,
-            body.dark-scheme .roadmap-changelog,
-            body.reign-ld-dark-theme .roadmap-changelog {
-                --rc-surface: #2a2f36;
-                --rc-surface-alt: #23272e;
-                --rc-border: #3a4048;
-                --rc-border-soft: #333940;
-                --rc-fg: #e2e4e7;
-                --rc-text: #d3d6da;
-                --rc-desc: #c3c7cc;
-                --rc-muted: #9ca3af;
+                border-left: 4px solid var(--rm-done);
             }
         '
 		);
@@ -791,7 +761,7 @@ class Roadmap_Shortcode {
 			wp_enqueue_style(
 				'roadmap-vue-app',
 				ROADMAP_PLUGIN_URL . 'vue-app/dist/assets/index.css',
-				array(),
+				array( 'roadmap-tokens' ),
 				$version
 			);
 
@@ -829,7 +799,7 @@ class Roadmap_Shortcode {
 			wp_enqueue_style(
 				'roadmap-vue-app',
 				ROADMAP_PLUGIN_URL . 'assets/css/roadmap-app.css',
-				array(),
+				array( 'roadmap-tokens' ),
 				$css_ver
 			);
 

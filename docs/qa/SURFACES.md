@@ -17,7 +17,7 @@ The single-file companion for Pro is `roadmap-pro-addon/docs/qa/SURFACES.md`, wh
 
 | Group | Surfaces |
 |---|---|
-| **Frontend board (Vue)** | `F:vue-app/src/App.vue` (shell, toasts, modals) and views `RoadmapBoard`, `RoadmapCards`, `RoadmapList`, `RoadmapTimeline`, `RoadmapMinimal`, `RoadmapIdeaBox`; item card `RoadmapItem`; modals `ItemDetailModal`, `ItemModal`, `CommentModal`, `SuggestionModal`; `RoadmapHeader`, `RoadmapFilters`, `RoadmapFooter`, `LoadingSpinner`; changelog `RoadmapChangelog` |
+| **Frontend board (Vue)** | `F:vue-app/src/App.vue` (shell, toasts, modals) and views `RoadmapBoard`, `RoadmapCards`, `RoadmapList`, `RoadmapTimeline`, `RoadmapMinimal`, `RoadmapIdeaBox`; item card `RoadmapItem`; modals `ItemDetailModal`, `ItemModal`, `CommentModal`, `SuggestionModal`; `RoadmapHeader`, `RoadmapFilters`, `RoadmapFooter`, `LoadingSpinner`. (`RoadmapChangelog.vue` is in the tree but never imported: dead code, see P3.) |
 | **Frontend PHP templates** | `F:templates/archive-roadmap_item.php`, `single-roadmap_item.php`, `archive-roadmap_changelog.php`, `single-roadmap_changelog.php`, `archive-roadmap-product.php` |
 | **Entry points to the board** | shortcode `[roadmap]` `F:includes/class-roadmap-shortcode.php:19`; shortcode `[roadmap_changelog]` `:20`; block `roadmap-pro/roadmap` `P:includes/class-roadmap-pro-blocks.php:49`; shortcode `[roadmap_user_profile]` `P:includes/class-roadmap-pro-user-profiles.php:35`; Pro feedback widget `P:includes/class-roadmap-pro-feedback-widget.php` + `P:assets/js/feedback-widget.js` |
 | **Admin: editors** | block editor: Free "Roadmap Details" panel `F:assets/js/block-editor.js`, Pro single-product panel `P:assets/js/single-product-selector.js`; classic editor meta boxes `F:includes/class-roadmap-cpt.php`, `F:includes/class-roadmap-changelog.php`, Pro radio product box `P:includes/class-roadmap-pro-products.php:184` |
@@ -68,35 +68,38 @@ Re-verify: `roadmap_api_filter_by_product|get_the_terms\([^)]*roadmap_product|wp
 
 ### 3. Status display (chip / colour / column per status)
 
-**Source of truth:** `F:vue-app/src/assets/css/main.scss:360-400` — `.roadmap-badge.roadmap-status-{slug}` on the `--rm-{status}` / `--rm-{status}-tint` tokens (light `:62-67`, dark `:504-509`).
+**Source of truth:** `F:assets/css/roadmap-tokens.css`. Any element with `roadmap-status-{slug}` gets `--rm-status` / `--rm-status-tint`, and the chip is `.roadmap-badge.roadmap-status-{slug}`. The solids and tints are the `--rm-{planned|progress|hold|review|done|cancelled}` tokens, with dark values in the same file. Unknown slugs get the neutral hold pair. No view keeps its own slug-to-colour map.
 
-| Surface | Where | Uses the shared classes? |
+| Surface | Where | Uses the shared mapping? |
 |---|---|---|
-| Cards | `F:vue-app/src/components/RoadmapCards.vue:34` | yes |
-| List | `F:vue-app/src/components/RoadmapList.vue:71` | yes |
-| Item detail modal | `F:vue-app/src/components/ItemDetailModal.vue:23` | yes (since `1471671`) |
-| Board columns | `F:vue-app/src/components/RoadmapBoard.vue:5-11` | n/a (status is the plain column heading, no colour) |
-| Item card | `F:vue-app/src/components/RoadmapItem.vue:209-210` (Suggested badge), `:393` (progress bar) | tokens; no status chip |
-| **Minimal** | `F:vue-app/src/components/RoadmapMinimal.vue:37`, own rules `:455-471` | **own colours** — P3 10344405416 |
-| **Timeline** | `F:vue-app/src/components/RoadmapTimeline.vue:40,123`, own rules `:267,284,742-759` | **own colours** — P3 |
-| **IdeaBox** | `F:vue-app/src/components/RoadmapIdeaBox.vue:60` | **own colours** — P3 |
-| **Archive template** | `F:templates/archive-roadmap_item.php:160,288` | **raw hex** — P3 |
+| Cards | `F:vue-app/src/components/RoadmapCards.vue` | yes |
+| List | `F:vue-app/src/components/RoadmapList.vue` | yes |
+| Item detail modal | `F:vue-app/src/components/ItemDetailModal.vue` | yes |
+| Board columns | `F:vue-app/src/components/RoadmapBoard.vue` | n/a (the status is the plain column heading) |
+| Item card | `F:vue-app/src/components/RoadmapItem.vue` | tokens; no status chip |
+| Minimal (dots) | `F:vue-app/src/components/RoadmapMinimal.vue` | yes (`var(--rm-status)`) |
+| Timeline (stripe + chip) | `F:vue-app/src/components/RoadmapTimeline.vue` | yes |
+| IdeaBox tag | `F:vue-app/src/components/RoadmapIdeaBox.vue` | yes |
+| Archive template pill | `F:templates/archive-roadmap_item.php` | yes |
+| Single item page chip | `F:templates/single-roadmap_item.php` | yes (it used to read `_roadmap_status_color`, which nothing wrote) |
+| Pro analytics doughnut | `P:includes/class-roadmap-pro-templates.php` | yes (it reads `--rm-status` through a probe element) |
+| Pro legacy timeline bars | `P:assets/css/roadmap-pro.css` | yes, but the rule is unreachable (`.legacy-timeline` is never added; see the timeline.js card) |
 
-Re-verify: `roadmap-status-|getStatusSlug|getStatusColor|status\[0\]\.name|var\(--rm-(planned|progress|done|cancelled|hold|review)`
+Re-verify: `roadmap-status-|--rm-status|statusColors|getStatusStyle|_roadmap_status_color`. The only hit should be the tokens file and the class names in markup.
 
 ### 4. Priority display
 
-**Source of truth:** `F:vue-app/src/assets/css/main.scss:70-73` (tokens) and `:343-349` (chip rules).
+**Source of truth:** `F:assets/css/roadmap-tokens.css`. `roadmap-priority-{low|medium|high|critical}` sets `--rm-priority-color` / `--rm-priority-tint`; the chip is `.roadmap-badge.roadmap-priority-{slug}`.
 
 | Surface | Where | Shared? |
 |---|---|---|
-| Item card | `F:vue-app/src/components/RoadmapItem.vue:48,174` | yes |
-| List | `F:vue-app/src/components/RoadmapList.vue:78,271` | yes |
-| Item detail modal | `F:vue-app/src/components/ItemDetailModal.vue:33,183` | yes |
-| **Cards** | `F:vue-app/src/components/RoadmapCards.vue:78`, own rules `:373-383` | **own rules** — P3 |
-| **IdeaBox** | `F:vue-app/src/components/RoadmapIdeaBox.vue:72,250` | **own rules** — P3 |
+| Item card | `F:vue-app/src/components/RoadmapItem.vue` | yes |
+| List | `F:vue-app/src/components/RoadmapList.vue` | yes |
+| Item detail modal | `F:vue-app/src/components/ItemDetailModal.vue` | yes |
+| Cards | `F:vue-app/src/components/RoadmapCards.vue` | yes |
+| IdeaBox | `F:vue-app/src/components/RoadmapIdeaBox.vue` | yes |
 
-Re-verify: `roadmap-priority|getPriorityClass|priority-(low|medium|high|critical)|var\(--rm-priority`
+Re-verify: `getPriorityClass|roadmap-badge-(success|warning|danger)|roadmap-priority-`. The `getPriorityClass` maps are gone; each level has its own token, so high and critical no longer share one colour.
 
 ### 5. Setup / configuration messages (what a visitor could see when something is misconfigured)
 
@@ -144,20 +147,29 @@ Re-verify: `emit\(\s*'(submit|save)'|@submit|handleSubmit|onSubmit|addEventListe
 
 ### 8. Colours and dark mode
 
-**Source of truth:** tokens on `.roadmap-app` in `F:vue-app/src/assets/css/main.scss:28-75`, dark swap `@mixin roadmap-dark-theme` `:493-530`, applied by the board toggle `.roadmap-dark` `:572-586`.
+**Source of truth:** `F:assets/css/roadmap-tokens.css`, the only file with colour values, registered as the `roadmap-tokens` style handle in `F:product-roadmap.php` `init()`. Every frontend stylesheet depends on it.
+- Tokens are declared on `:root`.
+- Dark values sit on the theme's dark selectors plus `.roadmap-dark`, and follow the theme toggle only.
+- The derived accent tokens are recomputed on `.roadmap-app`, `.roadmap-changelog*` and `.roadmap-fw`, so a per-product Theme Color, or the feedback-widget colour set on that root, reaches every shade.
+- Guard: `F:bin/check-raw-colors.sh` and `P:bin/check-raw-colors.sh`, run in CI, fail on any raw colour outside the tokens file. The exception is a line marked `raw-color-ok`, used for owner option defaults.
 
-| Surface | Raw hex / token uses | Dark mode |
+| Surface | Stylesheet | Depends on `roadmap-tokens` |
 |---|---|---|
-| `RoadmapIdeaBox.vue` | 101 / 3 | **own dark CSS** `:583-649` — P3 |
-| `RoadmapChangelog.vue` | 40 / 0 | **own `darkMode` switch** `:2,148,455` — P3 |
-| `F:assets/css/changelog-frontend.css` | 51 / 26 | partial — P3 |
-| `P:assets/css/roadmap-pro.css` | 36 / 0 | none — P3 |
-| `F:templates/archive-roadmap_item.php` | 27 / 0 | none — P3 |
-| `ItemDetailModal.vue` | 22 / 3 | via tokens (partial) — P3 |
-| `RoadmapTimeline`, `RoadmapItem`, `RoadmapMinimal`, `RoadmapCards`, `RoadmapList` | 8, 5, 3, 3, 2 raw | via tokens — P3 |
-| `LoadingSpinner`, `ItemModal`, `RoadmapFooter`, `P:class-roadmap-pro-templates.php`, changelog templates | 4, 4, 2, 5, 2+2+1 raw | none — P3 |
+| Board app, all views + modals | `assets/css/roadmap-app.css` (built from `vue-app/src`) | `F:includes/class-roadmap-shortcode.php` enqueue_assets |
+| `[roadmap_changelog]` shortcode | inline `roadmap-changelog` handle | same file, enqueue_changelog_assets |
+| Changelog single / archive, item archive | `assets/css/changelog-frontend.css` | `F:includes/class-roadmap-changelog.php`, `F:templates/archive-roadmap_item.php` |
+| Single item page | `assets/css/roadmap-single.css` | `F:templates/single-roadmap_item.php` |
+| Product archive | `assets/css/roadmap-archive.css` | `F:templates/archive-roadmap-product.php` |
+| Pro board extras | `P:assets/css/roadmap-pro.css` | via `roadmap-vue-app` |
+| Pro profile + analytics tab | `P:assets/css/roadmap-pro-frontend.css` | `P:class-roadmap-pro-user-profiles.php`, `P:class-roadmap-pro-templates.php` |
+| Pro feedback widget | `P:assets/css/feedback-widget.css` | `P:class-roadmap-pro-feedback-widget.php` |
 
-Re-verify: count `#[0-9a-f]{3,6}` vs `var\(--rm-|var\(--roadmap-` per file.
+**Not covered:**
+- Admin screens use the wp-admin colour scheme and are out of scope.
+- Changelog type colours are owner data (term meta) and are output as saved.
+- WordPress's own comment form on the single item page is styled by the theme.
+
+Re-verify: `bash bin/check-raw-colors.sh`, then the contrast audit (every text node and control border at >= 4.5:1, or 3:1 for large text and borders) in light + dark on BuddyX and Twenty Twenty-Five.
 
 ### 9. Voting
 
@@ -202,7 +214,7 @@ Re-verify: `/suggest|/guest-suggest|submitSuggestion|enable_suggestions|guest_su
 |---|---|
 | CPT, meta boxes, slug, permalink, admin menu | `F:includes/class-roadmap-changelog.php` (menu `:67-96`, slug `:952-1010`, permalink `:938-946`) |
 | Shortcode `[roadmap_changelog]` | `F:includes/class-roadmap-shortcode.php:163-330` |
-| Vue changelog | `F:vue-app/src/components/RoadmapChangelog.vue` |
+| Vue changelog | `F:vue-app/src/components/RoadmapChangelog.vue`: never imported, not rendered (dead code) |
 | Templates | `F:templates/archive-roadmap_changelog.php`, `single-roadmap_changelog.php` |
 | REST | Free `F:includes/class-roadmap-api.php:253,272,282`; core `wp/v2/changelogs`; Pro `P:includes/class-roadmap-pro-changelog.php` (2 routes, bulk actions `:39-40,215`) |
 | Settings | `F:includes/class-roadmap-settings.php:1432-1522` |

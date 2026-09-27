@@ -75,7 +75,7 @@
                   <span
                     v-if="item.priority"
                     class="roadmap-badge"
-                    :class="`roadmap-badge-${getPriorityClass(item.priority)}`"
+                    :class="`roadmap-priority-${item.priority}`"
                   >
                     {{ item.priority }}
                   </span>
@@ -268,16 +268,6 @@ const toggleGroup = (groupKey) => {
   }
 }
 
-const getPriorityClass = (priority) => {
-  switch (priority) {
-    case 'critical': return 'danger'
-    case 'high': return 'warning'
-    case 'medium': return 'primary'
-    case 'low': return 'success'
-    default: return 'secondary'
-  }
-}
-
 const formatDate = (date) => {
   return date ? new Date(date).toLocaleDateString('en-US', { 
     month: 'short', 
@@ -304,8 +294,8 @@ onMounted(() => {
   letter-spacing: 0.03em;
   vertical-align: middle;
   border-radius: 10px;
-  color: var(--rm-review, #7c3aed);
-  background: color-mix(in srgb, var(--rm-review, #7c3aed) 14%, transparent);
+  color: var(--rm-review);
+  background: color-mix(in srgb, var(--rm-review) 14%, transparent);
 }
 
 .roadmap-list {
@@ -384,7 +374,7 @@ onMounted(() => {
 
   &:hover {
     border-color: var(--roadmap-accent);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 8px var(--rm-shadow);
     transform: translateY(-1px);
   }
 }

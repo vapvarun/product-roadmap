@@ -1471,14 +1471,17 @@ class Roadmap_API {
 			return new WP_REST_Response( array(), 200 );
 		}
 
+		// Colours come from the same helper the changelog templates use, so REST,
+		// the board app and the PHP pages show the owner's saved type colours.
+		$styles    = Roadmap_Changelog::get_change_types();
 		$formatted = array();
 		foreach ( $types as $type ) {
-			$color       = get_term_meta( $type->term_id, 'changelog_type_color', true );
 			$formatted[] = array(
-				'id'    => $type->term_id,
-				'name'  => $type->name,
-				'slug'  => $type->slug,
-				'color' => $color ?: '#6b7280',
+				'id'         => $type->term_id,
+				'name'       => $type->name,
+				'slug'       => $type->slug,
+				'color'      => $styles[ $type->slug ]['color'],
+				'background' => $styles[ $type->slug ]['background'],
 			);
 		}
 
@@ -1504,15 +1507,17 @@ class Roadmap_API {
 		// Format items with type details
 		$formatted_items = array();
 		if ( is_array( $items ) ) {
+			$types = Roadmap_Changelog::get_change_types();
 			foreach ( $items as $item ) {
-				$type_term  = get_term_by( 'slug', $item['type'], 'changelog_type' );
-				$type_color = $type_term ? get_term_meta( $type_term->term_id, 'changelog_type_color', true ) : '#6b7280';
+				$type = $types[ $item['type'] ] ?? null;
 
+				// type_color is the owner's text colour, type_background the chip fill.
 				$formatted_items[] = array(
-					'description' => html_entity_decode( $item['description'], ENT_QUOTES, 'UTF-8' ),
-					'type'        => $item['type'],
-					'type_name'   => $type_term ? $type_term->name : ucfirst( $item['type'] ),
-					'type_color'  => $type_color,
+					'description'     => html_entity_decode( $item['description'], ENT_QUOTES, 'UTF-8' ),
+					'type'            => $item['type'],
+					'type_name'       => $type ? $type['name'] : ucfirst( $item['type'] ),
+					'type_color'      => $type ? $type['color'] : '',
+					'type_background' => $type ? $type['background'] : '',
 				);
 			}
 		}

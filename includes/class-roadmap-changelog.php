@@ -1105,7 +1105,7 @@ class Roadmap_Changelog {
 		wp_enqueue_style(
 			'roadmap-changelog-frontend',
 			$css_url,
-			array(),
+			array( 'roadmap-tokens' ),
 			ROADMAP_VERSION
 		);
 	}

@@ -16,14 +16,19 @@
 .roadmap-archive-header h1 {
     font-size: 2.5em;
     margin-bottom: 10px;
+    color: var(--rm-heading);
 }
 
 .roadmap-product-description {
     font-size: 1.2em;
-    color: #666;
+    color: var(--rm-muted);
 }
 
 .roadmap-archive-footer {
     margin-top: 40px;
     text-align: center;
+}
+
+.roadmap-archive-footer a {
+    color: var(--roadmap-accent-text);
 }

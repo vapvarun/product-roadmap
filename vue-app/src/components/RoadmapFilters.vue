@@ -98,7 +98,6 @@ defineEmits(['update:status', 'update:category', 'update:product', 'update:sortB
   .roadmap-sort-control {
     margin-left: auto;
     background-color: var(--rm-surface-alt);
-    border-color: var(--rm-border);
     font-weight: 500;
 
     &:hover {

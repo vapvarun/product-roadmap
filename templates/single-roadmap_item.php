@@ -62,17 +62,6 @@ while (have_posts()) : the_post();
     $products = wp_get_post_terms($item_id, 'roadmap_product');
     $product = !empty($products) ? $products[0] : null;
 
-    // Get status color if available
-    $status_color = '';
-    $status_bg = '';
-    if (!empty($statuses)) {
-        $status_color = get_term_meta($statuses[0]->term_id, '_roadmap_status_color', true);
-        if ($status_color) {
-            // Create lighter background from status color
-            $status_bg = $status_color . '15'; // 15% opacity hex
-        }
-    }
-
     // Get comment count
     $comment_count = get_comments_number($item_id);
 
@@ -83,7 +72,7 @@ while (have_posts()) : the_post();
 
     // Enqueue styles and scripts
     wp_enqueue_style('dashicons');
-    wp_enqueue_style('roadmap-single', ROADMAP_PLUGIN_URL . 'assets/css/roadmap-single.css', [], ROADMAP_VERSION);
+    wp_enqueue_style('roadmap-single', ROADMAP_PLUGIN_URL . 'assets/css/roadmap-single.css', [ 'roadmap-tokens' ], ROADMAP_VERSION);
     wp_enqueue_script('roadmap-single-vote', ROADMAP_PLUGIN_URL . 'assets/js/single-vote.js', ['jquery'], ROADMAP_VERSION, true);
     wp_localize_script('roadmap-single-vote', 'roadmap_ajax', [
         'ajax_url' => admin_url('admin-ajax.php'),
@@ -153,11 +142,8 @@ while (have_posts()) : the_post();
                     <h1 class="roadmap-single-title"><?php the_title(); ?></h1>
 
                     <div class="roadmap-single-badges">
-                        <?php foreach ($statuses as $status):
-                            $s_color = get_term_meta($status->term_id, '_roadmap_status_color', true) ?: '#2196f3';
-                        ?>
-                            <span class="roadmap-badge roadmap-badge-status"
-                                  style="background-color: <?php echo esc_attr($s_color); ?>15; color: <?php echo esc_attr($s_color); ?>; border-color: <?php echo esc_attr($s_color); ?>40;">
+                        <?php foreach ($statuses as $status): ?>
+                            <span class="roadmap-badge roadmap-status-<?php echo esc_attr($status->slug); ?>">
                                 <?php echo esc_html($status->name); ?>
                             </span>
                         <?php endforeach; ?>

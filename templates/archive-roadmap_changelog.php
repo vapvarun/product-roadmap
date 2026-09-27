@@ -246,8 +246,8 @@ if ( $current_product_term && ! is_wp_error( $current_product_term ) ) {
 								$preview_items = array_slice( $changelog['items'], 0, 3 );
 								foreach ( $preview_items as $item ) :
 									$type_data  = $item['type_data'] ?? null;
-									$bg_color   = $type_data['background'] ?? '#e2e3e5';
-									$text_color = $type_data['color'] ?? '#383d41';
+									$bg_color   = $type_data['background'] ?? 'var(--rm-surface-alt)';
+									$text_color = $type_data['color'] ?? 'var(--rm-text)';
 									$type_name  = $type_data['name'] ?? ucfirst( $item['type'] ?? 'Update' );
 									?>
 									<li class="changelog-preview-item">

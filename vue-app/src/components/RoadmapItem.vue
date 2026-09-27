@@ -45,7 +45,7 @@
         <span 
           v-if="item.priority"
           class="roadmap-badge"
-          :class="`roadmap-badge-${getPriorityClass(item.priority)}`"
+          :class="`roadmap-priority-${item.priority}`"
         >
           {{ item.priority }}
         </span>
@@ -171,16 +171,6 @@ const handleVote = () => {
   emit('vote', voteValue)
 }
 
-const getPriorityClass = (priority) => {
-  const map = {
-    low: 'success',
-    medium: 'warning',
-    high: 'danger',
-    critical: 'danger'
-  }
-  return map[priority] || 'primary'
-}
-
 const formatDate = (date) => {
   return new Date(date).toLocaleDateString()
 }
@@ -206,8 +196,8 @@ const handleItemClick = (event) => {
   letter-spacing: 0.03em;
   vertical-align: middle;
   border-radius: 10px;
-  color: var(--rm-review, #7c3aed);
-  background: color-mix(in srgb, var(--rm-review, #7c3aed) 14%, transparent);
+  color: var(--rm-review);
+  background: color-mix(in srgb, var(--rm-review) 14%, transparent);
 }
 
 .roadmap-item {
@@ -218,7 +208,7 @@ const handleItemClick = (event) => {
   transition: all 0.2s ease;
   
   &:hover {
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 8px var(--rm-shadow);
   }
   
   &-clickable {
@@ -301,6 +291,8 @@ const handleItemClick = (event) => {
     gap: 4px;
     padding: 4px 8px;
     font-size: 13px;
+    // Set, not inherited: themes paint bare buttons with their own colour.
+    color: var(--rm-text);
     background: transparent;
     border: 1px solid var(--rm-border);
     border-radius: 4px;
@@ -317,11 +309,11 @@ const handleItemClick = (event) => {
     }
     
     &.voted {
-      background: var(--roadmap-accent-tint, #e3f2fd);
-      border-color: var(--roadmap-accent, #2196f3);
+      background: var(--roadmap-accent-tint);
+      border-color: var(--roadmap-accent);
       // Lightness-clamped accent text so the voted state stays readable on the
-      // tint under a pale theme accent (falls back to the raw accent).
-      color: var(--roadmap-accent-text, #2196f3);
+      // tint under a pale theme accent.
+      color: var(--roadmap-accent-text);
     }
   }
 
