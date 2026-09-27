@@ -7,8 +7,9 @@
           v-for="tab in sortTabs"
           :key="tab.key"
           class="roadmap-ideabox-tab"
-          :class="{ active: sortBy === tab.key }"
-          @click="sortBy = tab.key"
+          :class="{ active: sort === tab.key }"
+          :aria-pressed="sort === tab.key ? 'true' : 'false'"
+          @click="$emit('update:sort', tab.key)"
         >
           {{ tab.label }}
         </button>
@@ -21,7 +22,7 @@
     <!-- Ideas List -->
     <div class="roadmap-ideabox-list">
       <div
-        v-for="item in sortedItems"
+        v-for="item in filteredItems"
         :key="item.id"
         class="roadmap-ideabox-item"
         :class="{ 'roadmap-ideabox-item-voted': item.user_voted }"
@@ -162,55 +163,34 @@ const props = defineProps({
   proFeatures: {
     type: Object,
     default: () => ({})
+  },
+  // The board's sort (owner setting, then visitor choice). The tabs set it;
+  // the server applies it across all items.
+  sort: {
+    type: String,
+    default: ''
   }
 })
 
-const emit = defineEmits(['item-click', 'vote', 'edit-item', 'delete-item', 'update-item'])
+const emit = defineEmits(['item-click', 'vote', 'edit-item', 'delete-item', 'update-item', 'update:sort'])
 
 // Get config from parent
 const config = inject('$roadmapConfig', { settings: {} })
 const i18n = config?.i18n || {}
 
 // State
-const sortBy = ref('votes')
 const voting = ref(null)
 
 // Sort tabs
 const sortTabs = [
   { key: 'votes', label: i18n.top_voted || 'Top Voted' },
   { key: 'recent', label: i18n.newest || 'Newest' },
-  { key: 'active', label: i18n.active || 'Active' }
+  { key: 'comments', label: i18n.most_discussed || 'Most Discussed' }
 ]
 
 // Computed
 const filteredItems = computed(() => {
   return props.items || []
-})
-
-const sortedItems = computed(() => {
-  const items = [...filteredItems.value]
-
-  switch (sortBy.value) {
-    case 'votes':
-      return items.sort((a, b) => (b.votes || 0) - (a.votes || 0))
-    case 'recent':
-      return items.sort((a, b) => new Date(b.date) - new Date(a.date))
-    case 'active':
-      // Sort by most recent comment activity or vote
-      return items.sort((a, b) => {
-        const aActivity = Math.max(
-          new Date(a.modified || a.date).getTime(),
-          (a.comment_count || 0)
-        )
-        const bActivity = Math.max(
-          new Date(b.modified || b.date).getTime(),
-          (b.comment_count || 0)
-        )
-        return bActivity - aActivity
-      })
-    default:
-      return items
-  }
 })
 
 // Methods

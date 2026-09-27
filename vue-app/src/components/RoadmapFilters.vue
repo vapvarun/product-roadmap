@@ -50,6 +50,7 @@
     </select>
     
     <select
+      v-if="showSort"
       :value="sortBy"
       @change="$emit('update:sortBy', $event.target.value)"
       class="roadmap-form-control roadmap-sort-control"
@@ -60,6 +61,7 @@
       <option value="recent">{{ config?.i18n?.most_recent || 'Most Recent' }}</option>
       <option value="comments">{{ config?.i18n?.most_discussed || 'Most Discussed' }}</option>
       <option value="priority">{{ config?.i18n?.highest_priority || 'Highest Priority' }}</option>
+      <option value="title">{{ config?.i18n?.title_az || 'Title (A-Z)' }}</option>
     </select>
   </div>
 </template>
@@ -77,7 +79,12 @@ defineProps({
   statuses: Array,
   categories: Array,
   products: Array,
-  isPro: Boolean
+  isPro: Boolean,
+  // Off where the view has its own sort control (IdeaBox tabs).
+  showSort: {
+    type: Boolean,
+    default: true
+  }
 })
 
 defineEmits(['update:status', 'update:category', 'update:product', 'update:sortBy'])

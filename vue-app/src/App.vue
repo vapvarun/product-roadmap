@@ -23,6 +23,7 @@
         v-model:category="selectedCategory"
         v-model:product="selectedProduct"
         v-model:sortBy="selectedSort"
+        :show-sort="viewMode !== 'ideabox'"
         :statuses="statuses"
         :categories="categories"
         :products="products"
@@ -129,6 +130,7 @@
         <!-- Idea Box View (Pro) -->
         <RoadmapIdeaBox
           v-else-if="viewMode === 'ideabox' && config.is_pro"
+          v-model:sort="selectedSort"
           :items="filteredItems"
           :statuses="statuses"
           :categories="categories"

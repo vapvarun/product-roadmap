@@ -8,12 +8,6 @@
           <option value="priority">{{ i18n.group_by_priority || 'Group by Priority' }}</option>
           <option value="none">{{ i18n.no_grouping || 'No Grouping' }}</option>
         </select>
-        <select v-model="sortBy" class="roadmap-form-control">
-          <option value="created">{{ i18n.sort_by_created || 'Sort by Created Date' }}</option>
-          <option value="votes">{{ i18n.sort_by_votes || 'Sort by Votes' }}</option>
-          <option value="priority">{{ i18n.sort_by_priority || 'Sort by Priority' }}</option>
-          <option value="title">{{ i18n.sort_by_title || 'Sort by Title' }}</option>
-        </select>
       </div>
     </div>
 
@@ -179,7 +173,8 @@ const showVotes = computed(() => config.settings?.enable_voting !== false)
 const showComments = computed(() => config.settings?.enable_comments !== false)
 
 const groupBy = ref('status')
-const sortBy = ref('created')
+// No local sort: items arrive in the board's sort (the owner's setting, or the
+// Sort filter), applied by the server across all items, not just this page.
 const expandedGroups = ref([])
 
 const groupedItems = computed(() => {
@@ -187,7 +182,7 @@ const groupedItems = computed(() => {
     return [{
       key: 'all',
       name: i18n.all_items || 'All Items',
-      items: sortedItems.value
+      items: props.items
     }]
   }
 
@@ -221,7 +216,6 @@ const groupedItems = computed(() => {
   
   // Sort items within each group
   Object.values(groups).forEach(group => {
-    group.items.sort(getSortFunction())
   })
   
   return Object.values(groups).sort((a, b) => {
@@ -237,27 +231,6 @@ const groupedItems = computed(() => {
     return a.name.localeCompare(b.name)
   })
 })
-
-const sortedItems = computed(() => {
-  return [...props.items].sort(getSortFunction())
-})
-
-const getSortFunction = () => {
-  return (a, b) => {
-    switch (sortBy.value) {
-      case 'votes':
-        return (b.votes || 0) - (a.votes || 0)
-      case 'priority':
-        const priorityOrder = { critical: 4, high: 3, medium: 2, low: 1 }
-        return (priorityOrder[b.priority] || 0) - (priorityOrder[a.priority] || 0)
-      case 'title':
-        return a.title.localeCompare(b.title)
-      case 'created':
-      default:
-        return new Date(b.created_at || 0) - new Date(a.created_at || 0)
-    }
-  }
-}
 
 const toggleGroup = (groupKey) => {
   const index = expandedGroups.value.indexOf(groupKey)

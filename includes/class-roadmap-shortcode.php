@@ -1023,6 +1023,7 @@ class Roadmap_Shortcode {
 			'most_recent'          => __( 'Most Recent', 'product-roadmap' ),
 			'most_discussed'       => __( 'Most Discussed', 'product-roadmap' ),
 			'highest_priority'     => __( 'Highest Priority', 'product-roadmap' ),
+			'title_az'             => __( 'Title (A-Z)', 'product-roadmap' ),
 			// Frontend UI strings (1.7.0 translation completion).
 			'roadmap' => __( 'Roadmap', 'product-roadmap' ),
 			'roadmap_timeline' => __( 'Product Roadmap Timeline', 'product-roadmap' ),
@@ -1085,7 +1086,6 @@ class Roadmap_Shortcode {
 			'be_first_suggest' => __( 'Be the first to suggest a feature!', 'product-roadmap' ),
 			'top_voted' => __( 'Top Voted', 'product-roadmap' ),
 			'newest' => __( 'Newest', 'product-roadmap' ),
-			'active' => __( 'Active', 'product-roadmap' ),
 			'today' => __( 'Today', 'product-roadmap' ),
 			'yesterday' => __( 'Yesterday', 'product-roadmap' ),
 			'days_ago' => __( 'days ago', 'product-roadmap' ),
