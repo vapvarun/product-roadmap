@@ -288,9 +288,9 @@ class Roadmap_Setup_Wizard {
      * Step 2: Basic Settings
      */
     private function render_step_settings() {
-        $voting_enabled = get_option('roadmap_enable_voting', 'yes');
-        $comments_enabled = get_option('roadmap_enable_comments', 'yes');
-        $guest_voting = get_option('roadmap_allow_guest_voting', 'yes');
+        $voting_enabled   = (bool) Roadmap_Settings::get('enable_voting');
+        $comments_enabled = (bool) Roadmap_Settings::get('enable_comments');
+        $guest_voting     = (bool) Roadmap_Settings::get('allow_guest_voting');
         ?>
         <h2><?php esc_html_e('Basic Settings', 'product-roadmap'); ?></h2>
         <p><?php esc_html_e('Configure how users can interact with your roadmap.', 'product-roadmap'); ?></p>
@@ -305,7 +305,7 @@ class Roadmap_Setup_Wizard {
                     <td>
                         <label>
                             <input type="checkbox" name="voting_enabled" value="yes" 
-                                   <?php checked($voting_enabled, 'yes'); ?> />
+                                   <?php checked($voting_enabled); ?> />
                             <?php esc_html_e('Allow users to vote on roadmap items', 'product-roadmap'); ?>
                         </label>
                     </td>
@@ -315,7 +315,7 @@ class Roadmap_Setup_Wizard {
                     <td>
                         <label>
                             <input type="checkbox" name="guest_voting" value="yes" 
-                                   <?php checked($guest_voting, 'yes'); ?> />
+                                   <?php checked($guest_voting); ?> />
                             <?php esc_html_e('Allow non-logged in users to vote', 'product-roadmap'); ?>
                         </label>
                     </td>
@@ -325,7 +325,7 @@ class Roadmap_Setup_Wizard {
                     <td>
                         <label>
                             <input type="checkbox" name="comments_enabled" value="yes" 
-                                   <?php checked($comments_enabled, 'yes'); ?> />
+                                   <?php checked($comments_enabled); ?> />
                             <?php esc_html_e('Allow users to comment on roadmap items', 'product-roadmap'); ?>
                         </label>
                     </td>
@@ -532,25 +532,12 @@ class Roadmap_Setup_Wizard {
                     return;
                 }
                 
-                // Save settings. Legacy options kept for back-compat with any
-                // code still reading them directly, but every real read path
-                // (class-roadmap-shortcode.php, class-roadmap-api.php) checks
-                // roadmap_global_settings first and only falls back to these
-                // when that key is absent - so once the Settings screen has
-                // ever been saved once, roadmap_global_settings exists and the
-                // wizard's choice here was silently ignored. Write both.
-                $roadmap_wizard_voting_enabled = isset($_POST['voting_enabled']) ? 'yes' : 'no';
-                $roadmap_wizard_guest_voting   = isset($_POST['guest_voting']) ? 'yes' : 'no';
-                $roadmap_wizard_comments_enabled = isset($_POST['comments_enabled']) ? 'yes' : 'no';
-
-                update_option('roadmap_enable_voting', $roadmap_wizard_voting_enabled);
-                update_option('roadmap_allow_guest_voting', $roadmap_wizard_guest_voting);
-                update_option('roadmap_enable_comments', $roadmap_wizard_comments_enabled);
-
+                // Save settings into roadmap_global_settings, the only store
+                // (read everywhere through Roadmap_Settings::get()).
                 $roadmap_wizard_global_settings = get_option('roadmap_global_settings', array());
-                $roadmap_wizard_global_settings['enable_voting']       = ('yes' === $roadmap_wizard_voting_enabled);
-                $roadmap_wizard_global_settings['allow_guest_voting']  = ('yes' === $roadmap_wizard_guest_voting);
-                $roadmap_wizard_global_settings['enable_comments']     = ('yes' === $roadmap_wizard_comments_enabled);
+                $roadmap_wizard_global_settings['enable_voting']      = isset($_POST['voting_enabled']);
+                $roadmap_wizard_global_settings['allow_guest_voting'] = isset($_POST['guest_voting']);
+                $roadmap_wizard_global_settings['enable_comments']    = isset($_POST['comments_enabled']);
                 update_option('roadmap_global_settings', $roadmap_wizard_global_settings);
 
                 wp_redirect(admin_url('admin.php?page=roadmap-setup-wizard&step=3'));

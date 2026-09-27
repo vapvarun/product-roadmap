@@ -20,9 +20,7 @@ while (have_posts()) : the_post();
     $user_id = get_current_user_id();
     $user_vote = 0; // 0 = no vote, 1 = upvoted, -1 = downvoted
 
-    $roadmap_global_settings = get_option('roadmap_global_settings', []);
-    $allow_guest_voting      = $roadmap_global_settings['allow_guest_voting']
-        ?? (get_option('roadmap_allow_guest_voting', 'yes') === 'yes');
+    $allow_guest_voting = (bool) Roadmap_Settings::get('allow_guest_voting');
 
     global $wpdb;
     $table = $wpdb->prefix . 'roadmap_votes';

@@ -397,12 +397,8 @@ class Roadmap_Notifications {
         // bool). The old standalone roadmap_notify_on_* options were never
         // written, so the per-type toggles had no effect - disabling a
         // notification in settings did nothing. Defaults mirror the settings.
-        $settings = get_option('roadmap_global_settings', array());
-
-        $enabled = array_key_exists('enable_notifications', $settings)
-            ? $settings['enable_notifications']
-            : true;
-        if (empty($enabled)) {
+        $settings = Roadmap_Settings::get();
+        if (empty($settings['enable_notifications'])) {
             return false;
         }
 
@@ -412,23 +408,12 @@ class Roadmap_Notifications {
             return true;
         }
 
-        $defaults = array(
-            'vote'       => false,
-            'comment'    => true,
-            'suggestion' => true,
-        );
-        if (!array_key_exists($type, $defaults)) {
-            return false;
-        }
-
         $key = 'notify_on_' . $type;
-        return array_key_exists($key, $settings)
-            ? ! empty($settings[$key])
-            : $defaults[$type];
+        return array_key_exists($key, $settings) && ! empty($settings[$key]);
     }
     
     private function send_notification($subject, $message) {
-        $notification_emails = get_option('roadmap_notification_email', get_option('admin_email'));
+        $notification_emails = implode("\n", Roadmap_Settings::notification_recipients());
 
         // Parse multiple emails (one per line)
         $emails = array_map('trim', explode("\n", $notification_emails));

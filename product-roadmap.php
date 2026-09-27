@@ -126,6 +126,9 @@ class RoadmapPlugin {
             // presents "Votes" as a number of voters.
             $this->recount_votes();
 
+            // Move the pre-1.8 standalone settings into roadmap_global_settings.
+            Roadmap_Settings::migrate_legacy_options();
+
             // Update stored version
             update_option('roadmap_version', ROADMAP_VERSION);
         }

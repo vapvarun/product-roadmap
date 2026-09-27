@@ -209,11 +209,18 @@ Re-verify: `/suggest|/guest-suggest|submitSuggestion|enable_suggestions|guest_su
 Known gap: block-editor slug (card 10326920444). Three renderers (shortcode PHP, Vue component, PHP templates) — P3 unifies their colours.
 Re-verify: `roadmap_changelog|RoadmapChangelog|changelog-frontend|/changelog`
 
-### 13. Settings reads (voting, guest voting, comments, suggestions, items per page)
+### 13. Settings reads (all `roadmap_global_settings` keys)
 
-**No single source today.** Each read repeats `roadmap_global_settings[...] ?? get_option( 'roadmap_...' )`: **38 copies** in `F:includes/class-roadmap-api.php` (13), `class-roadmap-shortcode.php` (9), `class-roadmap-permissions.php` (8), `class-roadmap-setup-wizard.php` (6), `F:templates/single-roadmap_item.php` (2). This is the shape behind "wizard writes a different option than the app reads" (10326920353). Card 10092400992 (legacy options vs global settings) covers the fix: one getter, every read through it.
+**Source of truth:** `Roadmap_Settings::get( $key )` (`F:includes/class-roadmap-settings.php`), which merges the stored array over `Roadmap_Settings::defaults()`, plus `Roadmap_Settings::notification_recipients()` for the one-per-line recipient list (card 10092400992). The pre-1.8 standalone options are moved into the array once by `Roadmap_Settings::migrate_legacy_options()` (called from the version-upgrade routine in `F:product-roadmap.php`) and then deleted.
 
-Re-verify: `global_settings\['(enable_voting|allow_guest_voting|enable_comments|enable_suggestions|items_per_page)'\]|get_option\( *'roadmap_(enable_voting|...)'`
+| Surface | Where |
+|---|---|
+| Readers (through the getter) | `F:includes/class-roadmap-shortcode.php`, `-api.php`, `-permissions.php`, `-notifications.php`, `-setup-wizard.php` (pre-fill), `F:templates/single-roadmap_item.php`, `P:includes/class-roadmap-pro-guest-suggestions.php`, `P:includes/class-roadmap-pro-digest.php` |
+| Writers (raw option, by design) | Settings screen via `register_setting()` + `sanitize_global_settings()`; REST `update_settings()` (`F:includes/class-roadmap-api.php`); Setup Wizard save; the migration |
+
+**Rule:** read a global setting only through `Roadmap_Settings::get()`. A new setting gets its default in `defaults()` and nowhere else.
+
+Re-verify: `get_option\( *'roadmap_global_settings'` must match only the getter, the migration and the three writers; `get_option\( *'roadmap_(enable_voting|allow_guest_voting|enable_comments|enable_suggestions|items_per_page|notification_email)'` must match nothing.
 
 ### 14. Board options (what the shortcode and block let an owner configure)
 

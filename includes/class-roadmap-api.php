@@ -759,7 +759,7 @@ class Roadmap_API {
 		$user_id     = get_current_user_id();
 
 		// Check if auto-approve is enabled (default is false - submissions go to pending)
-		$global_settings = get_option( 'roadmap_global_settings', array() );
+		$global_settings = Roadmap_Settings::get();
 		$auto_approve    = ! empty( $global_settings['auto_approve_suggestions'] );
 		// IMPORTANT: Default behavior is to set posts to 'pending' for admin review
 		$post_status = $auto_approve ? 'publish' : 'pending';
@@ -780,7 +780,7 @@ class Roadmap_API {
 			update_post_meta( $post_id, '_roadmap_source', 'suggestion' );
 
 			// Set status based on settings - use configured default status for all suggestions
-			$default_status = $global_settings['suggestion_default_status'] ?? 'planned';
+			$default_status = $global_settings['suggestion_default_status'];
 			wp_set_object_terms( $post_id, $default_status, 'roadmap_status' );
 
 			// Set category if provided
@@ -1051,7 +1051,7 @@ class Roadmap_API {
 
 		if ( $post_id && ! is_wp_error( $post_id ) ) {
 			// Get default status from settings
-			$global_settings = get_option( 'roadmap_global_settings', array() );
+			$global_settings = Roadmap_Settings::get();
 			$default_status  = $global_settings['default_status'] ?? 'planned';
 
 			// Set taxonomies
@@ -1165,13 +1165,13 @@ class Roadmap_API {
 	}
 
 	public function get_settings( $request ) {
-		$global_settings = get_option( 'roadmap_global_settings', array() );
+		$global_settings = Roadmap_Settings::get();
 		$settings        = array(
-			'enable_voting'      => $global_settings['enable_voting'] ?? ( get_option( 'roadmap_enable_voting', 'yes' ) === 'yes' ),
-			'allow_guest_voting' => $global_settings['allow_guest_voting'] ?? ( get_option( 'roadmap_allow_guest_voting', 'yes' ) === 'yes' ),
-			'enable_comments'    => $global_settings['enable_comments'] ?? ( get_option( 'roadmap_enable_comments', 'yes' ) === 'yes' ),
-			'enable_suggestions' => $global_settings['enable_suggestions'] ?? ( get_option( 'roadmap_enable_suggestions', 'yes' ) === 'yes' ),
-			'items_per_page'     => $global_settings['items_per_page'] ?? (int) get_option( 'roadmap_items_per_page', 100 ),
+			'enable_voting'      => (bool) $global_settings['enable_voting'],
+			'allow_guest_voting' => (bool) $global_settings['allow_guest_voting'],
+			'enable_comments'    => (bool) $global_settings['enable_comments'],
+			'enable_suggestions' => (bool) $global_settings['enable_suggestions'],
+			'items_per_page'     => (int) $global_settings['items_per_page'],
 			'current_user'       => $this->get_current_user_data(),
 			'statuses'           => $this->get_all_statuses(),
 			'categories'         => $this->get_all_categories(),
@@ -1517,16 +1517,16 @@ class Roadmap_API {
 
 	// Permission callbacks
 	public function can_vote() {
-		$global_settings      = get_option( 'roadmap_global_settings', array() );
-		$voting_enabled       = $global_settings['enable_voting'] ?? ( get_option( 'roadmap_enable_voting', 'yes' ) === 'yes' );
-		$guest_voting_allowed = $global_settings['allow_guest_voting'] ?? ( get_option( 'roadmap_allow_guest_voting', 'yes' ) === 'yes' );
+		$global_settings      = Roadmap_Settings::get();
+		$voting_enabled       = (bool) $global_settings['enable_voting'];
+		$guest_voting_allowed = (bool) $global_settings['allow_guest_voting'];
 
 		return $voting_enabled && ( $guest_voting_allowed || is_user_logged_in() );
 	}
 
 	public function can_comment() {
-		$global_settings  = get_option( 'roadmap_global_settings', array() );
-		$comments_enabled = $global_settings['enable_comments'] ?? ( get_option( 'roadmap_enable_comments', 'yes' ) === 'yes' );
+		$global_settings  = Roadmap_Settings::get();
+		$comments_enabled = (bool) $global_settings['enable_comments'];
 
 		return is_user_logged_in() && $comments_enabled;
 	}

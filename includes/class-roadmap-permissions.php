@@ -88,22 +88,22 @@ class Roadmap_Permissions {
     }
     
     public function filter_capabilities($allcaps, $caps, $args, $user) {
-        $global_settings = get_option('roadmap_global_settings', []);
+        $global_settings = Roadmap_Settings::get();
 
         // Revoke the feature cap when the corresponding feature is disabled, so
         // current_user_can('roadmap_vote'|'roadmap_comment'|'roadmap_suggest')
         // reflects the setting for third-party callers too.
-        $voting_enabled = $global_settings['enable_voting'] ?? (get_option('roadmap_enable_voting', 'yes') === 'yes');
+        $voting_enabled = (bool) $global_settings['enable_voting'];
         if (in_array('roadmap_vote', $caps, true) && !$voting_enabled) {
             $allcaps['roadmap_vote'] = false;
         }
 
-        $comments_enabled = $global_settings['enable_comments'] ?? (get_option('roadmap_enable_comments', 'yes') === 'yes');
+        $comments_enabled = (bool) $global_settings['enable_comments'];
         if (in_array('roadmap_comment', $caps, true) && !$comments_enabled) {
             $allcaps['roadmap_comment'] = false;
         }
 
-        $suggestions_enabled = $global_settings['enable_suggestions'] ?? (get_option('roadmap_enable_suggestions', 'yes') === 'yes');
+        $suggestions_enabled = (bool) $global_settings['enable_suggestions'];
         if (in_array('roadmap_suggest', $caps, true) && !$suggestions_enabled) {
             $allcaps['roadmap_suggest'] = false;
         }
@@ -116,8 +116,8 @@ class Roadmap_Permissions {
             $user_id = get_current_user_id();
         }
 
-        $global_settings = get_option('roadmap_global_settings', []);
-        $voting_enabled = $global_settings['enable_voting'] ?? (get_option('roadmap_enable_voting', 'yes') === 'yes');
+        $global_settings = Roadmap_Settings::get();
+        $voting_enabled = (bool) $global_settings['enable_voting'];
 
         return user_can($user_id, 'roadmap_vote') && $voting_enabled;
     }
@@ -127,8 +127,8 @@ class Roadmap_Permissions {
             $user_id = get_current_user_id();
         }
 
-        $global_settings = get_option('roadmap_global_settings', []);
-        $comments_enabled = $global_settings['enable_comments'] ?? (get_option('roadmap_enable_comments', 'yes') === 'yes');
+        $global_settings = Roadmap_Settings::get();
+        $comments_enabled = (bool) $global_settings['enable_comments'];
 
         return user_can($user_id, 'roadmap_comment') && $comments_enabled;
     }
@@ -138,8 +138,8 @@ class Roadmap_Permissions {
             $user_id = get_current_user_id();
         }
 
-        $global_settings = get_option('roadmap_global_settings', []);
-        $suggestions_enabled = $global_settings['enable_suggestions'] ?? (get_option('roadmap_enable_suggestions', 'yes') === 'yes');
+        $global_settings = Roadmap_Settings::get();
+        $suggestions_enabled = (bool) $global_settings['enable_suggestions'];
 
         return user_can($user_id, 'roadmap_suggest') && $suggestions_enabled;
     }
@@ -175,9 +175,8 @@ class Roadmap_Permissions {
             return $open;
         }
 
-        $global_settings  = get_option('roadmap_global_settings', []);
-        $comments_enabled = $global_settings['enable_comments']
-            ?? (get_option('roadmap_enable_comments', 'yes') === 'yes');
+        $global_settings  = Roadmap_Settings::get();
+        $comments_enabled = (bool) $global_settings['enable_comments'];
 
         return $comments_enabled ? $open : false;
     }

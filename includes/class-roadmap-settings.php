@@ -137,7 +137,7 @@ class Roadmap_Settings {
 			array(
 				'type'              => 'array',
 				'sanitize_callback' => array( $this, 'sanitize_global_settings' ),
-				'default'           => $this->get_default_global_settings(),
+				'default'           => self::defaults(),
 			)
 		);
 
@@ -193,7 +193,78 @@ class Roadmap_Settings {
 		);
 	}
 
-	private function get_default_global_settings() {
+	/**
+	 * One global setting, or all of them, with the defaults applied.
+	 *
+	 * The only reader of roadmap_global_settings: every surface (shortcode,
+	 * REST, permissions, notifications, templates, Pro) calls this, so a
+	 * default or a storage change happens in one place.
+	 *
+	 * @param string|null $key Setting key, or null for the full array.
+	 * @return mixed Setting value, null for an unknown key, or the full array.
+	 */
+	public static function get( $key = null ) {
+		$settings = wp_parse_args( (array) get_option( 'roadmap_global_settings', array() ), self::defaults() );
+		return null === $key ? $settings : ( $settings[ $key ] ?? null );
+	}
+
+	/**
+	 * Notification recipients from the Settings screen (one address per line).
+	 *
+	 * @return string[] Valid email addresses; the site admin email when none are set.
+	 */
+	public static function notification_recipients() {
+		$emails = array_filter( array_map( 'trim', explode( "\n", (string) self::get( 'notification_email' ) ) ), 'is_email' );
+		return $emails ? array_values( $emails ) : array( get_option( 'admin_email' ) );
+	}
+
+	/**
+	 * Move the pre-1.8 standalone options into roadmap_global_settings.
+	 *
+	 * Runs once from the version-upgrade routine. A legacy value is copied only
+	 * when the array does not already hold that key, so the effective setting
+	 * never changes; the legacy options are then deleted so nothing can read
+	 * them again.
+	 */
+	public static function migrate_legacy_options() {
+		$legacy   = array(
+			'enable_voting'      => 'roadmap_enable_voting',
+			'allow_guest_voting' => 'roadmap_allow_guest_voting',
+			'enable_comments'    => 'roadmap_enable_comments',
+			'enable_suggestions' => 'roadmap_enable_suggestions',
+			'items_per_page'     => 'roadmap_items_per_page',
+			'notification_email' => 'roadmap_notification_email',
+		);
+		$settings = (array) get_option( 'roadmap_global_settings', array() );
+		$changed  = false;
+		foreach ( $legacy as $key => $option ) {
+			$value = get_option( $option, null );
+			if ( null === $value ) {
+				continue;
+			}
+			if ( ! array_key_exists( $key, $settings ) ) {
+				if ( 'items_per_page' === $key ) {
+					$settings[ $key ] = absint( $value );
+				} elseif ( 'notification_email' === $key ) {
+					$settings[ $key ] = sanitize_textarea_field( $value );
+				} else {
+					$settings[ $key ] = ( 'yes' === $value || true === $value || '1' === (string) $value );
+				}
+				$changed = true;
+			}
+			delete_option( $option );
+		}
+		if ( $changed ) {
+			update_option( 'roadmap_global_settings', $settings );
+		}
+	}
+
+	/**
+	 * Default for every global setting.
+	 *
+	 * @return array
+	 */
+	public static function defaults() {
 		return array(
 			'default_status'            => 'planned',
 			'items_per_page'            => 100,
@@ -348,7 +419,7 @@ class Roadmap_Settings {
 
         // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reading tab parameter for display only
 		$active_tab      = isset( $_GET['tab'] ) ? sanitize_text_field( wp_unslash( $_GET['tab'] ) ) : 'general';
-		$global_settings = get_option( 'roadmap_global_settings', $this->get_default_global_settings() );
+		$global_settings = self::get();
 		?>
 		<div class="wrap roadmap-settings-wrap">
 			<div class="roadmap-settings-header">
