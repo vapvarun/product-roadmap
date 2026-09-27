@@ -218,6 +218,13 @@ class Roadmap_API {
 					'target_date' => array(
 						'sanitize_callback' => 'sanitize_text_field',
 					),
+					// One product slug. Declared so an array of products is
+					// rejected instead of reaching wp_set_object_terms() unsanitized.
+					'product'     => array(
+						'type'              => 'string',
+						'validate_callback' => 'rest_validate_request_arg',
+						'sanitize_callback' => 'sanitize_text_field',
+					),
 				),
 			)
 		);
