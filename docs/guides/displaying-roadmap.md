@@ -22,7 +22,7 @@ The simplest way to display your roadmap:
 [roadmap product="main"]
 ```
 
-**Important:** The `product` parameter is required. Use `"main"` for the default product.
+The `product` parameter is optional. Without it (or if it cannot be read, for example a curly quote pasted from an email) the roadmap shows your default product, so visitors always see a working board. Any setup message is shown only to people who can edit the page.
 
 ### Where to Use It
 

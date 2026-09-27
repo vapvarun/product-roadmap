@@ -63,20 +63,17 @@ class Roadmap_Shortcode {
 			'roadmap'
 		);
 
-		// Handle product parameter
+		// Visitors always get a working board. A missing product, or one the
+		// shortcode parser could not read (a curly quote pasted from an email),
+		// shows the default product; configuration messages go to editors only.
+		$is_pro = defined( 'ROADMAP_PRO_ACTIVE' ) && ROADMAP_PRO_ACTIVE;
+		$notice = '';
 		if ( empty( $atts['product'] ) ) {
-			// If Pro is not active, default to 'main'
-			if ( ! defined( 'ROADMAP_PRO_ACTIVE' ) || ! ROADMAP_PRO_ACTIVE ) {
-				$atts['product'] = 'main';
-			} else {
-				// Pro is active but no product specified
-				return '<div class="roadmap-error">' . __( 'Error: Product parameter is required. Example: [roadmap product="main"]', 'product-roadmap' ) . '</div>';
-			}
-		}
-
-		// If Pro is not active and product is not 'main', show error
-		if ( ( ! defined( 'ROADMAP_PRO_ACTIVE' ) || ! ROADMAP_PRO_ACTIVE ) && $atts['product'] !== 'main' ) {
-			return '<div class="roadmap-error">' . __( 'Multiple products require the Pro version. Upgrade to use different products.', 'product-roadmap' ) . '</div>';
+			$atts['product'] = $is_pro ? get_option( 'roadmap_default_product', 'main' ) : 'main';
+		} elseif ( ! $is_pro && 'main' !== $atts['product'] ) {
+			// Free has one board, 'main' (e.g. a shortcode left over from Pro).
+			$notice          = $this->editor_notice( __( 'Multiple products require the Pro version. Upgrade to use different products.', 'product-roadmap' ) );
+			$atts['product'] = 'main';
 		}
 
 		// Handle template fallback for pro templates when pro is not active
@@ -153,7 +150,7 @@ class Roadmap_Shortcode {
 		 */
 		do_action( 'roadmap_after_main_content', $atts );
 
-		return ob_get_clean();
+		return $notice . ob_get_clean();
 	}
 
 	/**
@@ -184,9 +181,11 @@ class Roadmap_Shortcode {
 			}
 		}
 
-		// If Pro is not active and product is not 'main', show error
-		if ( ( ! defined( 'ROADMAP_PRO_ACTIVE' ) || ! ROADMAP_PRO_ACTIVE ) && ! empty( $atts['product'] ) && $atts['product'] !== 'main' ) {
-			return '<div class="roadmap-error">' . __( 'Multiple products require the Pro version.', 'product-roadmap' ) . '</div>';
+		// Free has one product: show its changelog to visitors, tell editors why.
+		$notice = '';
+		if ( ( ! defined( 'ROADMAP_PRO_ACTIVE' ) || ! ROADMAP_PRO_ACTIVE ) && ! empty( $atts['product'] ) && 'main' !== $atts['product'] ) {
+			$notice          = $this->editor_notice( __( 'Multiple products require the Pro version.', 'product-roadmap' ) );
+			$atts['product'] = 'main';
 		}
 
 		// Query changelog entries
@@ -224,7 +223,7 @@ class Roadmap_Shortcode {
 		$changelogs = new WP_Query( $query_args );
 
 		if ( ! $changelogs->have_posts() ) {
-			return '<div class="roadmap-changelog-empty">' . __( 'No changelog entries found.', 'product-roadmap' ) . '</div>';
+			return $notice . '<div class="roadmap-changelog-empty">' . __( 'No changelog entries found.', 'product-roadmap' ) . '</div>';
 		}
 
 		// Get change types for styling
@@ -325,7 +324,7 @@ class Roadmap_Shortcode {
 		</div>
 		<?php
 
-		return ob_get_clean();
+		return $notice . ob_get_clean();
 	}
 
 	/**
@@ -948,5 +947,19 @@ class Roadmap_Shortcode {
 		$requires_login      = $global_settings['suggestion_requires_login'] ?? true;
 
 		return $suggestions_enabled && ( $requires_login ? is_user_logged_in() : true );
+	}
+
+	/**
+	 * A shortcode configuration message for people who can fix the page.
+	 *
+	 * Visitors never see it: they get the working fallback board instead.
+	 *
+	 * @param string $message Message text.
+	 * @return string Notice HTML, or '' for visitors.
+	 */
+	private function editor_notice( $message ) {
+		$post_id = get_the_ID();
+		$can_fix = $post_id ? current_user_can( 'edit_post', $post_id ) : current_user_can( 'edit_posts' );
+		return $can_fix ? '<div class="roadmap-error">' . esc_html( $message ) . '</div>' : '';
 	}
 }
