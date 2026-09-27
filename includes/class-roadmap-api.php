@@ -447,10 +447,10 @@ class Roadmap_API {
 	 * @return array Formatted item data.
 	 */
 	private function format_item( $post, $user_votes = null ) {
-		// Use batch vote data if available, otherwise query individually
-		$user_voted = null !== $user_votes
-			? ( isset( $user_votes[ $post->ID ] ) ? $user_votes[ $post->ID ] : false )
-			: $this->has_user_voted( $post->ID );
+		// Use batch vote data if available, otherwise read this one item. The
+		// response keeps false (not 0) for "no vote".
+		$vote       = null !== $user_votes ? ( $user_votes[ $post->ID ] ?? 0 ) : $this->get_user_vote( $post->ID );
+		$user_voted = $vote ? $vote : false;
 
 		$item = array(
 			'id'              => $post->ID,
@@ -507,37 +507,21 @@ class Roadmap_API {
 		return $formatted;
 	}
 
-	private function has_user_voted( $item_id ) {
-		global $wpdb;
-		$table   = $wpdb->prefix . 'roadmap_votes';
-		$user_id = get_current_user_id();
+	/**
+	 * The current visitor's vote on one item: 1, -1, or 0 for none.
+	 *
+	 * Logged-in users are matched by user ID, guests by IP (the way
+	 * submit_vote() stores them). The one read shared by the REST item
+	 * response and the single item template.
+	 *
+	 * @param int $item_id Roadmap item ID.
+	 * @return int
+	 */
+	public function get_user_vote( $item_id ) {
+		$item_id = (int) $item_id;
+		$votes   = $this->get_user_votes_batch( array( $item_id ) );
 
-		$vote = null;
-
-		if ( $user_id ) {
-			// Check logged in user vote
-			$vote = $wpdb->get_var(
-				$wpdb->prepare(
-                // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-					"SELECT vote_value FROM {$table} WHERE user_id = %d AND item_id = %d",
-					$user_id,
-					$item_id
-				)
-			); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table, caching not needed for single user vote check
-		} else {
-			// Check guest vote by IP
-			$guest_ip = $this->get_user_ip();
-			$vote     = $wpdb->get_var(
-				$wpdb->prepare(
-                // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-					"SELECT vote_value FROM {$table} WHERE guest_ip = %s AND item_id = %d",
-					$guest_ip,
-					$item_id
-				)
-			); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table, caching not needed for single user vote check
-		}
-
-		return $vote ? (int) $vote : false;
+		return $votes[ $item_id ] ?? 0;
 	}
 
 	/**

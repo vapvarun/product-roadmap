@@ -175,10 +175,10 @@ Re-verify: `bash bin/check-raw-colors.sh`, then the contrast audit (every text n
 
 | Surface | Where |
 |---|---|
-| Vote API (REST + guest) | `F:includes/class-roadmap-api.php:73` (route), `:451-555` (read/write, guest by IP) |
+| Vote API (REST + guest) | `F:includes/class-roadmap-api.php:73` (route). Visitor vote read: `get_user_vote()` (one item) and `get_user_votes_batch()` (list), by user ID or by IP for guests |
 | Permissions | `F:includes/class-roadmap-permissions.php:47-98` |
 | Board vote buttons | `F:vue-app/src/components/RoadmapItem.vue:71-80`, `RoadmapIdeaBox.vue:27-36,226-233`, `ItemDetailModal.vue:129-131`, `RoadmapCards.vue:180`, `RoadmapList.vue:178`, `RoadmapTimeline.vue:370`; state in `App.vue:540-560` |
-| **Single item page** | `F:templates/single-roadmap_item.php:19-97` — **its own vote query with `$wpdb` in the template** instead of the API's vote read; card 10344407815 |
+| Single item page | `F:templates/single-roadmap_item.php` reads the visitor's vote through `Roadmap_API::get_user_vote()`, the same read as the REST item response (no SQL in templates) |
 | Settings (enable / guest) | see row 13 |
 | Pro: analytics, merge, profiles, webhooks, digest, export | `P:includes/class-roadmap-pro-analytics.php:37`, `-merge.php:292-408`, `-user-profiles.php:138-450`, `-webhooks.php:53,179`, `-digest.php:131`, `-export.php:234` |
 

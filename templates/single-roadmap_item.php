@@ -17,44 +17,11 @@ get_header();
 while (have_posts()) : the_post();
     $item_id = get_the_ID();
     $votes = get_post_meta($item_id, '_roadmap_votes', true) ?: 0;
-    $user_id = get_current_user_id();
-    $user_vote = 0; // 0 = no vote, 1 = upvoted, -1 = downvoted
+    // 0 = no vote, 1 = upvoted, -1 = downvoted. The same read the board's REST
+    // response uses (by user ID, or by IP for a guest).
+    $user_vote = Roadmap_API::get_instance()->get_user_vote($item_id);
 
     $allow_guest_voting = (bool) Roadmap_Settings::get('allow_guest_voting');
-
-    global $wpdb;
-    $table = $wpdb->prefix . 'roadmap_votes';
-
-    if ($user_id) {
-        $vote_value = $wpdb->get_var($wpdb->prepare(
-            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-            "SELECT vote_value FROM {$table} WHERE item_id = %d AND user_id = %d",
-            $item_id,
-            $user_id
-        )); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-
-        if ($vote_value !== null) {
-            $user_vote = intval($vote_value);
-        }
-    } elseif ($allow_guest_voting) {
-        // A guest's vote is keyed on their IP, so look it up the same way
-        // submit_vote() stores it - otherwise the button renders as un-voted
-        // for someone who has already voted, and they vote again.
-        $guest_ip = Roadmap_API::get_instance()->get_user_ip();
-
-        if ($guest_ip) {
-            $vote_value = $wpdb->get_var($wpdb->prepare(
-                // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-                "SELECT vote_value FROM {$table} WHERE item_id = %d AND guest_ip = %s",
-                $item_id,
-                $guest_ip
-            )); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-
-            if ($vote_value !== null) {
-                $user_vote = intval($vote_value);
-            }
-        }
-    }
 
     // Get taxonomies
     $statuses = wp_get_post_terms($item_id, 'roadmap_status');
