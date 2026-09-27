@@ -38,7 +38,7 @@ The single-file companion for Pro is `roadmap-pro-addon/docs/qa/SURFACES.md`, wh
 | Surface | Where | Enforces one product? |
 |---|---|---|
 | Block editor Products panel | `P:assets/js/single-product-selector.js:57` | yes (radio) |
-| Classic editor Products box | `P:includes/class-roadmap-pro-products.php:171,207` | yes (radio) |
+| Classic editor Products box | `P:includes/class-roadmap-pro-products.php` `single_product_taxonomy_args()` + `render_single_product_meta_box()` | yes (radio) |
 | REST `wp/v2/roadmap-items`, `wp/v2/changelogs` | `P:includes/class-roadmap-pro-products.php:34,35` (`rest_pre_insert_*`) | yes (400) |
 | Free REST `POST /items` | `F:includes/class-roadmap-api.php:1092` (arg declared string) | yes |
 | Free REST `POST /suggest` | `F:includes/class-roadmap-api.php:799` | yes (single string) |
@@ -46,8 +46,9 @@ The single-file companion for Pro is `roadmap-pro-addon/docs/qa/SURFACES.md`, wh
 | Pro changelog REST | `P:includes/class-roadmap-pro-changelog.php:252` | yes (single slug) |
 | Default product on save | `F:includes/class-roadmap-cpt.php:744`, `F:includes/class-roadmap-changelog.php:681` | yes |
 | Demo import, migration | `F:includes/class-roadmap-demo-import.php:258`, `F:includes/class-roadmap-migration.php:61` | yes |
-| **Quick Edit / Bulk Edit** | core list table (`show_in_quick_edit=true`) | **no** — P2 10344405404 |
-| **Pro CSV import** | `P:includes/class-roadmap-pro-export.php:566,601` | **no** (cell becomes one term; unknown value creates a junk product) — P2 10344405404 |
+| Quick Edit / Bulk Edit | core list table; `show_in_quick_edit => false` in single-product mode (`single_product_taxonomy_args()`) | yes (not offered; P2 10344405404) |
+| Bulk "Move to product" (items + changelogs) | `P:includes/class-roadmap-pro-products.php` `add_move_to_product_actions()` / `handle_move_to_product()` | yes (replaces; per-item `edit_post` check) |
+| Pro CSV import | `P:includes/class-roadmap-pro-export.php` `resolve_term()` before any insert/update | yes (unknown or comma value -> row rejected and listed; status and category resolved the same way) |
 
 Re-verify: `wp_set_(object|post)_terms\([^;]*roadmap_product|tax_input\[roadmap_product\]|rest_pre_insert_roadmap|show_in_quick_edit|meta_box_cb|editor\.PostTaxonomyType`
 
@@ -224,18 +225,22 @@ Re-verify: `get_option\( *'roadmap_global_settings'` must match only the getter,
 
 ### 14. Board options (what the shortcode and block let an owner configure)
 
-**Rule:** one option schema; the block is a thin wrapper (CLAUDE.md rule 8, card P1 10344405387).
+**Source of truth:** `Roadmap_Shortcode::options()` (`F:includes/class-roadmap-shortcode.php`), one entry per option (type, default, label, help, group, choices; `pro` for options that need Pro's API filters). `normalize_options()` casts and constrains every value; `option_choices()` resolves term-based choice lists only when an editor needs them (card 10344405387).
 
-| Surface | Where | Today |
+| Surface | Where | How it uses the schema |
 |---|---|---|
-| `[roadmap]` accepted options | `F:includes/class-roadmap-shortcode.php:46-62` | mode, allow_frontend_edit, product, class, template, sort, show_filters, show_title |
-| Block attributes + shortcode builder | `P:includes/class-roadmap-pro-blocks.php:51-80, 206-250` | **7 options dropped** (status, category, limit, order, show_voting, show_comments, show_search); no sort / show_title |
-| Block sidebar + preview | `P:blocks/roadmap-block/index.js:109-200` (controls), `:227-260` (static preview, no real board) | **no real preview**; dead `roadmap_block_preview` nonce `P:includes/class-roadmap-pro-blocks.php:187` |
-| Config handed to the board | `F:includes/class-roadmap-shortcode.php:101-124`, filter `roadmap_shortcode_data` `:124` (Pro `P:includes/class-roadmap-pro-templates.php:36`, `P:roadmap-pro-addon.php:187`) | |
-| Board reads config | `F:vue-app/src/App.vue:15-20, 293-299, 336, 394, 511` | |
-| `[roadmap_user_profile]` | `P:includes/class-roadmap-pro-user-profiles.php:416` | separate, own options |
+| `[roadmap]` shortcode | `F:includes/class-roadmap-shortcode.php` `render_shortcode()` | `shortcode_atts()` defaults from the schema, then `normalize_options()` |
+| Board config handed to the app | same, `$app_data` | every option reaches `data-config`; per-board `show_voting`/`show_comments` can only hide (the REST API enforces Settings) |
+| Board app | `F:vue-app/src/App.vue` (`selectedStatus`/`selectedCategory` seeded, `pageSize`/`boardLimit`, fixed `priority`/`date_from`/`date_to` request params), `F:vue-app/src/components/RoadmapHeader.vue` (`showSearch`) | reads the config |
+| Pro block attributes + render | `P:includes/class-roadmap-pro-blocks.php` (`register_blocks()`, `render_roadmap_block()` -> `Roadmap_Shortcode::render_shortcode()`, legacy names in `LEGACY_ATTRIBUTES`) | attributes generated from the schema; renders through the shortcode renderer |
+| Pro block sidebar + live preview | `P:blocks/roadmap-block/index.js` | controls built from the localized schema; preview = `ServerSideRender` + `RoadmapApp.mount()`, inert in the editor |
+| Docs | `F:docs/guides/displaying-roadmap.md` (options table generated from the schema) | |
+| Parity check | `F:bin/check-board-options.php` (`wp eval-file`) | fails if any schema option does not reach the board from the shortcode and the block, or has no test case |
+| `[roadmap_user_profile]` | `P:includes/class-roadmap-pro-user-profiles.php:416` | separate shortcode, own options |
 
-Re-verify: `shortcode_atts|roadmap_shortcode_data|'attributes'\s*=>|\$shortcode \.=|config\.(show_filters|show_title|default_sort|template|product)`
+**Rule:** add a board option only in `options()`; it then works in the shortcode, the block sidebar and preview, and the parity check forces a test case for it.
+
+Re-verify: `wp eval-file wp-content/plugins/product-roadmap/bin/check-board-options.php` must print `OK: 0 failure(s)`.
 
 ### 15. Email
 
