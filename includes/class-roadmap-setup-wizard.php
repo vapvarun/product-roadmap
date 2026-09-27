@@ -88,7 +88,7 @@ class Roadmap_Setup_Wizard {
         // page is registered without a visible menu entry after completion.
         $wizard_completed = (bool) get_option('roadmap_wizard_completed');
 
-        add_submenu_page(
+        $hook = add_submenu_page(
             $wizard_completed ? null : 'roadmap-dashboard',
             __('Setup Wizard', 'product-roadmap'),
             __('Setup Wizard', 'product-roadmap'),
@@ -96,6 +96,29 @@ class Roadmap_Setup_Wizard {
             'roadmap-setup-wizard',
             array($this, 'render_setup_page')
         );
+
+        if ( $hook ) {
+            add_action( 'load-' . $hook, array( $this, 'suppress_admin_notices' ) );
+        }
+    }
+
+    /**
+     * The wizard is a focused full-page flow: no admin notices on it. This
+     * drops our own "Run Setup Wizard" call to action (it pointed at this very
+     * page) and notices from the theme and other plugins. The wizard prints
+     * its own messages inline. Runs on in_admin_header, the last hook before
+     * notices print, so late-added notices are caught too.
+     */
+    public function suppress_admin_notices() {
+        add_action( 'in_admin_header', array( $this, 'remove_admin_notices' ), 1000 );
+    }
+
+    /**
+     * Drop every notice callback for this request (see suppress_admin_notices()).
+     */
+    public function remove_admin_notices() {
+        remove_all_actions( 'admin_notices' );
+        remove_all_actions( 'all_admin_notices' );
     }
     
     /**

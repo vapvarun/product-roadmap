@@ -129,7 +129,7 @@ Re-verify: `editor_notice|roadmap-error|roadmap-block-error|Placeholder\b|missin
 | Admin JS messages | `F:assets/js/roadmap-admin-feedback.js` `roadmapAdminNotice()` (standard dismissible notice, `role=alert` for errors, `status` otherwise): used by `F:assets/js/roadmap-admin.js` (copy, product save) and `P:assets/js/admin.js` (clear cache) | yes |
 | Confirmations | Admin: `data-roadmap-confirm` two-step (same file), used on Reject (`F:includes/class-roadmap-cpt.php`), Start Over (`F:includes/class-roadmap-setup-wizard.php`), Merge (`P:includes/class-roadmap-pro-merge.php`), Clear Cache (`P:includes/class-roadmap-pro-settings.php`). Board: two-step delete in `F:vue-app/src/components/RoadmapItem.vue` | yes; no browser `alert()` / `confirm()` anywhere (grep) |
 
-Known gap: the Setup Wizard shows the welcome notice on itself — card 10336345758.
+Setup Wizard: no admin notices at all (`Roadmap_Setup_Wizard::suppress_admin_notices()` on its `load-` hook). That covers our welcome call to action and notices from the theme and other plugins; the wizard prints its own messages inline. The welcome notice still shows on the Dashboard.
 Re-verify: `showNotification|roadmap-notification|admin_notices|alert\(|confirm\(`
 
 ### 7. Forms: submit and reset
