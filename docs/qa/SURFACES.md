@@ -220,7 +220,7 @@ Re-verify: `/suggest|/guest-suggest|submitSuggestion|enable_suggestions|guest_su
 | REST | Free `F:includes/class-roadmap-api.php:253,272,282`; core `wp/v2/changelogs`; Pro `P:includes/class-roadmap-pro-changelog.php` (2 routes, bulk actions `:39-40,215`) |
 | Settings | `F:includes/class-roadmap-settings.php:1432-1522` |
 
-Known gap: block-editor slug (card 10326920444). Three renderers (shortcode PHP, Vue component, PHP templates) — P3 unifies their colours.
+Slug rule (`auto_generate_slug()`): `{product}-v{version}`, derived on the first save that has a version, in both editors. In the block editor that's the meta-box save after the REST publish. An entry that already has a stored version, or a hand-edited slug, keeps its URL. Free's default product counts as the product (`free_default_product_id()`, shared with `save_meta_boxes()`). Two renderers are live (the shortcode PHP and the PHP templates), and both read the P3 tokens.
 Re-verify: `roadmap_changelog|RoadmapChangelog|changelog-frontend|/changelog`
 
 ### 13. Settings reads (all `roadmap_global_settings` keys)

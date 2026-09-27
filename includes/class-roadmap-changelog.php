@@ -620,6 +620,18 @@ class Roadmap_Changelog {
 	/**
 	 * Save changelog meta boxes
 	 */
+	/**
+	 * The product Free assigns to an entry saved without one, or 0 (Pro, or unset).
+	 *
+	 * @return int
+	 */
+	private static function free_default_product_id() {
+		if ( defined( 'ROADMAP_PRO_ACTIVE' ) && ROADMAP_PRO_ACTIVE ) {
+			return 0;
+		}
+		return (int) get_option( 'roadmap_default_product_id' );
+	}
+
 	public function save_meta_boxes( $post_id, $post ) {
 		if ( ! isset( $_POST['roadmap_changelog_meta_box_nonce'] ) ||
 			! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['roadmap_changelog_meta_box_nonce'] ) ), 'roadmap_changelog_meta_box' ) ) {
@@ -673,14 +685,9 @@ class Roadmap_Changelog {
 		}
 
 		// Auto-assign default product in free version
-		if ( ! defined( 'ROADMAP_PRO_ACTIVE' ) || ! ROADMAP_PRO_ACTIVE ) {
-			$product_terms = wp_get_object_terms( $post_id, 'roadmap_product' );
-			if ( empty( $product_terms ) ) {
-				$default_product_id = get_option( 'roadmap_default_product_id' );
-				if ( $default_product_id ) {
-					wp_set_object_terms( $post_id, (int) $default_product_id, 'roadmap_product' );
-				}
-			}
+		$default_product_id = self::free_default_product_id();
+		if ( $default_product_id && empty( wp_get_object_terms( $post_id, 'roadmap_product' ) ) ) {
+			wp_set_object_terms( $post_id, $default_product_id, 'roadmap_product' );
 		}
 	}
 
@@ -967,21 +974,32 @@ class Roadmap_Changelog {
 			return $data;
 		}
 
+		// The version arrives in the POST body, not in $postarr - reading
+		// $postarr['_changelog_version'] meant the product-vX.Y.Z branch
+		// below never ran.
+		$stored_version = (string) get_post_meta( $postarr['ID'] ?? 0, '_changelog_version', true );
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- slug derivation only; the save itself is nonce-checked
+		$version = isset( $_POST['_changelog_version'] )
+			? sanitize_text_field( wp_unslash( $_POST['_changelog_version'] ) )
+			: $stored_version;
+
 		// Re-derive when the slug is missing, or when it is the artefact a
 		// previous version of this code left behind.
 		$needs_slug = empty( $data['post_name'] )
 			|| 'auto-draft' === $data['post_name']
 			|| (bool) preg_match( '/-auto-draft(-\d+)?$/', $data['post_name'] );
 
-		if ( $needs_slug ) {
-			// The version arrives in the POST body, not in $postarr - reading
-			// $postarr['_changelog_version'] meant the product-vX.Y.Z branch
-			// below never ran.
-			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- slug derivation only; the save itself is nonce-checked
-			$version = isset( $_POST['_changelog_version'] )
-				? sanitize_text_field( wp_unslash( $_POST['_changelog_version'] ) )
-				: (string) get_post_meta( $postarr['ID'] ?? 0, '_changelog_version', true );
+		// Block editor: its REST save publishes first, and WordPress fills
+		// post_name from the title; the version only arrives with the meta-box
+		// save that follows. Re-derive on that save - the slug is still the
+		// title default and this request brings the first version. Entries that
+		// already have a stored version, or a slug the owner edited, keep their
+		// URL.
+		if ( ! $needs_slug && '' === $stored_version && '' !== $version ) {
+			$needs_slug = (bool) preg_match( '/^' . preg_quote( sanitize_title( $data['post_title'] ), '/' ) . '(-\d+)?$/', $data['post_name'] );
+		}
 
+		if ( $needs_slug ) {
 			// Get product slug if available
 			$product_slug = 'general';
 			if ( ! empty( $postarr['tax_input']['roadmap_product'] ) ) {
@@ -996,6 +1014,16 @@ class Roadmap_Changelog {
 				$existing_products = wp_get_object_terms( $postarr['ID'], 'roadmap_product' );
 				if ( ! empty( $existing_products ) && ! is_wp_error( $existing_products ) ) {
 					$product_slug = $existing_products[0]->slug;
+				}
+			}
+
+			// Free assigns its default product in save_meta_boxes(), which runs
+			// after this filter: use that product now, or the slug says
+			// "general" for an entry that lives under the default product.
+			if ( 'general' === $product_slug && self::free_default_product_id() ) {
+				$default_term = get_term( self::free_default_product_id(), 'roadmap_product' );
+				if ( $default_term && ! is_wp_error( $default_term ) ) {
+					$product_slug = $default_term->slug;
 				}
 			}
 
