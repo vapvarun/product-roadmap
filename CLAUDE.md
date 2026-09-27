@@ -30,6 +30,9 @@ the contract audit both pass. Treat the older ⚠️ warnings as historical.
 - Settings/admin: `includes/class-roadmap-settings.php`, `class-roadmap-admin.php`
 - Frontend: `vue-app/` (Vue SPA) + `templates/`
 
+## Version pairing with Pro
+`ROADMAP_MIN_PRO_VERSION` (`product-roadmap.php`) is the Pro release paired with this Free; an older Pro keeps running and admins see an "update Product Roadmap Pro" notice. Pro's own `ROADMAP_PRO_MIN_FREE_VERSION` pauses Pro on an older Free. When a Free change breaks something an older Pro relies on, raise `ROADMAP_MIN_PRO_VERSION` in that commit.
+
 ## Free → Pro extension contract
 Free fires 25 `roadmap_*` hooks that Pro consumes. **See `audit/AUDIT_SUMMARY.md` for 11 dead-listener / naming-drift breaks** where Pro listens for a hook Free never fires (e.g. Pro's analytics listens for `roadmap_item_voted` but Free fires `roadmap_vote_submitted`). When renaming or adding a `roadmap_*` `do_action`/`apply_filters`, check the Pro side first.
 

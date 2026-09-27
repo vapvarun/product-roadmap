@@ -22,6 +22,10 @@ define('ROADMAP_VERSION', '1.8.0');
 define('ROADMAP_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('ROADMAP_PLUGIN_PATH', plugin_dir_path(__FILE__));
 define('ROADMAP_PLUGIN_BASENAME', plugin_basename(__FILE__));
+// The Product Roadmap Pro release paired with this Free. An older Pro keeps
+// running, but the admin is told to update it so both stay in step. Pro keeps
+// its own minimum Free version and pauses itself on an older Free.
+define( 'ROADMAP_MIN_PRO_VERSION', '1.8.0' );
 
 class RoadmapPlugin {
     
@@ -65,6 +69,8 @@ class RoadmapPlugin {
         // every other request this is a single get_option().
         add_action('init', [$this, 'check_version_update'], 5);
         add_action('upgrader_process_complete', [$this, 'handle_plugin_update'], 10, 2);
+        add_action( 'admin_notices', array( $this, 'maybe_outdated_pro_notice' ) );
+        add_action( 'network_admin_notices', array( $this, 'maybe_outdated_pro_notice' ) );
         
         // Initialize components
         Roadmap_CPT::get_instance();
@@ -81,6 +87,33 @@ class RoadmapPlugin {
         do_action('roadmap_plugin_loaded');
     }
     
+    /**
+     * Admin notice when the installed Pro is older than the one paired with this Free.
+     */
+    public function maybe_outdated_pro_notice() {
+        if ( ! defined( 'ROADMAP_PRO_VERSION' ) || ! current_user_can( 'update_plugins' )
+            || version_compare( ROADMAP_PRO_VERSION, ROADMAP_MIN_PRO_VERSION, '>=' ) ) {
+            return;
+        }
+        printf(
+            '<div class="notice notice-warning"><p>%s</p></div>',
+            wp_kses(
+                sprintf(
+                    /* translators: 1: Free version, 2: paired Pro version, 3: installed Pro version, 4: Plugins screen URL */
+                    __( '<strong>Product Roadmap %1$s</strong> is paired with <strong>Product Roadmap Pro %2$s</strong>, and this site has Pro %3$s. <a href="%4$s">Update Product Roadmap Pro</a> so both stay in step.', 'product-roadmap' ),
+                    esc_html( ROADMAP_VERSION ),
+                    esc_html( ROADMAP_MIN_PRO_VERSION ),
+                    esc_html( ROADMAP_PRO_VERSION ),
+                    esc_url( self_admin_url( 'plugins.php' ) )
+                ),
+                array(
+                    'strong' => array(),
+                    'a'      => array( 'href' => array() ),
+                )
+            )
+        );
+    }
+
     public function init() {
         // Load translations.
         load_plugin_textdomain( 'product-roadmap', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
