@@ -1224,21 +1224,28 @@ class Roadmap_Settings {
 		wp_enqueue_style( 'roadmap-admin', ROADMAP_PLUGIN_URL . 'assets/css/roadmap-admin.css', array(), ROADMAP_VERSION );
 
 		// Enqueue admin JavaScript
-		wp_enqueue_script( 'roadmap-admin', ROADMAP_PLUGIN_URL . 'assets/js/roadmap-admin.js', array( 'jquery' ), ROADMAP_VERSION, true );
+		wp_enqueue_script( 'roadmap-admin', ROADMAP_PLUGIN_URL . 'assets/js/roadmap-admin.js', array( 'jquery', 'roadmap-admin-feedback' ), ROADMAP_VERSION, true );
 
 		// Localize script for AJAX and translations
-		wp_localize_script(
-			'roadmap-admin',
-			'roadmap_admin',
-			array(
-				'ajax_url'            => admin_url( 'admin-ajax.php' ),
-				'nonce'               => wp_create_nonce( 'roadmap_admin_nonce' ),
-				'save_error'          => __( 'Error saving settings. Please try again.', 'product-roadmap' ),
-			)
-		);
+		wp_localize_script( 'roadmap-admin', 'roadmap_admin', self::admin_script_data() );
 
 		wp_enqueue_style( 'wp-color-picker' );
 		wp_enqueue_script( 'wp-color-picker' );
+	}
+
+	/**
+	 * Data for roadmap-admin.js, shared by the settings screens and the setup wizard.
+	 *
+	 * @return array
+	 */
+	public static function admin_script_data() {
+		return array(
+			'ajax_url'   => admin_url( 'admin-ajax.php' ),
+			'nonce'      => wp_create_nonce( 'roadmap_admin_nonce' ),
+			'save_error' => __( 'Error saving settings. Please try again.', 'product-roadmap' ),
+			'copied'     => __( 'Copied!', 'product-roadmap' ),
+			'copy_error' => __( 'Could not copy the shortcode. Select it and copy it manually.', 'product-roadmap' ),
+		);
 	}
 
 	public function add_product_columns( $columns ) {

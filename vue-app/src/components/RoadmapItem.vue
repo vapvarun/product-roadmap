@@ -17,21 +17,26 @@
           {{ i18n.suggested || 'Suggested' }}
         </span>
       </h4>
-      <div v-if="canEdit" class="roadmap-item-actions">
+      <!-- aria-live: the delete button's label change is announced. -->
+      <div v-if="canEdit" class="roadmap-item-actions" aria-live="polite">
         <button
           @click.stop="$emit('edit')"
           class="roadmap-btn roadmap-btn-sm roadmap-btn-icon"
           :title="i18n.edit || 'Edit'"
+          :aria-label="i18n.edit || 'Edit'"
         >
-          ✏️
+          <span aria-hidden="true">✏️</span>
         </button>
+        <!-- Two-step delete: the first click arms it, a second within 5 seconds deletes. -->
         <button
           v-if="mode === 'manage'"
-          @click.stop="$emit('delete')"
+          @click.stop="onDelete"
           class="roadmap-btn roadmap-btn-sm roadmap-btn-icon roadmap-btn-danger"
-          :title="i18n.delete || 'Delete'"
+          :title="confirmingDelete ? i18n.confirm_delete : (i18n.delete || 'Delete')"
+          :aria-label="confirmingDelete ? i18n.confirm_delete_label : (i18n.delete || 'Delete')"
         >
-          🗑️
+          <span v-if="confirmingDelete">{{ i18n.confirm_delete_label || 'Confirm delete' }}</span>
+          <span v-else aria-hidden="true">🗑️</span>
         </button>
       </div>
     </div>
@@ -123,7 +128,7 @@
 </template>
 
 <script setup>
-import { computed, inject } from 'vue'
+import { computed, inject, ref, onBeforeUnmount } from 'vue'
 
 const props = defineProps({
   item: {
@@ -149,6 +154,20 @@ const emit = defineEmits(['update', 'delete', 'vote', 'comment', 'dragstart', 'c
 // Inject config
 const config = inject('$roadmapConfig', {})
 const i18n = config?.i18n || {}
+
+const confirmingDelete = ref(false)
+let deleteTimer = null
+const onDelete = () => {
+  if (confirmingDelete.value) {
+    clearTimeout(deleteTimer)
+    confirmingDelete.value = false
+    emit('delete')
+    return
+  }
+  confirmingDelete.value = true
+  deleteTimer = setTimeout(() => { confirmingDelete.value = false }, 5000)
+}
+onBeforeUnmount(() => clearTimeout(deleteTimer))
 
 // Computed
 // A guest has no config.user, so can_vote (computed server-side only for a

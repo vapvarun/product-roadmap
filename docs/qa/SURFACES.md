@@ -126,7 +126,8 @@ Re-verify: `editor_notice|roadmap-error|roadmap-block-error|Placeholder\b|missin
 | Board toast | `F:vue-app/src/App.vue:237,484-590` | yes |
 | Single-item page notice | `F:templates/single-roadmap_item.php:244` (own element) | separate implementation |
 | Admin notices (PHP) | `F:product-roadmap.php:48`, `F:includes/class-roadmap-cpt.php:50,1020`, `F:includes/class-roadmap-settings.php:27`, `F:includes/class-roadmap-setup-wizard.php:178`, `F:includes/class-roadmap-demo-import.php:23`, `P:roadmap-pro-addon.php:56,210,1111`, `P:includes/class-roadmap-pro-export.php:24`, `P:includes/class-roadmap-pro-guest-suggestions.php:56`, `P:includes/class-roadmap-pro-merge.php:41` | WordPress standard |
-| **Browser `alert()` / `confirm()`** | `F:assets/js/roadmap-admin.js:52,124,128`, `P:assets/js/admin.js:219,224`, `P:blocks/roadmap-block/index.js:215` | **no** — breaks the no-browser-dialogs rule; card 10344407804 |
+| Admin JS messages | `F:assets/js/roadmap-admin-feedback.js` `roadmapAdminNotice()` (standard dismissible notice, `role=alert` for errors, `status` otherwise): used by `F:assets/js/roadmap-admin.js` (copy, product save) and `P:assets/js/admin.js` (clear cache) | yes |
+| Confirmations | Admin: `data-roadmap-confirm` two-step (same file), used on Reject (`F:includes/class-roadmap-cpt.php`), Start Over (`F:includes/class-roadmap-setup-wizard.php`), Merge (`P:includes/class-roadmap-pro-merge.php`), Clear Cache (`P:includes/class-roadmap-pro-settings.php`). Board: two-step delete in `F:vue-app/src/components/RoadmapItem.vue` | yes; no browser `alert()` / `confirm()` anywhere (grep) |
 
 Known gap: the Setup Wizard shows the welcome notice on itself — card 10336345758.
 Re-verify: `showNotification|roadmap-notification|admin_notices|alert\(|confirm\(`

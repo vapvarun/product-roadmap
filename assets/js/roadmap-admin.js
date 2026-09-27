@@ -22,7 +22,7 @@
             function showSuccess() {
                 button.addClass('copied');
                 if (hasText) {
-                    button.find('.copy-text').text('Copied!');
+                    button.find('.copy-text').text(roadmap_admin.copied);
                 }
                 button.find('.dashicons').removeClass(iconClass).addClass('dashicons-yes');
 
@@ -36,20 +36,22 @@
                 }, 2000);
             }
 
+            function showError() {
+                window.roadmapAdminNotice(roadmap_admin.copy_error, 'error');
+            }
+
             try {
                 // Try modern clipboard API first
                 if (navigator.clipboard && window.isSecureContext) {
-                    navigator.clipboard.writeText(shortcode).then(function() {
-                        showSuccess();
-                    });
-                } else {
-                    // Fallback for older browsers
-                    document.execCommand('copy');
+                    navigator.clipboard.writeText(shortcode).then(showSuccess, showError);
+                } else if (document.execCommand('copy')) {
+                    // Fallback for http and older browsers
                     showSuccess();
+                } else {
+                    showError();
                 }
             } catch (err) {
-                console.error('Failed to copy:', err);
-                alert('Failed to copy shortcode. Please select and copy manually.');
+                showError();
             } finally {
                 tempInput.remove();
             }
@@ -121,11 +123,11 @@
                     if (response && response.success) {
                         closeProductModal();
                     } else {
-                        window.alert(roadmap_admin.save_error || 'Error saving settings. Please try again.');
+                        window.roadmapAdminNotice(roadmap_admin.save_error, 'error');
                     }
                 })
                 .fail(function() {
-                    window.alert(roadmap_admin.save_error || 'Error saving settings. Please try again.');
+                    window.roadmapAdminNotice(roadmap_admin.save_error, 'error');
                 })
                 .always(function() {
                     $button.prop('disabled', false).text(originalText);

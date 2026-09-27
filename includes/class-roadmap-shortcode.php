@@ -932,6 +932,7 @@ class Roadmap_Shortcode {
 				__( 'Are you sure you want to delete this %s?', 'product-roadmap' ),
 				strtolower( $item_singular )
 			),
+			'confirm_delete_label' => __( 'Confirm delete', 'product-roadmap' ),
 			'item_added'           => sprintf(
 				/* translators: %s: Item singular label */
 				__( '%s added successfully', 'product-roadmap' ),

@@ -95,6 +95,9 @@ class RoadmapPlugin {
         $tokens = ROADMAP_PLUGIN_PATH . 'assets/css/roadmap-tokens.css';
         wp_register_style( 'roadmap-tokens', ROADMAP_PLUGIN_URL . 'assets/css/roadmap-tokens.css', array(), file_exists( $tokens ) ? (string) filemtime( $tokens ) : ROADMAP_VERSION );
 
+        // Admin confirmations and notices without alert()/confirm() (Free and Pro).
+        wp_register_script( 'roadmap-admin-feedback', ROADMAP_PLUGIN_URL . 'assets/js/roadmap-admin-feedback.js', array(), ROADMAP_VERSION, true );
+
         // Run migration check on admin init
         if (is_admin()) {
             // The product->taxonomy data migration is expensive, so it stays on

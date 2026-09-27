@@ -174,8 +174,9 @@ class Roadmap_Setup_Wizard {
                                 'roadmap_start_over'
                             );
                             ?>
-                            <a href="<?php echo esc_url($start_over_url); ?>" class="button" 
-                               onclick="return confirm('<?php esc_html_e('This will reset the wizard. Your existing roadmap items will not be affected. Continue?', 'product-roadmap'); ?>');">
+                            <a href="<?php echo esc_url($start_over_url); ?>" class="button"
+                               data-roadmap-confirm="<?php esc_attr_e( 'Resets the wizard. Your existing roadmap items are not affected.', 'product-roadmap' ); ?>"
+                               data-roadmap-confirm-label="<?php esc_attr_e( 'Confirm start over', 'product-roadmap' ); ?>">
                                 <?php esc_html_e('Start Over', 'product-roadmap'); ?>
                             </a>
                         </p>
@@ -634,7 +635,8 @@ class Roadmap_Setup_Wizard {
         wp_enqueue_style('roadmap-admin', ROADMAP_PLUGIN_URL . 'assets/css/roadmap-admin.css', array(), ROADMAP_VERSION);
 
         // Enqueue admin JS for copy-to-clipboard functionality
-        wp_enqueue_script('roadmap-admin', ROADMAP_PLUGIN_URL . 'assets/js/roadmap-admin.js', array('jquery'), ROADMAP_VERSION, true);
+        wp_enqueue_script('roadmap-admin', ROADMAP_PLUGIN_URL . 'assets/js/roadmap-admin.js', array('jquery', 'roadmap-admin-feedback'), ROADMAP_VERSION, true);
+        wp_localize_script( 'roadmap-admin', 'roadmap_admin', Roadmap_Settings::admin_script_data() );
     }
 }
 

@@ -1015,12 +1015,14 @@ class Roadmap_CPT {
 			__( 'Approve', 'product-roadmap' )
 		);
 
-		// Add reject action (with red color)
+		// Add reject action (with red color). Two-step confirm, no browser dialog.
+		wp_enqueue_script( 'roadmap-admin-feedback' );
 		$actions['reject'] = sprintf(
-			'<a href="%s" style="color: #dc3232;" onclick="return confirm(\'%s\');">%s</a>',
+			'<a href="%s" style="color: #dc3232;" data-roadmap-confirm="%s" data-roadmap-confirm-label="%s">%s</a>',
 			esc_url( $reject_url ),
-			esc_js( __( 'Are you sure you want to reject this submission?', 'product-roadmap' ) ),
-			__( 'Reject', 'product-roadmap' )
+			esc_attr__( 'Rejects this submission.', 'product-roadmap' ),
+			esc_attr__( 'Confirm reject', 'product-roadmap' ),
+			esc_html__( 'Reject', 'product-roadmap' )
 		);
 
 		return $actions;

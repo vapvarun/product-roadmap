@@ -496,11 +496,8 @@ const updateItem = async (itemId, updates) => {
   }
 }
 
+// RoadmapItem asks for a second click before emitting delete.
 const deleteItem = async (itemId) => {
-  if (!confirm(props.config.i18n.confirm_delete)) {
-    return
-  }
-  
   try {
     await apiCall(`/items/${itemId}`, {
       method: 'DELETE'
