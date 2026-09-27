@@ -138,10 +138,10 @@ Re-verify: `showNotification|roadmap-notification|admin_notices|alert\(|confirm\
 
 | Surface | Where | Keeps input on failure? |
 |---|---|---|
-| **Suggestion modal** | `F:vue-app/src/components/SuggestionModal.vue:140-148` (resets on emit) | **no** — card 10343990481 |
+| Suggestion modal | `F:vue-app/src/components/SuggestionModal.vue` `handleSubmit()` (no reset; the modal unmounts on success) | yes |
 | Comment modal | `F:vue-app/src/components/CommentModal.vue:51-53` | yes |
 | Item modal (manage mode) | `F:vue-app/src/components/ItemModal.vue:225-230` | yes |
-| Pro feedback widget | `P:assets/js/feedback-widget.js:43` | to verify with the fix for 10343990481 |
+| Pro feedback widget | `P:assets/js/feedback-widget.js` (`form.reset()` only on a successful response) | yes |
 | Single item comments | `F:templates/single-roadmap_item.php:231` (core `comments_template()`) | core behaviour |
 
 Re-verify: `emit\(\s*'(submit|save)'|@submit|handleSubmit|onSubmit|addEventListener\(\s*'submit'`
