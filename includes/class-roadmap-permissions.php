@@ -64,16 +64,23 @@ class Roadmap_Permissions {
                 'roadmap_comment',
                 'roadmap_suggest',
                 'roadmap_edit_own_items',
+                'roadmap_delete_own_items',
             ],
             'contributor'   => [
                 'roadmap_vote',
                 'roadmap_comment',
                 'roadmap_suggest',
             ],
+            // Members submit suggestions and should be able to edit or
+            // withdraw their own before it's actioned - the qa-config.json
+            // member-owner persona ("owns their own content") documents this
+            // as the intended behaviour. Bugs found on the 1.8.0 smoke pass.
             'subscriber'    => [
                 'roadmap_vote',
                 'roadmap_comment',
                 'roadmap_suggest',
+                'roadmap_edit_own_items',
+                'roadmap_delete_own_items',
             ],
         ];
 
@@ -194,14 +201,19 @@ class Roadmap_Permissions {
             return false;
         }
 
-        // WordPress decides ownership and post-level locking; we only add our
-        // own capability on top of it.
-        if (!user_can($user_id, 'edit_post', $post_id)) {
-            return false;
+        // roadmap_item is registered capability_type 'post' with no
+        // map_meta_cap override, so WordPress's own edit_post meta-cap
+        // requires the base edit_posts capability before it even looks at
+        // ownership - a Subscriber never has edit_posts, so this gate
+        // couldn't pass for members no matter what roadmap_edit_own_items
+        // said. Check the plugin's own capability + ownership directly
+        // instead of layering on WordPress's native post-editing gate.
+        if (user_can($user_id, 'roadmap_edit_items')) {
+            return true;
         }
 
-        return user_can($user_id, 'roadmap_edit_items')
-            || user_can($user_id, 'roadmap_edit_own_items');
+        return user_can($user_id, 'roadmap_edit_own_items')
+            && (int) $post->post_author === (int) $user_id;
     }
 
     /**
@@ -222,11 +234,15 @@ class Roadmap_Permissions {
             return false;
         }
 
-        if (!user_can($user_id, 'delete_post', $post_id)) {
-            return false;
+        // Same reasoning as can_edit_item(): check the plugin's own
+        // capability + ownership directly rather than WordPress's native
+        // delete_post meta-cap, which a Subscriber can never pass.
+        if (user_can($user_id, 'roadmap_delete_items')) {
+            return true;
         }
 
-        return user_can($user_id, 'roadmap_delete_items');
+        return user_can($user_id, 'roadmap_delete_own_items')
+            && (int) $post->post_author === (int) $user_id;
     }
 
     public static function can_edit_items($user_id = null) {
