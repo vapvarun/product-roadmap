@@ -57,6 +57,13 @@ class Roadmap_Changelog {
 
 		// Auto-generate slug with product prefix
 		add_filter( 'wp_insert_post_data', array( $this, 'auto_generate_slug' ), 10, 2 );
+
+		// The block editor's REST save sets post fields (and runs the filter
+		// above) before it attaches the roadmap_product term via handle_terms()
+		// later in the same request, so a non-default product's first save can
+		// only see "no product yet" and falls back to the general- slug. Correct
+		// it once REST has actually finished attaching terms.
+		add_action( 'rest_after_insert_roadmap_changelog', array( $this, 'fix_slug_after_rest_terms' ), 10, 2 );
 	}
 
 	/**
@@ -1044,6 +1051,55 @@ class Roadmap_Changelog {
 		}
 
 		return $data;
+	}
+
+	/**
+	 * Re-derive a changelog slug that was forced to the "general-" fallback
+	 * because auto_generate_slug() ran before the block editor's REST request
+	 * had attached the roadmap_product term (see the hook registration in the
+	 * constructor) - it can land as either "general-v{version}" or, when the
+	 * very first autosave ran before a version existed yet too, "general-
+	 * {title}". Once REST has actually finished attaching terms and saving
+	 * meta, replace just the wrong "general-" prefix with the real product's
+	 * slug. Only that exact fallback prefix is touched - a slug the owner
+	 * edited, or one that already derived the right product, is left alone.
+	 * (Bugs 10326920444.)
+	 */
+	public function fix_slug_after_rest_terms( $post, $request ) {
+		if ( 'roadmap_changelog' !== $post->post_type ) {
+			return;
+		}
+
+		if ( 0 !== strpos( $post->post_name, 'general-' ) ) {
+			return;
+		}
+
+		$products = wp_get_object_terms( $post->ID, 'roadmap_product' );
+		if ( empty( $products ) || is_wp_error( $products ) ) {
+			return;
+		}
+		$product_slug = $products[0]->slug;
+
+		// The fallback was already correct - this entry really is "general".
+		if ( 'general' === $product_slug ) {
+			return;
+		}
+
+		$version = (string) get_post_meta( $post->ID, '_changelog_version', true );
+		$slug_base = '' !== $version
+			? $product_slug . '-v' . sanitize_title( $version )
+			: $product_slug . '-' . substr( $post->post_name, strlen( 'general-' ) );
+
+		$new_slug = wp_unique_post_slug( $slug_base, $post->ID, $post->post_status, $post->post_type, $post->post_parent );
+
+		if ( $new_slug !== $post->post_name ) {
+			wp_update_post(
+				array(
+					'ID'        => $post->ID,
+					'post_name' => $new_slug,
+				)
+			);
+		}
 	}
 
 	/**
