@@ -63,7 +63,7 @@ Re-verify: `wp_set_(object|post)_terms\([^;]*roadmap_product|tax_input\[roadmap_
 | Templates | `F:templates/single-roadmap_item.php:65`, `F:templates/single-roadmap_changelog.php:20`, `F:templates/archive-roadmap_changelog.php:170` |
 | Pro API, settings, changelog | `P:includes/class-roadmap-pro-api.php:621`, `P:includes/class-roadmap-pro-changelog.php:503`, `P:includes/class-roadmap-pro-settings.php:644,1568` |
 
-Known gap: changelog slug derivation in the block editor — card 10326920444.
+Fixed: changelog slug derivation in the block editor — card 10326920444, `eab838d` (`fix_slug_after_rest_terms()` on `rest_after_insert_roadmap_changelog`), re-verified live 2026-09-28.
 Re-verify: `roadmap_api_filter_by_product|get_the_terms\([^)]*roadmap_product|wp_get_object_terms\([^)]*roadmap_product|product_terms\[0\]|products\[0\]`
 
 ### 3. Status display (chip / colour / column per status)
