@@ -2,119 +2,79 @@
   "mode": "combo",
   "release_version": "1.8.0",
   "pro_version": "1.8.0",
-  "ran_at": "2026-09-28T12:39:00Z",
+  "ran_at": "2026-09-28T13:14:00Z",
   "sections": {
     "A_fresh_install": { "pass": 3, "fail": 0, "skipped": 0 },
     "B_upgrade": { "pass": 0, "fail": 0, "skipped": 1 },
-    "C_core_flows": { "pass": 10, "fail": 1, "skipped": 1 },
+    "C_core_flows": { "pass": 9, "fail": 1, "skipped": 1 },
     "D_regression_guards": { "pass": 13, "fail": 0, "skipped": 6 },
-    "E_pro_smoke": { "pass": 3, "fail": 1, "skipped": 7 },
+    "E_pro_smoke": { "pass": 4, "fail": 0, "skipped": 7 },
     "E2_environment": { "pass": 1, "fail": 0, "skipped": 7 },
-    "F_cross_browser": { "pass": 1, "fail": 0, "skipped": 3 },
-    "G_post_release": { "pass": 0, "fail": 0, "skipped": 1 },
+    "F_cross_browser": { "pass": 1, "fail": 0, "skipped": 4 },
+    "G_post_release": { "pass": 0, "fail": 0, "skipped": 0 },
     "S_pro_supplements": { "pass": 0, "fail": 0, "skipped": 0 }
   },
   "hard_fails": [
     {
-      "id": "C.member.edit-and-delete",
-      "invariant": "capability-blocks",
-      "actual": "Subscriber-role members (qa_member_owner, qa_member_other - the exact persona roster the runbook defines as 'member') can never edit or delete their own pending suggestion. Roadmap_Permissions::can_edit_item() requires user_can($user_id,'edit_post',$post_id) to pass first (product-roadmap/includes/class-roadmap-permissions.php:199); roadmap_item is registered with capability_type='post' with no map_meta_cap override (class-roadmap-cpt.php ~line 135), so it inherits CORE post capabilities. Subscribers lack the base 'edit_posts' capability entirely, so WP's meta-cap mapping fails before ownership is even checked - roadmap_edit_own_items (granted only to the WP 'author' role, which no QA persona holds) is unreachable dead code. can_delete_item() is worse: it requires 'roadmap_delete_items' with no '_own' variant at all (class-roadmap-permissions.php:229), so NO non-admin/editor role can ever delete their own item. Verified live: PUT and DELETE /wp-json/roadmap/v1/items/{id} both return 403 rest_forbidden for qa_member_owner on their own post 1307 (post_author matched current user)."
-    },
-    {
-      "id": "E.license",
-      "invariant": "no-fatal",
-      "actual": "Setting an invalid Pro license produces no admin notice anywhere (dashboard, settings, any wp-admin screen) even though Free/Pro features keep working correctly (no fatal, no silent feature loss - that part of the contract holds). Root cause: roadmap-pro-addon.php registers 'add_action(\"plugins_loaded\",[$this,\"init\"])' (default priority 10) from INSIDE RoadmapProAddon::define_hooks(), which itself only runs when roadmap_pro_addon() is invoked from a plugins_loaded callback registered at PRIORITY 20 (bottom of roadmap-pro-addon.php). By the time that priority-20 callback registers the priority-10 'init' callback, WordPress's hook iterator for the CURRENT plugins_loaded pass has already moved past priority 10, so init() never executes on any request. Confirmed live: is_textdomain_loaded('roadmap-pro-addon') returns false even though init() unconditionally calls load_plugin_textdomain() - proving init() never runs. This silently breaks BOTH the license-invalid admin notice (show_license_notice(), roadmap-pro-addon.php:715) and all Pro i18n string translation, on every request, regardless of license state."
+      "id": "C.mod.queue-and-actions.approve-invisible",
+      "invariant": "promise:C.mod.queue-and-actions",
+      "actual": "The 'Approve' quick action on every pending roadmap_item row in wp-admin (Roadmap > All Items, Pending filter) is present in the DOM with the correct href/nonce/capability gate but is completely invisible (0x0 box, offsetParent null) due to a CSS class-name collision with WordPress core's own Comments-list-table styling. Root cause: product-roadmap/includes/class-roadmap-cpt.php add_quick_approve_actions() (line 1029) sets $actions['approve'], and WP_List_Table::row_actions() (wp-admin/includes/class-wp-list-table.php:689) wraps every row-action key in <span class=\"$action\">. WordPress core's wp-admin/css/common.css defines an UNSCOPED rule '.approve, .unapproved .unapprove { display: none; }' with '.unapproved .approve, .spam .approve, .trash .approve { display: inline; }' as the only escape - written for the Comments screen where rows carry class unapproved/spam/trash. The Posts list table's pending roadmap_item rows carry class 'status-pending' instead, so core's blanket .approve{display:none} always wins and the Approve link never becomes visible, for any user, on any page load. Confirmed 100% reproducible on 3 independent pending items across 2 personas (qa_elevated, qa_admin). The backend handler itself is correct: navigating directly to the same href (bypassing the CSS) moved the post from pending to publish exactly as expected, so this is a pure dead-UI bug, not a broken handler. Reject is unaffected (different, non-colliding key name) and works correctly with its two-step no-native-dialog confirm."
     }
   ],
   "untested": [
-    { "id": "B.migration-silent", "reason": "no prior-stable-tag fixture available in this environment to install-then-upgrade without disrupting the live combo install", "needs": "a snapshot of the last-released Free+Pro tag to install first" },
-    { "id": "C.admin.user-management", "reason": "na per runbook - plugin has no per-user admin surface beyond WP capabilities", "needs": "n/a" },
-    { "id": "D.1-version-compat-live-swap", "reason": "would require temporarily downgrading Free/Pro plugin files on the shared dev site; card 10344548089 already independently PASS-verified and current versions (ROADMAP_VERSION=ROADMAP_PRO_VERSION=ROADMAP_MIN_PRO_VERSION=ROADMAP_PRO_MIN_FREE_VERSION=1.8.0) confirm lockstep is unchanged since that verification", "needs": "isolated environment with swappable plugin zips" },
-    { "id": "D.3-board-block-live-preview", "reason": "requires block-editor sidebar interaction across every option, not reached in time budget", "needs": "dedicated block-editor pass" },
-    { "id": "D.4-csv-bad-row-reject", "reason": "CSV import bad-row-rejection path not exercised; multi-product Quick Edit/bulk-move not exercised", "needs": "sample CSV fixture with an intentionally invalid row" },
-    { "id": "D.5-color-dark-mode-consistency", "reason": "active theme (BuddyX free) exposes no dark-mode toggle and does not respond to prefers-color-scheme:dark (verified: emulating colorScheme:dark produced no visual change) - nothing to toggle within the time budget available; BuddyX Pro (which does provide dark mode per CLAUDE.md) was not activated", "needs": "BuddyX Pro active, or explicit theme-toggle selector" },
-    { "id": "D.9-owner-sort-not-overridden", "reason": "not walked live in the time available", "needs": "List/IdeaBox view sort-order comparison pass" },
-    { "id": "D.10-demo-vote-recount", "reason": "recount routine not triggered live", "needs": "run the recount/update routine and diff before/after" },
-    { "id": "D.16-toast-contrast", "reason": "depends on dark mode being reachable (see D.5); not walked", "needs": "same as D.5" },
-    { "id": "E.csv-import", "reason": "not exercised in time available", "needs": "sample CSV fixtures (valid + invalid row)" },
-    { "id": "E.digest-emails", "reason": "cron event present (roadmap_pro_prune_analytics visible in wp cron event list) but the digest send itself was not force-run against Mailpit", "needs": "wp cron event run for the digest hook + Mailpit check" },
-    { "id": "E.custom-fields", "reason": "not exercised in time available", "needs": "dedicated pass" },
-    { "id": "E.webhooks", "reason": "not exercised in time available", "needs": "dedicated pass with a request-bin listener" },
-    { "id": "E.user-profiles", "reason": "not exercised in time available", "needs": "dedicated pass on roadmap_user_profile shortcode" },
-    { "id": "E.feedback-widget", "reason": "not exercised in time available", "needs": "embed on a non-roadmap page and submit" },
-    { "id": "E.email-templates", "reason": "not exercised in time available", "needs": "edit a template + trigger the matching email + check Mailpit body" },
-    { "id": "E2.no-host", "reason": "not walked - deactivating BuddyPress/BuddyX hooks was judged too disruptive to do safely within the time budget without a rollback plan", "needs": "dedicated pass" },
-    { "id": "E2.no-reset-theme", "reason": "conceptually covered by the Twenty Twenty-Five pass (no [hidden] bleed observed) but not separately walked focusing on plugin CSS self-scoping", "needs": "dedicated pass" },
-    { "id": "E2.cache", "reason": "no page/object cache plugin active on this site to exercise the nonce-expiry-under-cache scenario", "needs": "a caching plugin installed" },
-    { "id": "E2.multisite", "reason": "this site is not multisite; no scratch multisite environment available", "needs": "a multisite scratch install" },
-    { "id": "E2.stack", "reason": "BuddyX Pro and Reign are installed but not activated one-at-a-time in this run due to time budget; only the primary BuddyX + Twenty Twenty-Five pair was walked", "needs": "dedicated pass activating each companion" },
-    { "id": "E2.textdomain", "reason": "WP 7.1.2 is active (well past 6.7) but the specific _load_textdomain_just_in_time check was not isolated; Pro's own textdomain load is separately confirmed broken (see hard_fails E.license) which sidesteps this notice entirely for Pro strings", "needs": "targeted check once the init() timing bug is fixed" },
-    { "id": "F.firefox-desktop", "reason": "Chromium-only MCP cannot walk this", "needs": "manual" },
-    { "id": "F.safari-ios", "reason": "Chromium-only MCP cannot walk this", "needs": "manual" },
-    { "id": "F.rtl", "reason": "not walked in time available", "needs": "RTL locale switch + board render check" },
-    { "id": "G.post-release-monitoring", "reason": "runs on production host post-release, not applicable to this local pre-release smoke", "needs": "n/a" }
+    { "id": "B.1", "reason": "no prior stable tag installed to upgrade from in this environment", "needs": "a snapshot/tag of the previous stable release to install-then-upgrade against" },
+    { "id": "C.notifications", "reason": "would require inspecting Mailpit for the status-change notification email; not exercised this run", "needs": "Mailpit UI/API check after a status change with notify_on_suggestion enabled" },
+    { "id": "D.1", "reason": "requires deliberately installing a version-mismatched Free/Pro pair; too invasive to force on this environment mid-run. Current installed pair is lockstep (Free 1.8.0 / Pro 1.8.0, ROADMAP_PRO_MIN_FREE_VERSION guard code reviewed and present) and card 10344548089 was independently verified PASS previously per the runbook", "needs": "a scratch copy of the site to swap plugin zips on" },
+    { "id": "D.3", "reason": "block sidebar option -> live editor preview -> shortcode-output parity not walked this run", "needs": "browser walk of the board block editor sidebar" },
+    { "id": "D.5", "reason": "full light/dark toggle sweep across every board + admin surface not performed; only the token architecture (roadmap-tokens.css single source of truth) was confirmed by design, not re-walked pixel by pixel", "needs": "per-surface dark-mode screenshot pass" },
+    { "id": "D.10", "reason": "demo-item vote recount/update routine not exercised this run", "needs": "cast a vote on a demo item then run the recount routine and diff the count" },
+    { "id": "D.12", "reason": "single item page vs board voted-state consistency (member + guest, voting on/off) not walked this run", "needs": "browser walk of an item detail page under all 4 combinations" },
+    { "id": "D.16", "reason": "toast text AA contrast in light and dark not measured this run", "needs": "trigger a success and an error toast in both themes and measure contrast" },
+    { "id": "E.csv-import", "reason": "code path reviewed (rejected-row tracking with per-row WP_Error reasons confirmed present in class-roadmap-pro-export.php) but not exercised via a real file upload this run", "needs": "upload a CSV with one bad row through the admin UI" },
+    { "id": "E.digest-emails", "reason": "cron event presence confirmed (roadmap_pro_prune_analytics/digest scheduled) but the actual email send was not checked against Mailpit this run", "needs": "trigger the digest cron and inspect Mailpit" },
+    { "id": "E.custom-fields", "reason": "not exercised this run", "needs": "define a custom field in Pro settings, save on an item, verify frontend render" },
+    { "id": "E.webhooks", "reason": "not exercised this run", "needs": "configure a webhook against a request-bin and trigger its event" },
+    { "id": "E.user-profiles", "reason": "not exercised this run", "needs": "browser walk of roadmap_user_profile shortcode as owner and as a different member" },
+    { "id": "E.feedback-widget", "reason": "not exercised this run", "needs": "embed the widget on a non-roadmap page and submit through it" },
+    { "id": "E.email-templates", "reason": "not exercised this run", "needs": "edit a Pro email template and verify the sent body via Mailpit" },
+    { "id": "E2.no-host", "reason": "would require deactivating BuddyX-specific integration hooks mid-run", "needs": "scratch environment" },
+    { "id": "E2.block-theme", "reason": "would require switching the active theme away from BuddyX for the whole site mid-run", "needs": "scratch environment or a maintenance window" },
+    { "id": "E2.no-reset-theme", "reason": "same as E2.block-theme", "needs": "scratch environment" },
+    { "id": "E2.php-latest", "reason": "PHP version fixed by the Local site; not swapped this run", "needs": "a second PHP version to test against" },
+    { "id": "E2.cache", "reason": "no page/object cache plugin active on this environment to test a nonce-expiry-past-cache scenario", "needs": "page cache + object cache stack" },
+    { "id": "E2.multisite", "reason": "this environment is single-site; network-activate scenario needs a multisite scratch install", "needs": "multisite scratch site" },
+    { "id": "E2.stack", "reason": "BuddyX is active (implicitly covered); Reign and standalone BuddyX Pro companion combinations not walked this run", "needs": "scratch environment with each companion" },
+    { "id": "F.rtl", "reason": "no RTL locale switched this run", "needs": "switch site language to an RTL locale and re-walk board views" },
+    { "id": "F.a11y", "reason": "no dedicated focus-ring/aria-label audit performed; incidental accessibility-tree inspection during other checks showed properly labelled form fields and buttons but this was not a systematic pass", "needs": "dedicated keyboard-nav + aria audit" }
   ],
   "coverage": {
-    "multisite": "na: this site is not multisite; no scratch multisite environment available",
-    "rtl": "deferred: not walked in time available",
-    "concurrency": "deferred: multi-actor concurrency (double-approve, double-vote race) not walked",
-    "uninstall": "deferred: uninstall.php not executed (would deactivate/remove the live combo dev install)",
-    "dark_mode": "na: active theme BuddyX (free) has no dark-mode toggle and ignores prefers-color-scheme; BuddyX Pro (which has one per CLAUDE.md) not activated this run"
+    "multisite": "na: not tested, single-site environment (see untested E2.multisite)",
+    "rtl": "na: not tested (see untested F.rtl)",
+    "concurrency": "na: not tested this run",
+    "uninstall": "na: not tested this run (uninstall.php not executed)",
+    "user_management": "na: no per-user roles/trust-level admin surface beyond WP's own capabilities (per runbook)",
+    "cron": "run: Free registers no cron event at all (grepped includes/*.php, no wp_schedule_event/wp_next_scheduled hits) so there is nothing to leak on deactivate; Pro's roadmap_pro_prune_analytics is present and correctly scheduled"
   },
   "verdict": "BLOCK",
   "top3": [
-    "Members (subscriber role - the exact persona the runbook defines as 'member') can never edit or delete their own pending suggestion; the capability model only grants edit-own to the unused WP 'author' role, and delete-own doesn't exist for any non-admin/editor role at all. Confirmed via live REST 403s.",
-    "Pro's plugins_loaded 'init' hook (license-invalid admin notice + load_plugin_textdomain) never fires on any request due to a hook-registration-during-iteration timing bug - confirmed via is_textdomain_loaded() returning false. An invalid/expired license shows no admin notice anywhere, though Free/Pro functionality itself is unaffected (no fatal, no silent feature loss).",
-    "Everything else walked in this pass was clean: all 19 D-row regressions that were exercised (13 of 19, including D.13's changelog slug fix) held, Merge Duplicates/guest voting/rate-limit-preserves-input/settings-merge/dialog-free moderation/setup-wizard-notice-scoping all verified live with zero new debug.log entries across the whole session."
+    "Both hard fails from the previous run are confirmed fixed and hold under regression testing: members can now edit/delete only their own submitted items via REST (other members still get 403, no privilege-escalation regression), and Pro's init() fires correctly so the invalid-license admin notice and Pro's translation loading both work again. D.13's changelog slug bug is also reconfirmed fixed via a real block-editor publish (gamma-api-v2-5-0, not general-...).",
+    "New blocker found this run: the 'Approve' quick action on every pending suggestion in wp-admin (Roadmap > All Items > Pending) is invisible to every user because its row-action key 'approve' collides with an unscoped WordPress core CSS rule written for the Comments screen. The backend handler works fine when hit directly; the one-click UI moderators are supposed to use is a dead end. Workaround exists (Quick Edit -> Status -> Published, or open-and-publish) but the documented single-click action does not work as shipped.",
+    "Everything else exercised this pass came back clean: fresh-install routes/DB schema, member suggest/vote/comment flow (incl. rate-limit content preservation - D.8), mobile 390px board layout, admin Settings/Dashboard/Analytics/Setup-Wizard (D.14's notice suppression holds), Pro merge-duplicates (votes+comments transplanted, source trashed), analytics vote count matching the votes table exactly, deleted-product board handling (D.6), timeline.js correctly withheld when disabled (D.18), two-step no-native-dialog confirm on Reject (D.11), and the Pro .pot file (D.17). Large swaths were not exercised this run for time/environment reasons - see untested[] - most notably B-upgrade, full RTL/dark-mode sweeps, multisite, Firefox/Safari, and several Pro-only features (webhooks, digest emails, custom fields, feedback widget, email templates, user profiles)."
   ],
   "failures": [
     {
-      "id": "C.member.edit-and-delete",
+      "id": "C.mod.queue-and-actions.approve-invisible",
       "origin": "from",
-      "triage_note": "Root cause in product-roadmap/includes/class-roadmap-cpt.php (roadmap_item registered with capability_type='post', no map_meta_cap) and class-roadmap-permissions.php:184-230 (can_edit_item/can_delete_item). Fix: either register the CPT with a custom capability_type + map_meta_cap=true so 'own post' ownership is honored for subscriber/contributor, or change can_edit_item()/can_delete_item() to check post_author === current user OR the explicit *_own_items caps directly instead of gating everything behind WP's native edit_post/delete_post meta cap (which subscribers can never pass regardless of ownership).",
-      "expected": "qa_member_owner (subscriber, author of item 1307) can PUT/DELETE their own pending suggestion via the REST API / frontend UI.",
-      "actual": "PUT /wp-json/roadmap/v1/items/1307 -> 403 rest_forbidden. DELETE /wp-json/roadmap/v1/items/1307 -> 403 rest_forbidden. Same result for qa_member_other on their own hypothetical item (untestable to a *different* outcome since the underlying gate blocks everyone below editor).",
-      "url": "http://roadmap.local/poll-roadmap/board-view/",
-      "screenshot": "n/a - confirmed via authenticated fetch() from the member's live session, not a visual bug"
-    },
-    {
-      "id": "E.license",
-      "origin": "from",
-      "triage_note": "Root cause: roadmap-pro-addon.php bottom-of-file bootstrap calls roadmap_pro_addon() from inside add_action('plugins_loaded', fn, 20); that instantiation's constructor -> define_hooks() -> add_action('plugins_loaded',[$this,'init']) (priority 10) registers too late for the CURRENT plugins_loaded pass to reach it (WP_Hook does not rewind past an already-processed priority). Fix: call $this->init() directly and synchronously from define_hooks()/the constructor instead of re-hooking onto the same in-flight action, or hook init() onto a later-firing action (e.g. 'init' the WP hook, not 'plugins_loaded').",
-      "expected": "With roadmap_pro_license_status=invalid, an admin notice ('Please activate your Roadmap Pro license...') appears in wp-admin; Pro strings are translatable (textdomain loaded).",
-      "actual": "No notice appears on any wp-admin screen (dashboard, roadmap settings, license tab itself does show 'License is invalid' inline - only that one spot). is_textdomain_loaded('roadmap-pro-addon') === false. Free/Pro features themselves keep working with an invalid license (no fatal, no silent disablement) - only the notice/i18n side is broken.",
-      "url": "http://roadmap.local/wp-admin/admin.php?page=roadmap-dashboard",
-      "screenshot": "n/a - confirmed via DOM text search + is_textdomain_loaded() check, not a visual bug"
-    },
-    {
-      "id": "info.page-hierarchy-poll-roadmap-nesting",
-      "origin": "for",
-      "triage_note": "Not a plugin bug - the six board-view WP pages (board-view, timeline-view, list-view, cards-view, minimal-view - all children of page 17 'Poll Roadmap') were manually assigned that parent at site-content-setup time; the plugin's own code never sets post_parent for these pages (grepped demo-import and setup-wizard classes, zero hits). Site owner/content-setup issue, not plugin code.",
-      "expected": "Runbook describes these as six standalone flat routes (/board-view/ etc).",
-      "actual": "/board-view/ etc. 301-redirect to /poll-roadmap/board-view/ (still 200 after redirect, functionally fine).",
-      "url": "http://roadmap.local/board-view/",
-      "screenshot": "n/a"
-    },
-    {
-      "id": "info.fputcsv-deprecated-historical",
-      "origin": "from",
-      "triage_note": "roadmap-pro-addon.php lines 955-982 (export_analytics_csv) call fputcsv($output, [...]) with 4 args; debug.log shows PHP Deprecated 'fputcsv(): the $escape parameter must be provided' warnings dated 09:56:07 the same day, predating this session's baseline capture (so they did not show as NEW growth in my diff). I re-triggered the Analytics CSV export live in this session (Export CSV button, admin) and debug.log did NOT grow - the deprecation did not reproduce on this retest, so I cannot confirm it is currently live vs. an artifact of a differently-configured PHP process in the earlier session. Flagging for awareness since the 4-arg fputcsv() call is still present in the code either way; adding the 5th ($escape) argument is a one-line defensive fix regardless.",
-      "expected": "No deprecated notices from CSV export on the site's configured PHP (8.2.30).",
-      "actual": "Historical log entries exist attributing the deprecation to this file/these lines; not reproduced on live retest this session.",
-      "url": "http://roadmap.local/wp-admin/admin.php?page=roadmap-analytics",
-      "screenshot": "n/a"
+      "triage_note": "Root-caused via live DOM inspection: span.approve computed display:none, traced to wp-admin/css/common.css's unscoped '.approve{display:none}' rule (written for #the-comment-list, not scoped there). product-roadmap's add_quick_approve_actions() (class-roadmap-cpt.php:1029) uses the bare array key 'approve', which WP_List_Table::row_actions() turns into <span class=\"approve\">, colliding with core's global selector on the Posts list table. Reproduced on 3 separate pending items (posts 1084, 1085, 1321/1325 fixtures) across qa_elevated and qa_admin - not user- or data-specific. Confirmed the handler itself is correct by navigating directly to the (invisible) link's href: post 1321 moved from pending to publish exactly as intended. Fix direction (not applied, verification-only run): rename the row-action array key to something plugin-scoped, e.g. 'roadmap_approve', so it no longer collides with WordPress's reserved '.approve' class.",
+      "expected": "An editor/admin viewing Roadmap > All Items > Pending sees both 'Approve' (green) and 'Reject' (red) quick-action links in each row's row-actions strip, per card 10344407804's dialog-free flow.",
+      "actual": "Only 'Reject' is visible. 'Approve' exists in the DOM (correct href/nonce) but renders at 0x0 with offsetParent null because of the .approve CSS collision described above.",
+      "url": "http://roadmap.local/wp-admin/edit.php?post_type=roadmap_item&post_status=pending",
+      "screenshot": "/Users/varundubey/Local Sites/roadmap/app/qa-artifacts/fail-C.mod.approve-invisible.png"
     }
   ],
-  "debug_log_issues": [
-    {
-      "section": "historical (pre-dates this session's baseline)",
-      "level": "deprecated",
-      "line": "PHP Deprecated: fputcsv(): the $escape parameter must be provided as its default value will change",
-      "file": "wp-content/plugins/roadmap-pro-addon/roadmap-pro-addon.php:955-982"
-    }
-  ],
+  "debug_log_issues": [],
   "manual_required": [
-    "F.firefox-desktop - Chromium-only MCP cannot walk this",
-    "F.safari-ios - Chromium-only MCP cannot walk this"
+    { "id": "F.firefox-desktop", "reason": "Chromium-only Playwright MCP cannot drive Firefox" },
+    { "id": "F.safari-ios", "reason": "Chromium-only Playwright MCP cannot drive Safari/iOS" }
   ]
 }

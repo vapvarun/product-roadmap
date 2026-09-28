@@ -1025,8 +1025,16 @@ class Roadmap_CPT {
 			'reject_roadmap_item_' . $post->ID
 		);
 
-		// Add approve action (with green color)
-		$actions['approve'] = sprintf(
+		// Add approve action (with green color). Keyed 'roadmap_approve', not
+		// 'approve' - WP_List_Table::row_actions() wraps each key in
+		// <span class="$key">, and wp-admin/css/common.css has an unscoped
+		// `.approve { display: none; }` rule written for the Comments screen
+		// (only re-shown inside .unapproved/.spam/.trash rows). Our pending
+		// rows carry class status-pending, not unapproved, so that rule
+		// always won and the link was invisible everywhere, for everyone -
+		// the handler itself worked fine if you knew the URL. Found on the
+		// 1.8.0 smoke re-run.
+		$actions['roadmap_approve'] = sprintf(
 			'<a href="%s" style="color: #46b450;">%s</a>',
 			esc_url( $approve_url ),
 			__( 'Approve', 'product-roadmap' )
