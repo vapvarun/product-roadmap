@@ -26,6 +26,11 @@
       "id": "option-read-never-written:roadmap_pro_feedback_widget_display",
       "severity": "error",
       "reason": "Display-rules option read with a safe default (widget shows everywhere) in class-roadmap-pro-feedback-widget.php. No admin UI writes it yet; the read falls back to the default so behaviour is correct. Admin control planned post-1.7.0."
+    },
+    {
+      "id": "hook-consumed-never-fired:roadmap_pro_prune_analytics",
+      "severity": "error",
+      "reason": "False positive, same shape as roadmap_send_digest above. roadmap_pro_prune_analytics (Roadmap_Pro_Analytics::PRUNE_CRON_HOOK) is a WP-Cron hook scheduled via wp_schedule_event in class-roadmap-pro-analytics.php's constructor; WP-Cron fires it, not an explicit do_action. Confirmed live and scheduled: `wp cron event list` shows it next-runs in ~24h on a daily recurrence. Added 2026-09-28, Bugs 10346173450."
     }
   ]
 }
