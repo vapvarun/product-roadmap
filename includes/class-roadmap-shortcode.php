@@ -281,7 +281,19 @@ class Roadmap_Shortcode {
 		$is_pro = defined( 'ROADMAP_PRO_ACTIVE' ) && ROADMAP_PRO_ACTIVE;
 		$notice = '';
 		if ( empty( $atts['product'] ) ) {
-			$atts['product'] = $is_pro ? get_option( 'roadmap_default_product', 'main' ) : 'main';
+			// roadmap_default_product is never written - the owner's actual
+			// default lives in roadmap_default_product_id (a term ID). Resolve
+			// it to a slug; fall back to 'main' when none has been configured.
+			$atts['product'] = 'main';
+			if ( $is_pro ) {
+				$default_product_id = (int) get_option( 'roadmap_default_product_id' );
+				if ( $default_product_id ) {
+					$default_term = get_term( $default_product_id, 'roadmap_product' );
+					if ( $default_term && ! is_wp_error( $default_term ) ) {
+						$atts['product'] = $default_term->slug;
+					}
+				}
+			}
 		} elseif ( ! $is_pro && 'main' !== $atts['product'] ) {
 			// Free has one board, 'main' (e.g. a shortcode left over from Pro).
 			$notice          = $this->editor_notice( __( 'Multiple products require the Pro version. Upgrade to use different products.', 'product-roadmap' ) );

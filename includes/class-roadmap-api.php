@@ -786,7 +786,18 @@ class Roadmap_API {
 			// single source of truth for product association.)
 			$product = $request->get_param( 'product' );
 			if ( empty( $product ) ) {
-				$product = get_option( 'roadmap_default_product', 'main' );
+				// roadmap_default_product is never written - the owner's actual
+				// default lives in roadmap_default_product_id (a term ID, set by
+				// the setup wizard / demo import). Resolve it to a slug; fall
+				// back to 'main' only when no default has ever been configured.
+				$product           = 'main';
+				$default_product_id = (int) get_option( 'roadmap_default_product_id' );
+				if ( $default_product_id ) {
+					$default_term = get_term( $default_product_id, 'roadmap_product' );
+					if ( $default_term && ! is_wp_error( $default_term ) ) {
+						$product = $default_term->slug;
+					}
+				}
 			}
 			wp_set_object_terms( $post_id, sanitize_text_field( $product ), 'roadmap_product' );
 

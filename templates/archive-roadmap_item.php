@@ -18,10 +18,13 @@ wp_enqueue_style(
 	'4.1.0'
 );
 
-// Enqueue shared frontend styles (includes Select2 theme styles)
+// Enqueue shared frontend styles (includes Select2 theme styles). Resolved
+// through the same helper the changelog templates use, so a theme's
+// roadmap/changelog-frontend.css override applies here too instead of being
+// silently skipped in favour of the plugin's own file. Bugs 10344482685.
 wp_enqueue_style(
 	'roadmap-changelog-frontend',
-	ROADMAP_PLUGIN_URL . 'assets/css/changelog-frontend.css',
+	Roadmap_Changelog::get_frontend_css_url(),
 	array( 'roadmap-select2', 'roadmap-tokens' ),
 	ROADMAP_VERSION
 );

@@ -1167,6 +1167,27 @@ class Roadmap_Changelog {
 			return;
 		}
 
+		wp_enqueue_style(
+			'roadmap-changelog-frontend',
+			self::get_frontend_css_url(),
+			array( 'roadmap-tokens' ),
+			ROADMAP_VERSION
+		);
+	}
+
+	/**
+	 * Resolve the changelog stylesheet URL: a theme override
+	 * (roadmap/changelog-frontend.css in the child or parent theme) if one
+	 * exists, else the plugin's own file. Shared by every surface that
+	 * enqueues this stylesheet, so a theme override applies everywhere at
+	 * once instead of per-template. The item archive template used to
+	 * hardcode the plugin's own URL directly, so a theme's override never
+	 * reached it. Bugs 10344482685.
+	 *
+	 * @since 1.8.0
+	 * @return string
+	 */
+	public static function get_frontend_css_url() {
 		// Prefer a theme override if the active (child or parent) theme ships
 		// `roadmap/changelog-frontend.css`, so themes can style the changelog
 		// without a filter. Fall back to the plugin's stylesheet otherwise.
@@ -1184,14 +1205,7 @@ class Roadmap_Changelog {
 		 *
 		 * @param string $css_url Stylesheet URL that will be enqueued.
 		 */
-		$css_url = apply_filters( 'roadmap_changelog_frontend_css_url', $css_url );
-
-		wp_enqueue_style(
-			'roadmap-changelog-frontend',
-			$css_url,
-			array( 'roadmap-tokens' ),
-			ROADMAP_VERSION
-		);
+		return apply_filters( 'roadmap_changelog_frontend_css_url', $css_url );
 	}
 
 	/**
