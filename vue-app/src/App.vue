@@ -1,5 +1,5 @@
 <template>
-  <div class="roadmap-app" :class="{ 'roadmap-dark': darkMode, 'roadmap-pro': config.is_pro }">
+  <div class="roadmap-app" :class="{ 'roadmap-pro': config.is_pro }">
     <div class="roadmap-container">
       <!-- Header -->
       <RoadmapHeader 
@@ -10,7 +10,6 @@
         :enable-suggestions="config.settings.enable_suggestions"
         :pro-features="config.pro_features"
         :product-name="currentProductName"
-        @toggle-dark-mode="toggleDarkMode"
         @suggest="openSuggestionModal"
         :show-title="config.show_title !== false"
         :show-search="config.show_search !== false"
@@ -294,7 +293,6 @@ const products = ref([])
 // UI State
 const currentMode = ref(props.config.mode || 'view')
 const viewMode = ref(props.config.template || 'minimal')
-const darkMode = ref(false)
 const searchQuery = ref('')
 const selectedStatus = ref(props.config.status || '')
 const selectedCategory = ref(props.config.category || '')
@@ -703,10 +701,6 @@ const handleDetailVote = async () => {
 const handleDetailComment = () => {
   closeDetailModal()
   openCommentModal(detailItem.value)
-}
-
-const toggleDarkMode = () => {
-  darkMode.value = !darkMode.value
 }
 
 // Show notification helper

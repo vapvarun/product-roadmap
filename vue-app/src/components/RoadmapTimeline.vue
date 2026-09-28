@@ -507,6 +507,12 @@ const upcomingItems = computed(() => {
 
   return filteredItems.filter(item => {
     const statusSlug = item.status?.[0]?.slug
+    // Do not re-claim an item currentItems already placed in Now: an
+    // upcoming-status item whose start/end dates already span today is
+    // current by date, not upcoming, however its status is labelled.
+    const isCurrentByDate = item.start_date && new Date(item.start_date) <= now &&
+      (!item.end_date || new Date(item.end_date) >= now)
+    if (isCurrentByDate) return false
     return upcomingStatuses.includes(statusSlug) ||
            (item.start_date && new Date(item.start_date) > now && new Date(item.start_date) <= futureDate)
   })

@@ -1,6 +1,6 @@
 <template>
   <div class="roadmap-header">
-    <h1 v-if="showTitle">{{ productName }} {{ i18n.roadmap || 'Roadmap' }}</h1>
+    <h2 v-if="showTitle">{{ productName }} {{ i18n.roadmap || 'Roadmap' }}</h2>
     <div class="roadmap-header-actions">
       <input
         v-if="showSearch"
@@ -46,7 +46,7 @@ defineProps({
   }
 })
 
-defineEmits(['update:mode', 'update:search', 'toggle-dark-mode', 'suggest'])
+defineEmits(['update:mode', 'update:search', 'suggest'])
 
 const config = inject('$roadmapConfig')
 const i18n = config?.i18n || {}
