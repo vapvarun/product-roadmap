@@ -16,8 +16,21 @@ NC='\033[0m' # No Color
 
 # Store current directory
 CURRENT_DIR=$(pwd)
+ROOT="$CURRENT_DIR"
 PLUGIN_SLUG="product-roadmap"
 PRO_SLUG="roadmap-pro-addon"
+
+# Release gate flags
+SKIP_BROWSER_SMOKE=0
+ALLOW_STALE_DOCS=0
+ALLOW_DIRTY=0
+for arg in "$@"; do
+    case "$arg" in
+        --skip-browser-smoke) SKIP_BROWSER_SMOKE=1 ;;
+        --allow-stale-docs) ALLOW_STALE_DOCS=1 ;;
+        --allow-dirty) ALLOW_DIRTY=1 ;;
+    esac
+done
 
 # Get version from plugin file
 if [ -f "product-roadmap.php" ]; then
@@ -26,6 +39,79 @@ if [ -f "product-roadmap.php" ]; then
 else
     echo -e "${RED}✗ Error: product-roadmap.php not found${NC}"
     exit 1
+fi
+
+# -----------------------------------------------------------------------
+# Gate: static contract audit (wp-contract-audit skill) — key/hook drift.
+# -----------------------------------------------------------------------
+CONTRACT_AUDIT="$HOME/.claude/skills/wp-contract-audit/scripts/contract-audit.php"
+if [ -f "$CONTRACT_AUDIT" ]; then
+    echo ""
+    echo "0. Contract audit (key/hook drift)..."
+    echo "-------------------------------------"
+    if ! php "$CONTRACT_AUDIT" "$ROOT" --pair="$ROOT/../$PRO_SLUG"; then
+        echo -e "${RED}✗ Contract audit failed — fix findings or baseline with reasons (see wp-contract-audit skill).${NC}"
+        exit 1
+    fi
+fi
+
+# -----------------------------------------------------------------------
+# Gate: browser smoke report — refuses to package unless a fresh green
+# report exists. Protects first-hand customer experience: a run of
+# docs/qa/AGENT_SMOKE_RUNBOOK.md (dispatched via the wp-plugin-smoke
+# skill) must have reported zero failures and zero debug_log_issues.
+# -----------------------------------------------------------------------
+SMOKE_REPORT="$ROOT/docs/qa/.last-smoke-pass.json"
+if [ "$SKIP_BROWSER_SMOKE" -eq 1 ]; then
+    echo -e "${YELLOW}WARN: browser smoke gate skipped (--skip-browser-smoke). Not for customer releases.${NC}"
+elif [ ! -f "$SMOKE_REPORT" ]; then
+    echo -e "${RED}✗ FAIL: no browser smoke report at $SMOKE_REPORT${NC}"
+    echo "      Run /wp-plugin-smoke combo first to generate it."
+    echo "      Emergency only: rerun with --skip-browser-smoke."
+    exit 30
+else
+    REPORT_VERSION="$(grep -oE '"release_version"[[:space:]]*:[[:space:]]*"[^"]+"' "$SMOKE_REPORT" | head -1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' || true)"
+    if [ "$REPORT_VERSION" != "$VERSION" ]; then
+        echo -e "${RED}✗ FAIL: smoke report version ($REPORT_VERSION) doesn't match release version ($VERSION)${NC}"
+        echo "      Rerun /wp-plugin-smoke combo against HEAD before packaging."
+        exit 30
+    fi
+    if grep -qE '"failures"[[:space:]]*:[[:space:]]*\[[[:space:]]*\{' "$SMOKE_REPORT"; then
+        echo -e "${RED}✗ FAIL: smoke report has failures. Fix them before packaging.${NC}"
+        exit 30
+    fi
+    if grep -qE '"debug_log_issues"[[:space:]]*:[[:space:]]*\[[[:space:]]*\{' "$SMOKE_REPORT"; then
+        echo -e "${RED}✗ FAIL: smoke report recorded debug.log entries during the walk. Fix before packaging.${NC}"
+        exit 30
+    fi
+    echo -e "${GREEN}✓ smoke report OK (version $REPORT_VERSION)${NC}"
+fi
+
+# -----------------------------------------------------------------------
+# Gate: documentation truth — audit/manifest.json / CAPABILITIES.md must
+# not lag the code. Skips cleanly on --allow-dirty builds or no git.
+# -----------------------------------------------------------------------
+if [ "$ALLOW_STALE_DOCS" -eq 0 ] && [ "$ALLOW_DIRTY" -eq 0 ] && git -C "$ROOT" rev-parse --git-dir >/dev/null 2>&1; then
+    echo ""
+    echo "Documentation-truth gate..."
+    echo "-------------------------------------"
+    CODE_TS="$(git -C "$ROOT" log -1 --format=%ct -- includes blocks templates src 2>/dev/null || echo 0)"; CODE_TS="${CODE_TS:-0}"
+    MAN_TS="$(git -C "$ROOT" log -1 --format=%ct -- audit/manifest.json 2>/dev/null || echo 0)"; MAN_TS="${MAN_TS:-0}"
+    if [ "$MAN_TS" -ne 0 ] && [ "$CODE_TS" -gt "$MAN_TS" ]; then
+        echo -e "${RED}✗ FAIL: code changed after the last audit/manifest.json refresh.${NC}"
+        echo "      Run /wp-plugin-onboard --refresh, commit the manifest, then rebuild."
+        echo "      Override (surface-neutral commit only): --allow-stale-docs"
+        exit 18
+    fi
+    if [ -f "$ROOT/CAPABILITIES.md" ]; then
+        CAP_TS="$(git -C "$ROOT" log -1 --format=%ct -- CAPABILITIES.md 2>/dev/null || echo 0)"; CAP_TS="${CAP_TS:-0}"
+        if [ "$CODE_TS" -gt "$CAP_TS" ]; then
+            echo -e "${RED}✗ FAIL: code changed after the last CAPABILITIES.md update.${NC}"
+            echo "      Override (surface-neutral commit only): --allow-stale-docs"
+            exit 18
+        fi
+    fi
+    echo -e "${GREEN}✓ manifest + CAPABILITIES current${NC}"
 fi
 
 # Create dist directory in current plugin folder

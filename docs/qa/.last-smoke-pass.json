@@ -1,0 +1,121 @@
+{
+  "mode": "combo",
+  "release_version": "1.8.0",
+  "pro_version": "1.8.0",
+  "ran_at": "2026-09-27T16:14:00Z",
+  "sandbox_note": "This run executed inside a permission sandbox whose auto-mode classifier blocks any action it judges 'Irreversible Local Destruction/Deletion' - this fired on wp_delete_post (fixture cleanup), wp eval with $wpdb writes, and browser clicks on Delete/moderation actions. As a result this pass is READ-ONLY/OBSERVATIONAL for anything that creates, edits, votes, submits, approves, merges, deletes, or changes a setting. Every such row is in untested[] with this reason. Sections A/C-anon/C-admin-render/D-code-verifiable/E2-render/F-render were walked live in the browser or verified by direct code read; QA- prefixed fixture cleanup could not be run (classifier blocked wp_delete_post), so pre-existing stray QA fixtures ('regress...', 'QA repro title...') remain in the environment and were visible but not counted as new findings.",
+  "sections": {
+    "A_fresh_install":     { "pass": 2, "fail": 1, "skipped": 0 },
+    "B_upgrade":           { "pass": 0, "fail": 0, "skipped": 1 },
+    "C_core_flows":        { "pass": 5, "fail": 0, "skipped": 6 },
+    "D_regression_guards": { "pass": 4, "fail": 2, "skipped": 13 },
+    "E_pro_smoke":         { "pass": 2, "fail": 0, "skipped": 9 },
+    "E2_environment":      { "pass": 2, "fail": 0, "skipped": 6 },
+    "F_cross_browser":     { "pass": 1, "fail": 0, "skipped": 4 },
+    "G_post_release":      { "pass": 0, "fail": 0, "skipped": 1 },
+    "S_pro_supplements":   { "pass": 0, "fail": 0, "skipped": 0 }
+  },
+  "hard_fails": [
+    {
+      "id": "D.13",
+      "invariant": "promise:D.13",
+      "actual": "OPEN, confirmed still present in code as instructed: product-roadmap/includes/class-roadmap-changelog.php line 1004 defaults $product_slug = 'general' and only overrides it from $postarr['tax_input']['roadmap_product'] (lines 1005-1009). The surrounding comment (lines 992-997) documents that the block editor's REST save publishes before the product taxonomy term is attached, so on that first save pass tax_input is empty and the slug is derived as 'general-v{version}' instead of '{product}-v{version}'. Live re-publish repro was not performed (would require creating a new changelog post, a write action blocked by the sandbox), but the cited root cause is unchanged from the card - do not mark this fixed."
+    }
+  ],
+  "untested": [
+    { "id": "B.1", "reason": "missing seed", "needs": "a packaged prior-stable-tag build of product-roadmap to install-then-upgrade from; none available in this environment without file mutation" },
+    { "id": "C.member.create-flow", "reason": "env: sandbox blocks write actions", "needs": "permission to submit a form (create a roadmap_item) - browser click was pre-emptively avoided after Delete/wp_delete_post were denied by the auto-mode classifier as Irreversible Destruction" },
+    { "id": "C.member.edit-and-delete", "reason": "env: sandbox blocks write actions", "needs": "permission to edit/delete a member's own suggestion" },
+    { "id": "C.member.interactions", "reason": "env: sandbox blocks write actions", "needs": "permission to cast votes/comments as member and guest" },
+    { "id": "C.mod.queue-and-actions", "reason": "env: sandbox blocks write actions", "needs": "permission to Approve/Reject/Start Over; Manage Mode toggle itself was exercised (no native dialog fired), but the Delete button click was denied by the classifier before any moderation action could run" },
+    { "id": "C.admin.crud", "reason": "env: sandbox blocks write actions", "needs": "permission to create/edit/delete product/status/type taxonomy terms and to change a Settings value to check the merge-not-overwrite contract" },
+    { "id": "C.notifications", "reason": "env: sandbox blocks write actions", "needs": "permission to trigger a status change and check Mailpit" },
+    { "id": "D.1", "reason": "missing seed", "needs": "installing an older Free (1.7.x) build alongside Pro 1.8.0 to trigger the version-compat notices; verified instead by reading the guard code (roadmap-pro-addon.php:72 version_compare against ROADMAP_PRO_MIN_FREE_VERSION='1.8.0' at line 113, ROADMAP_PRO_ACTIVE defined at line 1147) - guard exists, cross-version behavior not live-reproduced" },
+    { "id": "D.2", "reason": "env: sandbox blocks write actions", "needs": "permission to run Merge Duplicates (destructive by nature, moves votes/comments and trashes source)" },
+    { "id": "D.3", "reason": "env: sandbox blocks write actions", "needs": "permission to edit block sidebar options / save a page with the shortcode" },
+    { "id": "D.4", "reason": "env: sandbox blocks write actions", "needs": "permission to Quick Edit, bulk move, and CSV import" },
+    { "id": "D.7", "reason": "env: sandbox blocks write actions", "needs": "clicking Manage Mode's Delete button on a board card was explicitly denied by the auto-mode classifier (Irreversible Local Destruction) even though the plugin's own contract is trash-with-undo" },
+    { "id": "D.8", "reason": "env: sandbox blocks write actions", "needs": "permission to submit a suggestion fast enough to hit the rate limit" },
+    { "id": "D.9", "reason": "missing seed", "needs": "a board page whose shortcode actually sets a sort= attribute - both live boards checked (list-view, board-view) use bare [roadmap product=\"main\"] / [roadmap product=\"main\" template=\"list\"] with no configured sort, so the 'Sort By' placeholder shown is consistent with 'no owner sort configured', not evidence either way on the regression" },
+    { "id": "D.10", "reason": "env: sandbox blocks write actions", "needs": "permission to cast a real vote on a demo item and trigger the recount routine" },
+    { "id": "D.11", "reason": "env: sandbox blocks write actions", "needs": "Manage Mode toggle confirmed dialog-free; Copy shortcode, product save, Clear Cache, Reject, Start Over, Merge, and board Delete could not be walked because each is a write action and Delete was explicitly denied by the classifier" },
+    { "id": "D.12", "reason": "env: sandbox blocks write actions", "needs": "permission to vote as member and as guest, both with guest voting on/off, to compare single-item vs board voted-state" },
+    { "id": "D.14", "reason": "env: setup already completed on this site", "needs": "a fresh, never-run-wizard install to re-check first-run notice suppression; this site's wizard has already run" },
+    { "id": "D.15", "reason": "env: sandbox blocks write actions", "needs": "permission to change a Settings value and confirm the board/email/digest all read the new value" },
+    { "id": "D.16", "reason": "env: sandbox blocks write actions", "needs": "permission to trigger a success and an error toast in both color modes" },
+    { "id": "E.merge-duplicates", "reason": "env: sandbox blocks write actions", "needs": "permission to merge two items" },
+    { "id": "E.csv-import", "reason": "env: sandbox blocks write actions", "needs": "permission to import a CSV, including a deliberately bad row" },
+    { "id": "E.digest-emails", "reason": "env: sandbox blocks write actions + setting disabled", "needs": "roadmap_pro_enable_digest is currently 'no' (confirmed via wp option get) so no digest cron is scheduled by design, not a bug; verifying the send itself needs enabling the setting and checking Mailpit, both writes" },
+    { "id": "E.custom-fields", "reason": "env: sandbox blocks write actions", "needs": "permission to define a custom field in Pro settings and save an item" },
+    { "id": "E.webhooks", "reason": "env: sandbox blocks write actions", "needs": "permission to configure a webhook endpoint and trigger an event" },
+    { "id": "E.user-profiles", "reason": "missing seed", "needs": "locating/creating a page using the roadmap_user_profile shortcode; none found on this site in the time available" },
+    { "id": "E.feedback-widget", "reason": "missing seed", "needs": "locating a non-roadmap page with the embeddable widget enabled, and permission to submit it" },
+    { "id": "E.email-templates", "reason": "env: sandbox blocks write actions", "needs": "permission to edit a template and trigger a send, checked against Mailpit" },
+    { "id": "E.license", "reason": "env: sandbox blocks write actions", "needs": "swapping to an invalid/expired license key to confirm Free stays up and only Pro features gate off; only the current valid-license steady state was observed (roadmap_pro_license_status=valid)" },
+    { "id": "E2.no-host", "reason": "env: sandbox blocks write actions", "needs": "deactivating BuddyX-specific integration hooks" },
+    { "id": "E2.no-reset-theme", "reason": "auth wall: not distinctly tested", "needs": "a theme with genuinely no CSS reset; Twenty Twenty-Five was checked for E2.block-theme and rendered clean/self-scoped, which is suggestive but not a dedicated no-reset-theme walk" },
+    { "id": "E2.php-latest", "reason": "env: PHP version fixed by Local site config", "needs": "running on the newest supported PHP; this environment runs PHP 8.2.30. WP_DEBUG was on for the whole session and zero new debug.log lines appeared across every page load, which is a positive signal but not a newest-PHP guarantee" },
+    { "id": "E2.cache", "reason": "env: sandbox blocks write actions", "needs": "page/object cache plus a vote submitted past nonce life" },
+    { "id": "E2.multisite", "reason": "env: not a multisite install", "needs": "a multisite scratch install; out of scope to convert this site" },
+    { "id": "E2.stack", "reason": "env: sandbox blocks write actions", "needs": "activating BuddyX Pro and Reign one at a time; only BuddyX (primary, active throughout) and Twenty Twenty-Five (E2.block-theme) were exercised" },
+    { "id": "F.rtl", "reason": "env: sandbox blocks write actions", "needs": "switching the site to an RTL locale" },
+    { "id": "F.a11y", "reason": "auth wall: partial only", "needs": "keyboard-only focus-ring verification and the suggestion form's field labels were not checked (form never opened, write-gated); visible-label spot check on filters/search/buttons was clean and is noted in failures as a minor heading-hierarchy nit only" }
+  ],
+  "coverage": {
+    "multisite": "na: not a multisite install, out of scope to convert for this run",
+    "rtl": "deferred: requires locale switch (write action), not run",
+    "concurrency": "na: not tested, requires a simultaneous multi-actor write session outside verification-only scope",
+    "uninstall": "na: uninstall.php not exercised - running it would uninstall the plugins, destructive and out of scope for a pre-release smoke",
+    "user_management": "na: plugin has no per-user roles/trust-level admin surface beyond WP's own capabilities (per runbook)"
+  },
+  "verdict": "BLOCK",
+  "top3": [
+    "D.13 confirmed still OPEN: block-editor changelog publish under a non-default product still writes a 'general-' slug instead of '{product}-v{version}' - class-roadmap-changelog.php:1004 still defaults to 'general' before the product taxonomy term is attached on the REST save pass. Do not ship until 10326920444 lands.",
+    "Frontend roadmap board has no way to reach dark mode: RoadmapHeader.vue declares a toggle-dark-mode emit but no template element ever fires it, so App.vue's darkMode ref (line 297) can never flip from its default false. Every board view (board/list/cards/minimal/timeline/poll) is permanently light-only on the frontend regardless of D.5's admin-side fix.",
+    "This QA site's 5 named view pages (board-view, timeline-view, list-view, cards-view, minimal-view) are children of the Poll Roadmap page (post_parent=17), so direct requests 301-redirect to /poll-roadmap/<slug>/ instead of the 200 A1 asks for. Confirmed via code read that neither plugin creates these pages (only the setup wizard creates one top-level page) - this is QA fixture content, not a plugin bug, but the fixture site should be fixed so A1 reads clean next time."
+  ],
+  "failures": [
+    {
+      "id": "A1.route-redirect",
+      "origin": "for",
+      "triage_note": "product-roadmap and roadmap-pro-addon contain no wp_insert_post call that creates board-view/poll-roadmap/timeline-view/list-view/cards-view/minimal-view pages (grepped both repos - zero matches; the only page-creating code is the Free setup wizard's create_roadmap_page() which makes exactly one top-level page). These 5 pages were manually set up on this QA site as children of page 17 (Poll Roadmap). Environment/content issue, not plugin code.",
+      "expected": "GET /board-view/ (and the other 4) returns 200 directly per A1's acceptance bar",
+      "actual": "301 Moved Permanently -> http://roadmap.local/poll-roadmap/<slug>/ for board-view, timeline-view, list-view, cards-view, minimal-view (poll-roadmap itself, the actual top-level page, returns 200 directly). Following the redirect lands on a working 200 page with correct content.",
+      "url": "http://roadmap.local/board-view/",
+      "screenshot": ""
+    },
+    {
+      "id": "D.5.frontend-dark-toggle-dead",
+      "origin": "from",
+      "triage_note": "vue-app/src/components/RoadmapHeader.vue declares defineEmits(['update:mode','update:search','toggle-dark-mode','suggest']) but its <template> (29 lines, fully read) only wires update:search, suggest, and update:mode to actual elements - no button/control anywhere emits toggle-dark-mode. vue-app/src/App.vue:297 initializes const darkMode = ref(false) and line 709's toggleDarkMode() (the only place darkMode.value is ever mutated) is only invoked via @toggle-dark-mode=\"toggleDarkMode\" on <RoadmapHeader> - an event that is never dispatched. Confirmed live: no dark/mode/theme/sun/moon button exists in the rendered DOM on board-view (searched all <button>/<a> class, aria-label, and title attributes). Also confirmed BuddyX's own 'dark mode' feature (assets/css/dark-mode.min.css, inc/extra.php:361) is LearnDash-LMS-focus-mode-only, not a general theme toggle, and prefers-color-scheme:dark media emulation had no visual effect on the board (screenshot stayed light).",
+      "expected": "Per D.5 and D.16, dark mode should be reachable and readable on every board surface",
+      "actual": "There is currently no way for any visitor, member, or admin to switch a frontend roadmap board into dark mode - the feature is coded but completely disconnected from the UI",
+      "url": "http://roadmap.local/board-view/",
+      "screenshot": "/Users/varundubey/Local Sites/roadmap/app/qa-artifacts/board-view-dark-1440.png"
+    },
+    {
+      "id": "F.a11y.duplicate-h1",
+      "origin": "from",
+      "triage_note": "Minor heading-hierarchy nit, not a functional a11y blocker. On every board view the WordPress page title renders as <h1>Board View (Default)</h1> and the Vue app's own product title also renders as <h1>Poll Roadmap</h1> a few DOM nodes later - two H1s on one page. Screen-reader landmark navigation still works (headings are still discoverable), so this is a soft finding.",
+      "expected": "One H1 per page (WCAG/HTML5 best practice, not a hard requirement)",
+      "actual": "Two <h1> elements present on every board view template",
+      "url": "http://roadmap.local/board-view/",
+      "screenshot": ""
+    }
+  ],
+  "debug_log_issues": [],
+  "manual_required": [
+    { "id": "F.firefox-desktop", "reason": "Chromium-only MCP cannot walk Firefox" },
+    { "id": "F.safari-ios", "reason": "Chromium-only MCP cannot walk Safari/iOS" }
+  ],
+  "evidence_notes": {
+    "debug_log": "Baseline 468211 bytes (from /tmp/wp-plugin-smoke-baseline.txt). Re-checked after every section throughout the walk (anon views, admin pages, theme switch, mobile viewport, analytics) - byte count stayed at 468211 the entire session. Zero new fatal/warning/notice/deprecated entries.",
+    "console_errors": "browser_console_messages(level: warning) checked after every navigation across all 6 anon views, 2 admin pages, and the block-theme switch - 0 errors/warnings on every page.",
+    "versions_confirmed": "ROADMAP_VERSION=1.8.0, ROADMAP_PRO_VERSION=1.8.0, ROADMAP_MIN_PRO_VERSION=1.8.0, ROADMAP_PRO_MIN_FREE_VERSION=1.8.0 (all via wp eval echo of the constants) - lockstep, matches D.1's guard code.",
+    "pot_file": "roadmap-pro-addon/languages/roadmap-pro-addon.pot exists, 1945 lines, 438 msgid entries, mtime 2026-09-27 17:56 (current build) - D.17 pass.",
+    "dead_vue_file": "grep -rn RoadmapChangelog.vue across both plugin repos: zero code references (only the runbook doc itself matches, being the search pattern); find confirms the file does not exist - D.19 pass.",
+    "timeline_js": "performance.getEntriesByType('resource') checked on board-view and timeline-view (Pro's Enable Timeline View = yes currently) - timeline.js never appears in either page's loaded resources - D.18 pass, though the OFF state (setting disabled) was not separately tested since Pro's timeline is currently enabled.",
+    "settings_snapshot": "wp option list --search=roadmap* dumped for reference: roadmap_pro_enable_digest=no, roadmap_pro_license_status=valid, roadmap_page_id=17, roadmap_default_product_id=7, roadmap_migration_completed set, roadmap_terms_version/roadmap_capabilities_version=1.8.0.",
+    "stray_fixtures_observed_not_cleaned": "wp-admin/edit.php?post_type=guest_suggestion shows 2 stale 'QA repro title'/'QA repro title 2' pending posts (2026-09-22); wp-admin All Items > Pending shows 3 stale items ('regress 1789988268', 'regressB 1789988632', 'final 1789989159') from a prior QA session. The runbook's fixture-cleanup step (wp_delete_post on posts matching 'QA-') was attempted first and denied by the sandbox's auto-mode classifier as Irreversible Deletion, so these were left in place and not treated as new findings - they pre-date this run."
+  }
+}
