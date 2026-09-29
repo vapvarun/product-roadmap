@@ -18,11 +18,14 @@ wp_enqueue_style(
 	'4.1.0'
 );
 
-// Enqueue shared frontend styles (includes Select2 theme styles)
+// Enqueue shared frontend styles (includes Select2 theme styles). Resolved
+// through the same helper the changelog templates use, so a theme's
+// roadmap/changelog-frontend.css override applies here too instead of being
+// silently skipped in favour of the plugin's own file. Bugs 10344482685.
 wp_enqueue_style(
 	'roadmap-changelog-frontend',
-	ROADMAP_PLUGIN_URL . 'assets/css/changelog-frontend.css',
-	array( 'roadmap-select2' ),
+	Roadmap_Changelog::get_frontend_css_url(),
+	array( 'roadmap-select2', 'roadmap-tokens' ),
 	ROADMAP_VERSION
 );
 
@@ -61,31 +64,20 @@ $all_products = get_terms(
 	)
 );
 
+// Counts for every product and every status in two grouped queries, rather
+// than a WP_Query per product here and an unbounded WP_Query plus a term query
+// per item further down. On ten products with 2000 items each that was roughly
+// 20,000 queries on a public page.
+$roadmap_counts = Roadmap_API::get_product_item_counts();
+
 if ( ! is_wp_error( $all_products ) ) {
 	foreach ( $all_products as $product ) {
-		// Check if this product has any roadmap_item posts
-		$item_count = new WP_Query(
-			array(
-				'post_type'      => 'roadmap_item',
-				'posts_per_page' => 1,
-				'post_status'    => 'publish',
-				'fields'         => 'ids',
-				'tax_query'      => array(
-					array(
-						'taxonomy' => 'roadmap_product',
-						'field'    => 'term_id',
-						'terms'    => $product->term_id,
-					),
-				),
-			)
-		);
+		$product_total = $roadmap_counts['totals'][ $product->term_id ] ?? 0;
 
-		if ( $item_count->found_posts > 0 ) {
-			// Update count to reflect roadmap item count
-			$product->count = $item_count->found_posts;
+		if ( $product_total > 0 ) {
+			$product->count = $product_total;
 			$products[]     = $product;
 		}
-		wp_reset_postdata();
 	}
 }
 
@@ -118,7 +110,7 @@ $current_status = isset( $_GET['status'] ) ? sanitize_text_field( $_GET['status'
 				<select id="roadmap-items-product-select" class="roadmap-plugin-select2">
 					<option value=""><?php esc_html_e( 'Search products...', 'product-roadmap' ); ?></option>
 					<?php foreach ( $products as $product ) : ?>
-						<option value="<?php echo esc_url( home_url( '/roadmap/' . $product->slug . '/' ) ); ?>" data-count="<?php echo esc_attr( $product->count ); ?>">
+						<option value="<?php echo esc_url( home_url( '/roadmap/' . $product->slug . '/' ) ); ?>" data-count="<?php echo esc_attr( (string) $product->count ); ?>">
 							<?php echo esc_html( $product->name ); ?>
 						</option>
 					<?php endforeach; ?>
@@ -131,39 +123,9 @@ $current_status = isset( $_GET['status'] ) ? sanitize_text_field( $_GET['status'
 		<?php if ( ! empty( $products ) ) : ?>
 			<?php
 			foreach ( $products as $product ) :
-				// Get items count by status for this product
-				$product_items = new WP_Query(
-					array(
-						'post_type'      => 'roadmap_item',
-						'posts_per_page' => -1,
-						'post_status'    => 'publish',
-						'tax_query'      => array(
-							array(
-								'taxonomy' => 'roadmap_product',
-								'field'    => 'term_id',
-								'terms'    => $product->term_id,
-							),
-						),
-					)
-				);
-
-				$total_items = $product_items->found_posts;
-
-				// Count by status
-				$status_counts = array();
-				if ( $product_items->have_posts() ) {
-					while ( $product_items->have_posts() ) {
-						$product_items->the_post();
-						$item_statuses = wp_get_object_terms( get_the_ID(), 'roadmap_status', array( 'fields' => 'slugs' ) );
-						foreach ( $item_statuses as $status_slug ) {
-							if ( ! isset( $status_counts[ $status_slug ] ) ) {
-								$status_counts[ $status_slug ] = 0;
-							}
-							++$status_counts[ $status_slug ];
-						}
-					}
-					wp_reset_postdata();
-				}
+				// Both numbers come from the grouped queries above.
+				$total_items   = $roadmap_counts['totals'][ $product->term_id ] ?? 0;
+				$status_counts = $roadmap_counts['statuses'][ $product->term_id ] ?? array();
 				?>
 
 				<article class="roadmap-product-card">
@@ -186,19 +148,10 @@ $current_status = isset( $_GET['status'] ) ? sanitize_text_field( $_GET['status'
 							<?php if ( ! empty( $status_counts ) ) : ?>
 								<div class="roadmap-product-status-summary">
 									<?php
-									$status_colors = array(
-										'planned'      => '#6366f1',
-										'in-progress'  => '#f59e0b',
-										'completed'    => '#10b981',
-										'on-hold'      => '#6b7280',
-										'under-review' => '#8b5cf6',
-									);
-
 									foreach ( $status_counts as $status_slug => $count ) :
 										$status_term = get_term_by( 'slug', $status_slug, 'roadmap_status' );
-										$color       = $status_colors[ $status_slug ] ?? '#6b7280';
 										?>
-										<span class="roadmap-status-badge" style="background-color: <?php echo esc_attr( $color ); ?>20; color: <?php echo esc_attr( $color ); ?>; border: 1px solid <?php echo esc_attr( $color ); ?>40;">
+										<span class="roadmap-status-badge roadmap-status-<?php echo esc_attr( $status_slug ); ?>">
 											<?php echo esc_html( $count ); ?> <?php echo esc_html( $status_term ? $status_term->name : ucfirst( $status_slug ) ); ?>
 										</span>
 									<?php endforeach; ?>
@@ -248,13 +201,13 @@ $current_status = isset( $_GET['status'] ) ? sanitize_text_field( $_GET['status'
 .roadmap-archive-title {
 	font-size: 2.5rem;
 	font-weight: 700;
-	color: #1e293b;
+	color: var(--rm-heading);
 	margin-bottom: 12px;
 }
 
 .roadmap-archive-description {
 	font-size: 1.125rem;
-	color: #64748b;
+	color: var(--rm-muted);
 	margin-bottom: 24px;
 }
 
@@ -265,16 +218,16 @@ $current_status = isset( $_GET['status'] ) ? sanitize_text_field( $_GET['status'
 }
 
 .roadmap-product-card {
-	background: #fff;
+	background: var(--rm-surface);
 	border-radius: 12px;
-	border: 1px solid #e2e8f0;
+	border: 1px solid var(--rm-border);
 	overflow: hidden;
 	transition: transform 0.2s, box-shadow 0.2s;
 }
 
 .roadmap-product-card:hover {
 	transform: translateY(-4px);
-	box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+	box-shadow: 0 12px 24px var(--rm-shadow-strong);
 }
 
 .roadmap-product-card-link {
@@ -291,13 +244,13 @@ $current_status = isset( $_GET['status'] ) ? sanitize_text_field( $_GET['status'
 .roadmap-product-card-title {
 	font-size: 1.375rem;
 	font-weight: 600;
-	color: #1e293b;
+	color: var(--rm-heading);
 	margin: 0 0 8px 0;
 }
 
 .roadmap-product-card-description {
 	font-size: 0.9375rem;
-	color: #64748b;
+	color: var(--rm-muted);
 	margin: 0;
 	line-height: 1.5;
 }
@@ -309,14 +262,14 @@ $current_status = isset( $_GET['status'] ) ? sanitize_text_field( $_GET['status'
 .roadmap-product-stat.total {
 	display: block;
 	font-size: 0.9375rem;
-	color: #475569;
+	color: var(--rm-text);
 	margin-bottom: 12px;
 }
 
 .roadmap-product-stat.total strong {
 	font-size: 1.5rem;
 	font-weight: 700;
-	color: #1e293b;
+	color: var(--rm-heading);
 	margin-right: 4px;
 }
 
@@ -333,11 +286,14 @@ $current_status = isset( $_GET['status'] ) ? sanitize_text_field( $_GET['status'
 	font-size: 0.8125rem;
 	font-weight: 500;
 	border-radius: 9999px;
+	background-color: var(--rm-status-tint);
+	color: var(--rm-status);
+	border: 1px solid color-mix(in srgb, var(--rm-status) 25%, transparent);
 }
 
 .roadmap-product-card-footer {
 	padding-top: 16px;
-	border-top: 1px solid #f1f5f9;
+	border-top: 1px solid var(--rm-border-soft);
 }
 
 .roadmap-view-link {
@@ -346,7 +302,7 @@ $current_status = isset( $_GET['status'] ) ? sanitize_text_field( $_GET['status'
 	gap: 8px;
 	font-size: 0.9375rem;
 	font-weight: 500;
-	color: #6366f1;
+	color: var(--roadmap-accent-text);
 	transition: gap 0.2s;
 }
 
@@ -358,23 +314,23 @@ $current_status = isset( $_GET['status'] ) ? sanitize_text_field( $_GET['status'
 	grid-column: 1 / -1;
 	text-align: center;
 	padding: 60px 20px;
-	background: #f8fafc;
+	background: var(--rm-surface-alt);
 	border-radius: 12px;
 }
 
 .roadmap-no-products svg {
-	color: #94a3b8;
+	color: var(--rm-muted);
 	margin-bottom: 16px;
 }
 
 .roadmap-no-products h2 {
 	font-size: 1.5rem;
-	color: #475569;
+	color: var(--rm-heading);
 	margin: 0 0 8px 0;
 }
 
 .roadmap-no-products p {
-	color: #64748b;
+	color: var(--rm-muted);
 	margin: 0;
 }
 

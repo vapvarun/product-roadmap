@@ -17,40 +17,17 @@ get_header();
 while (have_posts()) : the_post();
     $item_id = get_the_ID();
     $votes = get_post_meta($item_id, '_roadmap_votes', true) ?: 0;
-    $user_id = get_current_user_id();
-    $user_vote = 0; // 0 = no vote, 1 = upvoted, -1 = downvoted
+    // 0 = no vote, 1 = upvoted, -1 = downvoted. The same read the board's REST
+    // response uses (by user ID, or by IP for a guest).
+    $user_vote = Roadmap_API::get_instance()->get_user_vote($item_id);
 
-    if ($user_id) {
-        global $wpdb;
-        $table = $wpdb->prefix . 'roadmap_votes';
-        $vote_value = $wpdb->get_var($wpdb->prepare(
-            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-            "SELECT vote_value FROM {$table} WHERE item_id = %d AND user_id = %d",
-            $item_id,
-            $user_id
-        )); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-
-        if ($vote_value !== null) {
-            $user_vote = intval($vote_value);
-        }
-    }
+    $allow_guest_voting = (bool) Roadmap_Settings::get('allow_guest_voting');
 
     // Get taxonomies
     $statuses = wp_get_post_terms($item_id, 'roadmap_status');
     $categories = wp_get_post_terms($item_id, 'roadmap_category');
     $products = wp_get_post_terms($item_id, 'roadmap_product');
     $product = !empty($products) ? $products[0] : null;
-
-    // Get status color if available
-    $status_color = '';
-    $status_bg = '';
-    if (!empty($statuses)) {
-        $status_color = get_term_meta($statuses[0]->term_id, '_roadmap_status_color', true);
-        if ($status_color) {
-            // Create lighter background from status color
-            $status_bg = $status_color . '15'; // 15% opacity hex
-        }
-    }
 
     // Get comment count
     $comment_count = get_comments_number($item_id);
@@ -62,7 +39,7 @@ while (have_posts()) : the_post();
 
     // Enqueue styles and scripts
     wp_enqueue_style('dashicons');
-    wp_enqueue_style('roadmap-single', ROADMAP_PLUGIN_URL . 'assets/css/roadmap-single.css', [], ROADMAP_VERSION);
+    wp_enqueue_style('roadmap-single', ROADMAP_PLUGIN_URL . 'assets/css/roadmap-single.css', [ 'roadmap-tokens' ], ROADMAP_VERSION);
     wp_enqueue_script('roadmap-single-vote', ROADMAP_PLUGIN_URL . 'assets/js/single-vote.js', ['jquery'], ROADMAP_VERSION, true);
     wp_localize_script('roadmap-single-vote', 'roadmap_ajax', [
         'ajax_url' => admin_url('admin-ajax.php'),
@@ -71,6 +48,7 @@ while (have_posts()) : the_post();
         'item_id' => $item_id,
         'user_vote' => $user_vote,
         'is_logged_in' => is_user_logged_in(),
+        'allow_guest_voting' => (bool) $allow_guest_voting,
         'login_url' => wp_login_url(get_permalink()),
         'i18n' => [
             'vote_submitted' => __('Your vote has been submitted!', 'product-roadmap'),
@@ -131,11 +109,8 @@ while (have_posts()) : the_post();
                     <h1 class="roadmap-single-title"><?php the_title(); ?></h1>
 
                     <div class="roadmap-single-badges">
-                        <?php foreach ($statuses as $status):
-                            $s_color = get_term_meta($status->term_id, '_roadmap_status_color', true) ?: '#2196f3';
-                        ?>
-                            <span class="roadmap-badge roadmap-badge-status"
-                                  style="background-color: <?php echo esc_attr($s_color); ?>15; color: <?php echo esc_attr($s_color); ?>; border-color: <?php echo esc_attr($s_color); ?>40;">
+                        <?php foreach ($statuses as $status): ?>
+                            <span class="roadmap-badge roadmap-status-<?php echo esc_attr($status->slug); ?>">
                                 <?php echo esc_html($status->name); ?>
                             </span>
                         <?php endforeach; ?>

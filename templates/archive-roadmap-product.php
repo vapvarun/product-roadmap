@@ -29,7 +29,7 @@ if (!$roadmap_product_term) {
 }
 
 // Enqueue archive styles
-wp_enqueue_style('roadmap-archive', ROADMAP_PLUGIN_URL . 'assets/css/roadmap-archive.css', [], ROADMAP_VERSION);
+wp_enqueue_style('roadmap-archive', ROADMAP_PLUGIN_URL . 'assets/css/roadmap-archive.css', [ 'roadmap-tokens' ], ROADMAP_VERSION);
 
 // Get default template from Pro settings (stored in roadmap_pro_templates array)
 $pro_templates = get_option('roadmap_pro_templates', []);

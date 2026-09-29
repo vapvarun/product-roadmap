@@ -26,7 +26,12 @@ npm install
 
 # Build Vue app
 echo "Building Vue app for production..."
-npm run build
+# Stop here on a failed build: the steps below would otherwise copy the
+# previous dist/ bundle and report success.
+if ! npm run build; then
+    echo "✗ Vue build failed - nothing copied."
+    exit 1
+fi
 
 # IIFE-wrap the JS bundle so its top-level declarations (Vue's internal
 # `const wp`, etc.) stay function-scoped instead of leaking into the page's
@@ -114,31 +119,14 @@ EOF
     echo "✓ Basic POT file created"
 fi
 
-# Create minified versions (optional, for better performance)
-if command -v terser &> /dev/null; then
-    echo ""
-    echo "Creating minified JavaScript..."
-    terser assets/js/roadmap-app.js -o assets/js/roadmap-app.min.js -c -m
-    echo "✓ Minified JavaScript created"
-fi
+# NOTE: there is deliberately no JS minification step here.
+# The plugin enqueues assets/js/roadmap-app.js directly (see
+# class-roadmap-shortcode.php), never a .min.js, and Vite has already minified
+# that bundle. The previous step was guarded by `command -v terser`, which is a
+# local devDependency and not on PATH, so it silently never ran - leaving a
+# stale roadmap-app.min.js in the repo for months. If a minified build is ever
+# wanted, use `npx terser` so it cannot fail silently, and switch the enqueue.
 
-if command -v cssnano &> /dev/null; then
-    echo ""
-    echo "Creating minified CSS..."
-    cssnano assets/css/roadmap-app.css assets/css/roadmap-app.min.css
-    echo "✓ Minified CSS created"
-    
-    # Minify RTL CSS if it exists
-    if [ -f "assets/css/roadmap-app-rtl.css" ]; then
-        cssnano assets/css/roadmap-app-rtl.css assets/css/roadmap-app-rtl.min.css
-        echo "✓ Minified RTL CSS created"
-    fi
-    
-    if [ -f "assets/css/meta-box-rtl.css" ]; then
-        cssnano assets/css/meta-box-rtl.css assets/css/meta-box-rtl.min.css
-        echo "✓ Minified Meta Box RTL CSS created"
-    fi
-fi
 
 echo ""
 echo "========================================="

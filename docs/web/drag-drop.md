@@ -49,12 +49,16 @@ By default, only administrators can drag items. Configure permissions:
 
 ### On the Frontend
 
-1. View your roadmap page with kanban template
+1. View your roadmap page with the board template in Manage mode
 2. Log in as a user with drag permissions
 3. Hover over an item card
 4. Click and hold to grab
 5. Drag to the target status column
 6. Release to drop
+
+### Deleting an Item from the Board
+
+In Manage mode, each card has a trash icon. Click it once and it changes to **Confirm delete**; click again within 5 seconds to remove the item. The item goes to **Roadmap > All Items > Trash**, with its votes and comments kept, and **Restore** puts it back on the board as it was.
 
 ### Visual Feedback
 
@@ -73,12 +77,12 @@ When you drop an item:
 
 ---
 
-## Kanban Template
+## Board Template
 
-Drag & drop works best with the kanban template:
+Drag & drop works on the board template:
 
 ```
-[roadmap template="kanban"]
+[roadmap template="board" mode="manage"]
 ```
 
 ### Column Layout
@@ -93,7 +97,7 @@ Items appear as cards in their status column.
 Combine with filters:
 
 ```
-[roadmap template="kanban" product="mobile-app"]
+[roadmap template="board" mode="manage" product="mobile-app"]
 ```
 
 Drag & drop still works on filtered views.
@@ -171,16 +175,15 @@ Drag & drop works on touch devices:
 ### Enable Drag & Drop
 
 ```
-[roadmap template="kanban" draggable="true"]
+[roadmap template="board" mode="manage"]
 ```
 
 ### Full Example
 
 ```
 [roadmap
-    template="kanban"
-    draggable="true"
-    status="under-review,planned,in-progress,complete"
+    template="board"
+    mode="manage"
     product="mobile-app"
 ]
 ```
@@ -189,8 +192,10 @@ Drag & drop works on touch devices:
 
 | Parameter | Options | Default |
 |-----------|---------|---------|
-| `draggable` | true, false | true (if enabled in settings) |
-| `template` | kanban | (required for drag) |
+| `mode` | `view`, `manage` | `view` |
+| `template` | `board` | recommended for drag & drop |
+
+`mode="manage"` lets editors add and edit items, including dragging between status columns, directly on the page. Visitors always see the read-only `view` mode regardless of this setting.
 
 ---
 
@@ -216,10 +221,10 @@ Drag & drop works on touch devices:
 
 ### Personal Task Management
 
-**Scenario**: Individual tracking their work.
+**Scenario**: An editor tracking their own work.
 
 ```
-[roadmap template="kanban" assignee="current_user"]
+[roadmap template="board" mode="manage"]
 ```
 
 Drag personal tasks through workflow stages.
@@ -279,8 +284,8 @@ When moving items:
 - Is drag enabled in settings?
 
 **Check template:**
-- Using kanban template?
-- Shortcode has `draggable="true"`?
+- Using the board template?
+- Shortcode has `mode="manage"`?
 
 ### Drag doesn't save
 

@@ -209,14 +209,6 @@ Enable or disable Pro features:
 | Cache Duration | How long to cache stats |
 | Dashboard Widget | Show in WP dashboard |
 
-### Timeline Settings
-
-| Setting | Description |
-|---------|-------------|
-| Default View | Starting zoom level |
-| Show Dependencies | Display dependency lines |
-| Show Assignees | Display user avatars |
-
 ---
 
 ## Shortcode Defaults
@@ -228,17 +220,16 @@ Set defaults that apply when shortcode parameters aren't specified.
 | Setting | Shortcode Equivalent |
 |---------|---------------------|
 | Default Template | `template="minimal"` |
-| Default Order | `orderby="date" order="desc"` |
-| Default Limit | `limit="20"` |
-| Default Status | `status="all"` |
+| Default Order | `sort=""` (leave empty for the default order, or set `sort="votes"`, `"recent"`, `"comments"`, `"priority"`, `"title"`) |
+| Default Limit | `limit="0"` (0 shows every item with a Load more button) |
+| Default Status | Leave `status` empty to show every status |
 
 ### Voting Defaults
 
 | Setting | Shortcode Equivalent |
 |---------|---------------------|
-| Show Votes | `show_votes="true"` |
-| Show Progress | `show_progress="true"` |
-| Allow Voting | `voting="true"` |
+| Allow Voting | Controlled in Settings only. On a board, `show_voting="hide"` can hide voting; it can never turn voting on if Settings has it disabled |
+| Allow Comments | Same pattern with `show_comments="hide"` |
 
 ---
 

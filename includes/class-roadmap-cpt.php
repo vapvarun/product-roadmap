@@ -22,7 +22,7 @@ class Roadmap_CPT {
 		add_action( 'add_meta_boxes', array( $this, 'add_meta_boxes' ) );
 		add_action( 'save_post_roadmap_item', array( $this, 'save_meta_boxes' ), 10, 2 );
 		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_block_editor_assets' ) );
-		add_action( 'wp_insert_post', array( $this, 'set_default_product_on_create' ), 10, 3 );
+		add_action( 'wp_insert_post', array( $this, 'set_default_product_if_missing' ), 10, 2 );
 
 		// Custom permalink structure
 		add_filter( 'post_type_link', array( $this, 'custom_roadmap_permalinks' ), 10, 2 );
@@ -48,12 +48,29 @@ class Roadmap_CPT {
 		add_action( 'admin_action_approve_roadmap_item', array( $this, 'handle_approve_action' ) );
 		add_action( 'admin_action_reject_roadmap_item', array( $this, 'handle_reject_action' ) );
 		add_action( 'admin_notices', array( $this, 'show_action_notices' ) );
+
+		// Restoring a trashed item (board delete, rejected suggestion) puts it
+		// back where it was, not into Draft (the core default since 5.6).
+		add_filter( 'wp_untrash_post_status', array( $this, 'untrash_to_previous_status' ), 10, 3 );
+	}
+
+	/**
+	 * Restore roadmap items to their status before they were trashed.
+	 *
+	 * @param string $new_status      Status core would restore to.
+	 * @param int    $post_id         Post ID.
+	 * @param string $previous_status Status before trashing.
+	 * @return string
+	 */
+	public function untrash_to_previous_status( $new_status, $post_id, $previous_status ) {
+		return 'roadmap_item' === get_post_type( $post_id ) && $previous_status ? $previous_status : $new_status;
 	}
 
 	public function register_post_types() {
 		// Get custom labels
-		$item_singular = get_option( 'roadmap_item_singular_label', 'Feature' );
-		$item_plural   = get_option( 'roadmap_item_plural_label', 'Features' );
+		$item_labels   = Roadmap_Settings::item_labels();
+		$item_singular = $item_labels['singular'];
+		$item_plural   = $item_labels['plural'];
 		$product_name  = get_option( 'roadmap_product_name', 'Product' );
 
 		$labels = array(
@@ -518,6 +535,12 @@ class Roadmap_CPT {
 				$is_multiple     = isset( $field['multiple'] ) && $field['multiple'];
 				$name_attr       = $is_multiple ? $field['id'] . '[]' : $field['id'];
 				$selected_values = $is_multiple && is_array( $value ) ? $value : array( $value );
+				// Option keys arrive as ints (e.g. $options[ $user->ID ]) while post
+				// meta always reads back as a string, so a strict in_array() below
+				// never matches and the field re-renders as unselected. That is not
+				// just cosmetic: the blank control then posts an empty value on the
+				// next save and destroys the stored one. Compare as strings.
+				$selected_values = array_map( 'strval', $selected_values );
 				?>
 				<select id="<?php echo esc_attr( $field['id'] ); ?>"
 						name="<?php echo esc_attr( $name_attr ); ?>"
@@ -526,7 +549,7 @@ class Roadmap_CPT {
 						<?php echo esc_attr( $readonly ); ?>>
 					<?php foreach ( $field['options'] as $option_value => $option_label ) : ?>
 						<option value="<?php echo esc_attr( $option_value ); ?>"
-								<?php echo in_array( $option_value, $selected_values, true ) ? 'selected' : ''; ?>>
+								<?php echo in_array( (string) $option_value, $selected_values, true ) ? 'selected' : ''; ?>>
 							<?php echo esc_html( $option_label ); ?>
 						</option>
 					<?php endforeach; ?>
@@ -704,9 +727,20 @@ class Roadmap_CPT {
 		);
 	}
 
-	public function set_default_product_on_create( $post_id, $post, $update ) {
-		// Only for new roadmap items
-		if ( $update || $post->post_type !== 'roadmap_item' ) {
+	/**
+	 * Give a saved roadmap item the default product when it has none.
+	 *
+	 * Runs on real saves only, never on the auto-draft WordPress creates when
+	 * "Add New" opens. Assigning it there pre-ticked the default product in the
+	 * block editor's Products panel, so every new item also landed on the
+	 * default board unless the owner noticed and unticked it. On a REST save
+	 * the chosen terms are applied after this hook and replace the default.
+	 *
+	 * @param int     $post_id Post ID.
+	 * @param WP_Post $post    Post object.
+	 */
+	public function set_default_product_if_missing( $post_id, $post ) {
+		if ( 'roadmap_item' !== $post->post_type || 'auto-draft' === $post->post_status ) {
 			return;
 		}
 
@@ -760,9 +794,29 @@ class Roadmap_CPT {
 	}
 
 	/**
+	 * Whether a published Page already owns this top-level slug.
+	 *
+	 * @param string $slug Top-level slug to check.
+	 * @return bool
+	 */
+	private function slug_is_taken_by_a_page( $slug ) {
+		$page = get_page_by_path( $slug );
+
+		return ( $page instanceof WP_Post ) && 'publish' === $page->post_status;
+	}
+
+	/**
 	 * Add custom rewrite rules for product-specific URLs
 	 */
 	public function add_rewrite_rules() {
+		// These rules are registered 'top', so they win over WordPress's own
+		// page rules. If the site already has a Page at /roadmap/ (or a child
+		// page under it) that page became unreachable - it is the owner's
+		// content, and the plugin should not take the URL from them.
+		if ( $this->slug_is_taken_by_a_page( 'roadmap' ) ) {
+			return;
+		}
+
 		// All products index: /roadmap/
 		add_rewrite_rule(
 			'^roadmap/?$',
@@ -797,13 +851,26 @@ class Roadmap_CPT {
 	 * Customize permalinks for roadmap items
 	 */
 	public function custom_roadmap_permalinks( $permalink, $post ) {
-		if ( $post->post_type !== 'roadmap_item' ) {
+		if ( ! ( $post instanceof WP_Post ) || 'roadmap_item' !== $post->post_type ) {
 			return $permalink;
 		}
 
-		// Get the product term
-		$product_terms = wp_get_object_terms( $post->ID, 'roadmap_product' );
-		$product_slug  = ! empty( $product_terms ) ? $product_terms[0]->slug : 'main';
+		// Only rewrite the permalink for a post that actually has one. A
+		// pending or draft item has an empty post_name, so the pretty URL
+		// collapsed to /roadmap/{product}/ - the product archive - and the
+		// Preview button silently showed the board instead of the item.
+		// Leaving core's link alone keeps the working ?p=ID&preview=true form.
+		if ( empty( $post->post_name ) || ! in_array( $post->post_status, array( 'publish', 'private', 'future' ), true ) ) {
+			return $permalink;
+		}
+
+		// get_the_terms() reads the object term cache, which the REST layer
+		// primes for the whole page. wp_get_object_terms() bypasses it, so this
+		// filter alone cost one term query per item on every board request.
+		$product_terms = get_the_terms( $post->ID, 'roadmap_product' );
+		$product_slug  = ( ! is_wp_error( $product_terms ) && ! empty( $product_terms ) )
+			? $product_terms[0]->slug
+			: 'main';
 
 		return home_url( '/roadmap/' . $product_slug . '/' . $post->post_name . '/' );
 	}
@@ -846,13 +913,12 @@ class Roadmap_CPT {
 	public function custom_template( $template ) {
 		global $wp_query;
 
-		// Single roadmap item template
-		if ( is_singular( 'roadmap_item' ) ) {
-			$custom_template = ROADMAP_PLUGIN_PATH . 'templates/single-roadmap-item.php';
-			if ( file_exists( $custom_template ) ) {
-				return $custom_template;
-			}
-		}
+		// Single roadmap item templates are owned by Roadmap_Template, which
+		// also handles the theme override via locate_template(). This branch
+		// pointed at templates/single-roadmap-item.php - with a hyphen - while
+		// the shipped file uses an underscore, so file_exists() always failed
+		// and it silently did nothing. Two loaders for one job is how that goes
+		// unnoticed, so the dead one is removed rather than corrected.
 
 		// Product-specific archive template: /roadmap/{product}/
 		if ( get_query_var( 'roadmap_product' ) && ! is_singular() ) {
@@ -959,19 +1025,29 @@ class Roadmap_CPT {
 			'reject_roadmap_item_' . $post->ID
 		);
 
-		// Add approve action (with green color)
-		$actions['approve'] = sprintf(
+		// Add approve action (with green color). Keyed 'roadmap_approve', not
+		// 'approve' - WP_List_Table::row_actions() wraps each key in
+		// <span class="$key">, and wp-admin/css/common.css has an unscoped
+		// `.approve { display: none; }` rule written for the Comments screen
+		// (only re-shown inside .unapproved/.spam/.trash rows). Our pending
+		// rows carry class status-pending, not unapproved, so that rule
+		// always won and the link was invisible everywhere, for everyone -
+		// the handler itself worked fine if you knew the URL. Found on the
+		// 1.8.0 smoke re-run.
+		$actions['roadmap_approve'] = sprintf(
 			'<a href="%s" style="color: #46b450;">%s</a>',
 			esc_url( $approve_url ),
 			__( 'Approve', 'product-roadmap' )
 		);
 
-		// Add reject action (with red color)
+		// Add reject action (with red color). Two-step confirm, no browser dialog.
+		wp_enqueue_script( 'roadmap-admin-feedback' );
 		$actions['reject'] = sprintf(
-			'<a href="%s" style="color: #dc3232;" onclick="return confirm(\'%s\');">%s</a>',
+			'<a href="%s" style="color: #dc3232;" data-roadmap-confirm="%s" data-roadmap-confirm-label="%s">%s</a>',
 			esc_url( $reject_url ),
-			esc_js( __( 'Are you sure you want to reject this submission?', 'product-roadmap' ) ),
-			__( 'Reject', 'product-roadmap' )
+			esc_attr__( 'Rejects this submission.', 'product-roadmap' ),
+			esc_attr__( 'Confirm reject', 'product-roadmap' ),
+			esc_html__( 'Reject', 'product-roadmap' )
 		);
 
 		return $actions;

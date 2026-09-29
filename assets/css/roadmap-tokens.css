@@ -1,0 +1,225 @@
+/**
+ * Product Roadmap - colour tokens and shared status / priority chips.
+ *
+ * The ONLY file that holds colour values for the frontend. The board app, the
+ * item and changelog templates, and the Pro stylesheets all read these custom
+ * properties (every frontend stylesheet lists the `roadmap-tokens` handle as a
+ * dependency), so light/dark is a pure token swap and a contrast fix lands on
+ * every surface at once. bin/check-raw-colors.sh fails CI when a raw colour
+ * appears anywhere else.
+ *
+ * Declared on :root, where WordPress also declares the theme presets, so the
+ * accent follows the theme's --wp--preset--color--primary.
+ *
+ * Semantic roles reuse the status palette: success = done, error = cancelled,
+ * warning = progress, info = planned.
+ *
+ * @package ProductRoadmap
+ * @since 1.8.0
+ */
+
+:root {
+	/* Accent: the theme's brand colour when it exposes one, else plugin blue.
+	   A root below may override it (per-product Theme Color, feedback-widget
+	   colour); the derived accent tokens are recomputed there. */
+	--roadmap-accent: var(--wp--preset--color--primary, #2271b1);
+
+	/* Mode parameters for the derived accent tokens (dark values below). */
+	--rm-accent-tint-mix: 15%;
+	--rm-accent-tint-base: #fff;
+	--rm-accent-text-mix: 85%;
+	--rm-accent-text-l-min: 0;
+	--rm-accent-text-l-max: 0.5;
+
+	/* Chrome. */
+	--rm-app-bg: transparent;
+	--rm-surface: #fff;
+	--rm-surface-alt: #f6f7f7;
+	--rm-elevated: #fff;
+	--rm-border: #e5e7eb;
+	--rm-border-soft: #f0f1f3;
+	/* Boundary of a form control or other UI component: >= 3:1 on a surface. */
+	--rm-control-border: #8c8f94;
+	--rm-heading: #1f2937;
+	--rm-text: #3c434a;
+	--rm-muted: #6b7280;
+	--rm-shadow: rgba(0, 0, 0, 0.08);
+	--rm-shadow-strong: rgba(0, 0, 0, 0.18);
+	--rm-overlay: rgba(0, 0, 0, 0.5);
+
+	/* Status: a solid (chip text, card border) and a tint (chip background).
+	   Each solid clears WCAG AA (>= 4.5:1) on its own tint. */
+	--rm-planned: #2563eb;   --rm-planned-tint: #e8f0fe;
+	--rm-progress: #b45309;  --rm-progress-tint: #fef1e0;
+	--rm-hold: #475569;      --rm-hold-tint: #eef1f4;
+	--rm-review: #7c3aed;    --rm-review-tint: #f3e9fd;
+	--rm-done: #147638;      --rm-done-tint: #e6f5ec;
+	--rm-cancelled: #b91c1c; --rm-cancelled-tint: #fdeaea;
+
+	/* Priority, a separate scale from status: low..critical. */
+	--rm-priority-low: #176e2f;      --rm-priority-low-tint: #d9f4e1;
+	--rm-priority-medium: #7a5f0a;   --rm-priority-medium-tint: #fdf3d3;
+	--rm-priority-high: #92400e;     --rm-priority-high-tint: #fde8cf;
+	--rm-priority-critical: #b42318; --rm-priority-critical-tint: #fbe2e0;
+}
+
+/* Dark: follows ONLY the theme's own light/dark toggle (never the OS setting),
+   plus the plugin's own .roadmap-dark toggle. BuddyX / BuddyX Pro and Reign flip
+   html[data-bx-mode="dark"] and a body class. */
+html[data-bx-mode="dark"],
+html[data-mode="dark"],
+body.buddyx-dark-theme,
+body.buddyx-dark-style-variation,
+body.dark-scheme,
+body.reign-ld-dark-theme,
+.roadmap-dark {
+	--rm-accent-tint-mix: 22%;
+	--rm-accent-tint-base: #1a1d21;
+	--rm-accent-text-mix: 100%;
+	--rm-accent-text-l-min: 0.8;
+	--rm-accent-text-l-max: 1;
+
+	--rm-app-bg: #23282d;
+	--rm-surface: #30373e;
+	--rm-surface-alt: #23282d;
+	--rm-elevated: #373f47;
+	--rm-border: #424c55;
+	--rm-border-soft: #373f47;
+	--rm-control-border: #8b939e;
+	--rm-heading: #e2e4e7;
+	--rm-text: #d3d6da;
+	--rm-muted: #a7aeb8;
+	--rm-shadow: rgba(0, 0, 0, 0.3);
+	--rm-shadow-strong: rgba(0, 0, 0, 0.5);
+	--rm-overlay: rgba(0, 0, 0, 0.7);
+
+	--rm-planned: #60a5fa;   --rm-planned-tint: #1c2740;
+	--rm-progress: #fbbf24;  --rm-progress-tint: #2c2416;
+	--rm-hold: #94a3b8;      --rm-hold-tint: #262b32;
+	--rm-review: #c084fc;    --rm-review-tint: #251a35;
+	--rm-done: #4ade80;      --rm-done-tint: #14281b;
+	--rm-cancelled: #f87171; --rm-cancelled-tint: #2c1a1a;
+
+	--rm-priority-low: #4ade80;      --rm-priority-low-tint: #14281b;
+	--rm-priority-medium: #fbbf24;   --rm-priority-medium-tint: #2c2416;
+	--rm-priority-high: #fb923c;     --rm-priority-high-tint: #2c1f14;
+	--rm-priority-critical: #f87171; --rm-priority-critical-tint: #2c1a1a;
+}
+
+/* Derived accent tokens. A custom property resolves where it is declared, so
+   these are declared on :root AND on every root that may override
+   --roadmap-accent; the mode parameters above inherit into them. */
+:root,
+.roadmap-app,
+.roadmap-changelog,
+.roadmap-changelog-wrapper,
+.roadmap-changelog-archive-wrapper,
+.roadmap-fw {
+	--roadmap-accent-hover: color-mix(in srgb, var(--roadmap-accent) 85%, #000);
+	--roadmap-accent-tint: color-mix(in srgb, var(--roadmap-accent) var(--rm-accent-tint-mix), var(--rm-accent-tint-base));
+	/* Text/icons ON an accent background. */
+	--roadmap-accent-contrast: #fff;
+	/* Accent-coloured TEXT on a surface or tint. */
+	--roadmap-accent-text: color-mix(in srgb, var(--roadmap-accent) var(--rm-accent-text-mix), #000);
+}
+
+@supports (color: oklch(from red l c h)) {
+	:root,
+	.roadmap-app,
+	.roadmap-changelog,
+	.roadmap-changelog-wrapper,
+	.roadmap-changelog-archive-wrapper,
+	.roadmap-fw {
+		/* Black on light accents, white on dark ones. The switch sits near where
+		   black and white give equal contrast (OKLCH lightness ~0.6), so each
+		   accent gets whichever reads better. */
+		--roadmap-accent-contrast: oklch(from var(--roadmap-accent) clamp(0, (0.6 - l) * 1000, 1) 0 0);
+		/* Keep the hue; clamp lightness so it reads on the current mode's surfaces. */
+		--roadmap-accent-text: oklch(from var(--roadmap-accent) clamp(var(--rm-accent-text-l-min), l, var(--rm-accent-text-l-max)) c h);
+	}
+}
+
+/* Status and priority, mapped once. Any element with a roadmap-status-{slug}
+   or roadmap-priority-{slug} class gets --rm-status / --rm-status-tint (or
+   --rm-priority-color / --rm-priority-tint). Nothing is painted here, so the
+   classes are safe on any element; a view reads the pair for its chip, dot,
+   border or bar. Unknown status slugs fall back to the neutral pair. */
+[class*="roadmap-status-"] {
+	--rm-status: var(--rm-hold);
+	--rm-status-tint: var(--rm-hold-tint);
+}
+
+:is(.roadmap-status-planned, .roadmap-status-approved, .roadmap-status-backlog) {
+	--rm-status: var(--rm-planned);
+	--rm-status-tint: var(--rm-planned-tint);
+}
+
+:is(.roadmap-status-in-progress, .roadmap-status-inprogress, .roadmap-status-in-development, .roadmap-status-development, .roadmap-status-started) {
+	--rm-status: var(--rm-progress);
+	--rm-status-tint: var(--rm-progress-tint);
+}
+
+:is(.roadmap-status-under-review, .roadmap-status-review, .roadmap-status-reviewing, .roadmap-status-idea, .roadmap-status-considering) {
+	--rm-status: var(--rm-review);
+	--rm-status-tint: var(--rm-review-tint);
+}
+
+:is(.roadmap-status-completed, .roadmap-status-complete, .roadmap-status-done, .roadmap-status-released, .roadmap-status-shipped, .roadmap-status-launched) {
+	--rm-status: var(--rm-done);
+	--rm-status-tint: var(--rm-done-tint);
+}
+
+:is(.roadmap-status-cancelled, .roadmap-status-canceled, .roadmap-status-rejected, .roadmap-status-declined, .roadmap-status-wont-do, .roadmap-status-closed) {
+	--rm-status: var(--rm-cancelled);
+	--rm-status-tint: var(--rm-cancelled-tint);
+}
+
+.roadmap-priority-low {
+	--rm-priority-color: var(--rm-priority-low);
+	--rm-priority-tint: var(--rm-priority-low-tint);
+}
+
+.roadmap-priority-medium {
+	--rm-priority-color: var(--rm-priority-medium);
+	--rm-priority-tint: var(--rm-priority-medium-tint);
+}
+
+.roadmap-priority-high {
+	--rm-priority-color: var(--rm-priority-high);
+	--rm-priority-tint: var(--rm-priority-high-tint);
+}
+
+.roadmap-priority-critical {
+	--rm-priority-color: var(--rm-priority-critical);
+	--rm-priority-tint: var(--rm-priority-critical-tint);
+}
+
+/* The shared chip. Status and priority chips everywhere (board, cards, list,
+   timeline, minimal, idea box, item modal, single item page, archive) are
+   <span class="roadmap-badge roadmap-status-{slug}"> or
+   <span class="roadmap-badge roadmap-priority-{slug}">. */
+.roadmap-badge {
+	display: inline-block;
+	padding: 3px 8px;
+	font-size: 12px;
+	font-weight: 500;
+	line-height: 1;
+	border-radius: 3px;
+	background: var(--rm-surface-alt);
+	color: var(--rm-text);
+}
+
+.roadmap-badge-primary {
+	background: var(--roadmap-accent-tint);
+	color: var(--roadmap-accent-text);
+}
+
+.roadmap-badge[class*="roadmap-status-"] {
+	background: var(--rm-status-tint);
+	color: var(--rm-status);
+}
+
+.roadmap-badge[class*="roadmap-priority-"] {
+	background: var(--rm-priority-tint);
+	color: var(--rm-priority-color);
+}

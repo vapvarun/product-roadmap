@@ -57,6 +57,13 @@ class Roadmap_Changelog {
 
 		// Auto-generate slug with product prefix
 		add_filter( 'wp_insert_post_data', array( $this, 'auto_generate_slug' ), 10, 2 );
+
+		// The block editor's REST save sets post fields (and runs the filter
+		// above) before it attaches the roadmap_product term via handle_terms()
+		// later in the same request, so a non-default product's first save can
+		// only see "no product yet" and falls back to the general- slug. Correct
+		// it once REST has actually finished attaching terms.
+		add_action( 'rest_after_insert_roadmap_changelog', array( $this, 'fix_slug_after_rest_terms' ), 10, 2 );
 	}
 
 	/**
@@ -170,8 +177,8 @@ class Roadmap_Changelog {
 		}
 
 		$term_id = isset( $_POST['term_id'] ) ? absint( $_POST['term_id'] ) : 0;
-		$field   = isset( $_POST['field'] ) ? sanitize_text_field( $_POST['field'] ) : '';
-		$value   = isset( $_POST['value'] ) ? sanitize_hex_color( $_POST['value'] ) : '';
+		$field   = isset( $_POST['field'] ) ? sanitize_text_field( wp_unslash( $_POST['field'] ) ) : '';
+		$value   = isset( $_POST['value'] ) ? sanitize_hex_color( wp_unslash( $_POST['value'] ) ) : '';
 
 		if ( ! $term_id || ! $field || ! $value ) {
 			wp_send_json_error( 'Invalid parameters' );
@@ -620,6 +627,18 @@ class Roadmap_Changelog {
 	/**
 	 * Save changelog meta boxes
 	 */
+	/**
+	 * The product Free assigns to an entry saved without one, or 0 (Pro, or unset).
+	 *
+	 * @return int
+	 */
+	private static function free_default_product_id() {
+		if ( defined( 'ROADMAP_PRO_ACTIVE' ) && ROADMAP_PRO_ACTIVE ) {
+			return 0;
+		}
+		return (int) get_option( 'roadmap_default_product_id' );
+	}
+
 	public function save_meta_boxes( $post_id, $post ) {
 		if ( ! isset( $_POST['roadmap_changelog_meta_box_nonce'] ) ||
 			! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['roadmap_changelog_meta_box_nonce'] ) ), 'roadmap_changelog_meta_box' ) ) {
@@ -651,12 +670,21 @@ class Roadmap_Changelog {
 
 		// Save changelog items
 		if ( isset( $_POST['_changelog_items'] ) && is_array( $_POST['_changelog_items'] ) ) {
-			$items = array();
-			foreach ( $_POST['_changelog_items'] as $item ) {
+			// Unslash once at the boundary, then sanitize each field. WordPress
+			// slashes superglobals, so sanitizing without unslashing stores the
+			// escaped form and backslashes accumulate on every re-save.
+			$posted_items = map_deep( wp_unslash( $_POST['_changelog_items'] ), 'sanitize_text_field' );
+			$items        = array();
+
+			foreach ( $posted_items as $item ) {
+				if ( ! is_array( $item ) ) {
+					continue;
+				}
+
 				if ( ! empty( $item['type'] ) || ! empty( $item['description'] ) ) {
 					$items[] = array(
-						'type'        => sanitize_text_field( $item['type'] ),
-						'description' => sanitize_text_field( $item['description'] ),
+						'type'        => $item['type'] ?? '',
+						'description' => $item['description'] ?? '',
 					);
 				}
 			}
@@ -664,14 +692,9 @@ class Roadmap_Changelog {
 		}
 
 		// Auto-assign default product in free version
-		if ( ! defined( 'ROADMAP_PRO_ACTIVE' ) || ! ROADMAP_PRO_ACTIVE ) {
-			$product_terms = wp_get_object_terms( $post_id, 'roadmap_product' );
-			if ( empty( $product_terms ) ) {
-				$default_product_id = get_option( 'roadmap_default_product_id' );
-				if ( $default_product_id ) {
-					wp_set_object_terms( $post_id, (int) $default_product_id, 'roadmap_product' );
-				}
-			}
+		$default_product_id = self::free_default_product_id();
+		if ( $default_product_id && empty( wp_get_object_terms( $post_id, 'roadmap_product' ) ) ) {
+			wp_set_object_terms( $post_id, $default_product_id, 'roadmap_product' );
 		}
 	}
 
@@ -945,10 +968,45 @@ class Roadmap_Changelog {
 			return $data;
 		}
 
-		// Only process on publish or if slug is empty/auto-draft
-		if ( empty( $data['post_name'] ) || $data['post_name'] === 'auto-draft' ) {
-			$version = isset( $postarr['_changelog_version'] ) ? $postarr['_changelog_version'] : '';
+		// Never derive a slug while WordPress is creating the auto-draft: at
+		// that point the title is "Auto Draft" and no product is assigned, so
+		// this produced "general-auto-draft" and wrote it to post_name. Being
+		// non-empty from then on, the guard below never fired again and the
+		// slug was stuck for the life of the entry.
+		if ( 'auto-draft' === ( $data['post_status'] ?? '' ) ) {
+			return $data;
+		}
 
+		if ( empty( $data['post_title'] ) || 'Auto Draft' === $data['post_title'] ) {
+			return $data;
+		}
+
+		// The version arrives in the POST body, not in $postarr - reading
+		// $postarr['_changelog_version'] meant the product-vX.Y.Z branch
+		// below never ran.
+		$stored_version = (string) get_post_meta( $postarr['ID'] ?? 0, '_changelog_version', true );
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- slug derivation only; the save itself is nonce-checked
+		$version = isset( $_POST['_changelog_version'] )
+			? sanitize_text_field( wp_unslash( $_POST['_changelog_version'] ) )
+			: $stored_version;
+
+		// Re-derive when the slug is missing, or when it is the artefact a
+		// previous version of this code left behind.
+		$needs_slug = empty( $data['post_name'] )
+			|| 'auto-draft' === $data['post_name']
+			|| (bool) preg_match( '/-auto-draft(-\d+)?$/', $data['post_name'] );
+
+		// Block editor: its REST save publishes first, and WordPress fills
+		// post_name from the title; the version only arrives with the meta-box
+		// save that follows. Re-derive on that save - the slug is still the
+		// title default and this request brings the first version. Entries that
+		// already have a stored version, or a slug the owner edited, keep their
+		// URL.
+		if ( ! $needs_slug && '' === $stored_version && '' !== $version ) {
+			$needs_slug = (bool) preg_match( '/^' . preg_quote( sanitize_title( $data['post_title'] ), '/' ) . '(-\d+)?$/', $data['post_name'] );
+		}
+
+		if ( $needs_slug ) {
 			// Get product slug if available
 			$product_slug = 'general';
 			if ( ! empty( $postarr['tax_input']['roadmap_product'] ) ) {
@@ -963,6 +1021,16 @@ class Roadmap_Changelog {
 				$existing_products = wp_get_object_terms( $postarr['ID'], 'roadmap_product' );
 				if ( ! empty( $existing_products ) && ! is_wp_error( $existing_products ) ) {
 					$product_slug = $existing_products[0]->slug;
+				}
+			}
+
+			// Free assigns its default product in save_meta_boxes(), which runs
+			// after this filter: use that product now, or the slug says
+			// "general" for an entry that lives under the default product.
+			if ( 'general' === $product_slug && self::free_default_product_id() ) {
+				$default_term = get_term( self::free_default_product_id(), 'roadmap_product' );
+				if ( $default_term && ! is_wp_error( $default_term ) ) {
+					$product_slug = $default_term->slug;
 				}
 			}
 
@@ -983,6 +1051,55 @@ class Roadmap_Changelog {
 		}
 
 		return $data;
+	}
+
+	/**
+	 * Re-derive a changelog slug that was forced to the "general-" fallback
+	 * because auto_generate_slug() ran before the block editor's REST request
+	 * had attached the roadmap_product term (see the hook registration in the
+	 * constructor) - it can land as either "general-v{version}" or, when the
+	 * very first autosave ran before a version existed yet too, "general-
+	 * {title}". Once REST has actually finished attaching terms and saving
+	 * meta, replace just the wrong "general-" prefix with the real product's
+	 * slug. Only that exact fallback prefix is touched - a slug the owner
+	 * edited, or one that already derived the right product, is left alone.
+	 * (Bugs 10326920444.)
+	 */
+	public function fix_slug_after_rest_terms( $post, $request ) {
+		if ( 'roadmap_changelog' !== $post->post_type ) {
+			return;
+		}
+
+		if ( 0 !== strpos( $post->post_name, 'general-' ) ) {
+			return;
+		}
+
+		$products = wp_get_object_terms( $post->ID, 'roadmap_product' );
+		if ( empty( $products ) || is_wp_error( $products ) ) {
+			return;
+		}
+		$product_slug = $products[0]->slug;
+
+		// The fallback was already correct - this entry really is "general".
+		if ( 'general' === $product_slug ) {
+			return;
+		}
+
+		$version = (string) get_post_meta( $post->ID, '_changelog_version', true );
+		$slug_base = '' !== $version
+			? $product_slug . '-v' . sanitize_title( $version )
+			: $product_slug . '-' . substr( $post->post_name, strlen( 'general-' ) );
+
+		$new_slug = wp_unique_post_slug( $slug_base, $post->ID, $post->post_status, $post->post_type, $post->post_parent );
+
+		if ( $new_slug !== $post->post_name ) {
+			wp_update_post(
+				array(
+					'ID'        => $post->ID,
+					'post_name' => $new_slug,
+				)
+			);
+		}
 	}
 
 	/**
@@ -1050,6 +1167,27 @@ class Roadmap_Changelog {
 			return;
 		}
 
+		wp_enqueue_style(
+			'roadmap-changelog-frontend',
+			self::get_frontend_css_url(),
+			array( 'roadmap-tokens' ),
+			ROADMAP_VERSION
+		);
+	}
+
+	/**
+	 * Resolve the changelog stylesheet URL: a theme override
+	 * (roadmap/changelog-frontend.css in the child or parent theme) if one
+	 * exists, else the plugin's own file. Shared by every surface that
+	 * enqueues this stylesheet, so a theme override applies everywhere at
+	 * once instead of per-template. The item archive template used to
+	 * hardcode the plugin's own URL directly, so a theme's override never
+	 * reached it. Bugs 10344482685.
+	 *
+	 * @since 1.8.0
+	 * @return string
+	 */
+	public static function get_frontend_css_url() {
 		// Prefer a theme override if the active (child or parent) theme ships
 		// `roadmap/changelog-frontend.css`, so themes can style the changelog
 		// without a filter. Fall back to the plugin's stylesheet otherwise.
@@ -1067,14 +1205,7 @@ class Roadmap_Changelog {
 		 *
 		 * @param string $css_url Stylesheet URL that will be enqueued.
 		 */
-		$css_url = apply_filters( 'roadmap_changelog_frontend_css_url', $css_url );
-
-		wp_enqueue_style(
-			'roadmap-changelog-frontend',
-			$css_url,
-			array(),
-			ROADMAP_VERSION
-		);
+		return apply_filters( 'roadmap_changelog_frontend_css_url', $css_url );
 	}
 
 	/**

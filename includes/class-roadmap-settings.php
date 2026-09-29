@@ -137,7 +137,7 @@ class Roadmap_Settings {
 			array(
 				'type'              => 'array',
 				'sanitize_callback' => array( $this, 'sanitize_global_settings' ),
-				'default'           => $this->get_default_global_settings(),
+				'default'           => self::defaults(),
 			)
 		);
 
@@ -193,7 +193,95 @@ class Roadmap_Settings {
 		);
 	}
 
-	private function get_default_global_settings() {
+	/**
+	 * The item labels (Settings > General), or the defaults for a label saved
+	 * empty. get_option()'s default only covers a missing option, so an owner
+	 * clearing the field left headings and messages without a noun.
+	 *
+	 * @return array{singular: string, plural: string}
+	 */
+	public static function item_labels() {
+		$singular = trim( (string) get_option( 'roadmap_item_singular_label', '' ) );
+		$plural   = trim( (string) get_option( 'roadmap_item_plural_label', '' ) );
+
+		return array(
+			'singular' => '' !== $singular ? $singular : __( 'Feature', 'product-roadmap' ),
+			'plural'   => '' !== $plural ? $plural : __( 'Features', 'product-roadmap' ),
+		);
+	}
+
+	/**
+	 * One global setting, or all of them, with the defaults applied.
+	 *
+	 * The only reader of roadmap_global_settings: every surface (shortcode,
+	 * REST, permissions, notifications, templates, Pro) calls this, so a
+	 * default or a storage change happens in one place.
+	 *
+	 * @param string|null $key Setting key, or null for the full array.
+	 * @return mixed Setting value, null for an unknown key, or the full array.
+	 */
+	public static function get( $key = null ) {
+		$settings = wp_parse_args( (array) get_option( 'roadmap_global_settings', array() ), self::defaults() );
+		return null === $key ? $settings : ( $settings[ $key ] ?? null );
+	}
+
+	/**
+	 * Notification recipients from the Settings screen (one address per line).
+	 *
+	 * @return string[] Valid email addresses; the site admin email when none are set.
+	 */
+	public static function notification_recipients() {
+		$emails = array_filter( array_map( 'trim', explode( "\n", (string) self::get( 'notification_email' ) ) ), 'is_email' );
+		return $emails ? array_values( $emails ) : array( get_option( 'admin_email' ) );
+	}
+
+	/**
+	 * Move the pre-1.8 standalone options into roadmap_global_settings.
+	 *
+	 * Runs once from the version-upgrade routine. A legacy value is copied only
+	 * when the array does not already hold that key, so the effective setting
+	 * never changes; the legacy options are then deleted so nothing can read
+	 * them again.
+	 */
+	public static function migrate_legacy_options() {
+		$legacy   = array(
+			'enable_voting'      => 'roadmap_enable_voting',
+			'allow_guest_voting' => 'roadmap_allow_guest_voting',
+			'enable_comments'    => 'roadmap_enable_comments',
+			'enable_suggestions' => 'roadmap_enable_suggestions',
+			'items_per_page'     => 'roadmap_items_per_page',
+			'notification_email' => 'roadmap_notification_email',
+		);
+		$settings = (array) get_option( 'roadmap_global_settings', array() );
+		$changed  = false;
+		foreach ( $legacy as $key => $option ) {
+			$value = get_option( $option, null );
+			if ( null === $value ) {
+				continue;
+			}
+			if ( ! array_key_exists( $key, $settings ) ) {
+				if ( 'items_per_page' === $key ) {
+					$settings[ $key ] = absint( $value );
+				} elseif ( 'notification_email' === $key ) {
+					$settings[ $key ] = sanitize_textarea_field( $value );
+				} else {
+					$settings[ $key ] = ( 'yes' === $value || true === $value || '1' === (string) $value );
+				}
+				$changed = true;
+			}
+			delete_option( $option );
+		}
+		if ( $changed ) {
+			update_option( 'roadmap_global_settings', $settings );
+		}
+	}
+
+	/**
+	 * Default for every global setting.
+	 *
+	 * @return array
+	 */
+	public static function defaults() {
 		return array(
 			'default_status'            => 'planned',
 			'items_per_page'            => 100,
@@ -348,7 +436,7 @@ class Roadmap_Settings {
 
         // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reading tab parameter for display only
 		$active_tab      = isset( $_GET['tab'] ) ? sanitize_text_field( wp_unslash( $_GET['tab'] ) ) : 'general';
-		$global_settings = get_option( 'roadmap_global_settings', $this->get_default_global_settings() );
+		$global_settings = self::get();
 		?>
 		<div class="wrap roadmap-settings-wrap">
 			<div class="roadmap-settings-header">
@@ -428,6 +516,14 @@ class Roadmap_Settings {
 
 						echo '<form method="post" action="options.php" class="roadmap-settings-form">';
 						settings_fields( $settings_group );
+						// Tell the sanitizer which tab is posting. Every tab shares
+						// one option, so without this it cannot tell "unticked on
+						// this tab" from "not rendered by this tab" and wipes the
+						// other tab's values. See sanitize_global_settings().
+						printf(
+							'<input type="hidden" name="roadmap_global_settings[_tab]" value="%s">',
+							esc_attr( $active_tab )
+						);
 					}
 
 					switch ( $active_tab ) {
@@ -476,8 +572,9 @@ class Roadmap_Settings {
 			)
 		);
 		$product_name  = get_option( 'roadmap_product_name', 'Product' );
-		$item_singular = get_option( 'roadmap_item_singular_label', 'Feature' );
-		$item_plural   = get_option( 'roadmap_item_plural_label', 'Features' );
+		$item_labels   = self::item_labels();
+		$item_singular = $item_labels['singular'];
+		$item_plural   = $item_labels['plural'];
 		?>
 		<div class="roadmap-settings-section">
 			<h2><?php esc_html_e( 'General Settings', 'product-roadmap' ); ?></h2>
@@ -1029,19 +1126,72 @@ class Roadmap_Settings {
 		return ( $input === 'yes' ) ? 'yes' : 'no';
 	}
 
-	public function sanitize_global_settings( $input ) {
-		$sanitized = array();
+	/**
+	 * Which settings keys each tab is allowed to write.
+	 *
+	 * The Settings screen splits one option across several tabs, and a browser
+	 * only posts the fields it rendered. Rebuilding the whole option from a
+	 * single tab's POST therefore reset every field the other tabs own - saving
+	 * Notifications silently turned voting, comments, suggestions and guest
+	 * voting off and reset items_per_page. This map is what makes a partial
+	 * save safe.
+	 *
+	 * @return array<string, string[]> Tab slug => keys that tab owns.
+	 */
+	private function get_tab_setting_keys() {
+		return apply_filters(
+			'roadmap_tab_setting_keys',
+			array(
+				'general'       => array(
+					'default_status',
+					'items_per_page',
+					'enable_voting',
+					'allow_guest_voting',
+					'enable_comments',
+					'enable_suggestions',
+					'suggestion_requires_login',
+					'auto_approve_suggestions',
+					'suggestion_default_status',
+				),
+				'notifications' => array(
+					'enable_notifications',
+					'notification_email',
+					'notify_on_vote',
+					'notify_on_comment',
+					'notify_on_suggestion',
+				),
+			)
+		);
+	}
 
-		$sanitized['default_status']            = sanitize_text_field( $input['default_status'] ?? 'planned' );
-		$sanitized['items_per_page']            = absint( $input['items_per_page'] ?? 100 );
-		$sanitized['enable_voting']             = ! empty( $input['enable_voting'] );
-		$sanitized['allow_guest_voting']        = ! empty( $input['allow_guest_voting'] );
-		$sanitized['enable_comments']           = ! empty( $input['enable_comments'] );
-		$sanitized['enable_suggestions']        = ! empty( $input['enable_suggestions'] );
-		$sanitized['suggestion_requires_login'] = ! empty( $input['suggestion_requires_login'] );
-		$sanitized['auto_approve_suggestions']  = ! empty( $input['auto_approve_suggestions'] );
-		$sanitized['suggestion_default_status'] = sanitize_text_field( $input['suggestion_default_status'] ?? 'under-review' );
-		$sanitized['enable_notifications']      = ! empty( $input['enable_notifications'] );
+	public function sanitize_global_settings( $input ) {
+		// Start from what is already stored so keys this tab does not render
+		// survive the save untouched.
+		$stored    = get_option( 'roadmap_global_settings', array() );
+		$sanitized = is_array( $stored ) ? $stored : array();
+
+		$posting_tab = isset( $input['_tab'] ) ? sanitize_key( $input['_tab'] ) : '';
+		$tab_keys    = $this->get_tab_setting_keys();
+
+		// An unknown tab (or a programmatic save with no marker) keeps the old
+		// whole-option behaviour, so nothing that writes this option directly
+		// silently stops working.
+		$owned = $tab_keys[ $posting_tab ] ?? null;
+
+		unset( $input['_tab'] );
+
+		$candidate = array();
+
+		$candidate['default_status']            = sanitize_text_field( $input['default_status'] ?? 'planned' );
+		$candidate['items_per_page']            = absint( $input['items_per_page'] ?? 100 );
+		$candidate['enable_voting']             = ! empty( $input['enable_voting'] );
+		$candidate['allow_guest_voting']        = ! empty( $input['allow_guest_voting'] );
+		$candidate['enable_comments']           = ! empty( $input['enable_comments'] );
+		$candidate['enable_suggestions']        = ! empty( $input['enable_suggestions'] );
+		$candidate['suggestion_requires_login'] = ! empty( $input['suggestion_requires_login'] );
+		$candidate['auto_approve_suggestions']  = ! empty( $input['auto_approve_suggestions'] );
+		$candidate['suggestion_default_status'] = sanitize_text_field( $input['suggestion_default_status'] ?? 'under-review' );
+		$candidate['enable_notifications']      = ! empty( $input['enable_notifications'] );
 
 		// Sanitize notification email(s) - supports multiple emails (one per line)
 		if ( ! empty( $input['notification_email'] ) ) {
@@ -1049,14 +1199,24 @@ class Roadmap_Settings {
 			$emails                          = array_filter( $emails ); // Remove empty lines
 			$emails                          = array_map( 'sanitize_email', $emails );
 			$emails                          = array_filter( $emails ); // Remove invalid emails
-			$sanitized['notification_email'] = implode( "\n", $emails );
+			$candidate['notification_email'] = implode( "\n", $emails );
 		} else {
-			$sanitized['notification_email'] = '';
+			$candidate['notification_email'] = '';
 		}
 
-		$sanitized['notify_on_vote']       = ! empty( $input['notify_on_vote'] );
-		$sanitized['notify_on_comment']    = ! empty( $input['notify_on_comment'] );
-		$sanitized['notify_on_suggestion'] = ! empty( $input['notify_on_suggestion'] );
+		$candidate['notify_on_vote']       = ! empty( $input['notify_on_vote'] );
+		$candidate['notify_on_comment']    = ! empty( $input['notify_on_comment'] );
+		$candidate['notify_on_suggestion'] = ! empty( $input['notify_on_suggestion'] );
+
+		if ( null === $owned ) {
+			return $candidate;
+		}
+
+		foreach ( $owned as $key ) {
+			if ( array_key_exists( $key, $candidate ) ) {
+				$sanitized[ $key ] = $candidate[ $key ];
+			}
+		}
 
 		return $sanitized;
 	}
@@ -1082,26 +1242,28 @@ class Roadmap_Settings {
 		wp_enqueue_style( 'roadmap-admin', ROADMAP_PLUGIN_URL . 'assets/css/roadmap-admin.css', array(), ROADMAP_VERSION );
 
 		// Enqueue admin JavaScript
-		wp_enqueue_script( 'roadmap-admin', ROADMAP_PLUGIN_URL . 'assets/js/roadmap-admin.js', array( 'jquery' ), ROADMAP_VERSION, true );
+		wp_enqueue_script( 'roadmap-admin', ROADMAP_PLUGIN_URL . 'assets/js/roadmap-admin.js', array( 'jquery', 'roadmap-admin-feedback' ), ROADMAP_VERSION, true );
 
 		// Localize script for AJAX and translations
-		wp_localize_script(
-			'roadmap-admin',
-			'roadmap_admin',
-			array(
-				'ajax_url'            => admin_url( 'admin-ajax.php' ),
-				'nonce'               => wp_create_nonce( 'roadmap_admin_nonce' ),
-				'confirm_demo_import' => __( 'Are you sure you want to import demo data? This will create sample roadmap items.', 'product-roadmap' ),
-				'importing_text'      => __( 'Importing...', 'product-roadmap' ),
-				'import_success'      => __( 'Demo data imported successfully!', 'product-roadmap' ),
-				'import_error'        => __( 'Error importing demo data. Please try again.', 'product-roadmap' ),
-				'import_demo_text'    => __( 'Import Demo Data', 'product-roadmap' ),
-				'save_error'          => __( 'Error saving settings. Please try again.', 'product-roadmap' ),
-			)
-		);
+		wp_localize_script( 'roadmap-admin', 'roadmap_admin', self::admin_script_data() );
 
 		wp_enqueue_style( 'wp-color-picker' );
 		wp_enqueue_script( 'wp-color-picker' );
+	}
+
+	/**
+	 * Data for roadmap-admin.js, shared by the settings screens and the setup wizard.
+	 *
+	 * @return array
+	 */
+	public static function admin_script_data() {
+		return array(
+			'ajax_url'   => admin_url( 'admin-ajax.php' ),
+			'nonce'      => wp_create_nonce( 'roadmap_admin_nonce' ),
+			'save_error' => __( 'Error saving settings. Please try again.', 'product-roadmap' ),
+			'copied'     => __( 'Copied!', 'product-roadmap' ),
+			'copy_error' => __( 'Could not copy the shortcode. Select it and copy it manually.', 'product-roadmap' ),
+		);
 	}
 
 	public function add_product_columns( $columns ) {
@@ -1533,6 +1695,12 @@ class Roadmap_Settings {
 	 */
 	public function ajax_dismiss_pending_notice() {
 		check_ajax_referer( 'roadmap_dismiss_pending_notice', 'nonce' );
+
+		// The notice is only ever shown to users who can act on it, so the
+		// dismissal needs the same gate. Matches the sibling AJAX handlers.
+		if ( ! current_user_can( 'edit_posts' ) ) {
+			wp_send_json_error( array( 'message' => __( 'You are not allowed to do that.', 'product-roadmap' ) ), 403 );
+		}
 
 		$user_id       = get_current_user_id();
 		$pending_count = wp_count_posts( 'roadmap_item' )->pending;

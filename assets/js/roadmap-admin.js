@@ -22,7 +22,7 @@
             function showSuccess() {
                 button.addClass('copied');
                 if (hasText) {
-                    button.find('.copy-text').text('Copied!');
+                    button.find('.copy-text').text(roadmap_admin.copied);
                 }
                 button.find('.dashicons').removeClass(iconClass).addClass('dashicons-yes');
 
@@ -36,20 +36,22 @@
                 }, 2000);
             }
 
+            function showError() {
+                window.roadmapAdminNotice(roadmap_admin.copy_error, 'error');
+            }
+
             try {
                 // Try modern clipboard API first
                 if (navigator.clipboard && window.isSecureContext) {
-                    navigator.clipboard.writeText(shortcode).then(function() {
-                        showSuccess();
-                    });
-                } else {
-                    // Fallback for older browsers
-                    document.execCommand('copy');
+                    navigator.clipboard.writeText(shortcode).then(showSuccess, showError);
+                } else if (document.execCommand('copy')) {
+                    // Fallback for http and older browsers
                     showSuccess();
+                } else {
+                    showError();
                 }
             } catch (err) {
-                console.error('Failed to copy:', err);
-                alert('Failed to copy shortcode. Please select and copy manually.');
+                showError();
             } finally {
                 tempInput.remove();
             }
@@ -121,11 +123,11 @@
                     if (response && response.success) {
                         closeProductModal();
                     } else {
-                        window.alert(roadmap_admin.save_error || 'Error saving settings. Please try again.');
+                        window.roadmapAdminNotice(roadmap_admin.save_error, 'error');
                     }
                 })
                 .fail(function() {
-                    window.alert(roadmap_admin.save_error || 'Error saving settings. Please try again.');
+                    window.roadmapAdminNotice(roadmap_admin.save_error, 'error');
                 })
                 .always(function() {
                     $button.prop('disabled', false).text(originalText);
@@ -144,33 +146,14 @@
             }
         });
 
-        // Demo import functionality
-        $('.roadmap-import-demo').on('click', function(e) {
-            e.preventDefault();
-
-            if (!confirm(roadmap_admin.confirm_demo_import)) {
-                return;
-            }
-
-            var button = $(this);
-            button.prop('disabled', true).text(roadmap_admin.importing_text);
-
-            $.post(ajaxurl, {
-                action: 'roadmap_import_demo_data',
-                nonce: roadmap_admin.nonce
-            }, function(response) {
-                if (response.success) {
-                    alert(roadmap_admin.import_success);
-                    location.reload();
-                } else {
-                    alert(response.data || roadmap_admin.import_error);
-                    button.prop('disabled', false).text(roadmap_admin.import_demo_text);
-                }
-            }).fail(function() {
-                alert(roadmap_admin.import_error);
-                button.prop('disabled', false).text(roadmap_admin.import_demo_text);
-            });
-        });
+        // NOTE: the Dashboard demo-import binding was removed in 1.8.0. It
+        // listened on .roadmap-import-demo and posted roadmap_import_demo_data,
+        // and neither existed: no admin template rendered that class and no
+        // handler was registered for that action. Dead JS that looks like a
+        // working feature is how someone concludes demo import is broken rather
+        // than absent. Re-importing demo content from the Dashboard can be
+        // built deliberately - it needs markup, a handler, and the same guard
+        // that stops the setup wizard importing twice.
 
         // CPT admin functionality
         function initRoadmapAdmin() {

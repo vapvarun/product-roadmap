@@ -19,7 +19,8 @@
             <span 
               v-for="status in item.status" 
               :key="status.id"
-              class="roadmap-badge roadmap-badge-primary"
+              class="roadmap-badge"
+              :class="'roadmap-status-' + (status.slug || 'default')"
             >
               {{ status.name }}
             </span>
@@ -29,7 +30,7 @@
             <strong>{{ i18n.priority || 'Priority' }}:</strong>
             <span 
               class="roadmap-badge"
-              :class="`roadmap-badge-${getPriorityClass(item.priority)}`"
+              :class="`roadmap-priority-${item.priority}`"
             >
               {{ item.priority }}
             </span>
@@ -170,20 +171,15 @@ const i18n = config?.i18n || {}
 const commentCount = ref(props.item.comment_count || 0)
 
 // Computed
-const canVote = computed(() => config.user?.can_vote && config.settings?.enable_voting)
+// Same guest-voting fix as RoadmapItem.vue: config.user is null for a guest,
+// so fall back to the allow_guest_voting flag instead of always reading false.
+const canVote = computed(() => {
+  if (!config.settings?.enable_voting) return false
+  return config.user ? !!config.user.can_vote : !!config.settings?.allow_guest_voting
+})
 const canComment = computed(() => config.user?.can_comment && config.settings?.enable_comments)
 
 // Methods
-const getPriorityClass = (priority) => {
-  const map = {
-    low: 'success',
-    medium: 'warning',
-    high: 'danger',
-    critical: 'danger'
-  }
-  return map[priority] || 'primary'
-}
-
 const formatDate = (date) => {
   return new Date(date).toLocaleDateString('en-US', {
     year: 'numeric',
@@ -209,7 +205,7 @@ const handleCommentAdded = () => {
     gap: 20px;
     margin-bottom: 30px;
     padding-bottom: 20px;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid var(--rm-border);
     
     > div {
       display: flex;
@@ -219,7 +215,7 @@ const handleCommentAdded = () => {
     
     strong {
       font-weight: 600;
-      color: #666;
+      color: var(--rm-muted);
     }
   }
   
@@ -230,14 +226,14 @@ const handleCommentAdded = () => {
       margin: 0 0 15px 0;
       font-size: 16px;
       font-weight: 600;
-      color: #333;
+      color: var(--rm-heading);
     }
   }
   
   &-content {
     font-size: 15px;
     line-height: 1.6;
-    color: #555;
+    color: var(--rm-text);
     
     :deep(p) {
       margin: 0 0 15px 0;
@@ -272,24 +268,24 @@ const handleCommentAdded = () => {
     gap: 40px;
     margin-top: 30px;
     padding-top: 30px;
-    border-top: 1px solid #eee;
+    border-top: 1px solid var(--rm-border);
   }
 }
 
 .roadmap-completion-notes {
-  background: #f0fdf4;
-  border: 1px solid #86efac;
+  background: var(--rm-done-tint);
+  border: 1px solid var(--rm-done);
   border-radius: 8px;
   padding: 20px;
   margin-top: 20px;
 
   h4 {
-    color: #166534;
+    color: var(--rm-done);
     margin-bottom: 12px;
   }
 
   .roadmap-completion-content {
-    color: #15803d;
+    color: var(--rm-done);
     background: transparent;
     line-height: 1.7;
   }
@@ -304,13 +300,13 @@ const handleCommentAdded = () => {
     flex: 1;
     max-width: 300px;
     height: 10px;
-    background: #eee;
+    background: var(--rm-border-soft);
     border-radius: 5px;
     overflow: hidden;
     
     &-bar {
       height: 100%;
-      background: #4caf50;
+      background: var(--rm-done);
       transition: width 0.3s ease;
     }
   }
@@ -318,7 +314,7 @@ const handleCommentAdded = () => {
   .roadmap-progress-text {
     font-size: 16px;
     font-weight: 600;
-    color: #4caf50;
+    color: var(--rm-done);
   }
 }
 
@@ -335,12 +331,12 @@ const handleCommentAdded = () => {
   &-value {
     font-size: 20px;
     font-weight: 600;
-    color: #333;
+    color: var(--rm-heading);
   }
   
   &-label {
     font-size: 13px;
-    color: #666;
+    color: var(--rm-muted);
     text-transform: uppercase;
     letter-spacing: 0.5px;
   }
@@ -350,46 +346,5 @@ const handleCommentAdded = () => {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-}
-
-// Dark mode
-.roadmap-dark {
-  .roadmap-detail {
-    &-meta {
-      border-bottom-color: #50575e;
-      
-      strong {
-        color: #ccc;
-      }
-    }
-    
-    &-section h4 {
-      color: #e2e4e7;
-    }
-    
-    &-content {
-      color: #ccc;
-    }
-    
-    &-stats {
-      border-top-color: #50575e;
-    }
-  }
-  
-  .roadmap-stat-item {
-    &-value {
-      color: #e2e4e7;
-    }
-    
-    &-label {
-      color: #aaa;
-    }
-  }
-  
-  .roadmap-progress-detail {
-    .roadmap-progress {
-      background: #50575e;
-    }
-  }
 }
 </style>

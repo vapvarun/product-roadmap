@@ -268,7 +268,7 @@ class Roadmap_Demo_Import {
                 
                 // Update meta fields with proper values
                 update_post_meta($post_id, '_roadmap_priority', $item['priority']);
-                update_post_meta($post_id, '_roadmap_votes', $item['votes']);
+                $this->add_demo_votes( $post_id, (int) $item['votes'] );
                 
                 // Set target date if provided
                 if (isset($item['target_date'])) {
@@ -321,6 +321,35 @@ class Roadmap_Demo_Import {
         return true;
     }
     
+    /**
+     * Give a demo item real votes, so its count survives every recount.
+     *
+     * Writing _roadmap_votes directly showed 45 until the first real vote (1)
+     * or the next plugin update (0): the count is a cache of the votes table.
+     * The voters are guest IPs from 192.0.2.0/24 (TEST-NET-1, never a real
+     * visitor), dated across the last 30 days so Pro's analytics has a spread.
+     *
+     * @param int $post_id Demo item ID.
+     * @param int $count   Number of votes.
+     */
+    private function add_demo_votes( $post_id, $count ) {
+        global $wpdb;
+
+        $count = min( max( 0, $count ), 254 );
+        if ( $count > 0 ) {
+            $rows   = array();
+            $values = array();
+            for ( $i = 1; $i <= $count; $i++ ) {
+                $rows[] = '(%d, %s, 1, %s)';
+                array_push( $values, $post_id, '192.0.2.' . $i, gmdate( 'Y-m-d H:i:s', time() - ( $i % 30 ) * DAY_IN_SECONDS ) );
+            }
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared -- custom table; placeholders built above.
+            $wpdb->query( $wpdb->prepare( "INSERT INTO {$wpdb->prefix}roadmap_votes (item_id, guest_ip, vote_value, created_at) VALUES " . implode( ', ', $rows ), $values ) );
+        }
+
+        Roadmap_API::get_instance()->update_vote_count( $post_id );
+    }
+
     /**
      * Ensure default product exists
      */

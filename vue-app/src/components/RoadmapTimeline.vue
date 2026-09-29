@@ -1,5 +1,8 @@
 <template>
-  <div class="roadmap-template-timeline roadmap-timeline">
+  <div
+    class="roadmap-template-timeline roadmap-timeline"
+    :class="{ 'roadmap-timeline--hide-votes': !showVotes, 'roadmap-timeline--hide-comments': !showComments }"
+  >
     <div class="roadmap-timeline-header">
       <h2 class="roadmap-timeline-title">{{ i18n.roadmap_timeline || 'Product Roadmap Timeline' }}</h2>
       <div class="roadmap-timeline-filters">
@@ -34,15 +37,24 @@
               v-for="item in currentItems" 
               :key="item.id"
               class="roadmap-timeline-item"
-              :class="`status-${getStatusSlug(item)}`"
+              :class="`roadmap-status-${getStatusSlug(item)}`"
               @click="$emit('item-click', item)"
             >
               <div class="roadmap-timeline-item-content">
-                <h4>{{ item.title }}</h4>
+                <h4>
+                  {{ item.title }}
+                  <span
+                    v-if="item.is_suggestion"
+                    class="roadmap-timeline-source-badge"
+                    :title="i18n.user_suggested_title || 'Suggested by a user'"
+                  >
+                    {{ i18n.suggested || 'Suggested' }}
+                  </span>
+                </h4>
                 <p>{{ item.excerpt || item.content.substring(0, 100) + '...' }}</p>
                 <div class="roadmap-timeline-item-footer">
                   <div class="roadmap-timeline-item-meta">
-                    <span class="roadmap-timeline-status">{{ getStatusName(item) }}</span>
+                    <span class="roadmap-timeline-status" :class="`roadmap-status-${getStatusSlug(item)}`">{{ getStatusName(item) }}</span>
                     <span v-if="item.progress" class="roadmap-timeline-progress">
                       <div class="roadmap-progress-bar">
                         <div class="roadmap-progress-fill" :style="{ width: item.progress + '%' }"></div>
@@ -108,15 +120,24 @@
               v-for="item in upcomingItems" 
               :key="item.id"
               class="roadmap-timeline-item"
-              :class="`status-${getStatusSlug(item)}`"
+              :class="`roadmap-status-${getStatusSlug(item)}`"
               @click="$emit('item-click', item)"
             >
               <div class="roadmap-timeline-item-content">
-                <h4>{{ item.title }}</h4>
+                <h4>
+                  {{ item.title }}
+                  <span
+                    v-if="item.is_suggestion"
+                    class="roadmap-timeline-source-badge"
+                    :title="i18n.user_suggested_title || 'Suggested by a user'"
+                  >
+                    {{ i18n.suggested || 'Suggested' }}
+                  </span>
+                </h4>
                 <p>{{ item.excerpt || item.content.substring(0, 100) + '...' }}</p>
                 <div class="roadmap-timeline-item-footer">
                   <div class="roadmap-timeline-item-meta">
-                    <span class="roadmap-timeline-status">{{ getStatusName(item) }}</span>
+                    <span class="roadmap-timeline-status" :class="`roadmap-status-${getStatusSlug(item)}`">{{ getStatusName(item) }}</span>
                     <span v-if="item.categories && item.categories.length" class="roadmap-timeline-category">
                       {{ item.categories[0].name }}
                     </span>
@@ -179,15 +200,24 @@
               v-for="item in futureItems" 
               :key="item.id"
               class="roadmap-timeline-item"
-              :class="`status-${getStatusSlug(item)}`"
+              :class="`roadmap-status-${getStatusSlug(item)}`"
               @click="$emit('item-click', item)"
             >
               <div class="roadmap-timeline-item-content">
-                <h4>{{ item.title }}</h4>
+                <h4>
+                  {{ item.title }}
+                  <span
+                    v-if="item.is_suggestion"
+                    class="roadmap-timeline-source-badge"
+                    :title="i18n.user_suggested_title || 'Suggested by a user'"
+                  >
+                    {{ i18n.suggested || 'Suggested' }}
+                  </span>
+                </h4>
                 <p>{{ item.excerpt || item.content.substring(0, 100) + '...' }}</p>
                 <div class="roadmap-timeline-item-footer">
                   <div class="roadmap-timeline-item-meta">
-                    <span class="roadmap-timeline-status">{{ getStatusName(item) }}</span>
+                    <span class="roadmap-timeline-status" :class="`roadmap-status-${getStatusSlug(item)}`">{{ getStatusName(item) }}</span>
                     <span v-if="item.categories && item.categories.length" class="roadmap-timeline-category">
                       {{ item.categories[0].name }}
                     </span>
@@ -234,11 +264,20 @@
             <div
               v-for="item in completedItems"
               :key="item.id"
-              class="roadmap-timeline-item status-completed"
+              class="roadmap-timeline-item roadmap-status-completed"
               @click="$emit('item-click', item)"
             >
               <div class="roadmap-timeline-item-content">
-                <h4>{{ item.title }}</h4>
+                <h4>
+                  {{ item.title }}
+                  <span
+                    v-if="item.is_suggestion"
+                    class="roadmap-timeline-source-badge"
+                    :title="i18n.user_suggested_title || 'Suggested by a user'"
+                  >
+                    {{ i18n.suggested || 'Suggested' }}
+                  </span>
+                </h4>
                 <p>{{ item.excerpt || item.content.substring(0, 100) + '...' }}</p>
                 <div class="roadmap-timeline-item-footer">
                   <div class="roadmap-timeline-item-meta">
@@ -324,28 +363,97 @@ const props = defineProps({
 
 defineEmits(['item-click', 'update-item', 'edit-item', 'delete-item'])
 
-const currentView = ref('current')
+// Hide vote/comment stats entirely when the feature is off, matching the fix
+// already shipped for the Minimal template (RoadmapMinimal.vue showVotes/showComments).
+// Applied as a class on the root element (below) rather than per-section v-if,
+// since the same markup repeats across the Now/Next/Later/Done sections.
+const showVotes = computed(() => config.settings?.enable_voting !== false)
+const showComments = computed(() => config.settings?.enable_comments !== false)
+
+// Seeded from the owner's Timeline setting instead of being hardcoded.
+// The setting and this selector were written with different vocabularies
+// (month/quarter/year vs current/6months/year/all), so map rather than assume
+// they line up - an unmapped value falls back to the previous default.
+const timelineViewFromSetting = (value) => {
+  switch (value) {
+    case 'month':
+    case 'quarter':
+    case 'current':
+      return 'current'
+    case '6months':
+      return '6months'
+    case 'year':
+      return 'year'
+    case 'all':
+      return 'all'
+    default:
+      return 'current'
+  }
+}
+
+const currentView = ref(
+  timelineViewFromSetting(
+    props.proFeatures?.timeline_default_view || props.proFeatures?.timeline_scale
+  )
+)
 const now = new Date()
-const currentQuarter = Math.floor(now.getMonth() / 3) + 1
-const currentYear = now.getFullYear()
+
+// These three labels used to be hardcoded to a fixed 3-month/quarter span
+// regardless of currentView, so switching Templates -> Timeline Scale to
+// Year (or picking a different period from the dropdown) correctly changed
+// which items were bucketed but left the header text always reading a
+// 3-month "Now"/one-quarter "Next" range. Derive them from the same overall
+// window getDateFilteredItems() actually uses, split into three chunks.
+const viewSpanMonths = computed(() => {
+  switch (currentView.value) {
+    case '6months':
+      return 6
+    case 'year':
+      return 12
+    case 'all':
+      return null // open-ended - no fixed window to describe
+    default:
+      return 3
+  }
+})
+
+const monthLabel = (date) => {
+  const months = i18n.months || ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+  return months[date.getMonth()]
+}
+
+const addMonths = (date, count) => {
+  const d = new Date(date)
+  d.setMonth(d.getMonth() + count)
+  return d
+}
 
 const currentPeriod = computed(() => {
-  const months = i18n.months || ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
-  return `${months[now.getMonth()]} - ${months[now.getMonth() + 2] || months[0]} ${currentYear}`
+  if (viewSpanMonths.value === null) {
+    return i18n.all_time || 'All Time'
+  }
+  const chunk = Math.max(1, Math.round(viewSpanMonths.value / 3))
+  const end = addMonths(now, chunk - 1)
+  return `${monthLabel(now)} - ${monthLabel(end)} ${end.getFullYear()}`
 })
 
 const nextPeriod = computed(() => {
-  const nextQ = currentQuarter === 4 ? 1 : currentQuarter + 1
-  const nextY = currentQuarter === 4 ? currentYear + 1 : currentYear
-  return `Q${nextQ} ${nextY}`
+  if (viewSpanMonths.value === null) {
+    return i18n.all_time || 'All Time'
+  }
+  const chunk = Math.max(1, Math.round(viewSpanMonths.value / 3))
+  const start = addMonths(now, chunk)
+  const end = addMonths(now, chunk * 2 - 1)
+  return `${monthLabel(start)} - ${monthLabel(end)} ${end.getFullYear()}`
 })
 
 const futurePeriod = computed(() => {
-  const futureDate = new Date()
-  futureDate.setMonth(futureDate.getMonth() + 3)
-  const futureYear = futureDate.getFullYear()
-  const futureMonth = futureDate.toLocaleDateString('en-US', { month: 'long' })
-  return `${futureMonth} ${futureYear} ${i18n.and_beyond || '& Beyond'}`
+  if (viewSpanMonths.value === null) {
+    return i18n.all_time || 'All Time'
+  }
+  const chunk = Math.max(1, Math.round(viewSpanMonths.value / 3))
+  const start = addMonths(now, chunk * 2)
+  return `${monthLabel(start)} ${start.getFullYear()} ${i18n.and_beyond || '& Beyond'}`
 })
 
 // Filter items based on selected time period
@@ -379,8 +487,10 @@ const getDateFilteredItems = () => {
   })
 }
 
+const inProgressStatuses = ['in-progress', 'development', 'testing', 'in-development']
+const upcomingStatuses = ['planned', 'approved', 'scheduled']
+
 const currentItems = computed(() => {
-  const inProgressStatuses = ['in-progress', 'development', 'testing', 'in-development']
   const filteredItems = getDateFilteredItems()
 
   return filteredItems.filter(item => {
@@ -391,13 +501,18 @@ const currentItems = computed(() => {
 })
 
 const upcomingItems = computed(() => {
-  const upcomingStatuses = ['planned', 'approved', 'scheduled']
   const futureDate = new Date()
   futureDate.setMonth(futureDate.getMonth() + 3)
   const filteredItems = getDateFilteredItems()
 
   return filteredItems.filter(item => {
     const statusSlug = item.status?.[0]?.slug
+    // Do not re-claim an item currentItems already placed in Now: an
+    // upcoming-status item whose start/end dates already span today is
+    // current by date, not upcoming, however its status is labelled.
+    const isCurrentByDate = item.start_date && new Date(item.start_date) <= now &&
+      (!item.end_date || new Date(item.end_date) >= now)
+    if (isCurrentByDate) return false
     return upcomingStatuses.includes(statusSlug) ||
            (item.start_date && new Date(item.start_date) > now && new Date(item.start_date) <= futureDate)
   })
@@ -414,6 +529,13 @@ const futureItems = computed(() => {
     const statusSlug = item.status?.[0]?.slug
     // Exclude completed items from Later section
     if (completedStatuses.includes(statusSlug)) return false
+    // Do not swallow items an earlier section has already claimed. The old
+    // predicate ended in `!item.start_date`, so every dateless item landed in
+    // Later on top of wherever its status had already placed it - most items
+    // have no start date, so most of the board rendered twice and every count
+    // on the view was inflated.
+    if (inProgressStatuses.includes(statusSlug)) return false
+    if (upcomingStatuses.includes(statusSlug)) return false
     return futureStatuses.includes(statusSlug) ||
            (!item.start_date || (item.start_date && new Date(item.start_date) > futureDate))
   })
@@ -447,11 +569,31 @@ const formatDate = (date) => {
 </script>
 
 <style lang="scss" scoped>
+.roadmap-timeline--hide-votes .roadmap-timeline-votes,
+.roadmap-timeline--hide-comments .roadmap-timeline-comments {
+  display: none;
+}
+
+.roadmap-timeline-source-badge {
+  display: inline-block;
+  margin-inline-start: 8px;
+  padding: 2px 8px;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1.6;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  vertical-align: middle;
+  border-radius: 10px;
+  color: var(--rm-review);
+  background: color-mix(in srgb, var(--rm-review) 14%, transparent);
+}
+
 .roadmap-timeline {
   background: var(--rm-surface);
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 8px var(--rm-shadow);
 }
 
 .roadmap-timeline-header {
@@ -460,27 +602,25 @@ const formatDate = (date) => {
   align-items: center;
   padding: 1.5rem 2rem;
   background: linear-gradient(135deg, var(--roadmap-accent) 0%, var(--roadmap-accent-hover) 100%);
-  color: var(--roadmap-accent-contrast, #fff);
+  color: var(--roadmap-accent-contrast);
 
   .roadmap-timeline-title {
     margin: 0;
     font-size: 1.5rem;
     font-weight: 600;
-    // The gradient header is a light/brand accent surface even under a dark
-    // theme, so its text must follow accent-contrast. !important is deliberate:
-    // it overrides the broad dark-mode heading rule (which forces every
-    // [class*="-title"] to a light colour) that would otherwise wash the title
-    // out on a pale theme accent (Reign).
-    color: var(--roadmap-accent-contrast, #fff) !important;
+    // The gradient header is an accent surface in both modes, so its text
+    // follows accent-contrast.
+    color: var(--roadmap-accent-contrast);
   }
 
   .roadmap-select {
     // Translucent version of the contrast colour so the control adapts: a subtle
     // dark tint on light accents, a subtle light tint on dark ones - never the
     // invisible white-on-pale-blue it was before.
-    background: color-mix(in srgb, var(--roadmap-accent-contrast, #fff) 15%, transparent);
-    color: var(--roadmap-accent-contrast, #fff);
-    border: 1px solid color-mix(in srgb, var(--roadmap-accent-contrast, #fff) 35%, transparent);
+    background: color-mix(in srgb, var(--roadmap-accent-contrast) 15%, transparent);
+    color: var(--roadmap-accent-contrast);
+    // Solid boundary: a control on the accent header needs >= 3:1 (WCAG 1.4.11).
+    border: 1px solid var(--roadmap-accent-contrast);
     padding: 0.5rem 1rem;
     border-radius: 6px;
     font-size: 14px;
@@ -488,7 +628,7 @@ const formatDate = (date) => {
 
     option {
       background: var(--roadmap-accent);
-      color: var(--roadmap-accent-contrast, #fff);
+      color: var(--roadmap-accent-contrast);
     }
   }
 }
@@ -550,7 +690,7 @@ const formatDate = (date) => {
 
     .roadmap-timeline-period {
       background: var(--rm-done);
-      color: white;
+      color: var(--rm-done-tint);
     }
   }
 }
@@ -595,7 +735,7 @@ const formatDate = (date) => {
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px var(--rm-shadow);
     border-color: var(--roadmap-accent);
 
     &:before {
@@ -603,31 +743,10 @@ const formatDate = (date) => {
     }
   }
 
-  &.status-in-progress:before,
-  &.status-development:before {
-    background: var(--rm-progress);
-  }
-
-  &.status-planned:before,
-  &.status-approved:before {
-    background: var(--rm-planned);
-  }
-
-  &.status-completed:before,
-  &.status-released:before,
-  &.status-done:before,
-  &.status-shipped:before {
-    background: var(--rm-done);
-  }
-
-  .roadmap-status-completed {
-    background: var(--rm-done-tint) !important;
-    color: var(--rm-done) !important;
-  }
-
-  &.status-idea:before,
-  &.status-under-review:before {
-    background: var(--rm-review);
+  // Status stripe: roadmap-tokens.css maps the item's roadmap-status-{slug}
+  // class to --rm-status.
+  &[class*="roadmap-status-"]:before {
+    background: var(--rm-status);
   }
 
   .roadmap-timeline-item-content {
@@ -660,8 +779,8 @@ const formatDate = (date) => {
         font-size: 12px;
         padding: 0.25rem 0.75rem;
         border-radius: 20px;
-        background: var(--rm-planned-tint);
-        color: var(--rm-planned);
+        background: var(--rm-status-tint);
+        color: var(--rm-status);
         font-weight: 500;
       }
 
@@ -764,7 +883,7 @@ const formatDate = (date) => {
         background: var(--rm-surface);
         border: 3px solid var(--roadmap-accent);
         border-radius: 50%;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 2px 4px var(--rm-shadow);
       }
 
       &.active:before {
@@ -780,7 +899,7 @@ const formatDate = (date) => {
         background: var(--rm-surface);
         padding: 0.25rem 0.75rem;
         border-radius: 20px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        box-shadow: 0 2px 4px var(--rm-shadow);
       }
     }
   }

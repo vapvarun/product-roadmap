@@ -326,7 +326,7 @@ const formatDate = (date) => {
 
   &.active {
     background: var(--roadmap-accent);
-    color: var(--roadmap-accent-contrast, #fff);
+    color: var(--roadmap-accent-contrast);
     border-color: var(--roadmap-accent);
   }
 }
@@ -452,24 +452,9 @@ const formatDate = (date) => {
   position: relative;
   z-index: 1;
 
-  &.roadmap-status-planned {
-    background: var(--rm-planned);
-  }
-
-  &.roadmap-status-in-progress {
-    background: var(--rm-progress);
-  }
-
-  &.roadmap-status-completed {
-    background: var(--rm-done);
-  }
-
-  &.roadmap-status-cancelled {
-    background: var(--rm-cancelled);
-  }
-
-  &.roadmap-status-under-review {
-    background: var(--rm-review);
+  // roadmap-tokens.css maps the roadmap-status-{slug} class to --rm-status.
+  &[class*="roadmap-status-"] {
+    background: var(--rm-status);
   }
 }
 
@@ -484,8 +469,8 @@ const formatDate = (date) => {
   letter-spacing: 0.03em;
   vertical-align: middle;
   border-radius: 10px;
-  color: var(--rm-review, #7c3aed);
-  background: color-mix(in srgb, var(--rm-review, #7c3aed) 14%, transparent);
+  color: var(--rm-review);
+  background: color-mix(in srgb, var(--rm-review) 14%, transparent);
 }
 
 .roadmap-minimal-votes,

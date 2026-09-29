@@ -1,0 +1,20 @@
+# Basecamp ledger config for Product Roadmap (Free).
+project_id: 43291050
+project_url: https://app.basecamp.com/5798509/projects/43291050
+
+columns:
+  bugs: 8905657766
+  ready_for_testing: 8905657772
+  suggestions: 8905657773
+  scope: 9099629752
+  in_progress: 8905657767
+  ready_for_development: 8905657769
+  in_testing: 9099629864
+  done: 8905657768
+
+intake: bugs
+verdict_targets:
+  PASS: done
+  BOUNCE: bugs
+  BLOCKED: null
+  REFUTED: done

@@ -18,13 +18,12 @@ wp_enqueue_style(
 	'4.1.0'
 );
 
-// Enqueue shared frontend styles (includes Select2 theme styles)
-wp_enqueue_style(
-	'roadmap-changelog-frontend',
-	ROADMAP_PLUGIN_URL . 'assets/css/changelog-frontend.css',
-	array( 'roadmap-select2' ),
-	ROADMAP_VERSION
-);
+// The shared frontend stylesheet (includes Select2 theme styles) is enqueued
+// by Roadmap_Changelog::enqueue_frontend_assets() (hooked on wp_enqueue_scripts,
+// fired inside get_header() below) - not here. That method has the theme-
+// override / filter support this stylesheet's own header promises; enqueuing
+// the same handle here too registered it first with a hardcoded plugin URL,
+// which silently won the handle and made the override always a no-op.
 
 wp_enqueue_script(
 	'roadmap-select2',
@@ -247,8 +246,8 @@ if ( $current_product_term && ! is_wp_error( $current_product_term ) ) {
 								$preview_items = array_slice( $changelog['items'], 0, 3 );
 								foreach ( $preview_items as $item ) :
 									$type_data  = $item['type_data'] ?? null;
-									$bg_color   = $type_data['background'] ?? '#e2e3e5';
-									$text_color = $type_data['color'] ?? '#383d41';
+									$bg_color   = $type_data['background'] ?? 'var(--rm-surface-alt)';
+									$text_color = $type_data['color'] ?? 'var(--rm-text)';
 									$type_name  = $type_data['name'] ?? ucfirst( $item['type'] ?? 'Update' );
 									?>
 									<li class="changelog-preview-item">

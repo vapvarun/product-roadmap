@@ -37,7 +37,7 @@ phpunit.xml.dist
 build.sh
 build-all.sh
 build-rtl.js
-build-release.sh
+bin/build-release.sh
 verify-compliance.sh
 
 # Documentation files (keep README.md for transparency)

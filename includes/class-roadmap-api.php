@@ -48,6 +48,20 @@ class Roadmap_API {
 					'per_page' => array(
 						'default'           => 100,
 						'sanitize_callback' => 'absint',
+						// Capped: this route is public, and each item costs
+						// work. Without a ceiling an anonymous caller chose the
+						// page size, which on a large board is a cheap way to
+						// make the site do thousands of queries per request.
+						'validate_callback' => array( __CLASS__, 'validate_per_page' ),
+					),
+					'search'   => array(
+						'sanitize_callback' => 'sanitize_text_field',
+						'description'       => 'Free-text search across title and content.',
+					),
+					'sort'     => array(
+						'default'           => '',
+						'sanitize_callback' => 'sanitize_key',
+						'description'       => 'One of: votes, recent, comments, priority, title.',
 					),
 				),
 			)
@@ -144,7 +158,7 @@ class Roadmap_API {
 				array(
 					'methods'             => 'PUT',
 					'callback'            => array( $this, 'update_item' ),
-					'permission_callback' => array( $this, 'can_edit_items' ),
+					'permission_callback' => array( $this, 'can_edit_this_item' ),
 					'args'                => array(
 						'title'       => array(
 							'sanitize_callback' => 'sanitize_text_field',
@@ -169,7 +183,7 @@ class Roadmap_API {
 				array(
 					'methods'             => 'DELETE',
 					'callback'            => array( $this, 'delete_item' ),
-					'permission_callback' => array( $this, 'can_edit_items' ),
+					'permission_callback' => array( $this, 'can_delete_this_item' ),
 				),
 			)
 		);
@@ -180,7 +194,7 @@ class Roadmap_API {
 			array(
 				'methods'             => 'POST',
 				'callback'            => array( $this, 'create_item' ),
-				'permission_callback' => array( $this, 'can_edit_items' ),
+				'permission_callback' => array( $this, 'can_create_item' ),
 				'args'                => array(
 					'title'       => array(
 						'required'          => true,
@@ -202,6 +216,13 @@ class Roadmap_API {
 						'sanitize_callback' => 'sanitize_text_field',
 					),
 					'target_date' => array(
+						'sanitize_callback' => 'sanitize_text_field',
+					),
+					// One product slug. Declared so an array of products is
+					// rejected instead of reaching wp_set_object_terms() unsanitized.
+					'product'     => array(
+						'type'              => 'string',
+						'validate_callback' => 'rest_validate_request_arg',
 						'sanitize_callback' => 'sanitize_text_field',
 					),
 				),
@@ -306,11 +327,28 @@ class Roadmap_API {
 			return new WP_Error( 'missing_product', 'Product parameter is required', array( 'status' => 400 ) );
 		}
 
+		// Accept either a slug or a term id and normalise to a slug here, before
+		// the free/Pro branch below - Pro's filter expects a slug, so resolving
+		// it in only one branch would fix the board for free sites and leave it
+		// empty for Pro ones. A numeric id used to match nothing and return an
+		// empty board with HTTP 200, indistinguishable from "no items".
+		if ( is_numeric( $product_filter ) ) {
+			$product_term = get_term( (int) $product_filter, 'roadmap_product' );
+
+			if ( $product_term && ! is_wp_error( $product_term ) ) {
+				$product_filter    = $product_term->slug;
+				$params['product'] = $product_term->slug;
+			}
+		}
+
 		if ( defined( 'ROADMAP_PRO_ACTIVE' ) && ROADMAP_PRO_ACTIVE ) {
 			// Let pro addon handle product filtering
 			$args = apply_filters( 'roadmap_api_filter_by_product', $args, $product_filter );
 		} else {
-			// Free version - filter by default product using taxonomy
+			// Accept either a slug or a term id. The route documented a slug,
+			// but the admin screens and Pro's own analytics links pass numeric
+			// ids - and a numeric id matched nothing, returning an empty board
+			// with HTTP 200 and no way to tell "no items" from "wrong id".
 			$args['tax_query'][] = array(
 				'taxonomy' => 'roadmap_product',
 				'field'    => 'slug',
@@ -336,6 +374,24 @@ class Roadmap_API {
 			);
 		}
 
+		// Free-text search. Applied server-side so it searches the whole board,
+		// not just the page the client happens to have loaded.
+		if ( ! empty( $params['search'] ) ) {
+			$args['s'] = $params['search'];
+		}
+
+		$args = $this->apply_sort_args( $args, $params['sort'] ?? '' );
+
+		// Priority is a word, not a number, so it needs an explicit ranking in
+		// SQL. Added and removed around this one query so nothing else on the
+		// request is affected.
+		$order_by_priority = ! empty( $args['roadmap_order_priority'] );
+		unset( $args['roadmap_order_priority'] );
+
+		if ( $order_by_priority ) {
+			add_filter( 'posts_orderby', array( $this, 'order_by_priority_rank' ), 10, 2 );
+		}
+
 		/**
 		 * Allow the pro addon to add advanced query filters (priority, progress,
 		 * assignee, date range, dependencies) to the roadmap items query.
@@ -347,6 +403,11 @@ class Roadmap_API {
 
 		// Run the query
 		$query = new WP_Query( $args );
+
+		if ( $order_by_priority ) {
+			remove_filter( 'posts_orderby', array( $this, 'order_by_priority_rank' ), 10 );
+		}
+
 		$items = array();
 
 		// Prime caches to avoid N+1 queries
@@ -386,10 +447,10 @@ class Roadmap_API {
 	 * @return array Formatted item data.
 	 */
 	private function format_item( $post, $user_votes = null ) {
-		// Use batch vote data if available, otherwise query individually
-		$user_voted = null !== $user_votes
-			? ( isset( $user_votes[ $post->ID ] ) ? $user_votes[ $post->ID ] : false )
-			: $this->has_user_voted( $post->ID );
+		// Use batch vote data if available, otherwise read this one item. The
+		// response keeps false (not 0) for "no vote".
+		$vote       = null !== $user_votes ? ( $user_votes[ $post->ID ] ?? 0 ) : $this->get_user_vote( $post->ID );
+		$user_voted = $vote ? $vote : false;
 
 		$item = array(
 			'id'              => $post->ID,
@@ -422,7 +483,17 @@ class Roadmap_API {
 	}
 
 	private function get_item_terms( $post_id, $taxonomy ) {
-		$terms     = wp_get_post_terms( $post_id, $taxonomy );
+		// get_the_terms(), not wp_get_post_terms(). The latter builds a fresh
+		// WP_Term_Query and does not consult the object term cache that
+		// get_items() primes with update_object_term_cache(), so the priming
+		// bought nothing and each item cost three extra term queries - 300 on a
+		// default 100-item page.
+		$terms = get_the_terms( $post_id, $taxonomy );
+
+		if ( is_wp_error( $terms ) || empty( $terms ) ) {
+			return array();
+		}
+
 		$formatted = array();
 
 		foreach ( $terms as $term ) {
@@ -436,37 +507,21 @@ class Roadmap_API {
 		return $formatted;
 	}
 
-	private function has_user_voted( $item_id ) {
-		global $wpdb;
-		$table   = $wpdb->prefix . 'roadmap_votes';
-		$user_id = get_current_user_id();
+	/**
+	 * The current visitor's vote on one item: 1, -1, or 0 for none.
+	 *
+	 * Logged-in users are matched by user ID, guests by IP (the way
+	 * submit_vote() stores them). The one read shared by the REST item
+	 * response and the single item template.
+	 *
+	 * @param int $item_id Roadmap item ID.
+	 * @return int
+	 */
+	public function get_user_vote( $item_id ) {
+		$item_id = (int) $item_id;
+		$votes   = $this->get_user_votes_batch( array( $item_id ) );
 
-		$vote = null;
-
-		if ( $user_id ) {
-			// Check logged in user vote
-			$vote = $wpdb->get_var(
-				$wpdb->prepare(
-                // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-					"SELECT vote_value FROM {$table} WHERE user_id = %d AND item_id = %d",
-					$user_id,
-					$item_id
-				)
-			); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table, caching not needed for single user vote check
-		} else {
-			// Check guest vote by IP
-			$guest_ip = $this->get_user_ip();
-			$vote     = $wpdb->get_var(
-				$wpdb->prepare(
-                // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-					"SELECT vote_value FROM {$table} WHERE guest_ip = %s AND item_id = %d",
-					$guest_ip,
-					$item_id
-				)
-			); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table, caching not needed for single user vote check
-		}
-
-		return $vote ? (int) $vote : false;
+		return $votes[ $item_id ] ?? 0;
 	}
 
 	/**
@@ -611,7 +666,7 @@ class Roadmap_API {
 		if ( $existing_vote ) {
 			// Update existing vote
             // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table update
-			$wpdb->update(
+			$written = $wpdb->update(
 				$table,
 				array( 'vote_value' => $vote_value ),
 				$where_clause
@@ -619,7 +674,19 @@ class Roadmap_API {
 		} else {
 			// Insert new vote
             // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Custom table insert
-			$wpdb->insert( $table, $insert_data );
+			$written = $wpdb->insert( $table, $insert_data );
+		}
+
+		// Never report a vote as stored without checking the write. This
+		// returned success while silently dropping every guest vote on installs
+		// whose votes table was missing the guest_ip column, and the visitor was
+		// told their vote counted.
+		if ( false === $written ) {
+			return new WP_Error(
+				'vote_failed',
+				__( 'Your vote could not be saved. Please try again.', 'product-roadmap' ),
+				array( 'status' => 500 )
+			);
 		}
 
 		// Update vote count
@@ -636,14 +703,28 @@ class Roadmap_API {
 		);
 	}
 
-	private function update_vote_count( $item_id ) {
+	/**
+	 * Recount an item's votes into _roadmap_votes (the one place that does).
+	 *
+	 * Public so Pro (item merge) stores the same number the board shows.
+	 *
+	 * @param int $item_id Roadmap item ID.
+	 * @return void
+	 */
+	public function update_vote_count( $item_id ) {
 		global $wpdb;
 		$table = $wpdb->prefix . 'roadmap_votes';
 
+		// COUNT, not SUM. The stored value is displayed as "Votes" on the board
+		// and in the admin, and SUM(vote_value) is a net score that downvotes
+		// silently reduce - so a board could show fewer votes than it had
+		// voters, and Pro's analytics (which counts rows) never reconciled with
+		// it. One meaning of "Votes" everywhere: how many people voted.
+		// A removed vote deletes its row, so it stops counting either way.
 		$vote_count = $wpdb->get_var(
 			$wpdb->prepare(
             // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-				"SELECT SUM(vote_value) FROM {$table} WHERE item_id = %d",
+				"SELECT COUNT(*) FROM {$table} WHERE item_id = %d AND vote_value > 0",
 				$item_id
 			)
 		); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table, vote count is cached in post meta
@@ -670,7 +751,7 @@ class Roadmap_API {
 		$user_id     = get_current_user_id();
 
 		// Check if auto-approve is enabled (default is false - submissions go to pending)
-		$global_settings = get_option( 'roadmap_global_settings', array() );
+		$global_settings = Roadmap_Settings::get();
 		$auto_approve    = ! empty( $global_settings['auto_approve_suggestions'] );
 		// IMPORTANT: Default behavior is to set posts to 'pending' for admin review
 		$post_status = $auto_approve ? 'publish' : 'pending';
@@ -691,7 +772,7 @@ class Roadmap_API {
 			update_post_meta( $post_id, '_roadmap_source', 'suggestion' );
 
 			// Set status based on settings - use configured default status for all suggestions
-			$default_status = $global_settings['suggestion_default_status'] ?? 'planned';
+			$default_status = $global_settings['suggestion_default_status'];
 			wp_set_object_terms( $post_id, $default_status, 'roadmap_status' );
 
 			// Set category if provided
@@ -705,7 +786,18 @@ class Roadmap_API {
 			// single source of truth for product association.)
 			$product = $request->get_param( 'product' );
 			if ( empty( $product ) ) {
-				$product = get_option( 'roadmap_default_product', 'main' );
+				// roadmap_default_product is never written - the owner's actual
+				// default lives in roadmap_default_product_id (a term ID, set by
+				// the setup wizard / demo import). Resolve it to a slug; fall
+				// back to 'main' only when no default has ever been configured.
+				$product           = 'main';
+				$default_product_id = (int) get_option( 'roadmap_default_product_id' );
+				if ( $default_product_id ) {
+					$default_term = get_term( $default_product_id, 'roadmap_product' );
+					if ( $default_term && ! is_wp_error( $default_term ) ) {
+						$product = $default_term->slug;
+					}
+				}
 			}
 			wp_set_object_terms( $post_id, sanitize_text_field( $product ), 'roadmap_product' );
 
@@ -788,19 +880,197 @@ class Roadmap_API {
 		return $counts;
 	}
 
+	/**
+	 * Published item counts per product, and per status within each product.
+	 *
+	 * Two grouped queries for the whole archive, replacing what used to be an
+	 * unbounded WP_Query per product plus a term query per item - roughly
+	 * 20,000 queries on a ten-product, 2000-item site, on a public page.
+	 *
+	 * @return array{totals: array<int,int>, statuses: array<int, array<string,int>>}
+	 */
+	/**
+	 * Keep the public page size within a sane ceiling.
+	 *
+	 * Filterable so a site that genuinely wants larger pages can raise it
+	 * deliberately rather than by accident.
+	 *
+	 * @param mixed $value Submitted per_page.
+	 * @return bool
+	 */
+	public static function validate_per_page( $value ) {
+		$max = (int) apply_filters( 'roadmap_max_per_page', 200 );
+
+		return is_numeric( $value ) && (int) $value > 0 && (int) $value <= $max;
+	}
+
+	public static function get_product_item_counts() {
+		global $wpdb;
+
+		$cache_key = 'roadmap_product_item_counts';
+		$cached    = wp_cache_get( $cache_key, 'roadmap' );
+
+		if ( false !== $cached ) {
+			return $cached;
+		}
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- grouped aggregate, cached below
+		$rows = $wpdb->get_results(
+			"SELECT pt.term_id AS product_id, st.slug AS status_slug, COUNT(DISTINCT p.ID) AS total
+			   FROM {$wpdb->posts} p
+			   INNER JOIN {$wpdb->term_relationships} ptr ON ptr.object_id = p.ID
+			   INNER JOIN {$wpdb->term_taxonomy} ptt ON ptt.term_taxonomy_id = ptr.term_taxonomy_id AND ptt.taxonomy = 'roadmap_product'
+			   INNER JOIN {$wpdb->terms} pt ON pt.term_id = ptt.term_id
+			   LEFT JOIN {$wpdb->term_relationships} str ON str.object_id = p.ID
+			   LEFT JOIN {$wpdb->term_taxonomy} stt ON stt.term_taxonomy_id = str.term_taxonomy_id AND stt.taxonomy = 'roadmap_status'
+			   LEFT JOIN {$wpdb->terms} st ON st.term_id = stt.term_id
+			  WHERE p.post_type = 'roadmap_item' AND p.post_status = 'publish'
+			  GROUP BY pt.term_id, st.slug"
+		);
+
+		$totals   = array();
+		$statuses = array();
+
+		foreach ( $rows as $row ) {
+			$product_id = (int) $row->product_id;
+			$count      = (int) $row->total;
+
+			if ( ! isset( $statuses[ $product_id ] ) ) {
+				$statuses[ $product_id ] = array();
+			}
+
+			if ( ! empty( $row->status_slug ) ) {
+				$statuses[ $product_id ][ $row->status_slug ] = $count;
+			}
+		}
+
+		// A post with two status terms would be counted once per status, so the
+		// product total is taken from its own aggregate rather than summed.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- grouped aggregate, cached below
+		$total_rows = $wpdb->get_results(
+			"SELECT pt.term_id AS product_id, COUNT(DISTINCT p.ID) AS total
+			   FROM {$wpdb->posts} p
+			   INNER JOIN {$wpdb->term_relationships} ptr ON ptr.object_id = p.ID
+			   INNER JOIN {$wpdb->term_taxonomy} ptt ON ptt.term_taxonomy_id = ptr.term_taxonomy_id AND ptt.taxonomy = 'roadmap_product'
+			   INNER JOIN {$wpdb->terms} pt ON pt.term_id = ptt.term_id
+			  WHERE p.post_type = 'roadmap_item' AND p.post_status = 'publish'
+			  GROUP BY pt.term_id"
+		);
+
+		foreach ( $total_rows as $row ) {
+			$totals[ (int) $row->product_id ] = (int) $row->total;
+		}
+
+		$counts = array(
+			'totals'   => $totals,
+			'statuses' => $statuses,
+		);
+
+		wp_cache_set( $cache_key, $counts, 'roadmap', 5 * MINUTE_IN_SECONDS );
+
+		return $counts;
+	}
+
+	/**
+	 * Order results by priority rank rather than alphabetically.
+	 *
+	 * Only attached around the single query that asked for it.
+	 *
+	 * @param string   $orderby Current ORDER BY clause.
+	 * @param WP_Query $query   Query being run.
+	 * @return string
+	 */
+	public function order_by_priority_rank( $orderby, $query ) {
+		global $wpdb;
+
+		return $wpdb->prepare(
+			"FIELD( {$wpdb->postmeta}.meta_value, %s, %s, %s, %s ) DESC, {$wpdb->posts}.post_date DESC",
+			'critical',
+			'high',
+			'medium',
+			'low'
+		);
+	}
+
+	/**
+	 * Translate the client's sort choice into WP_Query ordering.
+	 *
+	 * Sorting has to happen in the query, not in the browser: sorting the
+	 * loaded page only ever produced the top of page one, which on a large
+	 * board is not the top of the board.
+	 *
+	 * @param array  $args WP_Query args being built.
+	 * @param string $sort Requested sort key.
+	 * @return array
+	 */
+	private function apply_sort_args( $args, $sort ) {
+		switch ( $sort ) {
+			case 'votes':
+				// meta_key alone is an INNER JOIN, which dropped every item nobody has
+				// voted on yet (no _roadmap_votes row): 2 of 200 on a real board. A
+				// named clause OR'd with NOT EXISTS keeps them, sorted as zero. Nested
+				// so clauses added later (Pro filters) are ANDed, not OR'd, with it.
+				$args['meta_query'][] = array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- required for vote ordering
+					'relation'      => 'OR',
+					'roadmap_votes' => array(
+						'key'  => '_roadmap_votes',
+						'type' => 'NUMERIC',
+					),
+					array(
+						'key'     => '_roadmap_votes',
+						'compare' => 'NOT EXISTS',
+					),
+				);
+				$args['orderby']      = array(
+					'roadmap_votes' => 'DESC',
+					'date'          => 'DESC',
+				);
+				break;
+
+			case 'comments':
+				$args['orderby'] = 'comment_count';
+				$args['order']   = 'DESC';
+				break;
+
+			case 'title':
+				$args['orderby'] = 'title';
+				$args['order']   = 'ASC';
+				break;
+
+			case 'priority':
+				// Priority is stored as a word in _roadmap_priority, so ordering
+				// by meta_value alphabetically would give critical, high, low,
+				// medium - wrong. Order by an explicit ranking instead, applied
+				// through a one-shot posts_orderby filter (see below).
+				$args['meta_key']              = '_roadmap_priority'; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- required for priority ordering
+				$args['roadmap_order_priority'] = true;
+				break;
+
+			case 'recent':
+			default:
+				$args['orderby'] = 'date';
+				$args['order']   = 'DESC';
+				break;
+		}
+
+		return $args;
+	}
+
 	public function create_item( $request ) {
+		// Never hardcode 'publish': a Contributor holds edit_posts but not
+		// publish_posts, and publishing on their behalf is an escalation.
 		$post_data = array(
 			'post_title'   => $request->get_param( 'title' ),
 			'post_content' => $request->get_param( 'content' ),
 			'post_type'    => 'roadmap_item',
-			'post_status'  => 'publish',
+			'post_status'  => current_user_can( 'publish_posts' ) ? 'publish' : 'pending',
 		);
 
 		$post_id = wp_insert_post( $post_data, true );
 
 		if ( $post_id && ! is_wp_error( $post_id ) ) {
 			// Get default status from settings
-			$global_settings = get_option( 'roadmap_global_settings', array() );
+			$global_settings = Roadmap_Settings::get();
 			$default_status  = $global_settings['default_status'] ?? 'planned';
 
 			// Set taxonomies
@@ -906,7 +1176,9 @@ class Roadmap_API {
 	public function delete_item( $request ) {
 		$post_id = $request->get_param( 'id' );
 
-		if ( wp_delete_post( $post_id, true ) ) {
+		// Trash, never delete: a board delete must be recoverable (Items >
+		// Trash, votes and comments intact), the same as deleting in the admin.
+		if ( wp_trash_post( $post_id ) ) {
 			return new WP_REST_Response( array( 'success' => true ), 200 );
 		}
 
@@ -914,13 +1186,13 @@ class Roadmap_API {
 	}
 
 	public function get_settings( $request ) {
-		$global_settings = get_option( 'roadmap_global_settings', array() );
+		$global_settings = Roadmap_Settings::get();
 		$settings        = array(
-			'enable_voting'      => $global_settings['enable_voting'] ?? ( get_option( 'roadmap_enable_voting', 'yes' ) === 'yes' ),
-			'allow_guest_voting' => $global_settings['allow_guest_voting'] ?? ( get_option( 'roadmap_allow_guest_voting', 'yes' ) === 'yes' ),
-			'enable_comments'    => $global_settings['enable_comments'] ?? ( get_option( 'roadmap_enable_comments', 'yes' ) === 'yes' ),
-			'enable_suggestions' => $global_settings['enable_suggestions'] ?? ( get_option( 'roadmap_enable_suggestions', 'yes' ) === 'yes' ),
-			'items_per_page'     => $global_settings['items_per_page'] ?? (int) get_option( 'roadmap_items_per_page', 100 ),
+			'enable_voting'      => (bool) $global_settings['enable_voting'],
+			'allow_guest_voting' => (bool) $global_settings['allow_guest_voting'],
+			'enable_comments'    => (bool) $global_settings['enable_comments'],
+			'enable_suggestions' => (bool) $global_settings['enable_suggestions'],
+			'items_per_page'     => (int) $global_settings['items_per_page'],
 			'current_user'       => $this->get_current_user_data(),
 			'statuses'           => $this->get_all_statuses(),
 			'categories'         => $this->get_all_categories(),
@@ -946,7 +1218,7 @@ class Roadmap_API {
 				'vote'            => $this->can_vote(),
 				'comment'         => $this->can_comment(),
 				'suggest'         => $this->can_suggest(),
-				'edit_items'      => $this->can_edit_items(),
+				'edit_items'      => Roadmap_Permissions::can_edit_items(),
 				'manage_settings' => $this->can_manage_settings(),
 			),
 		);
@@ -1204,14 +1476,17 @@ class Roadmap_API {
 			return new WP_REST_Response( array(), 200 );
 		}
 
+		// Colours come from the same helper the changelog templates use, so REST,
+		// the board app and the PHP pages show the owner's saved type colours.
+		$styles    = Roadmap_Changelog::get_change_types();
 		$formatted = array();
 		foreach ( $types as $type ) {
-			$color       = get_term_meta( $type->term_id, 'changelog_type_color', true );
 			$formatted[] = array(
-				'id'    => $type->term_id,
-				'name'  => $type->name,
-				'slug'  => $type->slug,
-				'color' => $color ?: '#6b7280',
+				'id'         => $type->term_id,
+				'name'       => $type->name,
+				'slug'       => $type->slug,
+				'color'      => $styles[ $type->slug ]['color'],
+				'background' => $styles[ $type->slug ]['background'],
 			);
 		}
 
@@ -1237,15 +1512,17 @@ class Roadmap_API {
 		// Format items with type details
 		$formatted_items = array();
 		if ( is_array( $items ) ) {
+			$types = Roadmap_Changelog::get_change_types();
 			foreach ( $items as $item ) {
-				$type_term  = get_term_by( 'slug', $item['type'], 'changelog_type' );
-				$type_color = $type_term ? get_term_meta( $type_term->term_id, 'changelog_type_color', true ) : '#6b7280';
+				$type = $types[ $item['type'] ] ?? null;
 
+				// type_color is the owner's text colour, type_background the chip fill.
 				$formatted_items[] = array(
-					'description' => html_entity_decode( $item['description'], ENT_QUOTES, 'UTF-8' ),
-					'type'        => $item['type'],
-					'type_name'   => $type_term ? $type_term->name : ucfirst( $item['type'] ),
-					'type_color'  => $type_color,
+					'description'     => html_entity_decode( $item['description'], ENT_QUOTES, 'UTF-8' ),
+					'type'            => $item['type'],
+					'type_name'       => $type ? $type['name'] : ucfirst( $item['type'] ),
+					'type_color'      => $type ? $type['color'] : '',
+					'type_background' => $type ? $type['background'] : '',
 				);
 			}
 		}
@@ -1266,16 +1543,16 @@ class Roadmap_API {
 
 	// Permission callbacks
 	public function can_vote() {
-		$global_settings      = get_option( 'roadmap_global_settings', array() );
-		$voting_enabled       = $global_settings['enable_voting'] ?? ( get_option( 'roadmap_enable_voting', 'yes' ) === 'yes' );
-		$guest_voting_allowed = $global_settings['allow_guest_voting'] ?? ( get_option( 'roadmap_allow_guest_voting', 'yes' ) === 'yes' );
+		$global_settings      = Roadmap_Settings::get();
+		$voting_enabled       = (bool) $global_settings['enable_voting'];
+		$guest_voting_allowed = (bool) $global_settings['allow_guest_voting'];
 
 		return $voting_enabled && ( $guest_voting_allowed || is_user_logged_in() );
 	}
 
 	public function can_comment() {
-		$global_settings  = get_option( 'roadmap_global_settings', array() );
-		$comments_enabled = $global_settings['enable_comments'] ?? ( get_option( 'roadmap_enable_comments', 'yes' ) === 'yes' );
+		$global_settings  = Roadmap_Settings::get();
+		$comments_enabled = (bool) $global_settings['enable_comments'];
 
 		return is_user_logged_in() && $comments_enabled;
 	}
@@ -1284,8 +1561,40 @@ class Roadmap_API {
 		return Roadmap_Permissions::can_suggest();
 	}
 
-	public function can_edit_items() {
-		return current_user_can( 'edit_posts' );
+	/**
+	 * Permission callback for PUT /items/<id>.
+	 *
+	 * Checks the capability against *this* post, not the blanket `edit_posts`.
+	 * See Roadmap_Permissions::can_edit_item() for why that matters.
+	 *
+	 * @param WP_REST_Request $request Request being authorised.
+	 * @return bool
+	 */
+	public function can_edit_this_item( $request ) {
+		return Roadmap_Permissions::can_edit_item( (int) $request->get_param( 'id' ) );
+	}
+
+	/**
+	 * Permission callback for DELETE /items/<id>.
+	 *
+	 * @param WP_REST_Request $request Request being authorised.
+	 * @return bool
+	 */
+	public function can_delete_this_item( $request ) {
+		return Roadmap_Permissions::can_delete_item( (int) $request->get_param( 'id' ) );
+	}
+
+	/**
+	 * Permission callback for POST /items.
+	 *
+	 * There is no object yet, so this is the one place a capability check is
+	 * legitimately post-type-wide rather than per-object.
+	 *
+	 * @return bool
+	 */
+	public function can_create_item() {
+		return Roadmap_Permissions::can_edit_items()
+			|| current_user_can( 'roadmap_edit_own_items' );
 	}
 
 	public function can_manage_settings() {
@@ -1304,7 +1613,7 @@ class Roadmap_API {
 	 *
 	 * @return string The validated IP address or empty string.
 	 */
-	private function get_user_ip() {
+	public function get_user_ip() {
 		$ip = '';
 
 		// Only use REMOTE_ADDR for security - it cannot be spoofed by the client

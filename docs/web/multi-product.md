@@ -95,13 +95,12 @@ Show one product's roadmap:
 
 ### Multiple Products
 
-Show items from several products:
+`product` takes one slug at a time. To show several products on the same page, use a separate shortcode per product:
 
 ```
-[roadmap product="mobile-app,web-platform"]
+[roadmap product="mobile-app"]
+[roadmap product="web-platform"]
 ```
-
-Comma-separated slugs display items from all listed products.
 
 ### All Products
 
@@ -141,11 +140,12 @@ Shows only releases for that product.
 
 ### Multiple Product Changelogs
 
-```
-[roadmap_changelog product="mobile-app,web-platform"]
-```
+`product` takes one slug at a time here too. Use a separate shortcode per product:
 
-Displays releases from both products.
+```
+[roadmap_changelog product="mobile-app"]
+[roadmap_changelog product="web-platform"]
+```
 
 ### REST API
 
@@ -231,13 +231,13 @@ Compare products:
 ### Product with Voting Focus
 
 ```
-[roadmap product="mobile-app" template="ideabox" show_suggest="true"]
+[roadmap product="mobile-app" template="ideabox"]
 ```
 
 ### Product Sorted by Votes
 
 ```
-[roadmap product="mobile-app" orderby="votes" order="desc"]
+[roadmap product="mobile-app" sort="votes"]
 ```
 
 ### Product Timeline
@@ -249,8 +249,10 @@ Compare products:
 ### Combining Products and Filters
 
 ```
-[roadmap product="mobile-app,web-platform" status="planned" priority="high"]
+[roadmap product="mobile-app" status="planned" priority="high"]
 ```
+
+`status` and `priority` each take one value.
 
 ---
 

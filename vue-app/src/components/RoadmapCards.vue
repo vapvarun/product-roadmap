@@ -8,25 +8,19 @@
           <option value="3">3 {{ i18n.columns_label || 'Columns' }}</option>
           <option value="4">4 {{ i18n.columns_label || 'Columns' }}</option>
         </select>
-        <select v-model="sortBy" class="roadmap-form-control">
-          <option value="votes">{{ i18n.sort_by || 'Sort by' }} {{ i18n.votes || 'Votes' }}</option>
-          <option value="created">{{ i18n.sort_by || 'Sort by' }} {{ i18n.created_label || 'Created' }}</option>
-          <option value="priority">{{ i18n.sort_by || 'Sort by' }} {{ i18n.priority || 'Priority' }}</option>
-          <option value="title">{{ i18n.sort_by || 'Sort by' }} {{ i18n.title || 'Title' }}</option>
-        </select>
       </div>
     </div>
 
-    <div 
+    <div
       class="roadmap-cards-grid"
       :class="`roadmap-cards-columns-${columns}`"
     >
-      <div v-if="sortedItems.length === 0" class="roadmap-cards-empty">
+      <div v-if="items.length === 0" class="roadmap-cards-empty">
         <p>{{ i18n.no_items || 'No roadmap items found' }}</p>
       </div>
-      
-      <div 
-        v-for="item in sortedItems" 
+
+      <div
+        v-for="item in items"
         :key="item.id"
         class="roadmap-card"
         @click="$emit('item-click', item)"
@@ -42,13 +36,22 @@
               {{ status.name }}
             </span>
           </div>
-          <div class="roadmap-card-votes">
+          <div v-if="showVotes" class="roadmap-card-votes">
             <span class="roadmap-vote-icon">👍</span>
             <span class="roadmap-vote-count">{{ item.votes || 0 }}</span>
           </div>
         </div>
 
-        <h3 class="roadmap-card-title">{{ item.title }}</h3>
+        <h3 class="roadmap-card-title">
+          {{ item.title }}
+          <span
+            v-if="item.is_suggestion"
+            class="roadmap-card-source-badge"
+            :title="i18n.user_suggested_title || 'Suggested by a user'"
+          >
+            {{ i18n.suggested || 'Suggested' }}
+          </span>
+        </h3>
         
         <div class="roadmap-card-content">
           {{ item.excerpt || item.content.substring(0, 150) + '...' }}
@@ -85,7 +88,7 @@
           </div>
           
           <div class="roadmap-card-stats">
-            <span class="roadmap-card-stat">💬 {{ item.comment_count || 0 }}</span>
+            <span v-if="showComments" class="roadmap-card-stat">💬 {{ item.comment_count || 0 }}</span>
             <div v-if="item.assignee" class="roadmap-card-assignee">
               <img 
                 v-if="item.assignee.avatar" 
@@ -172,29 +175,21 @@ const props = defineProps({
 
 defineEmits(['item-click', 'update-item', 'edit-item', 'delete-item'])
 
+// Hide vote/comment stats entirely when the feature is off, matching the fix
+// already shipped for the Minimal template (RoadmapMinimal.vue showVotes/showComments).
+const showVotes = computed(() => config.settings?.enable_voting !== false)
+const showComments = computed(() => config.settings?.enable_comments !== false)
+
 const columns = ref('auto')
-const sortBy = ref('votes')
 
-const sortedItems = computed(() => {
-  return [...props.items].sort(getSortFunction())
-})
-
-const getSortFunction = () => {
-  return (a, b) => {
-    switch (sortBy.value) {
-      case 'votes':
-        return (b.votes || 0) - (a.votes || 0)
-      case 'priority':
-        const priorityOrder = { critical: 4, high: 3, medium: 2, low: 1 }
-        return (priorityOrder[b.priority] || 0) - (priorityOrder[a.priority] || 0)
-      case 'title':
-        return a.title.localeCompare(b.title)
-      case 'created':
-      default:
-        return new Date(b.created_at || 0) - new Date(a.created_at || 0)
-    }
-  }
-}
+// This template used to have its own Sort By dropdown (votes/created/priority/
+// title) that client-side re-sorted props.items independently of the shared
+// filter bar's Sort By control above it (RoadmapFilters.vue, which already
+// drives a real server-side `sort` REST param - see App.vue's selectedSort).
+// Two identically-labeled "Sort By" controls was confusing on its own, and
+// this one defaulted to 'votes' and silently overrode whatever sort the
+// visitor had actually picked in the real filter. Removed; items render in
+// the order the server already returned them.
 
 const formatDate = (date) => {
   return date ? new Date(date).toLocaleDateString('en-US', { 
@@ -206,6 +201,21 @@ const formatDate = (date) => {
 </script>
 
 <style lang="scss" scoped>
+.roadmap-card-source-badge {
+  display: inline-block;
+  margin-inline-start: 8px;
+  padding: 2px 8px;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1.6;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  vertical-align: middle;
+  border-radius: 10px;
+  color: var(--rm-review);
+  background: color-mix(in srgb, var(--rm-review) 14%, transparent);
+}
+
 .roadmap-cards-header {
   margin-bottom: 20px;
   display: flex;
@@ -260,7 +270,7 @@ const formatDate = (date) => {
 
   &:hover {
     border-color: var(--roadmap-accent);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px var(--rm-shadow);
     transform: translateY(-2px);
   }
 }
@@ -360,25 +370,9 @@ const formatDate = (date) => {
   border-radius: 10px;
   font-weight: 500;
 
-  &.roadmap-priority-low {
-    background: var(--rm-priority-low-tint);
-    color: var(--rm-priority-low);
-  }
-
-  &.roadmap-priority-medium {
-    background: var(--rm-priority-medium-tint);
-    color: var(--rm-priority-medium);
-  }
-
-  &.roadmap-priority-high {
-    background: var(--rm-priority-high-tint);
-    color: var(--rm-priority-high);
-  }
-
-  &.roadmap-priority-critical {
-    background: var(--rm-priority-critical-tint);
-    color: var(--rm-priority-critical);
-  }
+  // roadmap-tokens.css maps the roadmap-priority-{slug} class to the pair.
+  background: var(--rm-priority-tint, transparent);
+  color: var(--rm-priority-color, currentColor);
 }
 
 .roadmap-card-date {
@@ -413,7 +407,7 @@ const formatDate = (date) => {
     height: 24px;
     border-radius: 50%;
     background: var(--roadmap-accent);
-    color: var(--roadmap-accent-contrast, #fff);
+    color: var(--roadmap-accent-contrast);
     display: flex;
     align-items: center;
     justify-content: center;

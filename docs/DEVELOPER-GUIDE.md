@@ -696,6 +696,34 @@ add_filter('roadmap_default_statuses', function($statuses) {
 });
 ```
 
+A status whose slug isn't in the built-in list shows as a neutral grey chip. To give it a colour, see Colours and Theming below.
+
+### Colours and Theming
+
+Every frontend colour comes from one stylesheet, `assets/css/roadmap-tokens.css`, registered as the `roadmap-tokens` style handle. The board, the item and changelog templates, and Pro's stylesheets all load it as a dependency.
+
+- **Accent:** follows the theme's `--wp--preset--color--primary` and falls back to the plugin blue.
+- **Dark mode:** follows the theme's own light/dark toggle (BuddyX, BuddyX Pro, Reign), never the visitor's OS setting. Light/dark is a swap of the same custom properties.
+- **Overriding:** redefine any token in your theme's CSS. Also redefine it under your theme's dark selector if the colour should change in dark mode too.
+
+```css
+:root {
+  --rm-planned: #0b5cad;
+  --rm-planned-tint: #e3effb;
+}
+```
+
+- **Status and priority colours** are mapped once. Any element with a `roadmap-status-{slug}` class gets `--rm-status` / `--rm-status-tint`, and chips are `<span class="roadmap-badge roadmap-status-{slug}">`. Priority works the same way with `roadmap-priority-{low|medium|high|critical}`, which sets `--rm-priority-color` / `--rm-priority-tint`. To colour a custom status:
+
+```css
+.roadmap-status-beta-testing {
+  --rm-status: var(--rm-review);
+  --rm-status-tint: var(--rm-review-tint);
+}
+```
+
+- **Contributing:** `bin/check-raw-colors.sh` (run in CI) fails when a raw colour value appears in a frontend source outside the tokens file. Use a token, or add one to the tokens file with a light and a dark value.
+
 ### Adding Meta Fields
 ```php
 // Add custom meta box

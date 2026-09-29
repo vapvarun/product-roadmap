@@ -137,15 +137,12 @@ const form = reactive({
   website: '' // honeypot: stays empty for real users; bots fill it
 })
 
+// No reset here: App closes (unmounts) the modal only when the server accepts
+// the suggestion, so a failed submit keeps what the member typed and the next
+// open starts empty.
 const handleSubmit = () => {
   if (form.title && form.description) {
     emit('submit', { ...form })
-    // Reset form
-    form.title = ''
-    form.description = ''
-    form.category = ''
-    form.priority = ''
-    form.external_link = ''
   }
 }
 </script>

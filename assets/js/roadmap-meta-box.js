@@ -37,24 +37,6 @@
             $(this).toggleClass('active');
         });
 
-        // Validation for required fields
-        $('#post').on('submit', function(e) {
-            var hasError = false;
-
-            $('.roadmap-required').each(function() {
-                if (!$(this).val()) {
-                    $(this).addClass('error');
-                    hasError = true;
-                } else {
-                    $(this).removeClass('error');
-                }
-            });
-
-            if (hasError) {
-                e.preventDefault();
-                alert('Please fill in all required fields.');
-            }
-        });
     });
 
 })(jQuery);

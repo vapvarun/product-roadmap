@@ -86,16 +86,21 @@ Add to any page:
 ```
 [roadmap_changelog
     limit="10"
-    orderby="date"
-    order="desc"
+    show_date="true"
+    collapsible="true"
 ]
 ```
 
 | Parameter | Options | Default |
 |-----------|---------|---------|
-| `limit` | Number of entries | 10 |
-| `orderby` | date, title | date |
-| `order` | asc, desc | desc |
+| `product` | a product slug | (empty) all products |
+| `id` | a single entry ID | (empty) |
+| `limit` | number of entries | 10 |
+| `show_date` | true/false | true |
+| `collapsible` | true/false | false |
+| `class` | extra CSS class | (empty) |
+
+Entries are always ordered by release date, newest first.
 
 ### Changelog Archive
 
@@ -137,30 +142,6 @@ The changelog now lists what shipped.
 
 ---
 
-## Changelog Templates
-
-### Default Template
-
-Clean list of releases with expandable content.
-
-### Compact Template
-
-```
-[roadmap_changelog template="compact"]
-```
-
-Shows version, date, and summary only.
-
-### Timeline Template
-
-```
-[roadmap_changelog template="timeline"]
-```
-
-Visual timeline of releases.
-
----
-
 ## Best Practices
 
 ### Consistency
@@ -196,15 +177,7 @@ With Pro, assign changelog entries to products:
 [roadmap_changelog product="mobile-app"]
 ```
 
-Shows only entries for the mobile app product.
-
-### Multiple Products
-
-```
-[roadmap_changelog product="mobile-app,web-platform"]
-```
-
-Shows entries from both products.
+Shows only entries for the mobile app product. `product` takes one slug at a time; use a separate shortcode per product to show more than one on a page.
 
 ### Admin Filtering
 

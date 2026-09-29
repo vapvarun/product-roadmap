@@ -7,22 +7,36 @@
     @click="handleItemClick"
   >
     <div class="roadmap-item-header">
-      <h4 class="roadmap-item-title">{{ item.title }}</h4>
-      <div v-if="canEdit" class="roadmap-item-actions">
+      <h4 class="roadmap-item-title">
+        {{ item.title }}
+        <span
+          v-if="item.is_suggestion"
+          class="roadmap-item-source-badge"
+          :title="i18n.user_suggested_title || 'Suggested by a user'"
+        >
+          {{ i18n.suggested || 'Suggested' }}
+        </span>
+      </h4>
+      <!-- aria-live: the delete button's label change is announced. -->
+      <div v-if="canEdit" class="roadmap-item-actions" aria-live="polite">
         <button
           @click.stop="$emit('edit')"
           class="roadmap-btn roadmap-btn-sm roadmap-btn-icon"
           :title="i18n.edit || 'Edit'"
+          :aria-label="i18n.edit || 'Edit'"
         >
-          ✏️
+          <span aria-hidden="true">✏️</span>
         </button>
+        <!-- Two-step delete: the first click arms it, a second within 5 seconds deletes. -->
         <button
           v-if="mode === 'manage'"
-          @click.stop="$emit('delete')"
+          @click.stop="onDelete"
           class="roadmap-btn roadmap-btn-sm roadmap-btn-icon roadmap-btn-danger"
-          :title="i18n.delete || 'Delete'"
+          :title="confirmingDelete ? i18n.confirm_delete : (i18n.delete || 'Delete')"
+          :aria-label="confirmingDelete ? i18n.confirm_delete_label : (i18n.delete || 'Delete')"
         >
-          🗑️
+          <span v-if="confirmingDelete">{{ i18n.confirm_delete_label || 'Confirm delete' }}</span>
+          <span v-else aria-hidden="true">🗑️</span>
         </button>
       </div>
     </div>
@@ -36,7 +50,7 @@
         <span 
           v-if="item.priority"
           class="roadmap-badge"
-          :class="`roadmap-badge-${getPriorityClass(item.priority)}`"
+          :class="`roadmap-priority-${item.priority}`"
         >
           {{ item.priority }}
         </span>
@@ -58,6 +72,7 @@
     <div class="roadmap-item-footer">
       <div class="roadmap-item-stats">
         <button
+          v-if="showVotes"
           @click="handleVote"
           class="roadmap-item-vote"
           :class="{ 'voted': item.user_voted }"
@@ -69,9 +84,9 @@
           {{ item.votes || 0 }} {{ item.votes === 1 ? (i18n.vote || 'Vote') : (i18n.votes || 'Votes') }}
           <span v-if="item.user_voted" class="roadmap-vote-tag">{{ i18n.voted || 'Voted' }}</span>
         </button>
-        
-        <a 
-          v-if="item.link"
+
+        <a
+          v-if="showComments && item.link"
           :href="item.link"
           class="roadmap-item-comment"
           @click.stop
@@ -79,8 +94,8 @@
         >
           💬 {{ item.comment_count || 0 }} {{ item.comment_count === 1 ? (i18n.comment || 'Comment') : (i18n.comments || 'Comments') }}
         </a>
-        <button 
-          v-else
+        <button
+          v-else-if="showComments"
           @click="$emit('comment')"
           class="roadmap-item-comment"
           :disabled="!canComment"
@@ -113,7 +128,7 @@
 </template>
 
 <script setup>
-import { computed, inject } from 'vue'
+import { computed, inject, ref, onBeforeUnmount } from 'vue'
 
 const props = defineProps({
   item: {
@@ -140,24 +155,39 @@ const emit = defineEmits(['update', 'delete', 'vote', 'comment', 'dragstart', 'c
 const config = inject('$roadmapConfig', {})
 const i18n = config?.i18n || {}
 
+const confirmingDelete = ref(false)
+let deleteTimer = null
+const onDelete = () => {
+  if (confirmingDelete.value) {
+    clearTimeout(deleteTimer)
+    confirmingDelete.value = false
+    emit('delete')
+    return
+  }
+  confirmingDelete.value = true
+  deleteTimer = setTimeout(() => { confirmingDelete.value = false }, 5000)
+}
+onBeforeUnmount(() => clearTimeout(deleteTimer))
+
 // Computed
-const canVote = computed(() => config.user?.can_vote && config.settings?.enable_voting)
+// A guest has no config.user, so can_vote (computed server-side only for a
+// logged-in user) is never set for them. Fall back to the guest-voting flag
+// the same way App.vue's submitVote() and single-vote.js already do, so the
+// button isn't disabled for a guest when guest voting is on.
+const canVote = computed(() => {
+  if (!config.settings?.enable_voting) return false
+  return config.user ? !!config.user.can_vote : !!config.settings?.allow_guest_voting
+})
 const canComment = computed(() => config.user?.can_comment && config.settings?.enable_comments)
+// Hide the whole stat, not just disable it, when the feature is off - matches
+// the fix already shipped for the Minimal template (RoadmapMinimal.vue).
+const showVotes = computed(() => config.settings?.enable_voting !== false)
+const showComments = computed(() => config.settings?.enable_comments !== false)
 
 // Methods
 const handleVote = () => {
   const voteValue = props.item.user_voted ? 0 : 1
   emit('vote', voteValue)
-}
-
-const getPriorityClass = (priority) => {
-  const map = {
-    low: 'success',
-    medium: 'warning',
-    high: 'danger',
-    critical: 'danger'
-  }
-  return map[priority] || 'primary'
 }
 
 const formatDate = (date) => {
@@ -174,6 +204,21 @@ const handleItemClick = (event) => {
 </script>
 
 <style lang="scss" scoped>
+.roadmap-item-source-badge {
+  display: inline-block;
+  margin-inline-start: 8px;
+  padding: 2px 8px;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1.6;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  vertical-align: middle;
+  border-radius: 10px;
+  color: var(--rm-review);
+  background: color-mix(in srgb, var(--rm-review) 14%, transparent);
+}
+
 .roadmap-item {
   background: var(--rm-surface);
   border: 1px solid var(--rm-border);
@@ -182,7 +227,7 @@ const handleItemClick = (event) => {
   transition: all 0.2s ease;
   
   &:hover {
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 8px var(--rm-shadow);
   }
   
   &-clickable {
@@ -265,6 +310,8 @@ const handleItemClick = (event) => {
     gap: 4px;
     padding: 4px 8px;
     font-size: 13px;
+    // Set, not inherited: themes paint bare buttons with their own colour.
+    color: var(--rm-text);
     background: transparent;
     border: 1px solid var(--rm-border);
     border-radius: 4px;
@@ -281,11 +328,11 @@ const handleItemClick = (event) => {
     }
     
     &.voted {
-      background: var(--roadmap-accent-tint, #e3f2fd);
-      border-color: var(--roadmap-accent, #2196f3);
+      background: var(--roadmap-accent-tint);
+      border-color: var(--roadmap-accent);
       // Lightness-clamped accent text so the voted state stays readable on the
-      // tint under a pale theme accent (falls back to the raw accent).
-      color: var(--roadmap-accent-text, #2196f3);
+      // tint under a pale theme accent.
+      color: var(--roadmap-accent-text);
     }
   }
 

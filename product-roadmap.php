@@ -3,7 +3,7 @@
  * Plugin Name: Product Roadmap
  * Plugin URI: https://wbcomdesigns.com/plugins/product-roadmap/
  * Description: Create public product roadmaps to share your vision, collect user feedback, and build products your customers actually want.
- * Version: 1.7.1
+ * Version: 1.8.0
  * Author: wbcomdesigns
  * Author URI: https://wbcomdesigns.com/
  * License: GPL v2 or later
@@ -18,10 +18,14 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('ROADMAP_VERSION', '1.7.1');
+define('ROADMAP_VERSION', '1.8.0');
 define('ROADMAP_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('ROADMAP_PLUGIN_PATH', plugin_dir_path(__FILE__));
 define('ROADMAP_PLUGIN_BASENAME', plugin_basename(__FILE__));
+// The Product Roadmap Pro release paired with this Free. An older Pro keeps
+// running, but the admin is told to update it so both stay in step. Pro keeps
+// its own minimum Free version and pauses itself on an older Free.
+define( 'ROADMAP_MIN_PRO_VERSION', '1.8.0' );
 
 class RoadmapPlugin {
     
@@ -59,7 +63,14 @@ class RoadmapPlugin {
         register_deactivation_hook(__FILE__, [$this, 'deactivate']);
 
         add_action('init', [$this, 'init']);
+        // Schema repair must NOT be admin-only: guest voting is a frontend
+        // feature, and a site whose owner rarely opens wp-admin would never
+        // pick up the votes-table columns it depends on. Version-gated, so on
+        // every other request this is a single get_option().
+        add_action('init', [$this, 'check_version_update'], 5);
         add_action('upgrader_process_complete', [$this, 'handle_plugin_update'], 10, 2);
+        add_action( 'admin_notices', array( $this, 'maybe_outdated_pro_notice' ) );
+        add_action( 'network_admin_notices', array( $this, 'maybe_outdated_pro_notice' ) );
         
         // Initialize components
         Roadmap_CPT::get_instance();
@@ -76,6 +87,33 @@ class RoadmapPlugin {
         do_action('roadmap_plugin_loaded');
     }
     
+    /**
+     * Admin notice when the installed Pro is older than the one paired with this Free.
+     */
+    public function maybe_outdated_pro_notice() {
+        if ( ! defined( 'ROADMAP_PRO_VERSION' ) || ! current_user_can( 'update_plugins' )
+            || version_compare( ROADMAP_PRO_VERSION, ROADMAP_MIN_PRO_VERSION, '>=' ) ) {
+            return;
+        }
+        printf(
+            '<div class="notice notice-warning"><p>%s</p></div>',
+            wp_kses(
+                sprintf(
+                    /* translators: 1: Free version, 2: paired Pro version, 3: installed Pro version, 4: Plugins screen URL */
+                    __( '<strong>Product Roadmap %1$s</strong> is paired with <strong>Product Roadmap Pro %2$s</strong>, and this site has Pro %3$s. <a href="%4$s">Update Product Roadmap Pro</a> so both stay in step.', 'product-roadmap' ),
+                    esc_html( ROADMAP_VERSION ),
+                    esc_html( ROADMAP_MIN_PRO_VERSION ),
+                    esc_html( ROADMAP_PRO_VERSION ),
+                    esc_url( self_admin_url( 'plugins.php' ) )
+                ),
+                array(
+                    'strong' => array(),
+                    'a'      => array( 'href' => array() ),
+                )
+            )
+        );
+    }
+
     public function init() {
         // Load translations.
         load_plugin_textdomain( 'product-roadmap', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
@@ -85,10 +123,19 @@ class RoadmapPlugin {
             define('ROADMAP_PRO_ACTIVE', false);
         }
 
+        // Colour tokens + shared status/priority chips. Every frontend stylesheet
+        // (Free and Pro) lists this handle as a dependency; see the file header.
+        $tokens = ROADMAP_PLUGIN_PATH . 'assets/css/roadmap-tokens.css';
+        wp_register_style( 'roadmap-tokens', ROADMAP_PLUGIN_URL . 'assets/css/roadmap-tokens.css', array(), file_exists( $tokens ) ? (string) filemtime( $tokens ) : ROADMAP_VERSION );
+
+        // Admin confirmations and notices without alert()/confirm() (Free and Pro).
+        wp_register_script( 'roadmap-admin-feedback', ROADMAP_PLUGIN_URL . 'assets/js/roadmap-admin-feedback.js', array(), ROADMAP_VERSION, true );
+
         // Run migration check on admin init
         if (is_admin()) {
+            // The product->taxonomy data migration is expensive, so it stays on
+            // admin_init behind its own lock.
             add_action('admin_init', [$this, 'check_migration']);
-            add_action('admin_init', [$this, 'check_version_update']);
         }
     }
 
@@ -114,6 +161,14 @@ class RoadmapPlugin {
             // create_tables() runs dbDelta for columns and then adds the votes
             // indexes via upgrade_votes_indexes().
             $this->create_tables();
+
+            // Recompute the cached vote counts. They used to store
+            // SUM(vote_value), a net score, while everything that reads them
+            // presents "Votes" as a number of voters.
+            $this->recount_votes();
+
+            // Move the pre-1.8 standalone settings into roadmap_global_settings.
+            Roadmap_Settings::migrate_legacy_options();
 
             // Update stored version
             update_option('roadmap_version', ROADMAP_VERSION);
@@ -215,7 +270,7 @@ class RoadmapPlugin {
         
         // Votes table
         $votes_table = $wpdb->prefix . 'roadmap_votes';
-        $sql_votes = "CREATE TABLE IF NOT EXISTS $votes_table (
+        $sql_votes = "CREATE TABLE $votes_table (
             id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
             user_id bigint(20) unsigned DEFAULT NULL,
             item_id bigint(20) unsigned NOT NULL,
@@ -232,11 +287,17 @@ class RoadmapPlugin {
             KEY item_created (item_id, created_at)
         ) $charset_collate;";
         
+        // NOTE: the statement above must NOT say "CREATE TABLE IF NOT EXISTS".
+        // dbDelta parses the table name with preg_match('|CREATE TABLE ([^ ]*)|'),
+        // so "IF" is captured as the table name, dbDelta diffs a table called
+        // "IF", finds nothing to do, and every column added here after 1.0 is
+        // silently skipped on existing installs. dbDelta is already idempotent;
+        // the guard bought nothing and cost every migration since.
         require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
         dbDelta($sql_votes);
 
-        // Fresh tables get the indexes from the CREATE above; existing tables are
-        // migrated by upgrade_votes_indexes() (dbDelta won't add them reliably).
+        // dbDelta adds columns reliably but is unreliable about indexes on an
+        // existing table, so those are added explicitly and idempotently.
         $this->upgrade_votes_indexes();
     }
 
@@ -247,6 +308,39 @@ class RoadmapPlugin {
      * explicitly and idempotently. Speeds up every date-window vote query
      * (analytics charts, digests) at scale.
      */
+    /**
+     * Rebuild the cached vote counts from the votes table.
+     *
+     * Runs once per version change. On a board that has ever received a
+     * downvote the displayed numbers go UP, because the stored value was a net
+     * score and is now a count of voters - that change is called out in the
+     * changelog.
+     *
+     * Done in one grouped query rather than per item so it stays cheap on a
+     * large board.
+     *
+     * @return void
+     */
+    private function recount_votes() {
+        global $wpdb;
+
+        $table = $wpdb->prefix . 'roadmap_votes';
+
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) !== $table ) {
+            return;
+        }
+
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        $counts = $wpdb->get_results(
+            "SELECT item_id, COUNT(*) AS total FROM {$table} WHERE vote_value > 0 GROUP BY item_id"
+        );
+
+        foreach ( $counts as $row ) {
+            update_post_meta( (int) $row->item_id, '_roadmap_votes', (int) $row->total );
+        }
+    }
+
     private function upgrade_votes_indexes() {
         global $wpdb;
         $table = $wpdb->prefix . 'roadmap_votes';

@@ -81,15 +81,44 @@ class Roadmap_Setup_Wizard {
      * Add setup menu
      */
     public function add_setup_menu() {
-        // Add as submenu under Roadmap
-        add_submenu_page(
-            'roadmap-dashboard',
+        // Once setup is done the wizard is not a place an owner needs to keep
+        // seeing; it was registered unconditionally, so it sat in the menu
+        // forever inviting a re-run that re-imports demo content. It stays
+        // reachable by URL, which is what the "Start over" link uses, so the
+        // page is registered without a visible menu entry after completion.
+        $wizard_completed = (bool) get_option('roadmap_wizard_completed');
+
+        $hook = add_submenu_page(
+            $wizard_completed ? null : 'roadmap-dashboard',
             __('Setup Wizard', 'product-roadmap'),
             __('Setup Wizard', 'product-roadmap'),
             'manage_options',
             'roadmap-setup-wizard',
             array($this, 'render_setup_page')
         );
+
+        if ( $hook ) {
+            add_action( 'load-' . $hook, array( $this, 'suppress_admin_notices' ) );
+        }
+    }
+
+    /**
+     * The wizard is a focused full-page flow: no admin notices on it. This
+     * drops our own "Run Setup Wizard" call to action (it pointed at this very
+     * page) and notices from the theme and other plugins. The wizard prints
+     * its own messages inline. Runs on in_admin_header, the last hook before
+     * notices print, so late-added notices are caught too.
+     */
+    public function suppress_admin_notices() {
+        add_action( 'in_admin_header', array( $this, 'remove_admin_notices' ), 1000 );
+    }
+
+    /**
+     * Drop every notice callback for this request (see suppress_admin_notices()).
+     */
+    public function remove_admin_notices() {
+        remove_all_actions( 'admin_notices' );
+        remove_all_actions( 'all_admin_notices' );
     }
     
     /**
@@ -168,8 +197,9 @@ class Roadmap_Setup_Wizard {
                                 'roadmap_start_over'
                             );
                             ?>
-                            <a href="<?php echo esc_url($start_over_url); ?>" class="button" 
-                               onclick="return confirm('<?php esc_html_e('This will reset the wizard. Your existing roadmap items will not be affected. Continue?', 'product-roadmap'); ?>');">
+                            <a href="<?php echo esc_url($start_over_url); ?>" class="button"
+                               data-roadmap-confirm="<?php esc_attr_e( 'Resets the wizard. Your existing roadmap items are not affected.', 'product-roadmap' ); ?>"
+                               data-roadmap-confirm-label="<?php esc_attr_e( 'Confirm start over', 'product-roadmap' ); ?>">
                                 <?php esc_html_e('Start Over', 'product-roadmap'); ?>
                             </a>
                         </p>
@@ -219,8 +249,9 @@ class Roadmap_Setup_Wizard {
      */
     private function render_step_product() {
         $product_name = get_option('roadmap_product_name', '');
-        $item_singular = get_option('roadmap_item_singular_label', 'Feature');
-        $item_plural = get_option('roadmap_item_plural_label', 'Features');
+        $item_labels   = Roadmap_Settings::item_labels();
+        $item_singular = $item_labels['singular'];
+        $item_plural   = $item_labels['plural'];
         ?>
         <h2><?php esc_html_e('Configure Your Product', 'product-roadmap'); ?></h2>
         <p><?php esc_html_e('Let\'s personalize your roadmap. In the free version, you can manage one product roadmap.', 'product-roadmap'); ?></p>
@@ -282,9 +313,9 @@ class Roadmap_Setup_Wizard {
      * Step 2: Basic Settings
      */
     private function render_step_settings() {
-        $voting_enabled = get_option('roadmap_enable_voting', 'yes');
-        $comments_enabled = get_option('roadmap_enable_comments', 'yes');
-        $guest_voting = get_option('roadmap_allow_guest_voting', 'yes');
+        $voting_enabled   = (bool) Roadmap_Settings::get('enable_voting');
+        $comments_enabled = (bool) Roadmap_Settings::get('enable_comments');
+        $guest_voting     = (bool) Roadmap_Settings::get('allow_guest_voting');
         ?>
         <h2><?php esc_html_e('Basic Settings', 'product-roadmap'); ?></h2>
         <p><?php esc_html_e('Configure how users can interact with your roadmap.', 'product-roadmap'); ?></p>
@@ -299,7 +330,7 @@ class Roadmap_Setup_Wizard {
                     <td>
                         <label>
                             <input type="checkbox" name="voting_enabled" value="yes" 
-                                   <?php checked($voting_enabled, 'yes'); ?> />
+                                   <?php checked($voting_enabled); ?> />
                             <?php esc_html_e('Allow users to vote on roadmap items', 'product-roadmap'); ?>
                         </label>
                     </td>
@@ -309,7 +340,7 @@ class Roadmap_Setup_Wizard {
                     <td>
                         <label>
                             <input type="checkbox" name="guest_voting" value="yes" 
-                                   <?php checked($guest_voting, 'yes'); ?> />
+                                   <?php checked($guest_voting); ?> />
                             <?php esc_html_e('Allow non-logged in users to vote', 'product-roadmap'); ?>
                         </label>
                     </td>
@@ -319,7 +350,7 @@ class Roadmap_Setup_Wizard {
                     <td>
                         <label>
                             <input type="checkbox" name="comments_enabled" value="yes" 
-                                   <?php checked($comments_enabled, 'yes'); ?> />
+                                   <?php checked($comments_enabled); ?> />
                             <?php esc_html_e('Allow users to comment on roadmap items', 'product-roadmap'); ?>
                         </label>
                     </td>
@@ -457,7 +488,7 @@ class Roadmap_Setup_Wizard {
                 </a>
             </li>
             <li>
-                <a href="<?php echo esc_url(admin_url('edit.php?post_type=roadmap_item&page=roadmap-settings')); ?>">
+                <a href="<?php echo esc_url(admin_url('admin.php?page=roadmap-settings')); ?>">
                     <?php esc_html_e('Configure advanced settings', 'product-roadmap'); ?>
                 </a>
             </li>
@@ -526,11 +557,14 @@ class Roadmap_Setup_Wizard {
                     return;
                 }
                 
-                // Save settings
-                update_option('roadmap_enable_voting', isset($_POST['voting_enabled']) ? 'yes' : 'no');
-                update_option('roadmap_allow_guest_voting', isset($_POST['guest_voting']) ? 'yes' : 'no');
-                update_option('roadmap_enable_comments', isset($_POST['comments_enabled']) ? 'yes' : 'no');
-                
+                // Save settings into roadmap_global_settings, the only store
+                // (read everywhere through Roadmap_Settings::get()).
+                $roadmap_wizard_global_settings = get_option('roadmap_global_settings', array());
+                $roadmap_wizard_global_settings['enable_voting']      = isset($_POST['voting_enabled']);
+                $roadmap_wizard_global_settings['allow_guest_voting'] = isset($_POST['guest_voting']);
+                $roadmap_wizard_global_settings['enable_comments']    = isset($_POST['comments_enabled']);
+                update_option('roadmap_global_settings', $roadmap_wizard_global_settings);
+
                 wp_redirect(admin_url('admin.php?page=roadmap-setup-wizard&step=3'));
                 exit;
                 
@@ -625,7 +659,8 @@ class Roadmap_Setup_Wizard {
         wp_enqueue_style('roadmap-admin', ROADMAP_PLUGIN_URL . 'assets/css/roadmap-admin.css', array(), ROADMAP_VERSION);
 
         // Enqueue admin JS for copy-to-clipboard functionality
-        wp_enqueue_script('roadmap-admin', ROADMAP_PLUGIN_URL . 'assets/js/roadmap-admin.js', array('jquery'), ROADMAP_VERSION, true);
+        wp_enqueue_script('roadmap-admin', ROADMAP_PLUGIN_URL . 'assets/js/roadmap-admin.js', array('jquery', 'roadmap-admin-feedback'), ROADMAP_VERSION, true);
+        wp_localize_script( 'roadmap-admin', 'roadmap_admin', Roadmap_Settings::admin_script_data() );
     }
 }
 

@@ -7,6 +7,16 @@ on:
     branches: [main, master]
 
 jobs:
+  raw-colors:
+    name: No raw colours in frontend CSS
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check for raw colours outside the token file
+        run: bash bin/check-raw-colors.sh
+
   php-lint:
     name: PHP Lint (PHP ${{ matrix.php }})
     runs-on: ubuntu-latest

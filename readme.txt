@@ -2,8 +2,8 @@
 Contributors: wbcomdesigns, vapvarun
 Tags: roadmap, feature requests, user feedback, changelog, feature voting
 Requires at least: 5.8
-Tested up to: 7.0
-Stable tag: 1.7.1
+Tested up to: 7.1
+Stable tag: 1.8.0
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -116,6 +116,75 @@ Multiple product roadmaps are available in the Pro version. Free version support
 8. Individual roadmap item with voting and comments
 
 == Changelog ==
+
+= 1.8.0 - September 2026 =
+
+Security and data-integrity release. Sites upgrading from any earlier version pick up database repairs automatically on the first page view.
+
+* New      - The [roadmap] shortcode's board options all now work: status, category, item limit, search toggle, and per-board voting/comments visibility (Pro adds priority and a target-date range). The block editor's Pro roadmap block shares the same option list, so the two can never drift.
+* New      - An admin notice appears when Product Roadmap Pro is older than the paired release, naming both versions with a link to update. Pro keeps running either way.
+* Improve  - One shared colour token file now drives every frontend surface (board, item and changelog pages, the changelog shortcode, and Pro's screens), so light/dark mode and a per-product Theme Color reach everywhere consistently, and text/control contrast meets AA everywhere it was measured.
+* Improve  - Toast messages, notices, the item detail modal's progress bar and its status chip now use the same colour tokens as the rest of the plugin, fixing contrast failures and a status chip that ignored dark mode.
+* Improve  - "Votes" now means the number of people who voted, everywhere. It stored a net score that downvotes reduced, so an item could display fewer votes than it had voters and never matched the analytics. Existing counts are recalculated on upgrade, so boards that have received downvotes will show higher numbers than before.
+* Improve  - Status-change emails are queued and sent in the background instead of one blocking send per recipient inside the request that changed the status.
+* Improve  - The roadmap archive builds its per-product counts in two grouped queries instead of one unbounded query per product plus one per item.
+* Improve  - The public items endpoint caps how many items one request may ask for, and costs far fewer queries per page.
+* Improve  - Schema repairs run on the front end, not only in wp-admin, so a site whose owner rarely signs in still receives them.
+* Fix      - Members can edit and delete their own submitted items again. A missing WordPress capability check silently blocked every non-admin role from managing their own submissions.
+* Fix      - The Approve button on pending items was invisible everywhere due to a naming collision with a WordPress core style rule; the action itself always worked if you knew the URL.
+* Fix      - The Timeline view could show one item twice under Now and Next at once; removed a dead dark-mode toggle that had no working control; removed a duplicate page heading.
+* Fix      - A configured default product (Settings) was silently ignored by the bare [roadmap] shortcode and by suggestions submitted with no product chosen, both always landing on "main" instead.
+* Fix      - The item archive page ignored a theme's changelog-frontend.css override, unlike every other changelog template.
+* Fix      - A changelog entry published in the block editor under a non-default product could still get a slug starting with "general-" instead of its real product.
+* Fix      - Demo import votes could reset to a much lower number the first time a real visitor voted, and again on every plugin update's recount; Pro analytics showed zero from the start for demo content.
+* Fix      - The List and Idea Box templates ignored the board's shared Sort filter and quietly re-sorted only the items already loaded on the page.
+* Fix      - Deleting a board item now moves it to the trash (restorable) instead of deleting it permanently.
+* Fix      - Item labels saved as blank on Settings showed messages and headings with no noun ("moved to the trash.").
+* Fix      - A template not currently offered (Pro inactive, disabled in Pro settings) could still be selected instead of falling back to a working one.
+* Fix      - The Setup Wizard showed unrelated admin notices on its own screen, including its own "Run Setup Wizard" button.
+* Fix      - The suggestion form cleared a member's title and description immediately on submit, before the server responded, so a rate-limited or failed submission lost their text.
+* Fix      - Removed every remaining browser alert()/confirm() dialog (Reject suggestion, Setup Wizard "Start Over", board delete, clear cache); replaced with in-page notices and two-step confirmations.
+* Fix      - The single item page's "already voted" state could disagree with the board's, and stopped recognising a guest's earlier vote once guest voting was turned off after they voted.
+* Fix      - Sorting by votes dropped every item that had never received a vote from the results.
+* Fix      - Notification emails ignored the recipient list configured on the Settings screen and used an older, separate setting instead.
+* Fix      - A malformed or missing product on the [roadmap] shortcode showed visitors a setup error instead of a working board; a Free-only board showed a "requires Pro" message to visitors instead of just to editors.
+* Fix      - A new item created in the block editor pre-selected the default product before you'd chosen one, and every new item landed on the default product's board regardless of what you picked afterward.
+* Fix      - The Setup Wizard's guest-voting choice stopped taking effect once the Settings screen had ever been saved on its own.
+* Fix      - The Timeline view's Now/Next/Later date-range header stayed fixed regardless of the selected Timeline Scale.
+* Fix      - Removed a duplicate Sort By control on the Cards template that silently overrode the shared filter bar's sort.
+* Fix      - Guest voting worked on the single item page but not on the board itself.
+* Fix      - Vote and comment counts kept showing on most templates even after voting or comments were turned off in Settings.
+* Fix      - The "Suggested" badge for member-submitted items only appeared on the Minimal template; it now appears everywhere an item is shown.
+* Fix      - The archive page's dark mode followed the visitor's OS setting instead of the theme's own dark-mode toggle, inconsistent with the rest of the plugin.
+* Fix      - Database migrations now reach existing installs. dbDelta was passed "CREATE TABLE IF NOT EXISTS", which it cannot parse, so no column added since 1.0 ever reached an upgraded site.
+* Fix      - Guest voting works. It was blocked in four places at once: the board script, the single-item script, a votes table missing the columns the server writes to, and a vote handler that reported success on a failed write.
+* Fix      - The single-item page now recognises a guest who has already voted, instead of showing an un-voted button.
+* Fix      - Voting now reports an error instead of claiming success when the vote cannot be saved.
+* Fix      - Saving one Settings tab no longer resets the other. Saving Notifications previously turned voting, comments, suggestions and guest voting off and reset the items-per-page value, with no warning.
+* Fix      - Assignee and Dependencies keep their values. The saved selection did not re-render as selected, and the next unrelated save then destroyed it.
+* Fix      - The setup wizard's "Configure advanced settings" link pointed at a page that does not exist.
+* Fix      - Filters and sort now apply to the whole board. They ran in the browser over the items already loaded, so on a board larger than one page filtering to a status showed only the matches that happened to be on the first page, and sorting by votes showed the top of that page rather than the top of the board.
+* Fix      - Edit and Delete now work on the Timeline, List and Cards views. The buttons rendered and did nothing.
+* Fix      - The timeline no longer shows most items twice. Anything without a start date was added to "Later" on top of the section its status had already placed it in, which inflated every count on the view.
+* Fix      - The board scrolls sideways instead of wrapping its status columns into rows, which stopped it reading as a board in a narrower content area. Below 640px it stacks.
+* Fix      - A Page at /roadmap/ is no longer hidden by the plugin's own rewrite rules.
+* Fix      - Changelog entry slugs are no longer stuck as "general-auto-draft". The slug was derived while WordPress was still creating the auto-draft, then never revisited.
+* Fix      - Preview on a pending or draft item opens the item instead of the product board.
+* Fix      - Turning comments off now closes them everywhere, including the single item page, which asked WordPress directly and still showed a working reply form.
+* Fix      - The roadmap archive is readable in dark mode; the heading was dark text on a dark background.
+* Fix      - The items endpoint accepts a product id as well as a slug. An id matched nothing and returned an empty board with no error.
+* Security - REST routes that edit, delete or create roadmap items now check the capability against the specific post instead of the site-wide edit_posts. A Contributor could previously delete, rewrite or publish any post or page on the site through /roadmap/v1/items.
+* Security - Creating an item through the REST API no longer publishes on behalf of a user who lacks publish_posts.
+* Security - The pending-submissions notice dismissal now checks a capability alongside its nonce.
+* Security - The item-creation REST endpoint rejected a malformed request (an array where a single product was expected) instead of passing it through unsanitized.
+* Dev      - Added a show_title attribute to the [roadmap] shortcode.
+* Dev      - Added sort and search parameters to the items REST endpoint, and the roadmap_max_per_page filter for the page-size ceiling.
+* Dev      - Added Roadmap_Permissions::can_edit_item() and can_delete_item(); every route that mutates an item by id routes through them.
+* Dev      - Added the roadmap_tab_setting_keys filter so add-ons can register which settings keys their own tab owns.
+* Dev      - Roadmap_API::get_user_ip() is now public, so templates identify a guest the same way the API does.
+* Dev      - Removed the stale minified bundles and the build steps that silently never ran. The plugin has always enqueued the unminified files.
+* Dev      - Regenerated the translation template. 1.7.1 shipped a 1.7.0 POT, so seven strings from its own features were never available to translators.
+* Compat   - Aligned with Product Roadmap Pro 1.8.0. Install both updates together.
 
 = 1.7.1 - July 2026 =
 

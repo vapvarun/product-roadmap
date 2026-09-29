@@ -95,7 +95,7 @@ Add the roadmap to any page using the shortcode:
 [roadmap product="main"]
 ```
 
-**Note:** The `product` parameter is mandatory. Use `product="main"` for the default product.
+**Note:** The `product` parameter is optional. Leave it out to show your default product.
 
 ### First Time Setup
 
@@ -109,17 +109,19 @@ Add the roadmap to any page using the shortcode:
 
 ```
 [roadmap
-    product="main"                  // Required: Product slug
-    status="planned,in-progress"    // Filter by status
-    category="features"              // Filter by category
-    limit="20"                      // Number of items to show
-    order="votes"                   // Sort by: date, votes, priority
-    show_voting="true"              // Show/hide voting
-    show_comments="true"            // Show/hide comments
-    show_filters="true"             // Show/hide filters
-    show_search="true"              // Show/hide search
+    product="main"        // Optional: leave empty for your default product
+    status="planned"      // Filter by one status slug
+    category="features"   // Filter by one category slug
+    limit="20"             // Number of items to show (0 = all, with Load more)
+    sort="votes"           // Sort by: votes, recent, comments, priority, title
+    show_voting="hide"     // Hide voting on this board (empty = follow Settings)
+    show_comments="hide"   // Hide comments on this board (empty = follow Settings)
+    show_filters="true"    // Show/hide the filter bar
+    show_search="true"     // Show/hide the search box
 ]
 ```
+
+`status` and `category` each take one value. Voting and comments can only be turned off here, never turned on if Settings has them disabled.
 
 ### Managing Submissions
 
@@ -293,8 +295,7 @@ Create unlimited product roadmaps:
 - Ensure user has permission to suggest
 
 **Shortcode Not Working:**
-- Ensure `product` parameter is included
-- Check product slug is correct
+- If you set a `product`, check the slug is correct
 - Verify plugin is activated
 
 **Styling Issues:**

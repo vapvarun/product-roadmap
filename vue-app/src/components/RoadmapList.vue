@@ -8,12 +8,6 @@
           <option value="priority">{{ i18n.group_by_priority || 'Group by Priority' }}</option>
           <option value="none">{{ i18n.no_grouping || 'No Grouping' }}</option>
         </select>
-        <select v-model="sortBy" class="roadmap-form-control">
-          <option value="created">{{ i18n.sort_by_created || 'Sort by Created Date' }}</option>
-          <option value="votes">{{ i18n.sort_by_votes || 'Sort by Votes' }}</option>
-          <option value="priority">{{ i18n.sort_by_priority || 'Sort by Priority' }}</option>
-          <option value="title">{{ i18n.sort_by_title || 'Sort by Title' }}</option>
-        </select>
       </div>
     </div>
 
@@ -48,7 +42,16 @@
               @click="$emit('item-click', item)"
             >
               <div class="roadmap-list-item-main">
-                <h4 class="roadmap-list-item-title">{{ item.title }}</h4>
+                <h4 class="roadmap-list-item-title">
+                  {{ item.title }}
+                  <span
+                    v-if="item.is_suggestion"
+                    class="roadmap-list-source-badge"
+                    :title="i18n.user_suggested_title || 'Suggested by a user'"
+                  >
+                    {{ i18n.suggested || 'Suggested' }}
+                  </span>
+                </h4>
                 <p class="roadmap-list-item-excerpt">
                   {{ item.excerpt || item.content.substring(0, 200) + '...' }}
                 </p>
@@ -66,7 +69,7 @@
                   <span
                     v-if="item.priority"
                     class="roadmap-badge"
-                    :class="`roadmap-badge-${getPriorityClass(item.priority)}`"
+                    :class="`roadmap-priority-${item.priority}`"
                   >
                     {{ item.priority }}
                   </span>
@@ -80,10 +83,10 @@
                 </div>
 
                 <div class="roadmap-list-item-stats">
-                  <div class="roadmap-list-stat">
+                  <div v-if="showVotes" class="roadmap-list-stat">
                     <i>👍</i> {{ item.votes || 0 }}
                   </div>
-                  <div class="roadmap-list-stat">
+                  <div v-if="showComments" class="roadmap-list-stat">
                     <i>💬</i> {{ item.comment_count || 0 }}
                   </div>
                   <div v-if="item.target_date" class="roadmap-list-stat">
@@ -164,8 +167,14 @@ const props = defineProps({
 
 defineEmits(['item-click', 'update-item', 'edit-item', 'delete-item'])
 
+// Hide vote/comment stats entirely when the feature is off, matching the fix
+// already shipped for the Minimal template (RoadmapMinimal.vue showVotes/showComments).
+const showVotes = computed(() => config.settings?.enable_voting !== false)
+const showComments = computed(() => config.settings?.enable_comments !== false)
+
 const groupBy = ref('status')
-const sortBy = ref('created')
+// No local sort: items arrive in the board's sort (the owner's setting, or the
+// Sort filter), applied by the server across all items, not just this page.
 const expandedGroups = ref([])
 
 const groupedItems = computed(() => {
@@ -173,7 +182,7 @@ const groupedItems = computed(() => {
     return [{
       key: 'all',
       name: i18n.all_items || 'All Items',
-      items: sortedItems.value
+      items: props.items
     }]
   }
 
@@ -207,7 +216,6 @@ const groupedItems = computed(() => {
   
   // Sort items within each group
   Object.values(groups).forEach(group => {
-    group.items.sort(getSortFunction())
   })
   
   return Object.values(groups).sort((a, b) => {
@@ -224,43 +232,12 @@ const groupedItems = computed(() => {
   })
 })
 
-const sortedItems = computed(() => {
-  return [...props.items].sort(getSortFunction())
-})
-
-const getSortFunction = () => {
-  return (a, b) => {
-    switch (sortBy.value) {
-      case 'votes':
-        return (b.votes || 0) - (a.votes || 0)
-      case 'priority':
-        const priorityOrder = { critical: 4, high: 3, medium: 2, low: 1 }
-        return (priorityOrder[b.priority] || 0) - (priorityOrder[a.priority] || 0)
-      case 'title':
-        return a.title.localeCompare(b.title)
-      case 'created':
-      default:
-        return new Date(b.created_at || 0) - new Date(a.created_at || 0)
-    }
-  }
-}
-
 const toggleGroup = (groupKey) => {
   const index = expandedGroups.value.indexOf(groupKey)
   if (index > -1) {
     expandedGroups.value.splice(index, 1)
   } else {
     expandedGroups.value.push(groupKey)
-  }
-}
-
-const getPriorityClass = (priority) => {
-  switch (priority) {
-    case 'critical': return 'danger'
-    case 'high': return 'warning'
-    case 'medium': return 'primary'
-    case 'low': return 'success'
-    default: return 'secondary'
   }
 }
 
@@ -279,6 +256,21 @@ onMounted(() => {
 </script>
 
 <style lang="scss" scoped>
+.roadmap-list-source-badge {
+  display: inline-block;
+  margin-inline-start: 8px;
+  padding: 2px 8px;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1.6;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  vertical-align: middle;
+  border-radius: 10px;
+  color: var(--rm-review);
+  background: color-mix(in srgb, var(--rm-review) 14%, transparent);
+}
+
 .roadmap-list {
   background: var(--rm-surface);
   border-radius: 8px;
@@ -355,7 +347,7 @@ onMounted(() => {
 
   &:hover {
     border-color: var(--roadmap-accent);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 8px var(--rm-shadow);
     transform: translateY(-1px);
   }
 }

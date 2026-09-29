@@ -8,7 +8,7 @@ The Roadmap Plugin uses a product-based architecture where roadmap items are org
 
 ### Free Version (Base Plugin)
 - **Single Product**: Limited to the default "main" product
-- **Shortcode**: `[roadmap product="main"]` (product parameter is required)
+- **Shortcode**: `[roadmap]` or `[roadmap product="main"]` (Free always shows the "main" board; another product shows "main" to visitors and a Pro notice to editors)
 - **Product Taxonomy**: Registered but not editable
 - **Admin Menu**: No Products menu item
 

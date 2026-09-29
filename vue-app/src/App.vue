@@ -1,5 +1,5 @@
 <template>
-  <div class="roadmap-app" :class="{ 'roadmap-dark': darkMode, 'roadmap-pro': config.is_pro }">
+  <div class="roadmap-app" :class="{ 'roadmap-pro': config.is_pro }">
     <div class="roadmap-container">
       <!-- Header -->
       <RoadmapHeader 
@@ -10,8 +10,9 @@
         :enable-suggestions="config.settings.enable_suggestions"
         :pro-features="config.pro_features"
         :product-name="currentProductName"
-        @toggle-dark-mode="toggleDarkMode"
         @suggest="openSuggestionModal"
+        :show-title="config.show_title !== false"
+        :show-search="config.show_search !== false"
       />
       
       <!-- Filters -->
@@ -21,6 +22,7 @@
         v-model:category="selectedCategory"
         v-model:product="selectedProduct"
         v-model:sortBy="selectedSort"
+        :show-sort="viewMode !== 'ideabox'"
         :statuses="statuses"
         :categories="categories"
         :products="products"
@@ -90,6 +92,8 @@
           :pro-features="config.pro_features"
           @item-click="openDetailModal"
           @update-item="updateItem"
+          @edit-item="openItemModal"
+          @delete-item="deleteItem"
         />
         
         <!-- List View (Pro) -->
@@ -103,6 +107,8 @@
           :pro-features="config.pro_features"
           @item-click="openDetailModal"
           @update-item="updateItem"
+          @edit-item="openItemModal"
+          @delete-item="deleteItem"
         />
         
         <!-- Cards View (Pro) -->
@@ -116,11 +122,14 @@
           :pro-features="config.pro_features"
           @item-click="openDetailModal"
           @update-item="updateItem"
+          @edit-item="openItemModal"
+          @delete-item="deleteItem"
         />
 
         <!-- Idea Box View (Pro) -->
         <RoadmapIdeaBox
           v-else-if="viewMode === 'ideabox' && config.is_pro"
+          v-model:sort="selectedSort"
           :items="filteredItems"
           :statuses="statuses"
           :categories="categories"
@@ -166,7 +175,7 @@
 
         <!-- Load more -->
         <div
-          v-if="!loading && totalItems > items.length"
+          v-if="!boardLimit && !loading && totalItems > items.length"
           class="roadmap-load-more"
           style="text-align:center; margin:24px 0;"
         >
@@ -284,12 +293,15 @@ const products = ref([])
 // UI State
 const currentMode = ref(props.config.mode || 'view')
 const viewMode = ref(props.config.template || 'minimal')
-const darkMode = ref(false)
 const searchQuery = ref('')
-const selectedStatus = ref('')
-const selectedCategory = ref('')
+const selectedStatus = ref(props.config.status || '')
+const selectedCategory = ref(props.config.category || '')
 const selectedProduct = ref(props.config.product || '')
 const selectedSort = ref(props.config.default_sort || '')
+// A board's "Number of items" option (limit) shows exactly that many, with no
+// Load more; otherwise pages follow the global items-per-page setting.
+const boardLimit = Number(props.config.limit) || 0
+const pageSize = computed(() => boardLimit || props.config.settings?.items_per_page || 100)
 
 // Modal State
 const showItemModal = ref(false)
@@ -345,70 +357,12 @@ const currentProductName = computed(() => {
 })
 
 const filteredItems = computed(() => {
-  let filtered = items.value
-  
-  // Search filter
-  if (searchQuery.value) {
-    const query = searchQuery.value.toLowerCase()
-    filtered = filtered.filter(item => 
-      item.title.toLowerCase().includes(query) ||
-      item.content.toLowerCase().includes(query)
-    )
-  }
-  
-  // Status filter
-  if (selectedStatus.value) {
-    filtered = filtered.filter(item => 
-      item.status.some(s => s.slug === selectedStatus.value)
-    )
-  }
-  
-  // Category filter
-  if (selectedCategory.value) {
-    filtered = filtered.filter(item => 
-      item.categories.some(c => c.slug === selectedCategory.value)
-    )
-  }
-  
-  // Product filter (Pro). The server already scopes /items by the mandatory
-  // product param, so this is a client-side safety net for product switching.
-  // item.product may be a single object ({id,name,slug}) or an array; items
-  // without product data are not excluded (the server already filtered them).
-  if (selectedProduct.value && props.config.is_pro) {
-    filtered = filtered.filter(item => {
-      if (!item.product) return true
-      if (Array.isArray(item.product)) {
-        return item.product.some(p => p.slug === selectedProduct.value)
-      }
-      return item.product.slug === selectedProduct.value
-    })
-  }
-  
-  // Sort items
-  if (selectedSort.value) {
-    filtered = [...filtered].sort((a, b) => {
-      switch (selectedSort.value) {
-        case 'votes':
-          return (b.votes || 0) - (a.votes || 0)
-        case 'recent':
-          return new Date(b.date) - new Date(a.date)
-        case 'comments':
-          return (b.comment_count || 0) - (a.comment_count || 0)
-        case 'priority':
-          const priorityOrder = { critical: 4, high: 3, medium: 2, low: 1 }
-          const aPriority = priorityOrder[a.priority] || 0
-          const bPriority = priorityOrder[b.priority] || 0
-          return bPriority - aPriority
-        default:
-          return 0
-      }
-    })
-  }
-  
-  return filtered
+  // The server applies product, status, category, search and sort, so this is
+  // just the loaded list. Kept as a computed so the templates that bind to it
+  // do not all have to change.
+  return items.value
 })
 
-// API setup
 const apiCall = async (endpoint, options = {}) => {
   const url = `${props.config.api_url}${endpoint}`
   const defaultOptions = {
@@ -417,7 +371,7 @@ const apiCall = async (endpoint, options = {}) => {
       'Content-Type': 'application/json'
     }
   }
-  
+
   const response = await fetch(url, {
     ...defaultOptions,
     ...options,
@@ -426,21 +380,33 @@ const apiCall = async (endpoint, options = {}) => {
       ...options.headers
     }
   })
-  
+
   if (!response.ok) {
     const error = await response.json().catch(() => ({ message: props.config.i18n.network_error || 'Network error' }))
     throw new Error(error.message || props.config.i18n.api_call_failed || 'API call failed')
   }
-  
+
   return response.json()
 }
 
 // Methods
 const fetchItemsPage = async (page) => {
+  // Filters and sort go to the server. Filtering the loaded page in the browser
+  // silently produced partial results on any board larger than one page - a
+  // "Completed" filter showed only the completed items that happened to be in
+  // the first 100, with no indication anything was missing.
   const params = new URLSearchParams({
     product: selectedProduct.value || props.config.product,
-    per_page: props.config.settings?.items_per_page || 100,
+    per_page: pageSize.value,
     page: page
+  })
+  if (selectedStatus.value) params.set('status', selectedStatus.value)
+  if (selectedCategory.value) params.set('category', selectedCategory.value)
+  if (searchQuery.value) params.set('search', searchQuery.value)
+  if (selectedSort.value) params.set('sort', selectedSort.value)
+  // Fixed board filters set by the owner (Pro API): priority and target-date range.
+  ;['priority', 'date_from', 'date_to'].forEach((key) => {
+    if (props.config[key]) params.set(key, props.config[key])
   })
   return await apiCall(`/items?${params}`)
 }
@@ -466,7 +432,7 @@ const fetchItems = async () => {
 
 // Append the next page of items (Load more), preserving the loaded list.
 const loadMore = async () => {
-  if (loadingMore.value || items.value.length >= totalItems.value) {
+  if (boardLimit || loadingMore.value || items.value.length >= totalItems.value) {
     return
   }
   loadingMore.value = true
@@ -485,7 +451,7 @@ const loadMore = async () => {
     // Stop showing the button once the server runs out of rows, even if the
     // reported total disagrees with the number of rows actually returned
     // (deleted items, or a pro filter that makes count and rows disagree).
-    const perPage = props.config.settings?.items_per_page || 100
+    const perPage = pageSize.value
     if (fetched.length < perPage || next >= totalPages.value) {
       totalItems.value = items.value.length
     }
@@ -530,11 +496,8 @@ const updateItem = async (itemId, updates) => {
   }
 }
 
+// RoadmapItem asks for a second click before emitting delete.
 const deleteItem = async (itemId) => {
-  if (!confirm(props.config.i18n.confirm_delete)) {
-    return
-  }
-  
   try {
     await apiCall(`/items/${itemId}`, {
       method: 'DELETE'
@@ -581,7 +544,11 @@ const saveItem = async (itemData) => {
 }
 
 const submitVote = async (itemId, voteValue) => {
-  if (!props.config.user) {
+  // Gate on the capability, not on the presence of a user. The server has
+  // always accepted guest votes when allow_guest_voting is on (can_vote() in
+  // class-roadmap-api.php); this guard was blocking the request before the
+  // setting was ever consulted, so the feature was unreachable.
+  if (!props.config.user && !props.config.settings?.allow_guest_voting) {
     showNotification(props.config.i18n.login_required)
     return
   }
@@ -736,10 +703,6 @@ const handleDetailComment = () => {
   openCommentModal(detailItem.value)
 }
 
-const toggleDarkMode = () => {
-  darkMode.value = !darkMode.value
-}
-
 // Show notification helper
 const showNotification = (message, type = 'success') => {
   notification.value = {
@@ -759,6 +722,22 @@ watch(selectedProduct, () => {
   if (props.config.is_pro) {
     fetchItems()
   }
+})
+
+// Status, category and sort are server-side now, so changing one has to
+// re-query rather than re-filter what is already loaded.
+watch([selectedStatus, selectedCategory, selectedSort], () => {
+  fetchItems()
+})
+
+// Search is debounced so typing does not fire a request per keystroke.
+let searchDebounceTimer = null
+watch(searchQuery, () => {
+  if (searchDebounceTimer) clearTimeout(searchDebounceTimer)
+  searchDebounceTimer = setTimeout(() => {
+    searchDebounceTimer = null
+    fetchItems()
+  }, 350)
 })
 
 // Open single item for editing
@@ -816,10 +795,12 @@ defineExpose({
   left: 50%;
   transform: translate(-50%, -50%) scale(0.8);
   padding: 20px 30px;
-  background: #fff;
-  color: #333;
+  // Status colours come from the plugin's token palette: each solid clears
+  // WCAG AA on the surface, and the dark theme block swaps them.
+  background: var(--rm-elevated);
+  color: var(--rm-text);
   border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 12px var(--rm-shadow-strong);
   font-size: 16px;
   font-weight: 500;
   text-align: center;
@@ -827,8 +808,8 @@ defineExpose({
   z-index: 99999;
   
   &-success {
-    color: #4caf50;
-    border: 2px solid #4caf50;
+    color: var(--rm-done);
+    border: 2px solid var(--rm-done);
     
     &::before {
       content: "✓ ";
@@ -839,8 +820,10 @@ defineExpose({
   }
   
   &-error {
-    color: #f44336;
-    border: 2px solid #f44336;
+    // The dark --rm-cancelled is tuned for its tint, not the elevated surface;
+    // mixing toward the heading colour keeps the text AA in both modes.
+    color: color-mix(in srgb, var(--rm-cancelled) 65%, var(--rm-heading));
+    border: 2px solid var(--rm-cancelled);
     
     &::before {
       content: "✕ ";
@@ -850,29 +833,7 @@ defineExpose({
     }
   }
   
-  &-warning {
-    color: #ff9800;
-    border: 2px solid #ff9800;
-    
-    &::before {
-      content: "⚠ ";
-      font-size: 20px;
-      font-weight: bold;
-      margin-right: 8px;
-    }
-  }
   
-  &-info {
-    color: #2196f3;
-    border: 2px solid #2196f3;
-    
-    &::before {
-      content: "ℹ ";
-      font-size: 20px;
-      font-weight: bold;
-      margin-right: 8px;
-    }
-  }
 }
 
 // Notification transition
