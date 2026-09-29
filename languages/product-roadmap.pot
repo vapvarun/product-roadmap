@@ -9,14 +9,14 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-28T12:08:34+00:00\n"
+"POT-Creation-Date: 2026-09-29T02:50:46+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: product-roadmap\n"
 
 #. Plugin Name of the plugin
 #: product-roadmap.php
-#: templates/archive-roadmap_item.php:96
+#: templates/archive-roadmap_item.php:99
 msgid "Product Roadmap"
 msgstr ""
 
@@ -268,23 +268,23 @@ msgstr ""
 msgid "Remove"
 msgstr ""
 
-#: includes/class-roadmap-changelog.php:1228
+#: includes/class-roadmap-changelog.php:1242
 #: templates/single-roadmap_changelog.php:75
 msgid "Major Release"
 msgstr ""
 
-#: includes/class-roadmap-changelog.php:1229
+#: includes/class-roadmap-changelog.php:1243
 #: templates/single-roadmap_changelog.php:76
 msgid "Minor Release"
 msgstr ""
 
-#: includes/class-roadmap-changelog.php:1230
+#: includes/class-roadmap-changelog.php:1244
 #: templates/archive-roadmap_changelog.php:194
 #: templates/single-roadmap_changelog.php:77
 msgid "Patch"
 msgstr ""
 
-#: includes/class-roadmap-changelog.php:1252
+#: includes/class-roadmap-changelog.php:1266
 msgid "Changes"
 msgstr ""
 
@@ -677,48 +677,48 @@ msgstr ""
 msgid "Created"
 msgstr ""
 
-#: includes/class-roadmap-cpt.php:1032
+#: includes/class-roadmap-cpt.php:1040
 msgid "Approve"
 msgstr ""
 
-#: includes/class-roadmap-cpt.php:1040
+#: includes/class-roadmap-cpt.php:1048
 msgid "Rejects this submission."
 msgstr ""
 
-#: includes/class-roadmap-cpt.php:1041
+#: includes/class-roadmap-cpt.php:1049
 msgid "Confirm reject"
 msgstr ""
 
-#: includes/class-roadmap-cpt.php:1042
+#: includes/class-roadmap-cpt.php:1050
 msgid "Reject"
 msgstr ""
 
-#: includes/class-roadmap-cpt.php:1053
-#: includes/class-roadmap-cpt.php:1099
+#: includes/class-roadmap-cpt.php:1061
+#: includes/class-roadmap-cpt.php:1107
 msgid "No submission specified"
 msgstr ""
 
-#: includes/class-roadmap-cpt.php:1062
+#: includes/class-roadmap-cpt.php:1070
 msgid "You do not have permission to approve submissions"
 msgstr ""
 
-#: includes/class-roadmap-cpt.php:1067
-#: includes/class-roadmap-cpt.php:1113
+#: includes/class-roadmap-cpt.php:1075
+#: includes/class-roadmap-cpt.php:1121
 msgid "Invalid submission"
 msgstr ""
 
 #. translators: %s: Post title
-#: includes/class-roadmap-cpt.php:1084
+#: includes/class-roadmap-cpt.php:1092
 #, php-format
 msgid "\"%s\" has been approved and published!"
 msgstr ""
 
-#: includes/class-roadmap-cpt.php:1108
+#: includes/class-roadmap-cpt.php:1116
 msgid "You do not have permission to reject submissions"
 msgstr ""
 
 #. translators: %s: Post title
-#: includes/class-roadmap-cpt.php:1125
+#: includes/class-roadmap-cpt.php:1133
 #, php-format
 msgid "\"%s\" has been rejected and moved to trash."
 msgstr ""
@@ -1323,7 +1323,7 @@ msgid "Manage your product roadmaps. Each product has its own roadmap that can b
 msgstr ""
 
 #: includes/class-roadmap-settings.php:901
-#: templates/archive-roadmap_item.php:178
+#: templates/archive-roadmap_item.php:181
 msgid "No Products Yet"
 msgstr ""
 
@@ -1364,7 +1364,7 @@ msgid "View Items"
 msgstr ""
 
 #: includes/class-roadmap-settings.php:1009
-#: templates/archive-roadmap_item.php:161
+#: templates/archive-roadmap_item.php:164
 msgid "View Roadmap"
 msgstr ""
 
@@ -2568,8 +2568,8 @@ msgstr ""
 
 #: templates/archive-roadmap_changelog.php:48
 #: templates/archive-roadmap_changelog.php:144
-#: templates/archive-roadmap_item.php:49
-#: templates/archive-roadmap_item.php:108
+#: templates/archive-roadmap_item.php:52
+#: templates/archive-roadmap_item.php:111
 msgid "Search products..."
 msgstr ""
 
@@ -2584,7 +2584,7 @@ msgid "Stay up to date with the latest changes and improvements."
 msgstr ""
 
 #: templates/archive-roadmap_changelog.php:141
-#: templates/archive-roadmap_item.php:105
+#: templates/archive-roadmap_item.php:108
 msgid "Jump to product:"
 msgstr ""
 
@@ -2626,17 +2626,17 @@ msgstr ""
 msgid "Check back soon for updates and release notes."
 msgstr ""
 
-#: templates/archive-roadmap_item.php:99
+#: templates/archive-roadmap_item.php:102
 msgid "Explore our product roadmaps and see what we're working on."
 msgstr ""
 
-#: templates/archive-roadmap_item.php:142
+#: templates/archive-roadmap_item.php:145
 msgid "item"
 msgid_plural "items"
 msgstr[0] ""
 msgstr[1] ""
 
-#: templates/archive-roadmap_item.php:179
+#: templates/archive-roadmap_item.php:182
 msgid "Check back soon for product roadmaps."
 msgstr ""
 
