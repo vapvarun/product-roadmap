@@ -3,6 +3,10 @@
 Buyer-level roll-up of what the free plugin does, verified against code. Status:
 `YES` shipped · `PARTIAL` works with a limit · `NO` not in free (often Pro).
 
+_Reviewed 2026-09-29 for the 1.8.0 release gate: no capability status changed since the
+last update (all 1.8.0-cycle commits were bugfixes to already-YES surfaces, not new
+capabilities or regressions to what's claimed here)._
+
 ## Collect feedback
 
 | Can it… | Status | Delivered by |

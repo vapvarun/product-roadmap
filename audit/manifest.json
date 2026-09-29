@@ -1824,7 +1824,9 @@
   },
   "generated": {
     "generator": "wp-plugin-qa scanner",
-    "schema": "v3-functional"
+    "schema": "v3-functional",
+    "reviewed_at": "2026-09-29",
+    "reviewed_note": "Reviewed for 1.8.0 release-gate freshness. No structural additions since 2026-07-12 (REST routes/AJAX handlers/CPTs/shortcodes/tables unchanged) - all commits in the gap were bugfixes/improvements to existing surfaces (verified via git log --name-only against includes/). rest.endpoints/ajax/shortcodes remain empty due to the pre-existing wrapper-registration generator blind spot documented in CLAUDE.md; ground truth is the CLAUDE.md prose counts, not these fields."
   },
   "rest": {
     "namespace": "",
