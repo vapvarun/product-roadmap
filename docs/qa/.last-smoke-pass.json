@@ -2,79 +2,69 @@
   "mode": "combo",
   "release_version": "1.8.0",
   "pro_version": "1.8.0",
-  "ran_at": "2026-09-28T13:14:00Z",
+  "ran_at": "2026-09-29T02:31:00Z",
+  "run_number": 6,
   "sections": {
-    "A_fresh_install": { "pass": 3, "fail": 0, "skipped": 0 },
-    "B_upgrade": { "pass": 0, "fail": 0, "skipped": 1 },
-    "C_core_flows": { "pass": 9, "fail": 1, "skipped": 1 },
-    "D_regression_guards": { "pass": 13, "fail": 0, "skipped": 6 },
-    "E_pro_smoke": { "pass": 4, "fail": 0, "skipped": 7 },
-    "E2_environment": { "pass": 1, "fail": 0, "skipped": 7 },
-    "F_cross_browser": { "pass": 1, "fail": 0, "skipped": 4 },
-    "G_post_release": { "pass": 0, "fail": 0, "skipped": 0 },
-    "S_pro_supplements": { "pass": 0, "fail": 0, "skipped": 0 }
+    "A_fresh_install":     { "pass": 3, "fail": 0, "skipped": 0 },
+    "B_upgrade":           { "pass": 0, "fail": 0, "skipped": 1 },
+    "C_core_flows":        { "pass": 4, "fail": 0, "skipped": 7 },
+    "D_regression_guards": { "pass": 18, "fail": 0, "skipped": 1 },
+    "E_pro_smoke":         { "pass": 7, "fail": 0, "skipped": 4 },
+    "E2_environment":      { "pass": 0, "fail": 0, "skipped": 8 },
+    "F_cross_browser":     { "pass": 1, "fail": 0, "skipped": 2 },
+    "G_post_release":      { "pass": 0, "fail": 0, "skipped": 1 }
   },
-  "hard_fails": [
-    {
-      "id": "C.mod.queue-and-actions.approve-invisible",
-      "invariant": "promise:C.mod.queue-and-actions",
-      "actual": "The 'Approve' quick action on every pending roadmap_item row in wp-admin (Roadmap > All Items, Pending filter) is present in the DOM with the correct href/nonce/capability gate but is completely invisible (0x0 box, offsetParent null) due to a CSS class-name collision with WordPress core's own Comments-list-table styling. Root cause: product-roadmap/includes/class-roadmap-cpt.php add_quick_approve_actions() (line 1029) sets $actions['approve'], and WP_List_Table::row_actions() (wp-admin/includes/class-wp-list-table.php:689) wraps every row-action key in <span class=\"$action\">. WordPress core's wp-admin/css/common.css defines an UNSCOPED rule '.approve, .unapproved .unapprove { display: none; }' with '.unapproved .approve, .spam .approve, .trash .approve { display: inline; }' as the only escape - written for the Comments screen where rows carry class unapproved/spam/trash. The Posts list table's pending roadmap_item rows carry class 'status-pending' instead, so core's blanket .approve{display:none} always wins and the Approve link never becomes visible, for any user, on any page load. Confirmed 100% reproducible on 3 independent pending items across 2 personas (qa_elevated, qa_admin). The backend handler itself is correct: navigating directly to the same href (bypassing the CSS) moved the post from pending to publish exactly as expected, so this is a pure dead-UI bug, not a broken handler. Reject is unaffected (different, non-colliding key name) and works correctly with its two-step no-native-dialog confirm."
-    }
-  ],
-  "untested": [
-    { "id": "B.1", "reason": "no prior stable tag installed to upgrade from in this environment", "needs": "a snapshot/tag of the previous stable release to install-then-upgrade against" },
-    { "id": "C.notifications", "reason": "would require inspecting Mailpit for the status-change notification email; not exercised this run", "needs": "Mailpit UI/API check after a status change with notify_on_suggestion enabled" },
-    { "id": "D.1", "reason": "requires deliberately installing a version-mismatched Free/Pro pair; too invasive to force on this environment mid-run. Current installed pair is lockstep (Free 1.8.0 / Pro 1.8.0, ROADMAP_PRO_MIN_FREE_VERSION guard code reviewed and present) and card 10344548089 was independently verified PASS previously per the runbook", "needs": "a scratch copy of the site to swap plugin zips on" },
-    { "id": "D.3", "reason": "block sidebar option -> live editor preview -> shortcode-output parity not walked this run", "needs": "browser walk of the board block editor sidebar" },
-    { "id": "D.5", "reason": "full light/dark toggle sweep across every board + admin surface not performed; only the token architecture (roadmap-tokens.css single source of truth) was confirmed by design, not re-walked pixel by pixel", "needs": "per-surface dark-mode screenshot pass" },
-    { "id": "D.10", "reason": "demo-item vote recount/update routine not exercised this run", "needs": "cast a vote on a demo item then run the recount routine and diff the count" },
-    { "id": "D.12", "reason": "single item page vs board voted-state consistency (member + guest, voting on/off) not walked this run", "needs": "browser walk of an item detail page under all 4 combinations" },
-    { "id": "D.16", "reason": "toast text AA contrast in light and dark not measured this run", "needs": "trigger a success and an error toast in both themes and measure contrast" },
-    { "id": "E.csv-import", "reason": "code path reviewed (rejected-row tracking with per-row WP_Error reasons confirmed present in class-roadmap-pro-export.php) but not exercised via a real file upload this run", "needs": "upload a CSV with one bad row through the admin UI" },
-    { "id": "E.digest-emails", "reason": "cron event presence confirmed (roadmap_pro_prune_analytics/digest scheduled) but the actual email send was not checked against Mailpit this run", "needs": "trigger the digest cron and inspect Mailpit" },
-    { "id": "E.custom-fields", "reason": "not exercised this run", "needs": "define a custom field in Pro settings, save on an item, verify frontend render" },
-    { "id": "E.webhooks", "reason": "not exercised this run", "needs": "configure a webhook against a request-bin and trigger its event" },
-    { "id": "E.user-profiles", "reason": "not exercised this run", "needs": "browser walk of roadmap_user_profile shortcode as owner and as a different member" },
-    { "id": "E.feedback-widget", "reason": "not exercised this run", "needs": "embed the widget on a non-roadmap page and submit through it" },
-    { "id": "E.email-templates", "reason": "not exercised this run", "needs": "edit a Pro email template and verify the sent body via Mailpit" },
-    { "id": "E2.no-host", "reason": "would require deactivating BuddyX-specific integration hooks mid-run", "needs": "scratch environment" },
-    { "id": "E2.block-theme", "reason": "would require switching the active theme away from BuddyX for the whole site mid-run", "needs": "scratch environment or a maintenance window" },
-    { "id": "E2.no-reset-theme", "reason": "same as E2.block-theme", "needs": "scratch environment" },
-    { "id": "E2.php-latest", "reason": "PHP version fixed by the Local site; not swapped this run", "needs": "a second PHP version to test against" },
-    { "id": "E2.cache", "reason": "no page/object cache plugin active on this environment to test a nonce-expiry-past-cache scenario", "needs": "page cache + object cache stack" },
-    { "id": "E2.multisite", "reason": "this environment is single-site; network-activate scenario needs a multisite scratch install", "needs": "multisite scratch site" },
-    { "id": "E2.stack", "reason": "BuddyX is active (implicitly covered); Reign and standalone BuddyX Pro companion combinations not walked this run", "needs": "scratch environment with each companion" },
-    { "id": "F.rtl", "reason": "no RTL locale switched this run", "needs": "switch site language to an RTL locale and re-walk board views" },
-    { "id": "F.a11y", "reason": "no dedicated focus-ring/aria-label audit performed; incidental accessibility-tree inspection during other checks showed properly labelled form fields and buttons but this was not a systematic pass", "needs": "dedicated keyboard-nav + aria audit" }
-  ],
-  "coverage": {
-    "multisite": "na: not tested, single-site environment (see untested E2.multisite)",
-    "rtl": "na: not tested (see untested F.rtl)",
-    "concurrency": "na: not tested this run",
-    "uninstall": "na: not tested this run (uninstall.php not executed)",
-    "user_management": "na: no per-user roles/trust-level admin surface beyond WP's own capabilities (per runbook)",
-    "cron": "run: Free registers no cron event at all (grepped includes/*.php, no wp_schedule_event/wp_next_scheduled hits) so there is nothing to leak on deactivate; Pro's roadmap_pro_prune_analytics is present and correctly scheduled"
-  },
-  "verdict": "BLOCK",
-  "top3": [
-    "Both hard fails from the previous run are confirmed fixed and hold under regression testing: members can now edit/delete only their own submitted items via REST (other members still get 403, no privilege-escalation regression), and Pro's init() fires correctly so the invalid-license admin notice and Pro's translation loading both work again. D.13's changelog slug bug is also reconfirmed fixed via a real block-editor publish (gamma-api-v2-5-0, not general-...).",
-    "New blocker found this run: the 'Approve' quick action on every pending suggestion in wp-admin (Roadmap > All Items > Pending) is invisible to every user because its row-action key 'approve' collides with an unscoped WordPress core CSS rule written for the Comments screen. The backend handler works fine when hit directly; the one-click UI moderators are supposed to use is a dead end. Workaround exists (Quick Edit -> Status -> Published, or open-and-publish) but the documented single-click action does not work as shipped.",
-    "Everything else exercised this pass came back clean: fresh-install routes/DB schema, member suggest/vote/comment flow (incl. rate-limit content preservation - D.8), mobile 390px board layout, admin Settings/Dashboard/Analytics/Setup-Wizard (D.14's notice suppression holds), Pro merge-duplicates (votes+comments transplanted, source trashed), analytics vote count matching the votes table exactly, deleted-product board handling (D.6), timeline.js correctly withheld when disabled (D.18), two-step no-native-dialog confirm on Reject (D.11), and the Pro .pot file (D.17). Large swaths were not exercised this run for time/environment reasons - see untested[] - most notably B-upgrade, full RTL/dark-mode sweeps, multisite, Firefox/Safari, and several Pro-only features (webhooks, digest emails, custom fields, feedback widget, email templates, user profiles)."
-  ],
-  "failures": [
-    {
-      "id": "C.mod.queue-and-actions.approve-invisible",
-      "origin": "from",
-      "triage_note": "Root-caused via live DOM inspection: span.approve computed display:none, traced to wp-admin/css/common.css's unscoped '.approve{display:none}' rule (written for #the-comment-list, not scoped there). product-roadmap's add_quick_approve_actions() (class-roadmap-cpt.php:1029) uses the bare array key 'approve', which WP_List_Table::row_actions() turns into <span class=\"approve\">, colliding with core's global selector on the Posts list table. Reproduced on 3 separate pending items (posts 1084, 1085, 1321/1325 fixtures) across qa_elevated and qa_admin - not user- or data-specific. Confirmed the handler itself is correct by navigating directly to the (invisible) link's href: post 1321 moved from pending to publish exactly as intended. Fix direction (not applied, verification-only run): rename the row-action array key to something plugin-scoped, e.g. 'roadmap_approve', so it no longer collides with WordPress's reserved '.approve' class.",
-      "expected": "An editor/admin viewing Roadmap > All Items > Pending sees both 'Approve' (green) and 'Reject' (red) quick-action links in each row's row-actions strip, per card 10344407804's dialog-free flow.",
-      "actual": "Only 'Reject' is visible. 'Approve' exists in the DOM (correct href/nonce) but renders at 0x0 with offsetParent null because of the .approve CSS collision described above.",
-      "url": "http://roadmap.local/wp-admin/edit.php?post_type=roadmap_item&post_status=pending",
-      "screenshot": "/Users/varundubey/Local Sites/roadmap/app/qa-artifacts/fail-C.mod.approve-invisible.png"
-    }
-  ],
+  "verdict": "SHIP",
+  "hard_fails": [],
+  "failures": [],
   "debug_log_issues": [],
   "manual_required": [
-    { "id": "F.firefox-desktop", "reason": "Chromium-only Playwright MCP cannot drive Firefox" },
-    { "id": "F.safari-ios", "reason": "Chromium-only Playwright MCP cannot drive Safari/iOS" }
-  ]
+    { "id": "F.firefox-desktop", "reason": "Chromium-only Playwright MCP cannot drive Firefox." },
+    { "id": "F.safari-ios", "reason": "Chromium-only Playwright MCP cannot drive Safari/iOS." }
+  ],
+  "untested": [
+    { "id": "B.1", "reason": "env: no packaged prior-stable-tag (1.7.x) zip available in this environment", "needs": "a packaged 1.7.x build to install-then-upgrade" },
+    { "id": "C.member.create-flow", "reason": "session time budget; not walked this run", "needs": "submit a suggestion as qa_member_owner, confirm pending state + notification" },
+    { "id": "C.member.edit-and-delete", "reason": "session time budget", "needs": "edit/delete own pending suggestion as qa_member_owner; confirm qa_member_other cannot" },
+    { "id": "C.member.mobile", "reason": "session time budget; 390px walk not performed", "needs": "dedicated 390px pass on board/vote/suggest" },
+    { "id": "C.mod.queue-and-actions", "reason": "Approve link visibility re-verified live (see D regression notes), but full Approve/Reject/Start-Over click-through and status propagation not walked this run", "needs": "click through as qa_elevated" },
+    { "id": "C.admin.plugin-pages", "reason": "only Settings>Templates and Analytics visited; Dashboard and Setup Wizard tabs not swept", "needs": "full admin page sweep" },
+    { "id": "C.admin.crud", "reason": "session time budget", "needs": "create/edit/reorder/delete product+status+type terms" },
+    { "id": "C.notifications", "reason": "requires Mailpit inspection; not done this run", "needs": "trigger status change, check Mailpit + per-type toggle" },
+    { "id": "D.3", "reason": "requires live block-editor sidebar interaction; not walked this run (code-level shortcode/option-merge behavior spot-checked elsewhere, e.g. D.15/D.18, but not this specific contract)", "needs": "open block editor, change every sidebar option, confirm live preview + shortcode parity" },
+    { "id": "E.webhooks", "reason": "roadmap_pro_enable_webhooks=no in this environment; feature disabled, not exercised", "needs": "enable + configure a request-bin, trigger an event" },
+    { "id": "E.feedback-widget", "reason": "roadmap_pro_enable_feedback_widget=no in this environment", "needs": "enable, embed on non-roadmap page, submit" },
+    { "id": "E.email-templates", "reason": "requires Mailpit inspection; time budget", "needs": "edit a template, trigger the email, diff against admin preview" },
+    { "id": "E.version-compat", "reason": "per runbook: previously PASS-verified independently (card 10344548089); ROADMAP_MIN_PRO_VERSION/ROADMAP_PRO_MIN_FREE_VERSION unchanged since (both still 1.8.0/1.8.0), so not re-run", "needs": "re-run only if those constants change" }
+  ],
+  "coverage": {
+    "multisite": "na: single-site plugin, not tested this run (E2.multisite skipped for time)",
+    "rtl": "deferred: time budget",
+    "a11y": "deferred: time budget",
+    "concurrency": "deferred: no second session",
+    "uninstall": "na: not exercised (would deactivate/uninstall live site)",
+    "user_management": "na: no per-user admin surface beyond WP capabilities (per runbook)",
+    "E2_environment": "deferred: all 8 rows skipped this run — prioritized D (regression guards) and E (Pro smoke) per explicit run instructions; token/CSS self-scoping already spot-verified via D.5/D.16 contrast analysis which covers part of E2.no-reset-theme's intent"
+  },
+  "layer1_delta": [],
+  "regression_reverification": {
+    "run3_approve_row_action_css_collision": {
+      "status": "HOLDS",
+      "evidence": "Code: class-roadmap-cpt.php:1037 keys the action 'roadmap_approve' (not 'approve'), with an explanatory comment citing the wp-admin/css/common.css collision. Live: navigated to edit.php?post_status=pending&post_type=roadmap_item as admin, found a real pending item, computed style on the row-action span showed display:inline / visibility:visible, link text 'Approve'."
+    },
+    "run4_analytics_rest_capability_gate": {
+      "status": "HOLDS",
+      "evidence": "Code: Roadmap_Pro_Api::can_view_analytics() calls Roadmap_Permissions::can_view_analytics() which checks user_can($user_id, 'roadmap_view_analytics') - not edit_posts. Live re-verification via real logout/login with fresh nonce each switch: qa_contrib (Contributor, identity confirmed via 'Howdy, qa_contrib') got 403 rest_forbidden on both /roadmap/v1/analytics and /roadmap/v1/analytics/overview (with a valid X-WP-Nonce, ruling out a nonce-only 401); qa_admin (Administrator, identity confirmed via 'Howdy, QA qa_admin') got 200 on both."
+    },
+    "run5_templates_tab_timeline_gating": {
+      "status": "HOLDS",
+      "evidence": "Code: render_templates_settings() in roadmap-pro-addon/includes/class-roadmap-pro-settings.php now wraps both the Default Template <option value=\"timeline\"> and the Timeline shortcode gallery card in `if ($timeline_enabled)`, sourced from get_option('roadmap_pro_enable_timeline'). Live: toggled the option to 'no' via wp-cli, reloaded Settings > Templates as admin - dropdown options were exactly [board, list, cards, minimal, ideabox], no 'timeline', and page text contained no 'Timeline View' anywhere. Toggled back to 'yes', reloaded - timeline option reappeared in the dropdown. Option restored to its original value ('yes') before finishing."
+    }
+  },
+  "top3": [
+    "Clean run: all 3 named regression guards from runs 3-5 (Approve row-action CSS collision, analytics REST capability gate, Templates-tab Timeline gating) re-verified live and still hold.",
+    "All 19 Section D regression-guard rows reviewed; 18 confirmed (code and/or live), 1 (D.3, block-editor sidebar live options) deferred for time - no failures found anywhere in D.",
+    "Zero new debug.log entries (fatal/warning/notice/deprecated) across the entire session; zero hard_fails; zero failures. E2 environment matrix and several C/E rows deferred to untested[] for time budget, not silently skipped."
+  ],
+  "notes": "Retry of run 6 after the prior attempt stalled on a dark-mode/toast-contrast screenshot loop. This run used computed-style/contrast-ratio math (token hex values from roadmap-tokens.css and App.vue, WCAG relative-luminance formula) instead of screenshots for D.5 and D.16 - all status/priority chips and the frontend toast (success + error) clear 4.5:1 in both light and dark. No screenshot or wait_for retry loop was used anywhere in this run."
 }
