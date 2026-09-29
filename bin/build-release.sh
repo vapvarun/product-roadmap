@@ -24,13 +24,23 @@ PRO_SLUG="roadmap-pro-addon"
 SKIP_BROWSER_SMOKE=0
 ALLOW_STALE_DOCS=0
 ALLOW_DIRTY=0
+SKIP_PLUGIN_CHECK=0
 for arg in "$@"; do
     case "$arg" in
         --skip-browser-smoke) SKIP_BROWSER_SMOKE=1 ;;
         --allow-stale-docs) ALLOW_STALE_DOCS=1 ;;
         --allow-dirty) ALLOW_DIRTY=1 ;;
+        --skip-plugin-check) SKIP_PLUGIN_CHECK=1 ;;
     esac
 done
+
+# WP_PATH: derived from this plugin's own location (three levels up from
+# wp-content/plugins/<slug>/), never a stored absolute path - the same repo
+# is checked out on several machines under different $HOME values. Only
+# used by the Plugin Check gate below; every other step in this script is
+# already WP-independent (grunt/vite build + zip).
+WP_PATH="$(cd "$CURRENT_DIR/../../.." && pwd)"
+[ -n "$WP_SMOKE_PATH" ] && WP_PATH="$WP_SMOKE_PATH"
 
 # Get version from plugin file
 if [ -f "product-roadmap.php" ]; then
@@ -326,6 +336,84 @@ if [ -d "$PRO_ADDON_PATH" ]; then
 else
     echo ""
     echo "3. Pro addon not found - skipping pro addon package"
+fi
+
+# -----------------------------------------------------------------------
+# Gate: Plugin Check on the BUILT zips, not the source tree - a zip-only
+# packaging bug (or a genuine security/i18n finding) only shows up on what
+# actually ships. Requires `wp` (WP-CLI) and the Plugin Check plugin active
+# in the WordPress install this repo sits under.
+#
+# Known false positive, filtered automatically: extracting a zip to a temp
+# check-slug whose directory name differs from the plugin's real text
+# domain trips WordPress.WP.I18n.TextDomainMismatch on every single
+# translatable string. This is an artifact of the temp slug name, not a
+# real defect - confirmed by re-running with a slug that matches.
+#
+# Known accepted finding, Pro only: plugin_header_invalid_license /
+# license_mismatch. Plugin Check requires a GPL-compatible header for
+# wordpress.org hosting; Pro is a commercial addon not distributed there,
+# so a correctly-declared `License: Commercial` trips this check by
+# design. Free must stay clean of this - it IS wp.org-hosted.
+# -----------------------------------------------------------------------
+if [ "$SKIP_PLUGIN_CHECK" -eq 1 ]; then
+    echo ""
+    echo -e "${YELLOW}WARN: Plugin Check gate skipped (--skip-plugin-check). Not for customer releases.${NC}"
+elif ! command -v wp &> /dev/null; then
+    echo ""
+    echo -e "${YELLOW}WARN: wp-cli not found, Plugin Check gate skipped. Not for customer releases.${NC}"
+elif [ ! -f "$WP_PATH/wp-load.php" ]; then
+    echo ""
+    echo -e "${YELLOW}WARN: WP_PATH ($WP_PATH) has no wp-load.php, Plugin Check gate skipped. Set WP_SMOKE_PATH to override.${NC}"
+else
+    echo ""
+    echo "Plugin Check gate (built zips)..."
+    echo "-------------------------------------"
+    PLUGINS_DIR="$WP_PATH/wp-content/plugins"
+
+    run_plugin_check() {
+        local ZIP="$1" REAL_SLUG="$2" IS_PRO="$3"
+        local CHECK_SLUG="${REAL_SLUG}-buildcheck"
+        local CHECK_DIR="$PLUGINS_DIR/$CHECK_SLUG"
+        rm -rf "$CHECK_DIR"
+        local EXTRACT_TMP
+        EXTRACT_TMP=$(mktemp -d)
+        unzip -q "$ZIP" -d "$EXTRACT_TMP"
+        mv "$EXTRACT_TMP/$REAL_SLUG" "$CHECK_DIR"
+        rm -rf "$EXTRACT_TMP"
+
+        local RAW
+        RAW=$(wp plugin check "$CHECK_SLUG" --format=csv --severity=error --allow-root --path="$WP_PATH" 2>&1)
+        rm -rf "$CHECK_DIR"
+
+        local REAL_ERRORS
+        REAL_ERRORS=$(echo "$RAW" | grep ",ERROR," | grep -v "TextDomainMismatch")
+        if [ "$IS_PRO" -eq 1 ]; then
+            REAL_ERRORS=$(echo "$REAL_ERRORS" | grep -v "plugin_header_invalid_license" | grep -v "license_mismatch")
+        fi
+        REAL_ERRORS=$(echo "$REAL_ERRORS" | grep -v "^$")
+
+        if [ -n "$REAL_ERRORS" ]; then
+            echo -e "${RED}✗ Plugin Check found real errors in $REAL_SLUG:${NC}"
+            echo "$REAL_ERRORS"
+            return 1
+        fi
+        echo -e "${GREEN}✓ Plugin Check clean: $REAL_SLUG${NC}"
+        return 0
+    }
+
+    CHECK_FAILED=0
+    run_plugin_check "$DIST_DIR/${PLUGIN_SLUG}-${VERSION}.zip" "$PLUGIN_SLUG" 0 || CHECK_FAILED=1
+    if [ -d "$PRO_ADDON_PATH" ] && [ -f "$PRO_DIST_DIR/${PRO_SLUG}-${PRO_VERSION}.zip" ]; then
+        run_plugin_check "$PRO_DIST_DIR/${PRO_SLUG}-${PRO_VERSION}.zip" "$PRO_SLUG" 1 || CHECK_FAILED=1
+    fi
+
+    if [ "$CHECK_FAILED" -eq 1 ]; then
+        echo -e "${RED}✗ FAIL: Plugin Check found real errors on a built zip. Fix before packaging.${NC}"
+        echo "      Emergency only: rerun with --skip-plugin-check."
+        cd "$CURRENT_DIR"
+        exit 40
+    fi
 fi
 
 # Clean up
