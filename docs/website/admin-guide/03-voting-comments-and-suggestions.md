@@ -65,7 +65,7 @@ When **User Suggestions** is on, a "Suggest a feature" button appears directly o
 
 A pending-submissions admin notice appears when there's something to review; dismissing it stays dismissed until a new suggestion arrives.
 
-![Guest Suggestions Admin](../images/product-roadmap-guest-suggestions-admin.png)
+![Guest Suggestions Admin](../images/product-roadmap-guest-suggestions-admin.webp)
 
 ## Notification emails for this activity
 
@@ -87,7 +87,7 @@ Votes and suggestions are rate-limited (per logged-in user, or per IP address fo
 - Check **Settings > Discussion** in WordPress itself allows comments.
 
 **Suggestion form not appearing**
-- Verify the shortcode is exactly `[roadmap_suggest_form]`.
+- Confirm **User Suggestions** is enabled in Settings and the board uses `[roadmap]`; the button is part of the board, not a separate shortcode.
 - Confirm the visitor is logged in (Free requires login to suggest).
 
 ## Next steps

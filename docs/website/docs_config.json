@@ -1,45 +1,31 @@
 {
-  "parent_category": "product-roadmap",
-  "subcategories": [
+  "product": "Product Roadmap",
+  "productType": "plugin",
+  "shortId": "prdm",
+  "sections": [
     {
-      "slug": "getting-started-prdm",
       "name": "Getting Started",
-      "docs": [
-        "getting-started/01-introduction.md",
-        "getting-started/02-installation.md",
-        "getting-started/03-setup-wizard.md",
-        "getting-started/04-quick-start.md"
-      ]
+      "folder": "getting-started"
     },
     {
-      "slug": "settings-prdm",
-      "name": "Settings",
-      "docs": [
-        "settings/01-general-settings.md",
-        "settings/02-notifications.md",
-        "settings/03-statuses-and-categories.md"
-      ]
-    },
-    {
-      "slug": "admin-guide-prdm",
       "name": "Admin Guide",
-      "docs": [
-        "admin-guide/01-managing-roadmap-items.md",
-        "admin-guide/02-displaying-your-roadmap.md",
-        "admin-guide/03-voting-comments-and-suggestions.md",
-        "admin-guide/04-changelog.md",
-        "admin-guide/05-multi-product-and-pro-features.md"
-      ]
+      "folder": "admin-guide"
     },
     {
-      "slug": "developer-guide-prdm",
+      "name": "Settings",
+      "folder": "settings"
+    },
+    {
       "name": "Developer Guide",
-      "docs": [
-        "developer-guide/01-architecture-overview.md",
-        "developer-guide/02-hooks-reference.md",
-        "developer-guide/03-rest-api-reference.md",
-        "developer-guide/04-shortcode-reference.md"
-      ]
+      "folder": "developer-guide"
+    },
+    {
+      "name": "FAQ",
+      "folder": "faq"
+    },
+    {
+      "name": "Troubleshooting",
+      "folder": "troubleshooting"
     }
   ]
 }

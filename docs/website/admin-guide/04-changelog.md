@@ -4,7 +4,7 @@ Document your releases and keep users informed about what shipped, separately fr
 
 ## Creating an entry
 
-![Changelog List](../images/product-roadmap-changelog-list-admin.png)
+![Changelog List](../images/product-roadmap-changelog-list-admin.webp)
 
 1. Go to **Roadmap > Changelog > Add New**.
 2. Enter a **Title** (typically the release name, e.g. "Version 2.1.0").
@@ -22,7 +22,7 @@ Document your releases and keep users informed about what shipped, separately fr
 
 ## Change types
 
-![Change Types](../images/product-roadmap-changelog-types-admin.png)
+![Change Types](../images/product-roadmap-changelog-types-admin.webp)
 
 Categorize individual changes within an entry using these built-in types:
 
@@ -39,8 +39,6 @@ Categorize individual changes within an entry using these built-in types:
 Manage type colors at **Roadmap > Settings > Changelog Types** - each type has an editable color swatch.
 
 ## Displaying your changelog
-
-![Frontend Changelog Display](../images/product-roadmap-frontend-changelog.png)
 
 ```
 [roadmap_changelog]
@@ -63,7 +61,7 @@ Entries are always ordered by release date, newest first; entries with no releas
 
 ### Archive and single pages
 
-Visit `yoursite.com/roadmap-changelog/` to see every entry, or `yoursite.com/roadmap-changelog/version-2-1-0/` for a single entry's own page.
+Visit `yoursite.com/changelog/` to see every entry, or `yoursite.com/changelog/product-slug/version-2-1-0/` for a single entry's own page.
 
 The changelog shortcode, single entry page, and archive all adopt your active theme's accent color and follow your theme's own light/dark toggle, the same as the rest of the plugin. If your theme ships a `roadmap/changelog-frontend.css` override, the changelog uses it automatically (also filterable with `roadmap_changelog_enqueue_frontend_css`).
 

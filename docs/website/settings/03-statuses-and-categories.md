@@ -9,7 +9,7 @@ Both let you view roadmap items filtered by a specific term.
 
 ## Managing statuses
 
-![Statuses Management](../images/product-roadmap-statuses-admin.png)
+![Statuses Management](../images/product-roadmap-statuses-admin.webp)
 
 Go to **Roadmap > Statuses**.
 
@@ -42,7 +42,7 @@ See the [developer guide's theming section](../developer-guide/01-architecture-o
 
 ## Managing categories
 
-![Categories Management](../images/product-roadmap-categories-admin.png)
+![Categories Management](../images/product-roadmap-categories-admin.webp)
 
 Go to **Roadmap > Categories**. Categories are hierarchical, so you can nest a category under a parent (for example, "Mobile" under "Platform").
 

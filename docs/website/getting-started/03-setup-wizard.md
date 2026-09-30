@@ -2,7 +2,7 @@
 
 The setup wizard opens automatically the first time you activate Product Roadmap. You can also reach it any time at **Roadmap > Setup Wizard**.
 
-![Setup Wizard](../images/product-roadmap-setup-wizard.png)
+![Setup Wizard](../images/product-roadmap-setup-wizard.webp)
 
 ## Step 1: Configure your product
 
