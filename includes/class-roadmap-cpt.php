@@ -27,6 +27,8 @@ class Roadmap_CPT {
 		// Custom permalink structure
 		add_filter( 'post_type_link', array( $this, 'custom_roadmap_permalinks' ), 10, 2 );
 		add_action( 'init', array( $this, 'add_rewrite_rules' ) );
+		add_action( 'wp_loaded', array( $this, 'maybe_flush_pending_rules' ) );
+		add_action( 'transition_post_status', array( $this, 'maybe_flush_for_page' ), 10, 3 );
 		add_filter( 'query_vars', array( $this, 'add_query_vars' ) );
 		add_action( 'pre_get_posts', array( $this, 'filter_roadmap_by_product' ) );
 
@@ -807,22 +809,25 @@ class Roadmap_CPT {
 
 	/**
 	 * Add custom rewrite rules for product-specific URLs
+	 *
+	 * These rules are registered 'top', so they win over WordPress's own page
+	 * rules. When the site owner has a published Page at /roadmap/ (or a child
+	 * page under it) the rules that could shadow that Page stand down. The
+	 * single-item rule is two segments deep, which no Page at /roadmap/ can
+	 * claim, so it is always registered - custom_roadmap_permalinks() always
+	 * advertises that URL and it must always resolve.
 	 */
 	public function add_rewrite_rules() {
-		// These rules are registered 'top', so they win over WordPress's own
-		// page rules. If the site already has a Page at /roadmap/ (or a child
-		// page under it) that page became unreachable - it is the owner's
-		// content, and the plugin should not take the URL from them.
-		if ( $this->slug_is_taken_by_a_page( 'roadmap' ) ) {
-			return;
-		}
+		$page_owns_base = $this->slug_is_taken_by_a_page( 'roadmap' );
 
-		// All products index: /roadmap/
-		add_rewrite_rule(
-			'^roadmap/?$',
-			'index.php?post_type=roadmap_item',
-			'top'
-		);
+		if ( ! $page_owns_base ) {
+			// All products index: /roadmap/
+			add_rewrite_rule(
+				'^roadmap/?$',
+				'index.php?post_type=roadmap_item',
+				'top'
+			);
+		}
 
 		// Single roadmap item: /roadmap/{product}/{item-slug}/
 		add_rewrite_rule(
@@ -832,11 +837,64 @@ class Roadmap_CPT {
 		);
 
 		// Product archive: /roadmap/{product}/
-		add_rewrite_rule(
-			'^roadmap/([^/]+)/?$',
-			'index.php?roadmap_product=$matches[1]&post_type=roadmap_item',
-			'top'
+		if ( ! $page_owns_base ) {
+			add_rewrite_rule(
+				'^roadmap/([^/]+)/?$',
+				'index.php?roadmap_product=$matches[1]&post_type=roadmap_item',
+				'top'
+			);
+			return;
+		}
+
+		// A Page owns /roadmap/: serve only the product archives that no child
+		// page already claims.
+		$products = get_terms(
+			array(
+				'taxonomy'   => 'roadmap_product',
+				'hide_empty' => false,
+				'fields'     => 'slugs',
+			)
 		);
+		foreach ( is_wp_error( $products ) ? array() : $products as $product_slug ) {
+			if ( $this->slug_is_taken_by_a_page( 'roadmap/' . $product_slug ) ) {
+				continue;
+			}
+			add_rewrite_rule(
+				'^roadmap/(' . preg_quote( $product_slug, '/' ) . ')/?$',
+				'index.php?roadmap_product=$matches[1]&post_type=roadmap_item',
+				'top'
+			);
+		}
+	}
+
+	/**
+	 * Flush rewrite rules when a Page under /roadmap/ is published, unpublished,
+	 * renamed or trashed - the rules above depend on which Pages exist.
+	 *
+	 * @param string  $new_status New post status.
+	 * @param string  $old_status Old post status.
+	 * @param WP_Post $post       The post.
+	 */
+	public function maybe_flush_for_page( $new_status, $old_status, $post ) {
+		if ( 'page' !== $post->post_type || ( 'publish' !== $new_status && 'publish' !== $old_status ) ) {
+			return;
+		}
+		$uri = get_page_uri( $post );
+		if ( 'roadmap' === $uri || 0 === strpos( $uri, 'roadmap/' ) ) {
+			// Rules are registered at init, before this change was saved, so
+			// rebuild them on the next request rather than now.
+			update_option( 'roadmap_flush_rewrite_rules', 1, false );
+		}
+	}
+
+	/**
+	 * Rebuild rewrite rules once after a Page under /roadmap/ changed.
+	 */
+	public function maybe_flush_pending_rules() {
+		if ( get_option( 'roadmap_flush_rewrite_rules' ) ) {
+			delete_option( 'roadmap_flush_rewrite_rules' );
+			flush_rewrite_rules();
+		}
 	}
 
 	/**

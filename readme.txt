@@ -173,6 +173,8 @@ Security and data-integrity release. Sites upgrading from any earlier version pi
 * Fix      - Turning comments off now closes them everywhere, including the single item page, which asked WordPress directly and still showed a working reply form.
 * Fix      - The roadmap archive is readable in dark mode; the heading was dark text on a dark background.
 * Fix      - The items endpoint accepts a product id as well as a slug. An id matched nothing and returned an empty board with no error.
+* Fix      - Every roadmap item returned 404 when a published Page owned /roadmap/; the single-item URL now always resolves, and the Page keeps /roadmap/.
+* Fix      - The product filter on the [roadmap] board was always hidden on Pro; it now shows unless the shortcode pins a product.
 * Security - REST routes that edit, delete or create roadmap items now check the capability against the specific post instead of the site-wide edit_posts. A Contributor could previously delete, rewrite or publish any post or page on the site through /roadmap/v1/items.
 * Security - Creating an item through the REST API no longer publishes on behalf of a user who lacks publish_posts.
 * Security - The pending-submissions notice dismissal now checks a capability alongside its nonce.
