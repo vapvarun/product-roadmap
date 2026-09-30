@@ -280,6 +280,9 @@ class Roadmap_Shortcode {
 		// shows the default product; configuration messages go to editors only.
 		$is_pro = defined( 'ROADMAP_PRO_ACTIVE' ) && ROADMAP_PRO_ACTIVE;
 		$notice = '';
+		// An explicit product= pins the board to that product; only then is the
+		// product switcher hidden.
+		$product_pinned = ! empty( $atts['product'] );
 		if ( empty( $atts['product'] ) ) {
 			// roadmap_default_product is never written - the owner's actual
 			// default lives in roadmap_default_product_id (a term ID). Resolve
@@ -357,11 +360,22 @@ class Roadmap_Shortcode {
 		$app_id = 'roadmap-app-' . uniqid();
 
 		ob_start();
+
+		/**
+		 * Fires before the main roadmap app container is output.
+		 *
+		 * Lets the Pro addon render controls that sit above the board (such as
+		 * the Roadmap / Analytics tab bar).
+		 *
+		 * @param array $atts The resolved shortcode attributes.
+		 */
+		do_action( 'roadmap_before_main_content', $atts );
+
 		// Apply the site owner's saved per-product Theme Color, scoped to this instance.
 		echo $this->accent_inline_style( $app_id, $this->get_product_accent_color( $atts['product'] ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- returns escaped, self-contained <style>.
 		?>
 		<div id="<?php echo esc_attr( $app_id ); ?>"
-			class="roadmap-app <?php echo esc_attr( $atts['class'] ); ?> <?php echo esc_attr( $atts['product'] ? 'roadmap-single-product' : '' ); ?>"
+			class="roadmap-app <?php echo esc_attr( $atts['class'] ); ?> <?php echo esc_attr( ( $product_pinned || ! $is_pro ) ? 'roadmap-single-product' : '' ); ?>"
 			data-config='<?php echo esc_attr( json_encode( $app_data ) ); ?>'>
 			<div class="roadmap-loading">
 				<?php esc_html_e( 'Loading roadmap...', 'product-roadmap' ); ?>
