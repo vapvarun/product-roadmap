@@ -1367,6 +1367,10 @@
         "listeners": []
       },
       {
+        "hook": "roadmap_before_main_content",
+        "listeners": []
+      },
+      {
         "hook": "roadmap_after_main_content",
         "listeners": []
       },
@@ -1713,9 +1717,15 @@
         },
         {
           "type": "action",
+          "hookName": "roadmap_before_main_content",
+          "file": "includes/class-roadmap-shortcode.php",
+          "line": 372
+        },
+        {
+          "type": "action",
           "hookName": "roadmap_after_main_content",
           "file": "includes/class-roadmap-shortcode.php",
-          "line": 381
+          "line": 395
         },
         {
           "type": "filter",
@@ -2443,9 +2453,14 @@
       "file": "includes/class-roadmap-shortcode.php:354"
     },
     {
+      "hook": "roadmap_before_main_content",
+      "type": "action",
+      "file": "includes/class-roadmap-shortcode.php:372"
+    },
+    {
       "hook": "roadmap_after_main_content",
       "type": "action",
-      "file": "includes/class-roadmap-shortcode.php:381"
+      "file": "includes/class-roadmap-shortcode.php:395"
     },
     {
       "hook": "roadmap_changelog_shortcode_args",
