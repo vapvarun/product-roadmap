@@ -4,7 +4,7 @@ Roadmap items are a custom post type, so creating and editing them feels like wo
 
 ## Creating an item
 
-![Add New Roadmap Item](../images/product-roadmap-add-new-item.png)
+![Add New Roadmap Item](../images/product-roadmap-add-new-item.webp)
 
 1. Go to **Roadmap > Add New**.
 2. Enter a **Title** - keep it concise and specific ("Add dark mode toggle" reads better than "Dark mode").
@@ -31,7 +31,7 @@ Roadmap items are a custom post type, so creating and editing them feels like wo
 
 Go to **Roadmap > All Items**.
 
-![All Items List](../images/product-roadmap-all-items-list.png)
+![All Items List](../images/product-roadmap-all-items-list.webp)
 
 - **Quick Edit** - hover over an item and click Quick Edit to change status, category, or other fields inline without opening the full editor.
 - **Full edit** - click the item title to change any field, including the description and the Roadmap Item Details meta box.

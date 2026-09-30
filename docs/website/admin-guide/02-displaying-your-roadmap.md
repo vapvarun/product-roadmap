@@ -2,8 +2,6 @@
 
 Product Roadmap displays through shortcodes, so you can drop a roadmap onto any page, post, or widget area without touching code.
 
-![Frontend Roadmap Display](../images/product-roadmap-frontend-board.png)
-
 ## The basic shortcode
 
 ```

@@ -2,7 +2,7 @@
 
 Go to **Roadmap > Settings** to configure the plugin. The General tab covers your product identity, display defaults, and who can vote, comment, and suggest.
 
-![Settings Page](../images/product-roadmap-settings-admin.png)
+![Settings Page](../images/product-roadmap-settings-admin.webp)
 
 ## Product configuration
 

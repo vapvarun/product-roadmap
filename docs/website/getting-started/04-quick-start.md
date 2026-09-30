@@ -4,7 +4,7 @@ Once the plugin is active and the setup wizard has run, here's the fastest path 
 
 ## Add your first item
 
-![Add New Roadmap Item](../images/product-roadmap-add-new-item.png)
+![Add New Roadmap Item](../images/product-roadmap-add-new-item.webp)
 
 1. Go to **Roadmap > Add New**.
 2. Enter a title (for example, "Dark Mode Support").
