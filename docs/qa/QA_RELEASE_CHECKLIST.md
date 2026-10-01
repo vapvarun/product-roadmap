@@ -84,7 +84,7 @@ find wp-content/plugins/product-roadmap -name "*.php" \
 ### PHPUnit
 
 - [ ] `composer test` — all tests pass
-- [ ] PHP matrix covers the declared floor (`Requires PHP: 7.4`) AND current stable (8.3 / 8.4 at minimum)
+- [ ] PHP matrix covers the declared floor (`Requires PHP: 8.1`) AND current stable (8.3 / 8.4 at minimum)
 - [ ] WP matrix covers declared `Requires at least:` AND current stable AND `latest`
 
 ```bash

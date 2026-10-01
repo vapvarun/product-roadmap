@@ -53,7 +53,7 @@ The free version is a complete, standalone product for a single roadmap. Pro add
 | Requirement | Version |
 |---|---|
 | WordPress | 5.8 or higher |
-| PHP | 7.4 or higher |
+| PHP | 8.1 or higher |
 
 ## Getting help
 

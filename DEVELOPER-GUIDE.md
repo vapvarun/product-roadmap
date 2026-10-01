@@ -402,7 +402,7 @@ npm run dev
 ### Code Standards
 
 - Follow WordPress Coding Standards
-- Use PHP 7.4+ features
+- Use PHP 8.1+ features
 - Document all functions with PHPDoc
 - Test on latest 3 WordPress versions
 - Ensure PHP 8.0+ compatibility

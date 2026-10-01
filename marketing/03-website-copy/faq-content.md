@@ -215,7 +215,7 @@ Yes. Assign multiple products to any item.
 ## TECHNICAL QUESTIONS
 
 ### What are the requirements?
-WordPress 5.8+, PHP 7.4+
+WordPress 5.8+, PHP 8.1+
 
 ### Does it work with WooCommerce?
 Yes. Product Roadmap is compatible with WooCommerce sites.

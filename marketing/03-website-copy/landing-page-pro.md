@@ -396,7 +396,7 @@ Get analytics, timeline views, and multi-product support. One-time purchase, lif
 
 ### Requirements
 - WordPress 5.8+
-- PHP 7.4+
+- PHP 8.1+
 - Product Roadmap Free plugin (included)
 
 ---
