@@ -6,7 +6,7 @@
     "textDomain": "product-roadmap",
     "domainPath": "/languages",
     "requiresWP": "5.8",
-    "requiresPHP": "7.4",
+    "requiresPHP": "8.1",
     "description": "Create public product roadmaps to share your vision, collect user feedback, and build products your customers actually want.",
     "author": "wbcomdesigns",
     "pluginURI": "https://wbcomdesigns.com/plugins/product-roadmap/",

@@ -320,7 +320,7 @@ Download the free plugin, set up in 5 minutes, and start collecting feedback tod
 - Version: 1.3.0
 - WordPress.org Rating: [current rating]
 - Active Installations: [current count]
-- Requires: WordPress 5.8+, PHP 7.4+
+- Requires: WordPress 5.8+, PHP 8.1+
 
 ### Support Links
 - Documentation
