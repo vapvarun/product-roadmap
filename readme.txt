@@ -1,9 +1,9 @@
 === Product Roadmap ===
 Contributors: wbcomdesigns, vapvarun
 Tags: roadmap, feature requests, user feedback, changelog, feature voting
-Requires at least: 5.8
+Requires at least: 6.5
 Tested up to: 7.1
-Stable tag: 1.8.0
+Stable tag: 1.8.1
 Requires PHP: 8.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -61,17 +61,20 @@ Every day, your customers have ideas about how to improve your product. Most bus
 * **Gutenberg Block** - Build roadmaps visually in the block editor
 * **Priority Support** - Direct help from our team
 
-== Part of the Wbcom Designs Ecosystem ==
+Learn more about [Product Roadmap Pro](https://wbcomdesigns.com/downloads/product-roadmap-pro/).
 
-Product Roadmap is built by Wbcom Designs, makers of a large family of WordPress and community products - including the BuddyX and Reign themes and dozens of BuddyPress, bbPress, and WooCommerce extensions. Pair Product Roadmap with your community or membership site to close the loop between what your members ask for and what you build next.
+== More from Wbcom Designs ==
 
-Explore more at [wbcomdesigns.com](https://wbcomdesigns.com/).
+* [BuddyX](https://wordpress.org/themes/buddyx/) - free community theme for BuddyPress and BuddyBoss sites.
+* [BuddyNext](https://buddynext.com/features/) - a complete community platform for WordPress.
+* [Jetonomy](https://jetonomy.org/features/) - modern discussion forums for WordPress.
+* [WB Gamification](https://wbcomdesigns.com/downloads/wordpress-gamification-plugin/) - points, badges and leaderboards for your members.
 
 == Installation ==
 
 1. Upload the plugin files to the `/wp-content/plugins/product-roadmap` directory, or install the plugin through the WordPress plugins screen directly.
 2. Activate the plugin through the 'Plugins' screen in WordPress.
-3. Navigate to Roadmap → Dashboard to configure the plugin.
+3. Go to Roadmap > Dashboard. The Setup Wizard can import sample items so you can see the board before adding your own.
 4. Add the shortcode [roadmap] to any page where you want to display your roadmap.
 
 == Frequently Asked Questions ==
@@ -86,7 +89,7 @@ Yes! When you enable suggestions in the settings, users can submit their own fea
 
 = Do users need to register to vote? =
 
-You can configure this in settings. Allow guest voting for maximum participation, or require registration for more controlled feedback.
+No, if you allow it. Turn on guest voting in Settings and visitors can vote once per item (tracked by IP address). Turn it off to accept votes from logged-in users only.
 
 = Can I moderate feature suggestions? =
 
@@ -94,11 +97,11 @@ Yes, you can set suggestions to require approval before they appear on the publi
 
 = Is it mobile-friendly? =
 
-Absolutely! The roadmap is fully responsive and works great on all devices.
+Yes. The roadmap board, item pages, suggestion form and changelog adapt to phone and tablet screens.
 
 = Can I customize the appearance? =
 
-The free version includes basic styling options. Pro version offers complete customization to match your brand.
+The roadmap picks up your theme's accent colour and follows its light and dark mode toggle, so it usually matches without custom CSS. You can also override the plugin's stylesheets from your theme. Pro adds four more layouts.
 
 = How do I manage multiple products? =
 
@@ -106,16 +109,21 @@ Multiple product roadmaps are available in the Pro version. Free version support
 
 == Screenshots ==
 
-1. Public roadmap view where customers can see and vote on upcoming features
-2. Admin dashboard with enhanced UI showing roadmap statistics and recent activity
-3. Settings page with auto-approval toggle and copy shortcode buttons (v1.1.0)
-4. Product listing showing copy shortcode functionality (v1.1.0)
-5. Adding a new roadmap item from the WordPress admin
-6. Feature suggestion form with auto-approval option enabled
-7. Mobile responsive view of the roadmap
-8. Individual roadmap item with voting and comments
+1. The public roadmap board, grouped into Now, Next and Later, with status filters and search.
+2. Item details open in a window with status, priority, target date, progress and votes.
+3. Customers suggest a feature from the board; suggestions wait for your approval.
+4. Each item has its own page with voting and comments.
+5. The changelog shows each release with New, Improve and Fix entries.
+6. The admin dashboard with item counts, recent items and quick actions.
+7. Manage every roadmap item from the WordPress admin with status, category and votes.
+8. Settings for product name, item labels, display defaults, notifications and changelog types.
 
 == Changelog ==
+
+= 1.8.1 - November 2026 =
+
+* Dev      - Requires PHP 8.1 or later and WordPress 6.5 or later.
+* Dev      - Tested up to WordPress 7.1.
 
 = 1.8.0 - September 2026 =
 
@@ -344,6 +352,9 @@ Security and data-integrity release. Sites upgrading from any earlier version pi
 * Shortcode support
 
 == Upgrade Notice ==
+
+= 1.8.1 =
+Requires PHP 8.1 or later. Sites on older PHP versions stay on 1.8.0.
 
 = 1.4.0 =
 Feature update! New All Products archive page, local Select2 bundling (no more CDN), consistent dropdown styling, and changelog meta fixes.
