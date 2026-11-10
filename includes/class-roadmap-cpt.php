@@ -54,6 +54,27 @@ class Roadmap_CPT {
 		// Restoring a trashed item (board delete, rejected suggestion) puts it
 		// back where it was, not into Draft (the core default since 5.6).
 		add_filter( 'wp_untrash_post_status', array( $this, 'untrash_to_previous_status' ), 10, 3 );
+
+		// A permanently deleted item takes its votes with it (Trash keeps them,
+		// so a restored item still has its votes). Pro hangs its analytics
+		// cleanup on the same core hook.
+		add_action( 'before_delete_post', array( $this, 'delete_item_votes' ), 10, 2 );
+	}
+
+	/**
+	 * Remove the vote rows of a roadmap item that is being deleted for good.
+	 *
+	 * @param int     $post_id Post ID.
+	 * @param WP_Post $post    Post object.
+	 * @return void
+	 */
+	public function delete_item_votes( $post_id, $post ) {
+		if ( 'roadmap_item' !== $post->post_type ) {
+			return;
+		}
+		global $wpdb;
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table; item_id is indexed.
+		$wpdb->delete( $wpdb->prefix . 'roadmap_votes', array( 'item_id' => $post_id ), array( '%d' ) );
 	}
 
 	/**
