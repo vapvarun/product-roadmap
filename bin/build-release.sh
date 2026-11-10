@@ -152,13 +152,6 @@ FREE_DIR="$TEMP_DIR/$PLUGIN_SLUG"
 # Create plugin directory structure
 mkdir -p "$FREE_DIR"
 
-# The board bundle is a classic script: it must be an IIFE, or a minified
-# top-level name (once `wp`) shadows window.wp and breaks every editor screen.
-if ! head -c 12 vue-app/dist/assets/index.js 2>/dev/null | grep -q '^(function()'; then
-    echo "ERROR: vue-app/dist/assets/index.js is missing or not an IIFE. Run: cd vue-app && npm run build"
-    exit 1
-fi
-
 # Copy files for free version
 echo "Copying plugin files..."
 cp -r assets "$FREE_DIR/"
@@ -167,6 +160,21 @@ cp -r languages "$FREE_DIR/"
 cp -r templates "$FREE_DIR/"
 cp -r vue-app "$FREE_DIR/"  # Include Vue source files for WordPress compliance
 cp product-roadmap.php "$FREE_DIR/"
+
+# Check the files that actually ship (WP_DEBUG off loads assets/js/roadmap-app.js,
+# not vue-app/dist). The board bundle is a classic script: it must be exactly one
+# IIFE, or a minified top-level name (once `wp`) shadows window.wp and breaks every
+# editor screen. It must also be the bundle build.sh just made, so a zip cannot
+# carry a stale frontend.
+SHIPPED_JS="$FREE_DIR/assets/js/roadmap-app.js"
+if [ "$(head -c 12 "$SHIPPED_JS" 2>/dev/null)" != '(function(){' ]; then
+    echo "ERROR: shipped assets/js/roadmap-app.js is missing or does not start with a single IIFE."
+    exit 1
+fi
+if ! cmp -s "$SHIPPED_JS" vue-app/dist/assets/index.js; then
+    echo "ERROR: shipped assets/js/roadmap-app.js is not the bundle build.sh just built."
+    exit 1
+fi
 cp readme.txt "$FREE_DIR/"
 cp LICENSE "$FREE_DIR/" 2>/dev/null || true
 cp package.json "$FREE_DIR/"  # Include package.json for build instructions
