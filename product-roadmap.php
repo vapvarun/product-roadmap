@@ -167,6 +167,9 @@ class RoadmapPlugin {
             // presents "Votes" as a number of voters.
             $this->recount_votes();
 
+            // Items deleted before 1.8.2 left their votes behind.
+            $this->purge_orphan_votes();
+
             // Move the pre-1.8 standalone settings into roadmap_global_settings.
             Roadmap_Settings::migrate_legacy_options();
 
@@ -196,6 +199,9 @@ class RoadmapPlugin {
     public function activate() {
         // Create database tables if needed
         $this->create_tables();
+
+        // Votes of items deleted while the plugin was off never fired the delete hook.
+        $this->purge_orphan_votes();
         
         // Set default options
         $this->set_default_options();
@@ -339,6 +345,35 @@ class RoadmapPlugin {
         foreach ( $counts as $row ) {
             update_post_meta( (int) $row->item_id, '_roadmap_votes', (int) $row->total );
         }
+    }
+
+    /**
+     * Delete vote rows whose roadmap item no longer exists.
+     *
+     * One-off and idempotent: runs on a version change and on activation (items
+     * deleted while the plugin was off never fired the delete hook). Batched so
+     * a large votes table never turns into one huge DELETE.
+     *
+     * @since 1.8.2
+     * @return void
+     */
+    private function purge_orphan_votes() {
+        global $wpdb;
+        $table = $wpdb->prefix . 'roadmap_votes';
+
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        if ( $wpdb->get_var( "SHOW TABLES LIKE '{$table}'" ) !== $table ) {
+            return;
+        }
+
+        do {
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+            $ids = $wpdb->get_col( "SELECT v.id FROM {$table} v LEFT JOIN {$wpdb->posts} p ON p.ID = v.item_id WHERE p.ID IS NULL LIMIT 1000" );
+            if ( $ids ) {
+                // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+                $wpdb->query( "DELETE FROM {$table} WHERE id IN (" . implode( ',', array_map( 'absint', $ids ) ) . ')' );
+            }
+        } while ( 1000 === count( $ids ) );
     }
 
     private function upgrade_votes_indexes() {
