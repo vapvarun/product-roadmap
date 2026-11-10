@@ -18,6 +18,15 @@ class Roadmap_Template {
 		return self::$instance;
 	}
 
+	/**
+	 * Sidebar layout for the plugin's own pages (GeneratePress and Astra filters).
+	 *
+	 * @return string
+	 */
+	public static function no_sidebar_layout() {
+		return 'no-sidebar';
+	}
+
 	/** Footer template part, rendered with the header so its scripts are known before wp_head(). */
 	private static $block_footer = '';
 
@@ -36,7 +45,16 @@ class Roadmap_Template {
 	 */
 	public static function get_header() {
 		if ( ! wp_is_block_theme() ) {
+			// The plugin's own pages print no sidebar, so tell the themes that reserve
+			// room for one (GeneratePress, Astra) to give the content the full width.
+			add_filter( 'generate_sidebar_layout', array( __CLASS__, 'no_sidebar_layout' ) );
+			add_filter( 'astra_page_layout', array( __CLASS__, 'no_sidebar_layout' ) );
 			get_header();
+			// Classic themes lay out and style their content area by #primary and
+			// main.site-main (Astra and GeneratePress make the parent a flex row). A
+			// bare wrapper right after get_header() becomes a flex item that shrinks
+			// to its content, so give the page the standard content markup.
+			echo '<div id="primary" class="content-area"><main id="main" class="site-main">';
 			return;
 		}
 		ob_start();
@@ -85,6 +103,7 @@ class Roadmap_Template {
 	 */
 	public static function get_footer() {
 		if ( ! wp_is_block_theme() ) {
+			echo '</main></div>';
 			get_footer();
 			return;
 		}

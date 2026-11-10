@@ -63,7 +63,8 @@ Pro layouts show the same status in their own way. For example, the Board layout
 
 When an item's status changes, Product Roadmap emails the people following it. You do not need to do anything.
 
-- **Who gets it:** Logged-in members who voted on the item or who left an approved comment on it. Visitors who voted as guests have no account, so they get no email.
+- **Who gets it:** Logged-in members who still have a vote on the item, and members who left an approved comment on it. A member who removed their vote is not emailed. Visitors who voted as guests have no account, so they get no email.
+- **When:** Only when the status really changes, and then once per change. Saving an item without changing its status, trashing it or moving it between draft and published sends nothing.
 - **What it says:** The subject is "[Your site] Status update: Item title". The body lists the item, the old status, the new status and a link.
 - **Unsubscribe:** Every email ends with an unsubscribe link. One click stops all roadmap emails to that member. Product Roadmap has no screen to turn emails back on for a member.
 - **Master switch:** Emails are sent only while **Enable Email Notifications** is on in **Roadmap > Settings > Notifications**. The per-event toggles on that tab do not affect them.

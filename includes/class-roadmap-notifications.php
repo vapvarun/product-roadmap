@@ -27,7 +27,6 @@ class Roadmap_Notifications {
         add_action('roadmap_vote_submitted', [$this, 'handle_vote_notification'], 10, 3);
         add_action('roadmap_comment_submitted', [$this, 'handle_comment_notification'], 10, 3);
         add_action('roadmap_suggestion_submitted', [$this, 'handle_suggestion_notification'], 10, 2);
-        add_action('transition_post_status', [$this, 'handle_status_change_notification'], 10, 3);
         add_action('set_object_terms', [$this, 'handle_roadmap_status_change'], 10, 6);
         add_action('init', [$this, 'handle_unsubscribe']);
         // Delivery of queued status-change emails.
@@ -169,52 +168,6 @@ class Roadmap_Notifications {
         $this->send_notification($subject, $message);
     }
     
-    public function handle_status_change_notification($new_status, $old_status, $post) {
-        if ($post->post_type !== 'roadmap_item' || $new_status === $old_status) {
-            return;
-        }
-        
-        // Only notify on publish status changes
-        if ($new_status !== 'publish' && $old_status !== 'publish') {
-            return;
-        }
-        
-        // Get users who voted or commented on this item
-        $users_to_notify = $this->get_users_to_notify($post->ID);
-        
-        if (empty($users_to_notify)) {
-            return;
-        }
-        
-        $status_term = false;
-        $statuses = wp_get_post_terms($post->ID, 'roadmap_status');
-        if (!empty($statuses)) {
-            $status_term = $statuses[0];
-        }
-        
-        $subject = sprintf(
-            /* translators: %1$s: Site name, %2$s: Item title */
-            __('[%1$s] Status update: %2$s', 'product-roadmap'),
-            get_bloginfo('name'),
-            $post->post_title
-        );
-        
-        $message = sprintf(
-            /* translators: %1$s: Item title, %2$s: New status, %3$s: Item URL */
-            __("A roadmap item you're following has been updated:\n\nItem: %1\$s\nNew Status: %2\$s\n\nView item: %3\$s", 'product-roadmap'),
-            $post->post_title,
-            $status_term ? $status_term->name : __('Updated', 'product-roadmap'),
-            get_permalink($post->ID)
-        );
-        
-        // Hand the send off to the background rather than looping wp_mail()
-        // inside the request that changed the status. A popular item can have
-        // thousands of voters, and every one of those was a blocking SMTP call
-        // in the admin's save request - a guaranteed gateway timeout with a
-        // partial send and no way to resume.
-        $this->queue_status_emails($users_to_notify, $subject, $message);
-    }
-
     /**
      * Queue status-change emails for background delivery, in batches.
      *
@@ -272,6 +225,16 @@ class Roadmap_Notifications {
             return;
         }
 
+        // Same status as before: nothing changed, nobody is emailed. Compare the term
+        // taxonomy IDs, not the names, because $terms may be IDs, slugs or names.
+        $old_ids = array_map('intval', (array) $old_tt_ids);
+        $new_ids = array_map('intval', (array) $tt_ids);
+        sort($old_ids);
+        sort($new_ids);
+        if ($old_ids === $new_ids) {
+            return;
+        }
+
         // Get old status name from old term taxonomy IDs
         $old_status_name = '';
         if (!empty($old_tt_ids)) {
@@ -281,18 +244,13 @@ class Roadmap_Notifications {
             }
         }
 
-        // Get new status name from the assigned terms
+        // Get new status name from the assigned term taxonomy IDs
         $new_status_name = '';
-        if (!empty($terms)) {
-            $new_term = get_term($terms[0], 'roadmap_status');
+        if (!empty($tt_ids)) {
+            $new_term = get_term_by('term_taxonomy_id', (int) reset($tt_ids));
             if ($new_term && !is_wp_error($new_term)) {
                 $new_status_name = $new_term->name;
             }
-        }
-
-        // Skip if status didn't actually change
-        if ($old_status_name === $new_status_name) {
-            return;
         }
 
         // Get users who voted or commented on this item
@@ -354,7 +312,7 @@ class Roadmap_Notifications {
             "SELECT DISTINCT u.ID, u.user_email
             FROM {$votes_table} v
             JOIN {$wpdb->users} u ON v.user_id = u.ID
-            WHERE v.item_id = %d",
+            WHERE v.item_id = %d AND " . Roadmap_API::active_vote_sql('v.'),
             $item_id
         )); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table query
         // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared

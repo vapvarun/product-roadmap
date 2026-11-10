@@ -628,7 +628,17 @@ class Roadmap_CPT {
 					// Re-index array after filtering
 					$value = array_values( $value );
 				} else {
-					$value = sanitize_text_field( wp_unslash( $_POST[ $field['id'] ] ) );
+					// Sanitise by field type: a textarea keeps its line breaks and a URL
+					// field is a clean URL (sanitize_text_field flattens both).
+					$raw   = wp_unslash( $_POST[ $field['id'] ] );
+					$ftype = isset( $field['type'] ) ? $field['type'] : 'text';
+					if ( 'textarea' === $ftype ) {
+						$value = sanitize_textarea_field( $raw );
+					} elseif ( 'url' === $ftype ) {
+						$value = esc_url_raw( $raw );
+					} else {
+						$value = sanitize_text_field( $raw );
+					}
 				}
 				update_post_meta( $post_id, $field['id'], $value );
 			} else {

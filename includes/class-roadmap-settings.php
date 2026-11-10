@@ -170,16 +170,6 @@ class Roadmap_Settings {
 			)
 		);
 
-		// Advanced settings (legacy - now handled in global settings)
-		register_setting(
-			'roadmap_global',
-			'roadmap_cache_expiry',
-			array(
-				'type'              => 'integer',
-				'sanitize_callback' => 'absint',
-				'default'           => 3600,
-			)
-		);
 
 		// Product-specific settings
 		register_setting(
@@ -1407,22 +1397,6 @@ class Roadmap_Settings {
 			<p class="section-description">
 				<?php esc_html_e( 'Fine-tune your roadmap with advanced configuration options.', 'product-roadmap' ); ?>
 			</p>
-			
-			<!-- Cache Settings Card -->
-			<div class="roadmap-settings-card">
-				<div class="card-header">
-					<h3><i class="dashicons dashicons-performance"></i> <?php esc_html_e( 'Performance Settings', 'product-roadmap' ); ?></h3>
-				</div>
-				<div class="card-body">
-					<div class="form-row">
-						<label for="cache_expiry"><?php esc_html_e( 'Cache Expiry (seconds)', 'product-roadmap' ); ?></label>
-						<input type="number" name="roadmap_cache_expiry" id="cache_expiry" 
-								value="<?php echo esc_attr( get_option( 'roadmap_cache_expiry', '3600' ) ); ?>" 
-								min="0" max="86400" />
-						<p class="description"><?php esc_html_e( 'How long to cache roadmap data. Set to 0 to disable caching.', 'product-roadmap' ); ?></p>
-					</div>
-				</div>
-			</div>
 			
 			<?php if ( ! defined( 'ROADMAP_PRO_ACTIVE' ) || ! ROADMAP_PRO_ACTIVE ) : ?>
 			<!-- Pro Feature Notice -->
