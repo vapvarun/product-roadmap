@@ -13,14 +13,14 @@ With no attributes, this shows your default product's board using the Minimal la
 ## Common examples
 
 ```
-[roadmap status="planned"]              Only Planned items
+[roadmap status="planned"]              Starts on the Planned filter
 [roadmap sort="votes" limit="10"]       Top 10 most-voted items
 [roadmap category="integrations"]       Only items in one category
 [roadmap show_filters="false"]          Hide the filter bar
 [roadmap show_voting="hide"]            Hide voting on this board only
 ```
 
-`status` and `category` each take exactly one slug. To show more than one status or category on the same page, add a second shortcode, or leave the attribute off and let visitors use the filter bar instead.
+`status` and `category` each take exactly one slug, and they set the starting filter (visitors can change it unless you hide the filter bar). To show more than one status or category on the same page, add a second shortcode, or leave the attribute off and let visitors use the filter bar instead.
 
 ## Recipes
 
@@ -52,7 +52,7 @@ With no attributes, this shows your default product's board using the Minimal la
 
 `[roadmap_changelog]` displays your changelog on its own page. See [Changelog](04-changelog.md).
 
-Feature suggestions don't use a separate shortcode - a "Suggest a feature" button appears directly on the `[roadmap]` board whenever suggestions are enabled in Settings. See [Voting, Comments, and Suggestions](03-voting-comments-and-suggestions.md#suggestions).
+Feature suggestions don't use a separate shortcode - a "Suggest a feature" button appears directly on the `[roadmap]` board whenever suggestions are enabled in Settings. See [Voting, Comments, and Suggestions](03-voting-comments-and-suggestions.md#feature-suggestions).
 
 ## Every shortcode attribute
 

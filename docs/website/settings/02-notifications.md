@@ -23,7 +23,7 @@ Turn off any toggle you don't want to be paged for. Votes can be noisy on an act
 
 ## Status-change emails are separate
 
-The **Notification Email Addresses** list above is for admin-facing alerts only. When a roadmap item's status changes, Product Roadmap separately emails the people who voted or commented on that item, letting them know it moved forward. Those emails include a one-click unsubscribe link and are not affected by the admin notification settings on this tab.
+The **Notification Email Addresses** list above is for admin-facing alerts only. When a roadmap item's status changes, Product Roadmap separately emails the people who voted or commented on that item, letting them know it moved forward. Those emails include a one-click unsubscribe link. They are sent only while **Enable Email Notifications** (above) is on: switching that master switch off stops them too, but the individual toggles below it do not affect them.
 
 ## Changelog Types
 

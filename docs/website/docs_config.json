@@ -5,27 +5,133 @@
   "sections": [
     {
       "name": "Getting Started",
-      "folder": "getting-started"
+      "folder": "getting-started",
+      "description": "Install Product Roadmap, run the setup wizard and publish your first public roadmap.",
+      "pages": [
+        {
+          "slug": "01-introduction",
+          "title": "Introduction to Product Roadmap"
+        },
+        {
+          "slug": "02-installation",
+          "title": "Installation"
+        },
+        {
+          "slug": "03-setup-wizard",
+          "title": "Setup Wizard Walkthrough"
+        },
+        {
+          "slug": "04-quick-start",
+          "title": "Quick Start"
+        }
+      ]
     },
     {
       "name": "Admin Guide",
-      "folder": "admin-guide"
+      "folder": "admin-guide",
+      "description": "Add and update roadmap items, review suggestions, show the board and keep a changelog.",
+      "pages": [
+        {
+          "slug": "01-managing-roadmap-items",
+          "title": "Managing Roadmap Items"
+        },
+        {
+          "slug": "06-changing-an-items-status",
+          "title": "Move an Item to a New Status"
+        },
+        {
+          "slug": "07-reviewing-pending-suggestions",
+          "title": "Review Pending Suggestions"
+        },
+        {
+          "slug": "03-voting-comments-and-suggestions",
+          "title": "Voting, Comments, and Suggestions"
+        },
+        {
+          "slug": "02-displaying-your-roadmap",
+          "title": "Displaying Your Roadmap"
+        },
+        {
+          "slug": "08-board-filters-and-search",
+          "title": "Board Filters, Search and Sorting"
+        },
+        {
+          "slug": "04-changelog",
+          "title": "Changelog"
+        },
+        {
+          "slug": "05-multi-product-and-pro-features",
+          "title": "Multi-Product and Pro Features"
+        }
+      ]
     },
     {
       "name": "Settings",
-      "folder": "settings"
+      "folder": "settings",
+      "description": "Every option under Roadmap > Settings, with what it does and its default.",
+      "pages": [
+        {
+          "slug": "01-general-settings",
+          "title": "General Settings"
+        },
+        {
+          "slug": "02-notifications",
+          "title": "Notifications"
+        },
+        {
+          "slug": "03-statuses-and-categories",
+          "title": "Statuses and Categories"
+        }
+      ]
     },
     {
       "name": "Developer Guide",
-      "folder": "developer-guide"
+      "folder": "developer-guide",
+      "description": "Hooks, REST routes and shortcode attributes for developers extending the plugin.",
+      "pages": [
+        {
+          "slug": "01-architecture-overview",
+          "title": "Architecture Overview"
+        },
+        {
+          "slug": "02-hooks-reference",
+          "title": "Hooks Reference"
+        },
+        {
+          "slug": "03-rest-api-reference",
+          "title": "REST API Reference"
+        },
+        {
+          "slug": "04-shortcode-reference",
+          "title": "Shortcode Reference"
+        }
+      ]
     },
     {
       "name": "FAQ",
-      "folder": "faq"
+      "folder": "faq",
+      "description": "Short answers to the questions site owners ask most.",
+      "pages": [
+        {
+          "slug": "01-general-questions",
+          "title": "General Questions"
+        }
+      ]
     },
     {
       "name": "Troubleshooting",
-      "folder": "troubleshooting"
+      "folder": "troubleshooting",
+      "description": "Fix a missing board, votes that do not count, emails that do not arrive and URL problems.",
+      "pages": [
+        {
+          "slug": "01-board-and-voting",
+          "title": "Board and Voting Problems"
+        },
+        {
+          "slug": "02-emails-urls-and-api",
+          "title": "Emails, URLs and REST API Problems"
+        }
+      ]
     }
   ]
 }

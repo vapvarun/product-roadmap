@@ -16,7 +16,7 @@ The vote count is the number of people who voted on an item. Since 1.8.0 it is n
 
 ## Where do suggestions go?
 
-A member's suggestion is saved as a draft roadmap item awaiting your review under **Roadmap > All Items**. If **Auto-approve user suggestions** is on, it publishes at once with the **Default Status for Suggestions**. On Free, only logged-in members can suggest; guest suggestions need Pro. Suggestions are rate-limited to 5 per hour per user (or per IP).
+A member's suggestion is saved as a pending roadmap item awaiting your review under **Roadmap > All Items > Pending**. If **Auto-approve user suggestions** is on, it publishes at once. Either way it gets the **Default Status for Suggestions**. See [Review Pending Suggestions](../admin-guide/07-reviewing-pending-suggestions.md). On Free, only logged-in members can suggest; guest suggestions need Pro. Suggestions are rate-limited to 5 per hour per user (or per IP).
 
 ## How do I moderate votes, comments and suggestions?
 
