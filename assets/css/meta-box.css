@@ -241,3 +241,13 @@
     font-size: 13px;
     margin-top: 5px;
 }
+/* In the editor sidebar the box is about 265px wide: no control may be wider than it. */
+.interface-interface-skeleton__sidebar #roadmap_item_details select,
+.interface-interface-skeleton__sidebar #roadmap_item_details input,
+.interface-interface-skeleton__sidebar #roadmap_item_details textarea,
+#side-sortables #roadmap_item_details select,
+#side-sortables #roadmap_item_details input,
+#side-sortables #roadmap_item_details textarea {
+    max-width: 100%;
+    box-sizing: border-box;
+}

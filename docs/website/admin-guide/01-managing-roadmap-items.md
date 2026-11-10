@@ -13,7 +13,7 @@ Roadmap items are a custom post type, so creating and editing them feels like wo
 3. Write a **Description** using the standard content editor. Explain the problem being solved, not just the feature name.
 4. Keep the first sentence of the description clear. The board shows the first 20 words as the item summary, and items have no separate Excerpt field.
 5. In the sidebar, assign a **Status** and one or more **Categories**. An item created in the admin has no status until you pick one.
-6. Fill in the **Roadmap Item Details** meta box (see below).
+6. Fill in the **Roadmap Item Details** box in the editor sidebar, under Statuses, Categories and Products (see below). In the classic editor it sits in the right-hand column.
 7. Click **Publish**.
 
 ## Roadmap Item Details fields

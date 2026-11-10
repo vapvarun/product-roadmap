@@ -10,7 +10,7 @@ Once the plugin is active and the setup wizard has run, here's the fastest path 
 2. Enter a title (for example, "Dark Mode Support").
 3. Add a description explaining the feature.
 4. In the sidebar, set a **Status** (default: Planned), and optionally a **Category**.
-5. In the **Roadmap Item Details** meta box, set a **Priority** and **Progress** percentage if you want them.
+5. In the **Roadmap Item Details** box in the editor sidebar, set a **Priority** and **Progress** percentage if you want them.
 6. Click **Publish**.
 
 ## Display your roadmap

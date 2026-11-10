@@ -317,7 +317,10 @@ class Roadmap_CPT {
 			__( 'Roadmap Item Details', 'product-roadmap' ),
 			array( $this, 'render_meta_box' ),
 			'roadmap_item',
-			'normal',
+			// Sidebar, next to Statuses, Categories and Products: the block editor hides
+			// the normal-context Meta Boxes area behind a collapsed bar for anyone who
+			// has never opened it, so a new Editor could not find priority or dates.
+			'side',
 			'high'
 		);
 	}
