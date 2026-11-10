@@ -152,6 +152,13 @@ FREE_DIR="$TEMP_DIR/$PLUGIN_SLUG"
 # Create plugin directory structure
 mkdir -p "$FREE_DIR"
 
+# The board bundle is a classic script: it must be an IIFE, or a minified
+# top-level name (once `wp`) shadows window.wp and breaks every editor screen.
+if ! head -c 12 vue-app/dist/assets/index.js 2>/dev/null | grep -q '^(function()'; then
+    echo "ERROR: vue-app/dist/assets/index.js is missing or not an IIFE. Run: cd vue-app && npm run build"
+    exit 1
+fi
+
 # Copy files for free version
 echo "Copying plugin files..."
 cp -r assets "$FREE_DIR/"
