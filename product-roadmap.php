@@ -28,6 +28,9 @@ define('ROADMAP_PLUGIN_BASENAME', plugin_basename(__FILE__));
 define( 'ROADMAP_MIN_PRO_VERSION', '1.8.0' );
 
 class RoadmapPlugin {
+
+    /** Cron hook for the one-off orphan vote cleanup. */
+    const PURGE_HOOK = 'roadmap_purge_orphan_votes';
     
     private static $instance = null;
     
@@ -68,6 +71,7 @@ class RoadmapPlugin {
         // pick up the votes-table columns it depends on. Version-gated, so on
         // every other request this is a single get_option().
         add_action('init', [$this, 'check_version_update'], 5);
+        add_action( self::PURGE_HOOK, [$this, 'purge_orphan_votes'] );
         add_action('upgrader_process_complete', [$this, 'handle_plugin_update'], 10, 2);
         add_action( 'admin_notices', array( $this, 'maybe_outdated_pro_notice' ) );
         add_action( 'network_admin_notices', array( $this, 'maybe_outdated_pro_notice' ) );
@@ -167,8 +171,9 @@ class RoadmapPlugin {
             // presents "Votes" as a number of voters.
             $this->recount_votes();
 
-            // Items deleted before 1.8.2 left their votes behind.
-            $this->purge_orphan_votes();
+            // Items deleted before 1.8.2 left their votes behind: clean up in the
+            // background, never on this visitor's request.
+            $this->schedule_orphan_purge();
 
             // Move the pre-1.8 standalone settings into roadmap_global_settings.
             Roadmap_Settings::migrate_legacy_options();
@@ -201,7 +206,7 @@ class RoadmapPlugin {
         $this->create_tables();
 
         // Votes of items deleted while the plugin was off never fired the delete hook.
-        $this->purge_orphan_votes();
+        $this->schedule_orphan_purge();
         
         // Set default options
         $this->set_default_options();
@@ -222,6 +227,7 @@ class RoadmapPlugin {
     }
     
     public function deactivate() {
+        wp_clear_scheduled_hook( self::PURGE_HOOK );
         flush_rewrite_rules();
     }
 
@@ -348,16 +354,25 @@ class RoadmapPlugin {
     }
 
     /**
-     * Delete vote rows whose roadmap item no longer exists.
-     *
-     * One-off and idempotent: runs on a version change and on activation (items
-     * deleted while the plugin was off never fired the delete hook). Batched so
-     * a large votes table never turns into one huge DELETE.
+     * Arm the one-off orphan-vote cleanup as a single WP-Cron event, so a large votes
+     * table is never scanned on a visitor's request. Idempotent.
      *
      * @since 1.8.2
      * @return void
      */
-    private function purge_orphan_votes() {
+    public function schedule_orphan_purge() {
+        if ( ! wp_next_scheduled( self::PURGE_HOOK ) ) {
+            wp_schedule_single_event( time(), self::PURGE_HOOK );
+        }
+    }
+
+    /**
+     * Cron callback (roadmap_purge_orphan_votes): see schedule_orphan_purge().
+     *
+     * @since 1.8.2
+     * @return void
+     */
+    public function purge_orphan_votes() {
         global $wpdb;
         $table = $wpdb->prefix . 'roadmap_votes';
 

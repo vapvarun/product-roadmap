@@ -236,7 +236,7 @@ const formatDate = (date) => {
 <style lang="scss" scoped>
 .roadmap-ideabox {
   background: var(--rm-surface);
-  border-radius: 8px;
+  border-radius: var(--rm-radius);
   overflow: hidden;
 }
 
@@ -262,7 +262,7 @@ const formatDate = (date) => {
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
-  border-radius: 6px;
+  border-radius: var(--rm-radius-button);
   transition: all 0.2s ease;
 
   &:hover {
@@ -325,7 +325,7 @@ const formatDate = (date) => {
   padding: 0;
   border: 2px solid var(--rm-control-border);
   background: var(--rm-surface);
-  border-radius: 8px;
+  border-radius: var(--rm-radius-button);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -479,7 +479,7 @@ const formatDate = (date) => {
   height: 36px;
   border: 1px solid var(--rm-control-border);
   background: var(--rm-surface);
-  border-radius: 6px;
+  border-radius: var(--rm-radius-button);
   cursor: pointer;
   display: flex;
   align-items: center;

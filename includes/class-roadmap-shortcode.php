@@ -957,6 +957,7 @@ class Roadmap_Shortcode {
 			),
 			'save'                 => __( 'Save', 'product-roadmap' ),
 			'cancel'               => __( 'Cancel', 'product-roadmap' ),
+			'close'                => __( 'Close', 'product-roadmap' ),
 			'confirm_delete'       => sprintf(
 				/* translators: %s: Item singular label */
 				__( 'Are you sure you want to delete this %s?', 'product-roadmap' ),

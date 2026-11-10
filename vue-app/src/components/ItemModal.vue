@@ -1,9 +1,9 @@
 <template>
   <div class="roadmap-modal" @click.self="$emit('close')">
-    <div class="roadmap-modal-dialog">
+    <div class="roadmap-modal-dialog" ref="dialogRef" role="dialog" aria-modal="true" :aria-labelledby="titleId" tabindex="-1">
       <div class="roadmap-modal-header">
-        <h3>{{ item?.id ? (i18n.edit_item || 'Edit Item') : (i18n.add_new_item || 'Add New Item') }}</h3>
-        <button @click="$emit('close')" class="roadmap-btn roadmap-btn-icon">×</button>
+        <h3 :id="titleId">{{ item?.id ? (i18n.edit_item || 'Edit Item') : (i18n.add_new_item || 'Add New Item') }}</h3>
+        <button @click="$emit('close')" class="roadmap-btn roadmap-btn-icon" :aria-label="i18n.close || 'Close'">×</button>
       </div>
       
       <div class="roadmap-modal-body">
@@ -163,6 +163,7 @@
 </template>
 
 <script setup>
+import { useDialog } from '../composables/useDialog'
 import { reactive, watch, inject } from 'vue'
 
 const config = inject('$roadmapConfig', {})
@@ -176,6 +177,7 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['save', 'close'])
+const { dialogRef, titleId } = useDialog(() => emit('close'))
 
 const form = reactive({
   title: '',

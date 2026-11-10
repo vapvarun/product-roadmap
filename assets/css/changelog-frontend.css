@@ -915,7 +915,9 @@
     visibility: hidden;
 }
 
-/* Hide native select when Select2 is active */
-.roadmap-plugin-select2 {
+/* Before Select2 starts, the native select fills its row. Once Select2 is active
+   the source select is visually hidden (1px, absolute) and must keep that size:
+   a full-width absolute select pushed the page wider than the window. */
+.roadmap-plugin-select2:not(.select2-hidden-accessible) {
     width: 100% !important;
 }

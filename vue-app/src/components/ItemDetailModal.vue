@@ -1,11 +1,11 @@
 <template>
   <div class="roadmap-modal" @click.self="$emit('close')">
-    <div class="roadmap-modal-dialog roadmap-modal-lg">
+    <div class="roadmap-modal-dialog roadmap-modal-lg" ref="dialogRef" role="dialog" aria-modal="true" :aria-labelledby="titleId" tabindex="-1">
       <div class="roadmap-modal-header">
-        <h3>{{ item.title }}</h3>
+        <h3 :id="titleId">{{ item.title }}</h3>
         <button 
           @click="$emit('close')"
-          class="roadmap-btn roadmap-btn-icon"
+          class="roadmap-btn roadmap-btn-icon" :aria-label="i18n.close || 'Close'"
         >
           ×
         </button>
@@ -152,6 +152,7 @@
 </template>
 
 <script setup>
+import { useDialog } from '../composables/useDialog'
 import { ref, computed, inject } from 'vue'
 
 const props = defineProps({
@@ -162,6 +163,7 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['close', 'vote', 'comment'])
+const { dialogRef, titleId } = useDialog(() => emit('close'))
 
 // Inject config
 const config = inject('$roadmapConfig', {})

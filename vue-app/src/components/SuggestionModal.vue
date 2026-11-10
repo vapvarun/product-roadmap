@@ -1,9 +1,9 @@
 <template>
   <div class="roadmap-modal" @click.self="$emit('close')">
-    <div class="roadmap-modal-dialog">
+    <div class="roadmap-modal-dialog" ref="dialogRef" role="dialog" aria-modal="true" :aria-labelledby="titleId" tabindex="-1">
       <div class="roadmap-modal-header">
-        <h3>{{ i18n.suggest || `Suggest ${i18n.item_singular || 'Feature'}` }}</h3>
-        <button @click="$emit('close')" class="roadmap-btn roadmap-btn-icon">×</button>
+        <h3 :id="titleId">{{ i18n.suggest || `Suggest ${i18n.item_singular || 'Feature'}` }}</h3>
+        <button @click="$emit('close')" class="roadmap-btn roadmap-btn-icon" :aria-label="i18n.close || 'Close'">×</button>
       </div>
       
       <div class="roadmap-modal-body">
@@ -110,6 +110,7 @@
 </template>
 
 <script setup>
+import { useDialog } from '../composables/useDialog'
 import { reactive, inject, computed } from 'vue'
 
 const props = defineProps({
@@ -117,6 +118,7 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['submit', 'close'])
+const { dialogRef, titleId } = useDialog(() => emit('close'))
 
 const config = inject('$roadmapConfig')
 const i18n = config?.i18n || {}

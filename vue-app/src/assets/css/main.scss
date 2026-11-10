@@ -257,6 +257,11 @@ textarea.roadmap-form-control {
 }
 
 // Modal
+.roadmap-modal-dialog:focus {
+  // Focus lands on the dialog itself when it has no field; the title announces it.
+  outline: none;
+}
+
 .roadmap-modal {
   position: fixed;
   top: 0;

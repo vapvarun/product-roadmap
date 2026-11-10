@@ -222,7 +222,7 @@ const handleItemClick = (event) => {
 .roadmap-item {
   background: var(--rm-surface);
   border: 1px solid var(--rm-border);
-  border-radius: 6px;
+  border-radius: var(--rm-radius);
   padding: 16px;
   transition: all 0.2s ease;
   
@@ -314,7 +314,7 @@ const handleItemClick = (event) => {
     color: var(--rm-text);
     background: transparent;
     border: 1px solid var(--rm-border);
-    border-radius: 4px;
+    border-radius: var(--rm-radius-button);
     cursor: pointer;
     transition: all 0.2s ease;
 

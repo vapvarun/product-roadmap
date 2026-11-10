@@ -273,7 +273,7 @@ onMounted(() => {
 
 .roadmap-list {
   background: var(--rm-surface);
-  border-radius: 8px;
+  border-radius: var(--rm-radius);
   padding: 20px;
 }
 
@@ -299,7 +299,7 @@ onMounted(() => {
 
 .roadmap-list-group {
   border: 1px solid var(--rm-border);
-  border-radius: 6px;
+  border-radius: var(--rm-radius);
   overflow: hidden;
 }
 
@@ -339,7 +339,7 @@ onMounted(() => {
 
 .roadmap-list-item {
   border: 1px solid var(--rm-border);
-  border-radius: 6px;
+  border-radius: var(--rm-radius);
   padding: 15px;
   margin-bottom: 10px;
   cursor: pointer;

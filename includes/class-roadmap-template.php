@@ -18,18 +18,33 @@ class Roadmap_Template {
 		return self::$instance;
 	}
 
+	/** Footer template part, rendered with the header so its scripts are known before wp_head(). */
+	private static $block_footer = '';
+
 	/**
 	 * Page header for the plugin's own templates.
 	 *
 	 * Classic themes: get_header(). Block themes have no header.php (core falls
 	 * back to a deprecated compat header and the page loses the site header), so
 	 * print the document head and the theme's header template part instead.
+	 *
+	 * The theme's header and footer parts are rendered BEFORE wp_head(), as core's
+	 * own template canvas does: an interactive block in them (the Navigation
+	 * block's overlay menu, search, a mini cart) enqueues its script module while
+	 * it renders, and a module enqueued after the head is printed cannot resolve
+	 * its @wordpress/interactivity import, which leaves the mobile menu dead.
 	 */
 	public static function get_header() {
 		if ( ! wp_is_block_theme() ) {
 			get_header();
 			return;
 		}
+		ob_start();
+		block_template_part( 'header' );
+		$header = ob_get_clean();
+		ob_start();
+		block_template_part( 'footer' );
+		self::$block_footer = ob_get_clean();
 		?>
 <!DOCTYPE html>
 <html <?php language_attributes(); ?>>
@@ -42,7 +57,7 @@ class Roadmap_Template {
 		<?php wp_body_open(); ?>
 <div class="wp-site-blocks">
 		<?php
-		block_template_part( 'header' );
+		echo $header; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Core block output.
 	}
 
 	/**
@@ -73,7 +88,7 @@ class Roadmap_Template {
 			get_footer();
 			return;
 		}
-		block_template_part( 'footer' );
+		echo self::$block_footer; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Core block output, rendered in get_header().
 		?>
 </div>
 		<?php wp_footer(); ?>
