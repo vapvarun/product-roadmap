@@ -704,6 +704,29 @@ class Roadmap_API {
 	}
 
 	/**
+	 * SQL condition for a live vote. A removed vote keeps its row with
+	 * vote_value 0, so every count of votes or voters must use this, the same
+	 * rule the board count uses. Pro's analytics, digest and profiles call it.
+	 *
+	 * @param string $alias Table alias including the dot, e.g. 'v.'.
+	 * @return string
+	 */
+	public static function active_vote_sql( $alias = '' ) {
+		return $alias . 'vote_value > 0';
+	}
+
+	/**
+	 * True when the hidden "website" honeypot field was filled (a bot). One
+	 * check for both public write routes: this one and Pro's guest route.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 * @return bool
+	 */
+	public static function honeypot_tripped( $request ) {
+		return ! empty( $request->get_param( 'website' ) );
+	}
+
+	/**
 	 * Recount an item's votes into _roadmap_votes (the one place that does).
 	 *
 	 * Public so Pro (item merge) stores the same number the board shows.
@@ -720,11 +743,11 @@ class Roadmap_API {
 		// silently reduce - so a board could show fewer votes than it had
 		// voters, and Pro's analytics (which counts rows) never reconciled with
 		// it. One meaning of "Votes" everywhere: how many people voted.
-		// A removed vote deletes its row, so it stops counting either way.
+		// A removed vote keeps its row with vote_value 0 and stops counting here.
 		$vote_count = $wpdb->get_var(
 			$wpdb->prepare(
             // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-				"SELECT COUNT(*) FROM {$table} WHERE item_id = %d AND vote_value > 0",
+				"SELECT COUNT(*) FROM {$table} WHERE item_id = %d AND " . self::active_vote_sql(),
 				$item_id
 			)
 		); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table, vote count is cached in post meta
@@ -735,7 +758,7 @@ class Roadmap_API {
 	public function submit_suggestion( $request ) {
 		// Honeypot: a hidden field real users never fill. Bots that fill every
 		// input trip it; return a fake success so they don't retry.
-		if ( ! empty( $request->get_param( 'website' ) ) ) {
+		if ( self::honeypot_tripped( $request ) ) {
 			return rest_ensure_response( array( 'success' => true, 'id' => 0 ) );
 		}
 

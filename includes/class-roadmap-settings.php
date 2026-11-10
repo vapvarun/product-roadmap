@@ -1481,6 +1481,7 @@ class Roadmap_Settings {
 				</div>
 				<div class="card-body">
 					<?php if ( ! empty( $change_types ) && ! is_wp_error( $change_types ) ) : ?>
+						<div class="roadmap-table-scroll">
 						<table class="widefat changelog-types-table">
 							<thead>
 								<tr>
@@ -1533,6 +1534,7 @@ class Roadmap_Settings {
 								<?php endforeach; ?>
 							</tbody>
 						</table>
+						</div>
 					<?php else : ?>
 						<p><?php esc_html_e( 'No changelog types found. They will be created automatically when you add your first changelog.', 'product-roadmap' ); ?></p>
 					<?php endif; ?>

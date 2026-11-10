@@ -53,7 +53,7 @@ wp_localize_script(
 	)
 );
 
-get_header();
+Roadmap_Template::get_header();
 
 // Get products that have roadmap items (not just any post type)
 $products     = array();
@@ -345,4 +345,4 @@ $current_status = isset( $_GET['status'] ) ? sanitize_text_field( $_GET['status'
 }
 </style>
 
-<?php get_footer(); ?>
+<?php Roadmap_Template::get_footer(); ?>

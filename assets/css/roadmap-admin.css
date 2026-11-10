@@ -1657,3 +1657,20 @@
     right: -5px;
     font-size: 10px;
 }
+/* Wide tables and fixed-width form controls stay inside the card on narrow screens. */
+.roadmap-settings-wrap .roadmap-table-scroll {
+    overflow-x: auto;
+    max-width: 100%;
+}
+
+.roadmap-settings-wrap .roadmap-table-scroll th,
+.roadmap-settings-wrap .roadmap-table-scroll td {
+    word-break: normal;
+    overflow-wrap: normal;
+}
+
+.roadmap-settings-wrap .form-table select,
+.roadmap-settings-wrap .form-table input[type="file"] {
+    max-width: 100%;
+    box-sizing: border-box;
+}

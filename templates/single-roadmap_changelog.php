@@ -10,7 +10,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-get_header();
+Roadmap_Template::get_header();
 
 while (have_posts()) :
     the_post();
@@ -258,4 +258,4 @@ while (have_posts()) :
     <?php
 endwhile;
 
-get_footer();
+Roadmap_Template::get_footer();

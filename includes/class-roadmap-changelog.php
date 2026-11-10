@@ -719,6 +719,7 @@ class Roadmap_Changelog {
             .roadmap-changelog-items-table .remove-changelog-item { color: #b32d2e; display: flex; align-items: center; justify-content: center; min-height: 30px; }
             .roadmap-changelog-items-table .remove-changelog-item:hover { color: #dc3232; }
             .changelog-type-select { min-width: 120px; }
+            @media (max-width: 782px) { .roadmap-changelog-items-table .remove-changelog-item { min-height: 40px; } }
             select#_changelog_release_type { width: calc(100% - 34px); }
         '
 		);

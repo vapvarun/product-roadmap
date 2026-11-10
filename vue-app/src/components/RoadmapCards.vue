@@ -261,7 +261,7 @@ const formatDate = (date) => {
 .roadmap-card {
   background: var(--rm-surface);
   border: 1px solid var(--rm-border);
-  border-radius: 8px;
+  border-radius: var(--rm-radius);
   padding: 20px;
   cursor: pointer;
   transition: all 0.3s;

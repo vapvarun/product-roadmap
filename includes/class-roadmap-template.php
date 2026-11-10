@@ -18,6 +18,70 @@ class Roadmap_Template {
 		return self::$instance;
 	}
 
+	/**
+	 * Page header for the plugin's own templates.
+	 *
+	 * Classic themes: get_header(). Block themes have no header.php (core falls
+	 * back to a deprecated compat header and the page loses the site header), so
+	 * print the document head and the theme's header template part instead.
+	 */
+	public static function get_header() {
+		if ( ! wp_is_block_theme() ) {
+			get_header();
+			return;
+		}
+		?>
+<!DOCTYPE html>
+<html <?php language_attributes(); ?>>
+<head>
+<meta charset="<?php bloginfo( 'charset' ); ?>">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+		<?php wp_head(); ?>
+</head>
+<body <?php body_class(); ?>>
+		<?php wp_body_open(); ?>
+<div class="wp-site-blocks">
+		<?php
+		block_template_part( 'header' );
+	}
+
+	/**
+	 * Comment list and form. Classic themes: comments_template(). Block themes
+	 * have no comments.php (core would print a deprecation and use its compat
+	 * file), so render core's Comments block for the current post instead.
+	 */
+	public static function comments() {
+		if ( ! wp_is_block_theme() ) {
+			comments_template();
+			return;
+		}
+		echo do_blocks( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Core block output.
+			'<!-- wp:comments --><div class="wp-block-comments">'
+			. '<!-- wp:comments-title /-->'
+			. '<!-- wp:comment-template --><!-- wp:comment-author-name /--><!-- wp:comment-date /--><!-- wp:comment-content /--><!-- wp:comment-reply-link /--><!-- /wp:comment-template -->'
+			. '<!-- wp:comments-pagination /-->'
+			. '<!-- wp:post-comments-form /-->'
+			. '</div><!-- /wp:comments -->'
+		);
+	}
+
+	/**
+	 * Page footer for the plugin's own templates; see get_header().
+	 */
+	public static function get_footer() {
+		if ( ! wp_is_block_theme() ) {
+			get_footer();
+			return;
+		}
+		block_template_part( 'footer' );
+		?>
+</div>
+		<?php wp_footer(); ?>
+</body>
+</html>
+		<?php
+	}
+
 	private function __construct() {
 		add_filter( 'single_template', array( $this, 'load_single_template' ) );
 		add_filter( 'archive_template', array( $this, 'load_archive_template' ) );

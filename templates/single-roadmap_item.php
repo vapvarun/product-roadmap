@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-get_header();
+Roadmap_Template::get_header();
 
 while (have_posts()) : the_post();
     $item_id = get_the_ID();
@@ -181,7 +181,7 @@ while (have_posts()) : the_post();
                 <!-- Comments Section -->
                 <?php if (comments_open() || get_comments_number()) : ?>
                     <div class="roadmap-single-comments">
-                        <?php comments_template(); ?>
+                        <?php Roadmap_Template::comments(); ?>
                     </div>
                 <?php endif; ?>
 
@@ -196,5 +196,5 @@ while (have_posts()) : the_post();
 
 <?php endwhile;
 
-get_footer();
+Roadmap_Template::get_footer();
 ?>

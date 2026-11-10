@@ -59,7 +59,7 @@
   font-weight: 500;
   line-height: 1;
   border: 1px solid transparent;
-  border-radius: var(--rm-radius-control);
+  border-radius: var(--rm-radius-button);
   cursor: pointer;
   @include transition();
   
@@ -210,10 +210,16 @@
   }
 }
 
-// Search field and action buttons in the header row share one height.
+// Fields and buttons share one height, so the filter bar, header row and modals
+// match on every theme (the theme's input padding no longer decides it). Small
+// and icon buttons keep their own size.
+.roadmap-form-control,
+.roadmap-btn:not(.roadmap-btn-sm):not(.roadmap-btn-icon) {
+  min-height: var(--rm-control-height);
+}
 .roadmap-header-actions .roadmap-form-control,
 .roadmap-header-actions .roadmap-btn {
-  height: 40px;
+  height: var(--rm-control-height);
 }
 
 // Cards
