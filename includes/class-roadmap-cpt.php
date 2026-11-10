@@ -18,7 +18,6 @@ class Roadmap_CPT {
 	private function __construct() {
 		add_action( 'init', array( $this, 'register_post_types' ) );
 		add_action( 'init', array( $this, 'register_taxonomies' ) );
-		add_action( 'init', array( $this, 'register_block_meta' ) );
 		add_action( 'add_meta_boxes', array( $this, 'add_meta_boxes' ) );
 		add_action( 'save_post_roadmap_item', array( $this, 'save_meta_boxes' ), 10, 2 );
 		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_block_editor_assets' ) );
@@ -645,52 +644,6 @@ class Roadmap_CPT {
 	}
 
 	/**
-	 * Register block editor meta fields
-	 */
-	public function register_block_meta() {
-		$fields = $this->get_meta_fields();
-
-		foreach ( $fields as $field ) {
-			// Skip readonly fields
-			if ( isset( $field['readonly'] ) && $field['readonly'] ) {
-				continue;
-			}
-
-			// Register meta field for block editor
-			register_post_meta(
-				'roadmap_item',
-				$field['id'],
-				array(
-					'show_in_rest'  => true,
-					'single'        => true,
-					'type'          => $this->get_field_rest_type( $field ),
-					'auth_callback' => function () {
-						return current_user_can( 'edit_posts' );
-					},
-				)
-			);
-		}
-	}
-
-	/**
-	 * Get REST API type for field
-	 */
-	private function get_field_rest_type( $field ) {
-		switch ( $field['type'] ) {
-			case 'number':
-			case 'range':
-				return 'integer';
-			case 'date':
-			case 'text':
-			case 'select':
-			case 'url':
-			case 'textarea':
-			default:
-				return 'string';
-		}
-	}
-
-	/**
 	 * Enqueue block editor assets
 	 */
 	public function enqueue_block_editor_assets() {
@@ -702,15 +655,6 @@ class Roadmap_CPT {
 		if ( ! $screen || $screen->post_type !== 'roadmap_item' ) {
 			return;
 		}
-
-		// Enqueue block editor scripts
-		wp_enqueue_script(
-			'roadmap-block-editor',
-			ROADMAP_PLUGIN_URL . 'assets/js/block-editor.js',
-			array( 'wp-blocks', 'wp-element', 'wp-editor', 'wp-components', 'wp-data' ),
-			ROADMAP_VERSION,
-			true
-		);
 
 		// Enqueue meta box scripts and styles
 		wp_enqueue_script(
@@ -737,17 +681,6 @@ class Roadmap_CPT {
 				ROADMAP_VERSION
 			);
 		}
-
-		// Localize script with field data
-		wp_localize_script(
-			'roadmap-block-editor',
-			'roadmapMeta',
-			array(
-				'fields' => $this->get_meta_fields(),
-				'nonce'  => wp_create_nonce( 'roadmap_meta' ),
-				'isPro'  => defined( 'ROADMAP_PRO_VERSION' ),
-			)
-		);
 	}
 
 	/**

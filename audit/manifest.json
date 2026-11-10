@@ -1928,15 +1928,6 @@
     ],
     "localizeScripts": [
       {
-        "handle": "roadmap-block-editor",
-        "objectName": "roadmapMeta",
-        "data": {
-          "nonce": "roadmap_meta"
-        },
-        "file": "includes/class-roadmap-cpt.php",
-        "line": 719
-      },
-      {
         "handle": "roadmap-admin",
         "objectName": "roadmap_admin",
         "data": {

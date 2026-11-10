@@ -26,7 +26,7 @@ class Roadmap_Template {
 	public function load_single_template( $template ) {
 		global $post;
 
-		if ( $post->post_type === 'roadmap_item' ) {
+		if ( $post instanceof WP_Post && 'roadmap_item' === $post->post_type ) {
 			/**
 			 * Fires when a single roadmap item is viewed on the frontend.
 			 *
