@@ -44,7 +44,7 @@ To review, go to **Roadmap > All Items** and click **Pending**. Suggestions such
 
 ![The Roadmap Items list filtered to Pending, with Approve and Reject links under a suggestion](../images/product-roadmap-pending-suggestions-admin.webp)
 
-*The Pending view of Roadmap Items, with Approve and Reject links under the suggestion "Support SSO with Okta".*
+*The Pending view of Roadmap Items with three member suggestions; Approve and Reject appear under a suggestion when you point at it, here "Add a swimlane view to the board".*
 
 If **Notify on new suggestion** is on, you also get an email with a link to the suggestion. See [Notifications](../settings/02-notifications.md).
 

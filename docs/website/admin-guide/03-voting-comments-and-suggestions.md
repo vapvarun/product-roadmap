@@ -53,9 +53,9 @@ To hide comment counts on one board, use `show_comments="hide"`. See [Board Filt
 
 ### Moderating
 
-![Comments on the Dark theme roadmap item in the WordPress Comments screen](../images/product-roadmap-comments-moderation.webp)
+![The WordPress Comments screen listing a comment waiting for approval on a roadmap item](../images/product-roadmap-comments-moderation.webp)
 
-*The WordPress Comments screen with a comment on the "Dark theme" roadmap item.*
+*The WordPress Comments screen with a comment from a member waiting for approval on the "Custom task fields" item, with Approve, Reply, Quick Edit, Edit, Spam and Trash links.*
 
 1. Go to **Comments** in the admin sidebar. Comments on roadmap items show the item title under **In response to**.
 2. Hover over a comment to **Approve**, **Reply**, **Edit**, mark it as **Spam**, or move it to the **Trash**.
