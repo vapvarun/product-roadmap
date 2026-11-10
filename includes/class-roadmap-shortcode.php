@@ -847,8 +847,8 @@ class Roadmap_Shortcode {
 		wp_add_inline_style(
 			'roadmap-vue-app',
 			'
-            /* Hide the third select (product filter) when viewing single product roadmap */
-            .roadmap-single-product .roadmap-filters select:nth-child(3) {
+            /* Hide the product filter when viewing single product roadmap */
+            .roadmap-single-product .roadmap-filters .roadmap-filter-product {
                 display: none !important;
             }
         '

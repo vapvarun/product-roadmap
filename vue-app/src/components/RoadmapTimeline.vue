@@ -914,7 +914,7 @@ const formatDate = (date) => {
   }
 
   .roadmap-timeline-sections {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .roadmap-visual-timeline {

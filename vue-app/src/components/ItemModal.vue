@@ -80,6 +80,7 @@
                 max="100"
                 step="5"
                 class="roadmap-range-input"
+                :style="{ '--roadmap-progress': `${form.progress}%` }"
               >
               <span class="roadmap-range-value">{{ form.progress }}%</span>
             </div>
@@ -251,7 +252,11 @@ const handleSubmit = () => {
   appearance: none;
   /* The track is the slider boundary (>= 3:1); themes add a generic input
      border, which a slider does not need. */
-  background: var(--rm-control-border);
+  background: linear-gradient(
+    to right,
+    var(--roadmap-accent) var(--roadmap-progress, 0%),
+    var(--rm-control-border) var(--roadmap-progress, 0%)
+  );
   border: 0;
   border-radius: 4px;
   outline: none;

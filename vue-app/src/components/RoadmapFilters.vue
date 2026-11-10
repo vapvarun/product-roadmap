@@ -36,7 +36,7 @@
       v-if="isPro && products.length > 0"
       :value="product"
       @change="$emit('update:product', $event.target.value)"
-      class="roadmap-form-control"
+      class="roadmap-form-control roadmap-filter-product"
       :aria-label="config?.i18n?.filter_by_product || 'Filter by product'"
     >
       <option value="">{{ config?.i18n?.all_products || 'All Products' }}</option>

@@ -362,7 +362,7 @@ const formatDate = (date) => {
   &:before {
     content: '';
     position: absolute;
-    left: 12px;
+    left: 14px;
     top: 0;
     bottom: 0;
     width: 2px;

@@ -210,6 +210,12 @@
   }
 }
 
+// Search field and action buttons in the header row share one height.
+.roadmap-header-actions .roadmap-form-control,
+.roadmap-header-actions .roadmap-btn {
+  height: 40px;
+}
+
 // Cards
 .roadmap-card {
   background: var(--rm-surface);
