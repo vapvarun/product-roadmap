@@ -398,7 +398,7 @@ const formatDate = (date) => {
   flex: 1;
   background: var(--rm-surface);
   border: 1px solid var(--rm-border);
-  border-radius: 6px;
+  border-radius: var(--rm-radius);
   padding: 15px;
   transition: all 0.2s;
 }

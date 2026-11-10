@@ -12,7 +12,6 @@
   // Colour tokens live in assets/css/roadmap-tokens.css (loaded first).
   color: var(--rm-text);
   background: var(--rm-app-bg);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   line-height: 1.6;
   
   * {
@@ -30,6 +29,11 @@
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
+
+  // Reign's content area already provides the vertical spacing.
+  body.wb-reign-theme & {
+    padding-block: 0;
+  }
 }
 
 // Typography
@@ -55,7 +59,7 @@
   font-weight: 500;
   line-height: 1;
   border: 1px solid transparent;
-  border-radius: 4px;
+  border-radius: var(--rm-radius-control);
   cursor: pointer;
   @include transition();
   
@@ -150,7 +154,7 @@
   color: var(--rm-text);
   background-color: var(--rm-surface);
   border: 1px solid var(--rm-control-border);
-  border-radius: 4px;
+  border-radius: var(--rm-radius-control);
   @include transition(border-color);
   
   &:focus {
@@ -246,7 +250,8 @@
   left: 0;
   right: 0;
   bottom: 0;
-  z-index: 1000;
+  // Above theme sticky headers (Reign uses 1030), below the admin bar (99999).
+  z-index: 99990;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -254,7 +259,7 @@
   
   &-dialog {
     background: var(--rm-elevated);
-    border-radius: 8px;
+    border-radius: var(--rm-radius);
     width: 90%;
     max-width: 600px;
     max-height: 90vh;

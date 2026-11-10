@@ -622,7 +622,7 @@ const formatDate = (date) => {
     // Solid boundary: a control on the accent header needs >= 3:1 (WCAG 1.4.11).
     border: 1px solid var(--roadmap-accent-contrast);
     padding: 0.5rem 1rem;
-    border-radius: 6px;
+    border-radius: var(--rm-radius-control);
     font-size: 14px;
     cursor: pointer;
 

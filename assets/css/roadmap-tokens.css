@@ -31,6 +31,11 @@
 	--rm-accent-text-l-min: 0;
 	--rm-accent-text-l-max: 0.5;
 
+	/* Shape. Follow Reign's Global Border Radius / Form Radius when Reign is
+	   active (it declares them on :root); plain values elsewhere. */
+	--rm-radius: var(--reign-global-border-radius, 8px);
+	--rm-radius-control: var(--reign-global-form-radius, 4px);
+
 	/* Chrome. */
 	--rm-app-bg: transparent;
 	--rm-surface: #fff;
@@ -104,6 +109,13 @@ body.reign-ld-dark-theme,
 	--rm-priority-medium: #fbbf24;   --rm-priority-medium-tint: #2c2416;
 	--rm-priority-high: #fb923c;     --rm-priority-high-tint: #2c1f14;
 	--rm-priority-critical: #f87171; --rm-priority-critical-tint: #2c1a1a;
+}
+
+/* Reign: card and divider borders match the theme's own border colour (it
+   already differs between Reign's light and dark schemes). Declared after the
+   dark block so it wins in both. */
+body.wb-reign-theme {
+	--rm-border: var(--reign-site-border-color);
 }
 
 /* Derived accent tokens. A custom property resolves where it is declared, so
