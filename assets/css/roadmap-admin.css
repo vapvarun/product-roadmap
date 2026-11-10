@@ -554,6 +554,22 @@
     font-size: 14px;
 }
 
+/* Text fields and selects share one height (WordPress gives selects a taller line-height). */
+.roadmap-settings-wrap input[type="text"],
+.roadmap-settings-wrap input[type="email"],
+.roadmap-settings-wrap input[type="number"],
+.roadmap-settings-wrap input[type="url"],
+.roadmap-settings-wrap select,
+.roadmap-modal-content input[type="text"],
+.roadmap-modal-content input[type="email"],
+.roadmap-modal-content input[type="number"],
+.roadmap-modal-content select {
+    height: 40px;
+    line-height: 1.4;
+    /* WordPress sets regular-text to 25em; on a phone that is wider than the card. */
+    max-width: 100%;
+}
+
 .roadmap-settings-wrap input[type="text"]:focus,
 .roadmap-settings-wrap input[type="email"]:focus,
 .roadmap-settings-wrap input[type="number"]:focus,
@@ -708,6 +724,8 @@
     box-shadow: 0 2px 4px rgba(0,0,0,0.04);
     border: 1px solid #e5e7eb;
     padding: 30px;
+    /* A flex child may shrink below its content; without this the card is wider than a phone. */
+    min-width: 0;
 }
 
 .roadmap-settings-section {
@@ -959,6 +977,8 @@
 
     .roadmap-settings-container {
         flex-direction: column;
+        /* Stacked: fill the width instead of shrink-wrapping around fixed-width fields. */
+        align-items: stretch;
     }
 
     .roadmap-settings-sidebar {
