@@ -2,7 +2,7 @@
   "header": {
     "name": "Product Roadmap",
     "slug": "product-roadmap",
-    "version": "1.8.0",
+    "version": "1.8.2",
     "textDomain": "product-roadmap",
     "domainPath": "/languages",
     "requiresWP": "5.8",

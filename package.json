@@ -1,6 +1,6 @@
 {
   "name": "product-roadmap",
-  "version": "1.8.1",
+  "version": "1.8.2",
   "description": "WordPress Roadmap Plugin",
   "scripts": {
     "build": "./build.sh",
