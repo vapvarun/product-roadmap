@@ -119,6 +119,8 @@ defineEmits(['update:status', 'update:category', 'update:product', 'update:sortB
     
     select {
       width: 100%;
+      // In a column, flex: 1 makes the basis (not the height) win: keep the shared field height.
+      flex: none;
     }
     
     .roadmap-sort-control {

@@ -213,13 +213,14 @@
 // Fields and buttons share one height, so the filter bar, header row and modals
 // match on every theme (the theme's input padding no longer decides it). Small
 // and icon buttons keep their own size.
-.roadmap-form-control,
+input.roadmap-form-control,
+select.roadmap-form-control,
 .roadmap-btn:not(.roadmap-btn-sm):not(.roadmap-btn-icon) {
-  min-height: var(--rm-control-height);
-}
-.roadmap-header-actions .roadmap-form-control,
-.roadmap-header-actions .roadmap-btn {
   height: var(--rm-control-height);
+}
+// A textarea keeps its own height, but never shorter than a field.
+textarea.roadmap-form-control {
+  min-height: var(--rm-control-height);
 }
 
 // Cards
