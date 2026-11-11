@@ -12,7 +12,6 @@
   // Colour tokens live in assets/css/roadmap-tokens.css (loaded first).
   color: var(--rm-text);
   background: var(--rm-app-bg);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   line-height: 1.6;
   
   * {
@@ -30,6 +29,11 @@
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
+
+  // Reign's content area already provides the vertical spacing.
+  body.wb-reign-theme & {
+    padding-block: 0;
+  }
 }
 
 // Typography
@@ -55,7 +59,7 @@
   font-weight: 500;
   line-height: 1;
   border: 1px solid transparent;
-  border-radius: 4px;
+  border-radius: var(--rm-radius-button);
   cursor: pointer;
   @include transition();
   
@@ -150,7 +154,7 @@
   color: var(--rm-text);
   background-color: var(--rm-surface);
   border: 1px solid var(--rm-control-border);
-  border-radius: 4px;
+  border-radius: var(--rm-radius-control);
   @include transition(border-color);
   
   &:focus {
@@ -206,6 +210,19 @@
   }
 }
 
+// Fields and buttons share one height, so the filter bar, header row and modals
+// match on every theme (the theme's input padding no longer decides it). Small
+// and icon buttons keep their own size.
+input.roadmap-form-control,
+select.roadmap-form-control,
+.roadmap-btn:not(.roadmap-btn-sm):not(.roadmap-btn-icon) {
+  height: var(--rm-control-height);
+}
+// A textarea keeps its own height, but never shorter than a field.
+textarea.roadmap-form-control {
+  min-height: var(--rm-control-height);
+}
+
 // Cards
 .roadmap-card {
   background: var(--rm-surface);
@@ -239,14 +256,31 @@
   }
 }
 
+// Keyboard focus on cards that open the item detail
+.roadmap-card:focus-visible,
+.roadmap-list-item:focus-visible,
+.roadmap-minimal-item:focus-visible,
+.roadmap-ideabox-content:focus-visible,
+.roadmap-item:focus-visible,
+.roadmap-list-group-header:focus-visible {
+  outline: 2px solid var(--roadmap-accent);
+  outline-offset: 2px;
+}
+
 // Modal
+.roadmap-modal-dialog:focus {
+  // Focus lands on the dialog itself when it has no field; the title announces it.
+  outline: none;
+}
+
 .roadmap-modal {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  z-index: 1000;
+  // Above theme sticky headers (Reign uses 1030), below the admin bar (99999).
+  z-index: 99990;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -254,7 +288,7 @@
   
   &-dialog {
     background: var(--rm-elevated);
-    border-radius: 8px;
+    border-radius: var(--rm-radius);
     width: 90%;
     max-width: 600px;
     max-height: 90vh;

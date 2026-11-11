@@ -23,6 +23,7 @@
         v-for="item in items"
         :key="item.id"
         class="roadmap-card"
+        tabindex="0" role="group" :aria-label="item.title" @keydown.enter.self="$emit('item-click', item)" @keydown.space.self.prevent="$emit('item-click', item)"
         @click="$emit('item-click', item)"
       >
         <div class="roadmap-card-header">
@@ -261,7 +262,7 @@ const formatDate = (date) => {
 .roadmap-card {
   background: var(--rm-surface);
   border: 1px solid var(--rm-border);
-  border-radius: 8px;
+  border-radius: var(--rm-radius);
   padding: 20px;
   cursor: pointer;
   transition: all 0.3s;

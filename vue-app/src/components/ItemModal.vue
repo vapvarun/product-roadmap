@@ -1,9 +1,9 @@
 <template>
   <div class="roadmap-modal" @click.self="$emit('close')">
-    <div class="roadmap-modal-dialog">
+    <div class="roadmap-modal-dialog" ref="dialogRef" role="dialog" aria-modal="true" :aria-labelledby="titleId" tabindex="-1">
       <div class="roadmap-modal-header">
-        <h3>{{ item?.id ? (i18n.edit_item || 'Edit Item') : (i18n.add_new_item || 'Add New Item') }}</h3>
-        <button @click="$emit('close')" class="roadmap-btn roadmap-btn-icon">×</button>
+        <h3 :id="titleId">{{ item?.id ? (i18n.edit_item || 'Edit Item') : (i18n.add_new_item || 'Add New Item') }}</h3>
+        <button @click="$emit('close')" class="roadmap-btn roadmap-btn-icon" :aria-label="i18n.close || 'Close'">×</button>
       </div>
       
       <div class="roadmap-modal-body">
@@ -80,6 +80,7 @@
                 max="100"
                 step="5"
                 class="roadmap-range-input"
+                :style="{ '--roadmap-progress': `${form.progress}%` }"
               >
               <span class="roadmap-range-value">{{ form.progress }}%</span>
             </div>
@@ -162,6 +163,7 @@
 </template>
 
 <script setup>
+import { useDialog } from '../composables/useDialog'
 import { reactive, watch, inject } from 'vue'
 
 const config = inject('$roadmapConfig', {})
@@ -175,6 +177,7 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['save', 'close'])
+const { dialogRef, titleId } = useDialog(() => emit('close'))
 
 const form = reactive({
   title: '',
@@ -251,7 +254,11 @@ const handleSubmit = () => {
   appearance: none;
   /* The track is the slider boundary (>= 3:1); themes add a generic input
      border, which a slider does not need. */
-  background: var(--rm-control-border);
+  background: linear-gradient(
+    to right,
+    var(--roadmap-accent) var(--roadmap-progress, 0%),
+    var(--rm-control-border) var(--roadmap-progress, 0%)
+  );
   border: 0;
   border-radius: 4px;
   outline: none;

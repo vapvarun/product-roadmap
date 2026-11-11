@@ -154,7 +154,7 @@ const handleDrop = (event, newStatus) => {
   
   &-column {
     background: var(--rm-surface-alt);
-    border-radius: 8px;
+    border-radius: var(--rm-radius);
     padding: 15px;
     min-height: 400px;
   }

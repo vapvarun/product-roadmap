@@ -591,7 +591,7 @@ const formatDate = (date) => {
 
 .roadmap-timeline {
   background: var(--rm-surface);
-  border-radius: 12px;
+  border-radius: var(--rm-radius);
   overflow: hidden;
   box-shadow: 0 2px 8px var(--rm-shadow);
 }
@@ -622,7 +622,7 @@ const formatDate = (date) => {
     // Solid boundary: a control on the accent header needs >= 3:1 (WCAG 1.4.11).
     border: 1px solid var(--roadmap-accent-contrast);
     padding: 0.5rem 1rem;
-    border-radius: 6px;
+    border-radius: var(--rm-radius-control);
     font-size: 14px;
     cursor: pointer;
 
@@ -647,7 +647,7 @@ const formatDate = (date) => {
 
 .roadmap-timeline-section {
   background: var(--rm-surface-alt);
-  border-radius: 12px;
+  border-radius: var(--rm-radius);
   padding: 1.5rem;
   min-height: 120px;
 
@@ -714,7 +714,7 @@ const formatDate = (date) => {
 
 .roadmap-timeline-item {
   background: var(--rm-surface);
-  border-radius: 8px;
+  border-radius: var(--rm-radius);
   padding: 1.25rem;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -767,11 +767,14 @@ const formatDate = (date) => {
 
   .roadmap-timeline-item-footer {
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
     align-items: center;
+    gap: 0.5rem 1rem;
 
     .roadmap-timeline-item-meta {
       display: flex;
+      flex-wrap: wrap;
       align-items: center;
       gap: 0.5rem;
 
@@ -914,7 +917,11 @@ const formatDate = (date) => {
   }
 
   .roadmap-timeline-sections {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .roadmap-timeline-section {
+    padding: 1rem;
   }
 
   .roadmap-visual-timeline {

@@ -160,6 +160,21 @@ cp -r languages "$FREE_DIR/"
 cp -r templates "$FREE_DIR/"
 cp -r vue-app "$FREE_DIR/"  # Include Vue source files for WordPress compliance
 cp product-roadmap.php "$FREE_DIR/"
+
+# Check the files that actually ship (WP_DEBUG off loads assets/js/roadmap-app.js,
+# not vue-app/dist). The board bundle is a classic script: it must be exactly one
+# IIFE, or a minified top-level name (once `wp`) shadows window.wp and breaks every
+# editor screen. It must also be the bundle build.sh just made, so a zip cannot
+# carry a stale frontend.
+SHIPPED_JS="$FREE_DIR/assets/js/roadmap-app.js"
+if [ "$(head -c 12 "$SHIPPED_JS" 2>/dev/null)" != '(function(){' ]; then
+    echo "ERROR: shipped assets/js/roadmap-app.js is missing or does not start with a single IIFE."
+    exit 1
+fi
+if ! cmp -s "$SHIPPED_JS" vue-app/dist/assets/index.js; then
+    echo "ERROR: shipped assets/js/roadmap-app.js is not the bundle build.sh just built."
+    exit 1
+fi
 cp readme.txt "$FREE_DIR/"
 cp LICENSE "$FREE_DIR/" 2>/dev/null || true
 cp package.json "$FREE_DIR/"  # Include package.json for build instructions

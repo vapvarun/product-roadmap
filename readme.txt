@@ -3,7 +3,7 @@ Contributors: wbcomdesigns, vapvarun
 Tags: roadmap, feature requests, user feedback, changelog, feature voting
 Requires at least: 6.5
 Tested up to: 7.1
-Stable tag: 1.8.1
+Stable tag: 1.8.2
 Requires PHP: 8.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -119,6 +119,30 @@ Multiple product roadmaps are available in the Pro version. Free version support
 8. Settings for product name, item labels, display defaults, notifications and changelog types.
 
 == Changelog ==
+
+= 1.8.2 - November 2026 =
+
+Quality release for every theme, with Reign, BuddyX, BuddyX Pro and block themes checked. Install it together with Product Roadmap Pro 1.8.2.
+
+* Improve  - Board, list, card, timeline and idea-box surfaces and buttons follow your theme's radius settings, including Reign's global, form and button radius. The Timeline wrapper goes from 12px to 8px and the Minimal card from 6px to 8px on every theme.
+* Improve  - The plugin now inherits your theme's font, and its pages sit inside the theme's content area with no sidebar on classic themes such as Astra and GeneratePress.
+* Improve  - The Roadmap Item Details box moves to the editor sidebar, so priority, progress and dates are visible without opening the Meta Boxes panel.
+* Improve  - Item, suggestion and edit dialogs announce themselves to screen readers, keep Tab focus inside, close with Escape, lock page scroll and return focus to the button that opened them.
+* Improve  - Dialogs now open above sticky theme headers.
+* Improve  - Items on every board layout open from the keyboard (Enter or Space) and focus returns to the item when the dialog closes; List groups open the same way.
+* Improve  - A failed vote or suggestion shows a plain "Network error" message and rolls back.
+* Improve  - Single item vote buttons have accessible names and state, and the down arrow is labelled "Remove your vote".
+* Fix      - Block themes such as Twenty Twenty-Five: the mobile menu opens on roadmap pages.
+* Fix      - The all-products archive no longer scrolls sideways on desktop widths.
+* Fix      - Contributors no longer trigger a PHP 8.1 deprecation on the Roadmap dashboard, and see only their own items there with no pending-submissions notice.
+* Fix      - Saving another Settings tab no longer blanks the product name and item labels.
+* Fix      - Status emails go once per real status change to people who still hold a vote or an approved comment, never for trashing or republishing, and never while Enable Email Notifications is off.
+* Fix      - Admin item save keeps line breaks in Completion Notes and cleans URL fields.
+* Fix      - The Changelog Types table and changelog row controls fit on small screens.
+* Fix      - The old-data cleanup after an update runs in the background through WP-Cron instead of on a visitor's first request.
+* Improve  - Removed the Cache Expiry setting, which did nothing.
+* Dev      - Added Roadmap_API::active_vote_sql() and Roadmap_API::honeypot_tripped() for Pro to share the vote rule and spam check.
+* Compat   - Aligned with Product Roadmap Pro 1.8.2. Install both updates together.
 
 = 1.8.1 - November 2026 =
 

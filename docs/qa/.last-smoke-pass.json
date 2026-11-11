@@ -1,70 +1,206 @@
 {
-  "mode": "combo",
-  "release_version": "1.8.0",
-  "pro_version": "1.8.0",
-  "ran_at": "2026-09-29T02:31:00Z",
-  "run_number": 6,
-  "sections": {
-    "A_fresh_install":     { "pass": 3, "fail": 0, "skipped": 0 },
-    "B_upgrade":           { "pass": 0, "fail": 0, "skipped": 1 },
-    "C_core_flows":        { "pass": 4, "fail": 0, "skipped": 7 },
-    "D_regression_guards": { "pass": 18, "fail": 0, "skipped": 1 },
-    "E_pro_smoke":         { "pass": 7, "fail": 0, "skipped": 4 },
-    "E2_environment":      { "pass": 0, "fail": 0, "skipped": 8 },
-    "F_cross_browser":     { "pass": 1, "fail": 0, "skipped": 2 },
-    "G_post_release":      { "pass": 0, "fail": 0, "skipped": 1 }
+ "mode": "combo",
+ "release_version": "1.8.2",
+ "pro_version": "1.8.2",
+ "ran_at": "2026-11-11T08:15:00Z",
+ "commits": {
+  "free": "fa292fd",
+  "pro": "f4b63e9"
+ },
+ "sections": {
+  "A_fresh_install": {
+   "pass": 0,
+   "fail": 0,
+   "skipped": 0
   },
-  "verdict": "SHIP",
-  "hard_fails": [],
-  "failures": [],
-  "debug_log_issues": [],
-  "manual_required": [
-    { "id": "F.firefox-desktop", "reason": "Chromium-only Playwright MCP cannot drive Firefox." },
-    { "id": "F.safari-ios", "reason": "Chromium-only Playwright MCP cannot drive Safari/iOS." }
-  ],
-  "untested": [
-    { "id": "B.1", "reason": "env: no packaged prior-stable-tag (1.7.x) zip available in this environment", "needs": "a packaged 1.7.x build to install-then-upgrade" },
-    { "id": "C.member.create-flow", "reason": "session time budget; not walked this run", "needs": "submit a suggestion as qa_member_owner, confirm pending state + notification" },
-    { "id": "C.member.edit-and-delete", "reason": "session time budget", "needs": "edit/delete own pending suggestion as qa_member_owner; confirm qa_member_other cannot" },
-    { "id": "C.member.mobile", "reason": "session time budget; 390px walk not performed", "needs": "dedicated 390px pass on board/vote/suggest" },
-    { "id": "C.mod.queue-and-actions", "reason": "Approve link visibility re-verified live (see D regression notes), but full Approve/Reject/Start-Over click-through and status propagation not walked this run", "needs": "click through as qa_elevated" },
-    { "id": "C.admin.plugin-pages", "reason": "only Settings>Templates and Analytics visited; Dashboard and Setup Wizard tabs not swept", "needs": "full admin page sweep" },
-    { "id": "C.admin.crud", "reason": "session time budget", "needs": "create/edit/reorder/delete product+status+type terms" },
-    { "id": "C.notifications", "reason": "requires Mailpit inspection; not done this run", "needs": "trigger status change, check Mailpit + per-type toggle" },
-    { "id": "D.3", "reason": "requires live block-editor sidebar interaction; not walked this run (code-level shortcode/option-merge behavior spot-checked elsewhere, e.g. D.15/D.18, but not this specific contract)", "needs": "open block editor, change every sidebar option, confirm live preview + shortcode parity" },
-    { "id": "E.webhooks", "reason": "roadmap_pro_enable_webhooks=no in this environment; feature disabled, not exercised", "needs": "enable + configure a request-bin, trigger an event" },
-    { "id": "E.feedback-widget", "reason": "roadmap_pro_enable_feedback_widget=no in this environment", "needs": "enable, embed on non-roadmap page, submit" },
-    { "id": "E.email-templates", "reason": "requires Mailpit inspection; time budget", "needs": "edit a template, trigger the email, diff against admin preview" },
-    { "id": "E.version-compat", "reason": "per runbook: previously PASS-verified independently (card 10344548089); ROADMAP_MIN_PRO_VERSION/ROADMAP_PRO_MIN_FREE_VERSION unchanged since (both still 1.8.0/1.8.0), so not re-run", "needs": "re-run only if those constants change" }
-  ],
-  "coverage": {
-    "multisite": "na: single-site plugin, not tested this run (E2.multisite skipped for time)",
-    "rtl": "deferred: time budget",
-    "a11y": "deferred: time budget",
-    "concurrency": "deferred: no second session",
-    "uninstall": "na: not exercised (would deactivate/uninstall live site)",
-    "user_management": "na: no per-user admin surface beyond WP capabilities (per runbook)",
-    "E2_environment": "deferred: all 8 rows skipped this run — prioritized D (regression guards) and E (Pro smoke) per explicit run instructions; token/CSS self-scoping already spot-verified via D.5/D.16 contrast analysis which covers part of E2.no-reset-theme's intent"
+  "B_upgrade": {
+   "pass": 0,
+   "fail": 0,
+   "skipped": 0
   },
-  "layer1_delta": [],
-  "regression_reverification": {
-    "run3_approve_row_action_css_collision": {
-      "status": "HOLDS",
-      "evidence": "Code: class-roadmap-cpt.php:1037 keys the action 'roadmap_approve' (not 'approve'), with an explanatory comment citing the wp-admin/css/common.css collision. Live: navigated to edit.php?post_status=pending&post_type=roadmap_item as admin, found a real pending item, computed style on the row-action span showed display:inline / visibility:visible, link text 'Approve'."
-    },
-    "run4_analytics_rest_capability_gate": {
-      "status": "HOLDS",
-      "evidence": "Code: Roadmap_Pro_Api::can_view_analytics() calls Roadmap_Permissions::can_view_analytics() which checks user_can($user_id, 'roadmap_view_analytics') - not edit_posts. Live re-verification via real logout/login with fresh nonce each switch: qa_contrib (Contributor, identity confirmed via 'Howdy, qa_contrib') got 403 rest_forbidden on both /roadmap/v1/analytics and /roadmap/v1/analytics/overview (with a valid X-WP-Nonce, ruling out a nonce-only 401); qa_admin (Administrator, identity confirmed via 'Howdy, QA qa_admin') got 200 on both."
-    },
-    "run5_templates_tab_timeline_gating": {
-      "status": "HOLDS",
-      "evidence": "Code: render_templates_settings() in roadmap-pro-addon/includes/class-roadmap-pro-settings.php now wraps both the Default Template <option value=\"timeline\"> and the Timeline shortcode gallery card in `if ($timeline_enabled)`, sourced from get_option('roadmap_pro_enable_timeline'). Live: toggled the option to 'no' via wp-cli, reloaded Settings > Templates as admin - dropdown options were exactly [board, list, cards, minimal, ideabox], no 'timeline', and page text contained no 'Timeline View' anywhere. Toggled back to 'yes', reloaded - timeline option reappeared in the dropdown. Option restored to its original value ('yes') before finishing."
-    }
+  "C_core_flows": {
+   "pass": 11,
+   "fail": 1,
+   "skipped": 0
   },
-  "top3": [
-    "Clean run: all 3 named regression guards from runs 3-5 (Approve row-action CSS collision, analytics REST capability gate, Templates-tab Timeline gating) re-verified live and still hold.",
-    "All 19 Section D regression-guard rows reviewed; 18 confirmed (code and/or live), 1 (D.3, block-editor sidebar live options) deferred for time - no failures found anywhere in D.",
-    "Zero new debug.log entries (fatal/warning/notice/deprecated) across the entire session; zero hard_fails; zero failures. E2 environment matrix and several C/E rows deferred to untested[] for time budget, not silently skipped."
-  ],
-  "notes": "Retry of run 6 after the prior attempt stalled on a dark-mode/toast-contrast screenshot loop. This run used computed-style/contrast-ratio math (token hex values from roadmap-tokens.css and App.vue, WCAG relative-luminance formula) instead of screenshots for D.5 and D.16 - all status/priority chips and the frontend toast (success + error) clear 4.5:1 in both light and dark. No screenshot or wait_for retry loop was used anywhere in this run."
+  "D_regression_guards": {
+   "pass": 2,
+   "fail": 0,
+   "skipped": 1
+  },
+  "E_pro_smoke": {
+   "pass": 8,
+   "fail": 1,
+   "skipped": 0
+  },
+  "E2_environment": {
+   "pass": 8,
+   "fail": 1,
+   "skipped": 0
+  },
+  "F_cross_browser": {
+   "pass": 2,
+   "fail": 0,
+   "skipped": 1
+  },
+  "G_post_release": {
+   "pass": 0,
+   "fail": 0,
+   "skipped": 0
+  }
+ },
+ "hard_fails": [],
+ "untested": [
+  {
+   "id": "F-firefox-webkit",
+   "reason": "env: Playwright MCP runs Chromium only",
+   "needs": "Firefox and WebKit pass"
+  },
+  {
+   "id": "D-status-email-count",
+   "reason": "no mail capture or email log exists on this site (only wp_options roadmap_notification_email); this run changed no item status and sent no status mail by design, but the count itself was not measured",
+   "needs": "mail-capture mu-plugin (or Mailpit) before and after"
+  },
+  {
+   "id": "RTL-server-side",
+   "reason": "env: site locale is LTR, so is_rtl() loading of roadmap-app-rtl.css was not exercised; dir=rtl was set by script and the rtl stylesheet was injected by a link tag",
+   "needs": "switch a test user or site to an RTL locale (e.g. ar) and reload"
+  },
+  {
+   "id": "dark-toggle-real",
+   "reason": "Reign dark toggle button is outside the viewport (not clickable); dark mode was applied by setting data-bx-mode=dark plus a dark class on html. prefers-color-scheme emulation does not change the plugin (it follows the theme class), so it proved nothing",
+   "needs": "click the theme dark toggle in a visible header state"
+  },
+  {
+   "id": "timeline-keyboard",
+   "reason": "timeline is the sixth template and was only measured for radius, not keyboard or dialog",
+   "needs": "keyboard pass on /poll-roadmap/timeline-view/"
+  },
+  {
+   "id": "roadmap-all-products-and-single-item-count",
+   "reason": "the item-count selector only matches board cards, so /roadmap/ and the single item page report 0 'items'; width, overflow, sidebar and PHP-warning checks did run on them",
+   "needs": "visual check that the product grid renders in each theme"
+  },
+  {
+   "id": "inner-card-comment-link",
+   "reason": "the comment link is a normal anchor to the single item; navigation was not clicked",
+   "needs": "none beyond href check (href verified)"
+  }
+ ],
+ "coverage": {
+  "multisite": "na: single-site install",
+  "rtl": "partial: dir=rtl simulated at 1440 and 390 on the board with the real rtl stylesheet injected; filter bar, header and cards mirror at 1440, no overflow; 390 is a single column so mirroring is not visible; server-side RTL loading not exercised",
+  "concurrency": "deferred: not in this browser walk",
+  "uninstall": "na: not in this walk"
+ },
+ "layer1_delta": [
+  "server-side 1.8.2 behaviour verified in walk 1 (Free c5bfe3f/Pro 6e5b821 plus 592ca7d/cba2eb0); this walk covers the browser surfaces on e948bd8/f4b63e9",
+  "theme matrix: 8 themes x 2 widths x 5 pages = 80 loads, all HTTP 200, zero horizontal overflow, zero PHP warnings in page bodies, zero page errors; 121 board items on /poll-roadmap/ and 11 changelog entries on the version page in every theme",
+  "twentytwentyfive header mobile menu opens at 390 on the board page and the single item and lists 10 links; Escape closes it",
+  "dialogs: board, cards, minimal, ideabox, list open on Enter, Space and mouse click as role=dialog aria-modal=true named by the item title, Escape closes, focus returns to the card in every case (1440 and 390). Tab trap held (0 escapes in 14 Tabs) in dark mode for all five and in light for Suggest and Edit. Vote and Space/Enter on the vote button open no dialog",
+  "Suggest dialog (owner and admin) and Manage Mode Edit dialog (admin): open once per activation, trapped, Escape closes, focus returns to the Suggest or Edit button; dark dialog bg rgb(55,63,71) with light text",
+  "radii at 1440: card, column, list group, timeline item all 8px on reign-theme, buddyx and twentytwentyfive; primary button, vote button and inputs 6px on Reign and 4px on BuddyX and Twenty Twenty-Five; badge 3px everywhere",
+  "offline: vote rolls back (3 votes, not pressed) with 'Network error. Check your connection and try again.'; Suggest keeps the form and shows the same message; online retry created the item as pending (admin list shows it)",
+  "roles: qa_member_other gets 403 on plugin API PUT and DELETE of the owner's item and 404 on core wp/v2 routes (CPT not exposed); qa_contrib gets 403 on roadmap-settings; qa_admin sees tabs General, Notifications, Changelog Types, License, Templates, Emails, Import/Export, Advanced",
+  "single item: Upvote this idea aria-pressed false -> true after voting with count 1 -> 2, back to false/1 on second click; the down arrow removes an existing upvote and does nothing otherwise",
+  "transients LIKE roadmap_pro_item_options_% / roadmap_pro_analytics_overview_%: 2 before, 2 after 20 anonymous and 23 admin page loads (no growth). roadmap* option hash unchanged",
+  "cleanup: 5 temp pages, 1 pending item and 1 comment deleted, 2 rate-limit transients cleared; roadmap_item publish count 1023 before and after, pages 18 before and after. Leftover pending items regress 1789988268, regressB 1789988632 and final 1789989159 pre-date this run and were not touched",
+  "debug.log 667376 -> 671636 bytes, all new lines are the contributor dashboard deprecation below (about 20 lines); no roadmap fatals or warnings otherwise"
+ ],
+ "failures": [],
+ "debug_log_issues": [],
+ "manual_required": [
+  "Firefox and WebKit pass",
+  "RTL locale load of roadmap-app-rtl.css",
+  "mail capture for the status email count",
+  "full-width template choice for TT5, TT21, GeneratePress, Reign and BuddyX board pages is an owner setup, not a code change"
+ ],
+ "walk_findings": [
+  {
+   "id": "C-contrib-dashboard-deprecation",
+   "origin": "from",
+   "triage_note": "render_dashboard_page loops recent items (publish and pending) and calls esc_url(get_edit_post_link($item->ID)). For a contributor, get_edit_post_link() returns null for items they do not own, so esc_url(null) raises a PHP 8.1+ deprecation, 5 lines per dashboard load (one per recent item). Reproduced by loading admin.php?page=roadmap-dashboard as qa_contrib at 08:10:52. Repo rule: a deprecation from our code on 8.1-8.5 is a bug.",
+   "expected": "no PHP deprecation; items the user cannot edit are rendered without a link",
+   "actual": "PHP Deprecated: ltrim(): Passing null to parameter #1 ($string) ... wp-includes/formatting.php line 4558, x5 per load, from includes/class-roadmap-settings.php ~line 395",
+   "url": "http://roadmap.local/wp-admin/admin.php?page=roadmap-dashboard (as qa_contrib)",
+   "screenshot": "/Users/varundubey/Local Sites/roadmap/app/qa-artifacts/smoke-1.8.2b/contrib-dashboard.png"
+  },
+  {
+   "id": "C-contrib-dashboard-exposure",
+   "origin": "from",
+   "triage_note": "The Roadmap menu and dashboard use capability edit_posts, so any Contributor sees the pending-submissions notice, total counts and the titles of other users' pending suggestions in Recent Items (Smoke 1.8.2b offline idea was listed to qa_contrib minutes after qa_member_owner submitted it). Settings are correctly 403. This is an owner policy call (1.8.2 privacy theme); not a broken function.",
+   "expected": "owner decision: either dashboard needs manage-level capability, or Recent Items excludes items the viewer cannot edit",
+   "actual": "qa_contrib sees 'You have 7 pending submissions awaiting review' and titles of others' pending items",
+   "url": "http://roadmap.local/wp-admin/admin.php?page=roadmap-dashboard (as qa_contrib)",
+   "screenshot": "/Users/varundubey/Local Sites/roadmap/app/qa-artifacts/smoke-1.8.2b/contrib-dashboard.png"
+  },
+  {
+   "id": "E-list-group-headers-keyboard",
+   "origin": "from",
+   "triage_note": "List template groups are collapsed by default. The group header is a plain div (tabindex=-1, no role, no aria-expanded, Enter does nothing), so a keyboard-only user cannot expand a group and therefore can never reach any list item or its dialog. Mouse expand then works and the dialog behaves correctly. Source: vue-app/src/components/RoadmapList.vue (built into assets/js/roadmap-app.js).",
+   "expected": "header is a button (or role=button, tabindex=0) with aria-expanded, toggled by Enter and Space",
+   "actual": "div.roadmap-list-group-header tabindex=-1, role=null, aria-expanded=null; Enter on the focused header leaves the group display:none",
+   "url": "http://roadmap.local/poll-roadmap/ with [roadmap template=\"list\" product=\"fieldbook\"]",
+   "screenshot": "/Users/varundubey/Local Sites/roadmap/app/qa-artifacts/smoke-1.8.2b/list-1440.png"
+  },
+  {
+   "id": "E2-sidebar-on-board-page",
+   "origin": "for",
+   "triage_note": "GeneratePress renders its right sidebar on the board page (page template default layout), shrinking the wrapper to 740 of 1425px at 1440. Reign (reign-sidebar-right, 811px), BuddyX (secondary, 848px) and BuddyX Pro (secondary, 978px) do the same. Astra shows no sidebar (1200px). It is each theme's default page layout for a shortcode page, which the plugin cannot control; an owner picks the full-width template. No overflow at any width.",
+   "expected": "no sidebar on plugin pages for classic themes",
+   "actual": "GeneratePress right-sidebar present on /poll-roadmap/ at 1440 (hidden at 390)",
+   "url": "http://roadmap.local/poll-roadmap/?qa_theme=generatepress",
+   "screenshot": "/Users/varundubey/Local Sites/roadmap/app/qa-artifacts/smoke-1.8.2b/tt5-menu-390.png"
+  },
+  {
+   "id": "E2-board-narrow-in-block-theme",
+   "origin": "for",
+   "triage_note": "Twenty Twenty-Five constrains the page content to 645px and Twenty Twenty-One to 610px at 1440, so the kanban board (121 items) is squeezed to about 45 percent of the 1425px parent. Not an overflow; theme content width. Listed so the owner knows the full-width page template is the fix.",
+   "expected": "board uses the available width",
+   "actual": "wrapper 645px (TT5) and 610px (TT21) inside a 1425px parent at 1440",
+   "url": "http://roadmap.local/poll-roadmap/?qa_theme=twentytwentyfive",
+   "screenshot": ""
+  },
+  {
+   "id": "D-single-downvote-label",
+   "origin": "from",
+   "triage_note": "By design the down arrow only removes an existing upvote (single-vote.js lines 98-110; downvotes were removed in 1.8.0). With no vote, clicking it sends no request and gives no feedback, yet it is announced as 'Downvote this idea'. Low severity labelling and dead-UI issue. Up-arrow aria-pressed and count are correct.",
+   "expected": "label and behaviour match (for example 'Remove your vote', disabled when no vote)",
+   "actual": "aria-label 'Downvote this idea', aria-pressed always false, click with no vote does nothing",
+   "url": "http://roadmap.local/roadmap/main/dark-mode-support/",
+   "screenshot": "/Users/varundubey/Local Sites/roadmap/app/qa-artifacts/smoke-1.8.2b/single-vote.png"
+  }
+ ],
+ "opus_reverify": [
+  {
+   "id": "C-contrib-dashboard-deprecation",
+   "disposition": "fixed",
+   "evidence": "dashboard link rendered only when get_edit_post_link() is non-empty; contributor dashboard reloaded in the browser after the fix, no new ltrim() line in debug.log (last one 08:10, from the walk)"
+  },
+  {
+   "id": "C-contrib-dashboard-exposure",
+   "disposition": "fixed (owner decision: contributors see only their own items)",
+   "evidence": "qa_contrib: no pending notice, Recent Items lists published items only; qa_elevated: notice shown, 5 recent items"
+  },
+  {
+   "id": "E-list-group-headers-keyboard",
+   "disposition": "fixed",
+   "evidence": "header is role=button tabindex=0 aria-expanded; Enter opens (false->true), Space closes (true->false)"
+  },
+  {
+   "id": "D-single-downvote-label",
+   "disposition": "fixed",
+   "evidence": "label 'Remove your vote', aria-disabled true when the visitor has no vote"
+  },
+  {
+   "id": "E2-sidebar-on-board-page",
+   "disposition": "not a plugin defect (origin: for)",
+   "evidence": "a shortcode page is an ordinary theme page; plugin templates use the content area without sidebar. Docs now say to use the theme's full-width template (admin-guide/02)"
+  },
+  {
+   "id": "E2-board-narrow-in-block-theme",
+   "disposition": "not a plugin defect (origin: for)",
+   "evidence": "Twenty Twenty-Five and Twenty Twenty-One constrain page content width; no overflow. Same docs tip"
+  }
+ ]
 }

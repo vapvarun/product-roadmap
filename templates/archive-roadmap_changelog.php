@@ -49,7 +49,7 @@ wp_localize_script(
 	)
 );
 
-get_header();
+Roadmap_Template::get_header();
 
 // Get current product filter if any
 $current_product      = get_query_var( 'changelog_product' );
@@ -304,4 +304,4 @@ if ( $current_product_term && ! is_wp_error( $current_product_term ) ) {
 	</div>
 </div>
 
-<?php get_footer(); ?>
+<?php Roadmap_Template::get_footer(); ?>

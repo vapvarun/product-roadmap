@@ -7,7 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-get_header();
+Roadmap_Template::get_header();
 
 // Support both URL patterns:
 // 1. /roadmap/{product}/ - custom rewrite with query var
@@ -54,4 +54,4 @@ $default_template = isset($pro_templates['default_template']) ? $pro_templates['
 </div>
 
 <?php
-get_footer();
+Roadmap_Template::get_footer();

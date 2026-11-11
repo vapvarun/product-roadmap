@@ -60,6 +60,11 @@ jQuery(document).ready(function($) {
             downBtn.addClass('active');
         }
 
+        // Voted state for assistive tech, not just the colour.
+        upBtn.attr('aria-pressed', userVote > 0 ? 'true' : 'false');
+        // The down arrow only removes an existing vote, so it is inert without one.
+        downBtn.attr('aria-disabled', userVote > 0 ? 'false' : 'true');
+
         currentUserVote = userVote;
     }
 

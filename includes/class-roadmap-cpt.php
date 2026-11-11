@@ -18,7 +18,6 @@ class Roadmap_CPT {
 	private function __construct() {
 		add_action( 'init', array( $this, 'register_post_types' ) );
 		add_action( 'init', array( $this, 'register_taxonomies' ) );
-		add_action( 'init', array( $this, 'register_block_meta' ) );
 		add_action( 'add_meta_boxes', array( $this, 'add_meta_boxes' ) );
 		add_action( 'save_post_roadmap_item', array( $this, 'save_meta_boxes' ), 10, 2 );
 		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_block_editor_assets' ) );
@@ -54,6 +53,27 @@ class Roadmap_CPT {
 		// Restoring a trashed item (board delete, rejected suggestion) puts it
 		// back where it was, not into Draft (the core default since 5.6).
 		add_filter( 'wp_untrash_post_status', array( $this, 'untrash_to_previous_status' ), 10, 3 );
+
+		// A permanently deleted item takes its votes with it (Trash keeps them,
+		// so a restored item still has its votes). Pro hangs its analytics
+		// cleanup on the same core hook.
+		add_action( 'before_delete_post', array( $this, 'delete_item_votes' ), 10, 2 );
+	}
+
+	/**
+	 * Remove the vote rows of a roadmap item that is being deleted for good.
+	 *
+	 * @param int     $post_id Post ID.
+	 * @param WP_Post $post    Post object.
+	 * @return void
+	 */
+	public function delete_item_votes( $post_id, $post ) {
+		if ( 'roadmap_item' !== $post->post_type ) {
+			return;
+		}
+		global $wpdb;
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table; item_id is indexed.
+		$wpdb->delete( $wpdb->prefix . 'roadmap_votes', array( 'item_id' => $post_id ), array( '%d' ) );
 	}
 
 	/**
@@ -297,7 +317,10 @@ class Roadmap_CPT {
 			__( 'Roadmap Item Details', 'product-roadmap' ),
 			array( $this, 'render_meta_box' ),
 			'roadmap_item',
-			'normal',
+			// Sidebar, next to Statuses, Categories and Products: the block editor hides
+			// the normal-context Meta Boxes area behind a collapsed bar for anyone who
+			// has never opened it, so a new Editor could not find priority or dates.
+			'side',
 			'high'
 		);
 	}
@@ -605,7 +628,17 @@ class Roadmap_CPT {
 					// Re-index array after filtering
 					$value = array_values( $value );
 				} else {
-					$value = sanitize_text_field( wp_unslash( $_POST[ $field['id'] ] ) );
+					// Sanitise by field type: a textarea keeps its line breaks and a URL
+					// field is a clean URL (sanitize_text_field flattens both).
+					$raw   = wp_unslash( $_POST[ $field['id'] ] );
+					$ftype = isset( $field['type'] ) ? $field['type'] : 'text';
+					if ( 'textarea' === $ftype ) {
+						$value = sanitize_textarea_field( $raw );
+					} elseif ( 'url' === $ftype ) {
+						$value = esc_url_raw( $raw );
+					} else {
+						$value = sanitize_text_field( $raw );
+					}
 				}
 				update_post_meta( $post_id, $field['id'], $value );
 			} else {
@@ -624,52 +657,6 @@ class Roadmap_CPT {
 	}
 
 	/**
-	 * Register block editor meta fields
-	 */
-	public function register_block_meta() {
-		$fields = $this->get_meta_fields();
-
-		foreach ( $fields as $field ) {
-			// Skip readonly fields
-			if ( isset( $field['readonly'] ) && $field['readonly'] ) {
-				continue;
-			}
-
-			// Register meta field for block editor
-			register_post_meta(
-				'roadmap_item',
-				$field['id'],
-				array(
-					'show_in_rest'  => true,
-					'single'        => true,
-					'type'          => $this->get_field_rest_type( $field ),
-					'auth_callback' => function () {
-						return current_user_can( 'edit_posts' );
-					},
-				)
-			);
-		}
-	}
-
-	/**
-	 * Get REST API type for field
-	 */
-	private function get_field_rest_type( $field ) {
-		switch ( $field['type'] ) {
-			case 'number':
-			case 'range':
-				return 'integer';
-			case 'date':
-			case 'text':
-			case 'select':
-			case 'url':
-			case 'textarea':
-			default:
-				return 'string';
-		}
-	}
-
-	/**
 	 * Enqueue block editor assets
 	 */
 	public function enqueue_block_editor_assets() {
@@ -681,15 +668,6 @@ class Roadmap_CPT {
 		if ( ! $screen || $screen->post_type !== 'roadmap_item' ) {
 			return;
 		}
-
-		// Enqueue block editor scripts
-		wp_enqueue_script(
-			'roadmap-block-editor',
-			ROADMAP_PLUGIN_URL . 'assets/js/block-editor.js',
-			array( 'wp-blocks', 'wp-element', 'wp-editor', 'wp-components', 'wp-data' ),
-			ROADMAP_VERSION,
-			true
-		);
 
 		// Enqueue meta box scripts and styles
 		wp_enqueue_script(
@@ -716,17 +694,6 @@ class Roadmap_CPT {
 				ROADMAP_VERSION
 			);
 		}
-
-		// Localize script with field data
-		wp_localize_script(
-			'roadmap-block-editor',
-			'roadmapMeta',
-			array(
-				'fields' => $this->get_meta_fields(),
-				'nonce'  => wp_create_nonce( 'roadmap_meta' ),
-				'isPro'  => defined( 'ROADMAP_PRO_VERSION' ),
-			)
-		);
 	}
 
 	/**

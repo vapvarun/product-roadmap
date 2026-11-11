@@ -19,7 +19,12 @@
       >
         <div 
           class="roadmap-list-group-header"
+          role="button"
+          tabindex="0"
+          :aria-expanded="expandedGroups.includes(group.key) ? 'true' : 'false'"
           @click="toggleGroup(group.key)"
+          @keydown.enter.self.prevent="toggleGroup(group.key)"
+          @keydown.space.self.prevent="toggleGroup(group.key)"
         >
           <h3>
             <span class="roadmap-list-toggle">
@@ -39,6 +44,7 @@
               v-for="item in group.items" 
               :key="item.id"
               class="roadmap-list-item"
+              tabindex="0" role="group" :aria-label="item.title" @keydown.enter.self="$emit('item-click', item)" @keydown.space.self.prevent="$emit('item-click', item)"
               @click="$emit('item-click', item)"
             >
               <div class="roadmap-list-item-main">
@@ -273,7 +279,7 @@ onMounted(() => {
 
 .roadmap-list {
   background: var(--rm-surface);
-  border-radius: 8px;
+  border-radius: var(--rm-radius);
   padding: 20px;
 }
 
@@ -299,7 +305,7 @@ onMounted(() => {
 
 .roadmap-list-group {
   border: 1px solid var(--rm-border);
-  border-radius: 6px;
+  border-radius: var(--rm-radius);
   overflow: hidden;
 }
 
@@ -339,7 +345,7 @@ onMounted(() => {
 
 .roadmap-list-item {
   border: 1px solid var(--rm-border);
-  border-radius: 6px;
+  border-radius: var(--rm-radius);
   padding: 15px;
   margin-bottom: 10px;
   cursor: pointer;

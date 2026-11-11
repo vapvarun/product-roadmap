@@ -2,7 +2,7 @@
   "header": {
     "name": "Product Roadmap",
     "slug": "product-roadmap",
-    "version": "1.8.0",
+    "version": "1.8.2",
     "textDomain": "product-roadmap",
     "domainPath": "/languages",
     "requiresWP": "5.8",
@@ -1928,15 +1928,6 @@
     ],
     "localizeScripts": [
       {
-        "handle": "roadmap-block-editor",
-        "objectName": "roadmapMeta",
-        "data": {
-          "nonce": "roadmap_meta"
-        },
-        "file": "includes/class-roadmap-cpt.php",
-        "line": 719
-      },
-      {
         "handle": "roadmap-admin",
         "objectName": "roadmap_admin",
         "data": {
@@ -2037,13 +2028,13 @@
     "phpFiles": 20,
     "jsFiles": 11,
     "cssFiles": 9,
-    "totalLines": 11874
+    "totalLines": 11979
   },
   "generated": {
     "generator": "wp-plugin-qa scanner",
     "schema": "v3-functional",
-    "reviewed_at": "2026-09-29",
-    "reviewed_note": "Regenerated via write-manifest.mjs. Verified rest(12), ajax(5), shortcodes(2), and tables against ground-truth grep - all exact matches except tables, where the generator also emitted a spurious single-letter \"e\" entry (a parsing artifact, not a real table); removed manually. Only roadmap_votes is a real custom table."
+    "reviewed_at": "2026-11-11",
+    "reviewed_note": "Regenerated via write-manifest.mjs. Verified rest(12), ajax(5), shortcodes(2), and tables against ground-truth grep - all exact matches except tables, where the generator also emitted a spurious single-letter \"e\" entry (a parsing artifact, not a real table); removed manually. Only roadmap_votes is a real custom table. 1.8.2 refresh: re-checked rest, ajax, admin pages, shortcodes and fired hooks against the code (unchanged); the only surface change is the single WP-Cron event roadmap_purge_orphan_votes (orphan purge), added to cron. Final 1.8.2 code freeze (final): later commits only add phpcs annotations and (Pro) raise Requires at least to 6.5; no surface change."
   },
   "rest": {
     "namespace": "roadmap/v1",
@@ -2484,7 +2475,8 @@
     }
   ],
   "cron": [
-    "roadmap_send_status_emails"
+    "roadmap_send_status_emails",
+    "roadmap_purge_orphan_votes"
   ],
   "blocks": [],
   "shortcodes": [

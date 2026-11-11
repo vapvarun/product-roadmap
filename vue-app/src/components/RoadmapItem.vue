@@ -4,6 +4,11 @@
     :class="{ 'roadmap-item-draggable': draggable, 'roadmap-item-clickable': true }"
     :draggable="draggable"
     @dragstart="$emit('dragstart', $event)"
+    tabindex="0"
+    role="group"
+    :aria-label="item.title"
+    @keydown.enter.self="emit('click', item)"
+    @keydown.space.self.prevent="emit('click', item)"
     @click="handleItemClick"
   >
     <div class="roadmap-item-header">
@@ -222,7 +227,7 @@ const handleItemClick = (event) => {
 .roadmap-item {
   background: var(--rm-surface);
   border: 1px solid var(--rm-border);
-  border-radius: 6px;
+  border-radius: var(--rm-radius);
   padding: 16px;
   transition: all 0.2s ease;
   
@@ -314,7 +319,7 @@ const handleItemClick = (event) => {
     color: var(--rm-text);
     background: transparent;
     border: 1px solid var(--rm-border);
-    border-radius: 4px;
+    border-radius: var(--rm-radius-button);
     cursor: pointer;
     transition: all 0.2s ease;
 

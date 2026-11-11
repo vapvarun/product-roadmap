@@ -15,7 +15,7 @@ the contract audit both pass. Treat the older ⚠️ warnings as historical.
 
 ## Quick reference
 - **Main file**: `product-roadmap.php`
-- **Version**: `1.7.0` (readme Stable tag: 1.7.0 ✓)
+- **Version**: `1.8.2` (readme Stable tag: 1.8.2 ✓; paired with Pro 1.8.2, `ROADMAP_MIN_PRO_VERSION` 1.8.0)
 - **Namespace**: none (class prefix `Roadmap_*`, main class `RoadmapPlugin`)
 - **Text domain**: `product-roadmap`
 - **Constant**: `ROADMAP_VERSION` (Pro detects Free via this constant / `RoadmapPlugin` class)

@@ -29,6 +29,7 @@
             v-for="item in group.items" 
             :key="item.id"
             class="roadmap-minimal-item"
+            tabindex="0" role="group" :aria-label="item.title" @keydown.enter.self="$emit('item-click', item)" @keydown.space.self.prevent="$emit('item-click', item)"
             @click="$emit('item-click', item)"
           >
             <div class="roadmap-minimal-item-indicator">
@@ -362,7 +363,7 @@ const formatDate = (date) => {
   &:before {
     content: '';
     position: absolute;
-    left: 12px;
+    left: 14px;
     top: 0;
     bottom: 0;
     width: 2px;
@@ -398,7 +399,7 @@ const formatDate = (date) => {
   flex: 1;
   background: var(--rm-surface);
   border: 1px solid var(--rm-border);
-  border-radius: 6px;
+  border-radius: var(--rm-radius);
   padding: 15px;
   transition: all 0.2s;
 }

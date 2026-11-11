@@ -847,8 +847,8 @@ class Roadmap_Shortcode {
 		wp_add_inline_style(
 			'roadmap-vue-app',
 			'
-            /* Hide the third select (product filter) when viewing single product roadmap */
-            .roadmap-single-product .roadmap-filters select:nth-child(3) {
+            /* Hide the product filter when viewing single product roadmap */
+            .roadmap-single-product .roadmap-filters .roadmap-filter-product {
                 display: none !important;
             }
         '
@@ -957,6 +957,7 @@ class Roadmap_Shortcode {
 			),
 			'save'                 => __( 'Save', 'product-roadmap' ),
 			'cancel'               => __( 'Cancel', 'product-roadmap' ),
+			'close'                => __( 'Close', 'product-roadmap' ),
 			'confirm_delete'       => sprintf(
 				/* translators: %s: Item singular label */
 				__( 'Are you sure you want to delete this %s?', 'product-roadmap' ),
@@ -1131,7 +1132,7 @@ class Roadmap_Shortcode {
 			'no_changelog' => __( 'No changelog entries found.', 'product-roadmap' ),
 			'change' => __( 'change', 'product-roadmap' ),
 			'changes' => __( 'changes', 'product-roadmap' ),
-			'network_error' => __( 'Network error', 'product-roadmap' ),
+			'network_error' => __( 'Network error. Check your connection and try again.', 'product-roadmap' ),
 			'api_call_failed' => __( 'API call failed', 'product-roadmap' ),
 			'failed_load_changelog' => __( 'Failed to load changelog', 'product-roadmap' ),
 			'load_item_failed' => __( 'Failed to load item for editing', 'product-roadmap' ),

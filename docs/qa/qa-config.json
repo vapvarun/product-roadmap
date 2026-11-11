@@ -27,16 +27,28 @@
     "bugs_column_id": 8905657766,
     "ready_for_testing_column_id": 8905657772
   },
-  "modes": ["free", "combo"],
+  "modes": [
+    "free",
+    "combo"
+  ],
   "report_path": "docs/qa/.last-smoke-pass.json",
   "supplements_path": null,
   "_wp_path_note": "Deliberately null. Same repo is checked out on several machines under different $HOME values; wp-plugin-smoke derives the WP root from the plugin's own location instead.",
-
   "site": "http://roadmap.local",
-  "themes": {
-    "primary": "buddyx",
-    "generic": "twentytwentyfive"
-  },
+  "themes": [
+    {
+      "slug": "reign-theme"
+    },
+    {
+      "slug": "buddyx"
+    },
+    {
+      "slug": "buddyx-pro"
+    },
+    {
+      "slug": "twentytwentyfive"
+    }
+  ],
   "pages": {
     "board_default": "http://roadmap.local/board-view/",
     "poll_roadmap": "http://roadmap.local/poll-roadmap/",
@@ -54,11 +66,45 @@
     "items_meta_value": "1"
   },
   "personas": [
-    { "login": "qa_member_owner", "role": "subscriber",    "email": "qa_member_owner@example.test", "rung": "member-owner", "note": "votes/comments/suggests; owns their own content" },
-    { "login": "qa_member_other", "role": "subscriber",    "email": "qa_member_other@example.test", "rung": "member-other", "note": "SAME role as member-owner; exists to catch ownership-vs-role gaps" },
-    { "login": "qa_contrib",      "role": "contributor",   "email": "qa_contrib@example.test",      "rung": "low-privilege", "note": "lowest rung holding edit_posts - the rung REST routes leak to" },
-    { "login": "qa_elevated",     "role": "editor",        "email": "qa_elevated@example.test",     "rung": "elevated",     "note": "roadmap_edit_items / roadmap_delete_items" },
-    { "login": "qa_admin",        "role": "administrator", "email": "qa_admin@example.test",        "rung": "admin",        "note": "control rung - never the only rung walked" }
+    {
+      "login": "qa_member_owner",
+      "role": "subscriber",
+      "email": "qa_member_owner@example.test",
+      "rung": "member-owner",
+      "note": "votes/comments/suggests; owns their own content"
+    },
+    {
+      "login": "qa_member_other",
+      "role": "subscriber",
+      "email": "qa_member_other@example.test",
+      "rung": "member-other",
+      "note": "SAME role as member-owner; exists to catch ownership-vs-role gaps"
+    },
+    {
+      "login": "qa_contrib",
+      "role": "contributor",
+      "email": "qa_contrib@example.test",
+      "rung": "low-privilege",
+      "note": "lowest rung holding edit_posts - the rung REST routes leak to"
+    },
+    {
+      "login": "qa_elevated",
+      "role": "editor",
+      "email": "qa_elevated@example.test",
+      "rung": "elevated",
+      "note": "roadmap_edit_items / roadmap_delete_items"
+    },
+    {
+      "login": "qa_admin",
+      "role": "administrator",
+      "email": "qa_admin@example.test",
+      "rung": "admin",
+      "note": "control rung - never the only rung walked"
+    }
   ],
-  "anonymous": { "rung": "anonymous", "note": "guest voting + guest suggestions default ON" }
+  "anonymous": {
+    "rung": "anonymous",
+    "note": "guest voting + guest suggestions default ON"
+  },
+  "_themes_note": "Array of theme slugs for the live-check matrix (wppqa_run_checks). Primary customer theme: reign-theme (owner's theme), then buddyx, buddyx-pro; generic control: twentytwentyfive."
 }

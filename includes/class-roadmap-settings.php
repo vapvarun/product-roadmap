@@ -147,7 +147,7 @@ class Roadmap_Settings {
 			'roadmap_product_name',
 			array(
 				'type'              => 'string',
-				'sanitize_callback' => 'sanitize_text_field',
+				'sanitize_callback' => $this->keep_when_absent( 'roadmap_product_name' ),
 				'default'           => '',
 			)
 		);
@@ -156,7 +156,7 @@ class Roadmap_Settings {
 			'roadmap_item_singular_label',
 			array(
 				'type'              => 'string',
-				'sanitize_callback' => 'sanitize_text_field',
+				'sanitize_callback' => $this->keep_when_absent( 'roadmap_item_singular_label' ),
 				'default'           => 'Feature',
 			)
 		);
@@ -165,21 +165,11 @@ class Roadmap_Settings {
 			'roadmap_item_plural_label',
 			array(
 				'type'              => 'string',
-				'sanitize_callback' => 'sanitize_text_field',
+				'sanitize_callback' => $this->keep_when_absent( 'roadmap_item_plural_label' ),
 				'default'           => 'Features',
 			)
 		);
 
-		// Advanced settings (legacy - now handled in global settings)
-		register_setting(
-			'roadmap_global',
-			'roadmap_cache_expiry',
-			array(
-				'type'              => 'integer',
-				'sanitize_callback' => 'absint',
-				'default'           => 3600,
-			)
-		);
 
 		// Product-specific settings
 		register_setting(
@@ -191,6 +181,21 @@ class Roadmap_Settings {
 				'default'           => array(),
 			)
 		);
+	}
+
+	/**
+	 * Sanitizer for a text setting that lives on one tab of a shared option
+	 * group. options.php passes null for every registered setting the posted
+	 * form did not contain, which would otherwise save as an empty string and
+	 * wipe the value when another tab is saved.
+	 *
+	 * @param string $option Option name.
+	 * @return callable
+	 */
+	private function keep_when_absent( $option ) {
+		return static function ( $value ) use ( $option ) {
+			return null === $value ? get_option( $option, '' ) : sanitize_text_field( $value );
+		};
 	}
 
 	/**
@@ -331,6 +336,15 @@ class Roadmap_Settings {
 				'post_status'    => array( 'publish', 'pending' ),
 			)
 		);
+		// Another member's pending suggestion is for editors and administrators; everyone else sees published items and their own.
+		if ( ! current_user_can( 'edit_others_posts' ) ) {
+			$recent_items = array_filter(
+				$recent_items,
+				static function ( $item ) {
+					return 'publish' === $item->post_status || current_user_can( 'edit_post', $item->ID );
+				}
+			);
+		}
 		?>
 		<div class="wrap">
 			<h1><?php esc_html_e( 'Roadmap Dashboard', 'product-roadmap' ); ?></h1>
@@ -387,9 +401,12 @@ class Roadmap_Settings {
 						<ul class="roadmap-recent-list">
 							<?php foreach ( $recent_items as $item ) : ?>
 								<li>
-									<a href="<?php echo esc_url( get_edit_post_link( $item->ID ) ); ?>">
+									<?php $edit_link = get_edit_post_link( $item->ID ); ?>
+									<?php if ( $edit_link ) : ?>
+										<a href="<?php echo esc_url( $edit_link ); ?>"><?php echo esc_html( $item->post_title ); ?></a>
+									<?php else : ?>
 										<?php echo esc_html( $item->post_title ); ?>
-									</a>
+									<?php endif; ?>
 									<span class="roadmap-item-date">
 										<?php echo esc_html( human_time_diff( strtotime( $item->post_date ), current_time( 'timestamp' ) ) . ' ago' ); ?>
 									</span>
@@ -1408,22 +1425,6 @@ class Roadmap_Settings {
 				<?php esc_html_e( 'Fine-tune your roadmap with advanced configuration options.', 'product-roadmap' ); ?>
 			</p>
 			
-			<!-- Cache Settings Card -->
-			<div class="roadmap-settings-card">
-				<div class="card-header">
-					<h3><i class="dashicons dashicons-performance"></i> <?php esc_html_e( 'Performance Settings', 'product-roadmap' ); ?></h3>
-				</div>
-				<div class="card-body">
-					<div class="form-row">
-						<label for="cache_expiry"><?php esc_html_e( 'Cache Expiry (seconds)', 'product-roadmap' ); ?></label>
-						<input type="number" name="roadmap_cache_expiry" id="cache_expiry" 
-								value="<?php echo esc_attr( get_option( 'roadmap_cache_expiry', '3600' ) ); ?>" 
-								min="0" max="86400" />
-						<p class="description"><?php esc_html_e( 'How long to cache roadmap data. Set to 0 to disable caching.', 'product-roadmap' ); ?></p>
-					</div>
-				</div>
-			</div>
-			
 			<?php if ( ! defined( 'ROADMAP_PRO_ACTIVE' ) || ! ROADMAP_PRO_ACTIVE ) : ?>
 			<!-- Pro Feature Notice -->
 			<div class="roadmap-settings-card pro-preview">
@@ -1481,6 +1482,7 @@ class Roadmap_Settings {
 				</div>
 				<div class="card-body">
 					<?php if ( ! empty( $change_types ) && ! is_wp_error( $change_types ) ) : ?>
+						<div class="roadmap-table-scroll">
 						<table class="widefat changelog-types-table">
 							<thead>
 								<tr>
@@ -1533,6 +1535,7 @@ class Roadmap_Settings {
 								<?php endforeach; ?>
 							</tbody>
 						</table>
+						</div>
 					<?php else : ?>
 						<p><?php esc_html_e( 'No changelog types found. They will be created automatically when you add your first changelog.', 'product-roadmap' ); ?></p>
 					<?php endif; ?>
@@ -1633,8 +1636,8 @@ class Roadmap_Settings {
 			return;
 		}
 
-		// Check if user can edit posts
-		if ( ! current_user_can( 'edit_posts' ) ) {
+		// The pending queue is the editors' to review; it also names other members' suggestions.
+		if ( ! current_user_can( 'edit_others_posts' ) ) {
 			return;
 		}
 

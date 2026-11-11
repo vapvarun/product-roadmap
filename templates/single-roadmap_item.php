@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-get_header();
+Roadmap_Template::get_header();
 
 while (have_posts()) : the_post();
     $item_id = get_the_ID();
@@ -83,6 +83,8 @@ while (have_posts()) : the_post();
             <div class="roadmap-single-voting">
                 <button class="roadmap-vote-btn roadmap-vote-up <?php echo $user_vote > 0 ? 'active' : ''; ?>"
                         data-action="upvote"
+                        aria-label="<?php esc_attr_e('Upvote this idea', 'product-roadmap'); ?>"
+                        aria-pressed="<?php echo $user_vote > 0 ? 'true' : 'false'; ?>"
                         title="<?php esc_attr_e('Upvote this idea', 'product-roadmap'); ?>">
                     <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                         <polyline points="18 15 12 9 6 15"></polyline>
@@ -94,7 +96,9 @@ while (have_posts()) : the_post();
 
                 <button class="roadmap-vote-btn roadmap-vote-down <?php echo $user_vote < 0 ? 'active' : ''; ?>"
                         data-action="downvote"
-                        title="<?php esc_attr_e('Downvote this idea', 'product-roadmap'); ?>">
+                        aria-label="<?php esc_attr_e('Remove your vote', 'product-roadmap'); ?>"
+                        aria-disabled="<?php echo $user_vote > 0 ? 'false' : 'true'; ?>"
+                        title="<?php esc_attr_e('Remove your vote', 'product-roadmap'); ?>">
                     <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                         <polyline points="6 9 12 15 18 9"></polyline>
                     </svg>
@@ -181,7 +185,7 @@ while (have_posts()) : the_post();
                 <!-- Comments Section -->
                 <?php if (comments_open() || get_comments_number()) : ?>
                     <div class="roadmap-single-comments">
-                        <?php comments_template(); ?>
+                        <?php Roadmap_Template::comments(); ?>
                     </div>
                 <?php endif; ?>
 
@@ -196,5 +200,5 @@ while (have_posts()) : the_post();
 
 <?php endwhile;
 
-get_footer();
+Roadmap_Template::get_footer();
 ?>

@@ -30,6 +30,24 @@
 - **Cause:** **User Suggestions** is off, or the visitor is not logged in (Free requires login).
 - **Fix:** Enable **User Suggestions** in Settings and log in to test. The button is part of `[roadmap]`; there is no separate shortcode.
 
+## An item shows as "Unknown" or sits under "Future - Later"
+
+- **Symptom:** A new item has an "Unknown" status tab, or appears in the "Future - Later" group when you expected "Next".
+- **Cause:** An item added in the admin has no status until you tick one. Items with a custom status also go to "Future - Later", because the Minimal layout groups only In Progress, Planned and a few similar slugs.
+- **Fix:** Open the item, tick one status in the **Statuses** panel and click **Update**. See [Move an Item to a New Status](../admin-guide/06-changing-an-items-status.md).
+
+## Voters did not get a status change email
+
+- **Symptom:** You moved an item, such as "Dark theme", and voters report no email.
+- **Cause:** **Enable Email Notifications** is off. Or the voters voted as guests, who have no account to email. Or they clicked the unsubscribe link in an earlier email. Or WP-Cron has not run yet, because emails send in the background, 50 at a time.
+- **Fix:** Turn on **Enable Email Notifications** in **Roadmap > Settings > Notifications**. Check that your site gets regular visits so WP-Cron runs. See [Move an Item to a New Status](../admin-guide/06-changing-an-items-status.md#emails-sent-when-a-status-changes).
+
+## A suggestion is not on the board
+
+- **Symptom:** A member says they suggested "Support SSO with Okta" but visitors cannot see it.
+- **Cause:** Suggestions stay Pending until you approve them, unless **Auto-approve user suggestions** is on.
+- **Fix:** Go to **Roadmap > All Items**, click **Pending** and approve it. See [Review Pending Suggestions](../admin-guide/07-reviewing-pending-suggestions.md).
+
 ## A suggestion was rejected with a "too often" message
 
 - **Symptom:** The form reports "You are doing that too often."
