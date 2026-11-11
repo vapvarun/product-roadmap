@@ -129,8 +129,13 @@ Quality release for every theme, with Reign, BuddyX, BuddyX Pro and block themes
 * Improve  - The Roadmap Item Details box moves to the editor sidebar, so priority, progress and dates are visible without opening the Meta Boxes panel.
 * Improve  - Item, suggestion and edit dialogs announce themselves to screen readers, keep Tab focus inside, close with Escape, lock page scroll and return focus to the button that opened them.
 * Improve  - Dialogs now open above sticky theme headers.
+* Improve  - Items on every board layout open from the keyboard (Enter or Space) and focus returns to the item when the dialog closes; List groups open the same way.
+* Improve  - A failed vote or suggestion shows a plain "Network error" message and rolls back.
+* Improve  - Single item vote buttons have accessible names and state, and the down arrow is labelled "Remove your vote".
 * Fix      - Block themes such as Twenty Twenty-Five: the mobile menu opens on roadmap pages.
 * Fix      - The all-products archive no longer scrolls sideways on desktop widths.
+* Fix      - Contributors no longer trigger a PHP 8.1 deprecation on the Roadmap dashboard, and see only their own items there with no pending-submissions notice.
+* Fix      - Saving another Settings tab no longer blanks the product name and item labels.
 * Fix      - Status emails go once per real status change to people who still hold a vote or an approved comment, never for trashing or republishing, and never while Enable Email Notifications is off.
 * Fix      - Admin item save keeps line breaks in Completion Notes and cleans URL fields.
 * Fix      - The Changelog Types table and changelog row controls fit on small screens.
