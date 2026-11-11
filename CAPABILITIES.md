@@ -3,9 +3,9 @@
 Buyer-level roll-up of what the free plugin does, verified against code. Status:
 `YES` shipped · `PARTIAL` works with a limit · `NO` not in free (often Pro).
 
-_Reviewed 2026-09-29 for the 1.8.0 release gate: no capability status changed since the
-last update (all 1.8.0-cycle commits were bugfixes to already-YES surfaces, not new
-capabilities or regressions to what's claimed here)._
+_Reviewed 2026-11-11 for the 1.8.2 release gate: no capability status changed. 1.8.2 refined
+already-YES surfaces (status-email recipients, keyboard and dialog accessibility, theme radius
+tokens, block-theme and classic-theme page wrappers) and removed one setting that did nothing._
 
 ## Collect feedback
 
@@ -26,6 +26,7 @@ capabilities or regressions to what's claimed here)._
 | Multiple board layouts | PARTIAL | free ships the minimal layout; board/cards/list/timeline are Pro |
 | Adopt the active theme's accent + dark mode | YES | token-driven, theme-toggle dark (1.7.0) |
 | Embed anywhere via shortcode | YES | `[roadmap]`, `[roadmap_changelog]` |
+| Use items and dialogs by keyboard and screen reader | YES | cards open on Enter/Space, dialogs trap focus, close on Escape and return focus (1.8.2) |
 | Gutenberg block | NO | Pro |
 
 ## Changelog / release notes
@@ -40,7 +41,7 @@ capabilities or regressions to what's claimed here)._
 
 | Can it… | Status | Delivered by |
 |---|---|---|
-| Email voters/commenters when an item's status changes | YES | `class-roadmap-notifications.php`; per-type toggles + unsubscribe link (1.7.0) |
+| Email voters/commenters when an item's status changes | YES | `class-roadmap-notifications.php`; live voters and approved commenters, once per real status change, honours the master switch; per-type toggles + unsubscribe link |
 | Manage items in wp-admin (statuses, categories, drag-drop) | YES | admin menu + board manage mode |
 | Roles / capability control | YES | `class-roadmap-permissions.php` |
 | Setup wizard + demo import | YES | `class-roadmap-setup-wizard.php`, `class-roadmap-demo-import.php` |
