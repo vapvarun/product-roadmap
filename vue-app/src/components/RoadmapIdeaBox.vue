@@ -45,7 +45,7 @@
         </div>
 
         <!-- Content Section (Middle) -->
-        <div class="roadmap-ideabox-content" @click="$emit('item-click', item)">
+        <div class="roadmap-ideabox-content" tabindex="0" role="group" :aria-label="item.title" @keydown.enter.self="$emit('item-click', item)" @keydown.space.self.prevent="$emit('item-click', item)" @click="$emit('item-click', item)">
           <h3 class="roadmap-ideabox-title">{{ item.title }}</h3>
           <p class="roadmap-ideabox-excerpt">
             {{ item.excerpt || truncateContent(item.content, 150) }}

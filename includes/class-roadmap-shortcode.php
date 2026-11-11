@@ -1132,7 +1132,7 @@ class Roadmap_Shortcode {
 			'no_changelog' => __( 'No changelog entries found.', 'product-roadmap' ),
 			'change' => __( 'change', 'product-roadmap' ),
 			'changes' => __( 'changes', 'product-roadmap' ),
-			'network_error' => __( 'Network error', 'product-roadmap' ),
+			'network_error' => __( 'Network error. Check your connection and try again.', 'product-roadmap' ),
 			'api_call_failed' => __( 'API call failed', 'product-roadmap' ),
 			'failed_load_changelog' => __( 'Failed to load changelog', 'product-roadmap' ),
 			'load_item_failed' => __( 'Failed to load item for editing', 'product-roadmap' ),

@@ -372,14 +372,20 @@ const apiCall = async (endpoint, options = {}) => {
     }
   }
 
-  const response = await fetch(url, {
-    ...defaultOptions,
-    ...options,
-    headers: {
-      ...defaultOptions.headers,
-      ...options.headers
-    }
-  })
+  let response
+  try {
+    response = await fetch(url, {
+      ...defaultOptions,
+      ...options,
+      headers: {
+        ...defaultOptions.headers,
+        ...options.headers
+      }
+    })
+  } catch (e) {
+    // fetch() rejects with the browser's own text ('Failed to fetch') when offline or blocked.
+    throw new Error(props.config.i18n.network_error || 'Network error')
+  }
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({ message: props.config.i18n.network_error || 'Network error' }))

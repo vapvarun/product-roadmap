@@ -23,6 +23,7 @@
         v-for="item in items"
         :key="item.id"
         class="roadmap-card"
+        tabindex="0" role="group" :aria-label="item.title" @keydown.enter.self="$emit('item-click', item)" @keydown.space.self.prevent="$emit('item-click', item)"
         @click="$emit('item-click', item)"
       >
         <div class="roadmap-card-header">

@@ -31,6 +31,16 @@
       "id": "hook-consumed-never-fired:roadmap_pro_prune_analytics",
       "severity": "error",
       "reason": "False positive, same shape as roadmap_send_digest above. roadmap_pro_prune_analytics (Roadmap_Pro_Analytics::PRUNE_CRON_HOOK) is a WP-Cron hook scheduled via wp_schedule_event in class-roadmap-pro-analytics.php's constructor; WP-Cron fires it, not an explicit do_action. Confirmed live and scheduled: `wp cron event list` shows it next-runs in ~24h on a daily recurrence. Added 2026-09-28, Bugs 10346173450."
+    },
+    {
+      "id": "hook-consumed-never-fired:roadmap_purge_orphan_votes",
+      "severity": "error",
+      "reason": "False positive. roadmap_purge_orphan_votes is a single WP-Cron event (product-roadmap.php PURGE_HOOK) armed with wp_schedule_single_event on upgrade and activation and cleared on deactivation; WP-Cron fires it, not an explicit do_action, so the static audit cannot see the fire site. Verified by running the event and seeing the orphans removed."
+    },
+    {
+      "id": "hook-consumed-never-fired:roadmap_pro_purge_orphan_events",
+      "severity": "error",
+      "reason": "False positive. roadmap_pro_purge_orphan_events is a single WP-Cron event (class-roadmap-pro-analytics.php PURGE_HOOK) armed with wp_schedule_single_event on upgrade and activation and cleared on deactivation; WP-Cron fires it, not an explicit do_action, so the static audit cannot see the fire site. Verified by running the event and seeing the orphans removed."
     }
   ]
 }

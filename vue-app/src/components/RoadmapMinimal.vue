@@ -29,6 +29,7 @@
             v-for="item in group.items" 
             :key="item.id"
             class="roadmap-minimal-item"
+            tabindex="0" role="group" :aria-label="item.title" @keydown.enter.self="$emit('item-click', item)" @keydown.space.self.prevent="$emit('item-click', item)"
             @click="$emit('item-click', item)"
           >
             <div class="roadmap-minimal-item-indicator">

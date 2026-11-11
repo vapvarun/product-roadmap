@@ -256,6 +256,16 @@ textarea.roadmap-form-control {
   }
 }
 
+// Keyboard focus on cards that open the item detail
+.roadmap-card:focus-visible,
+.roadmap-list-item:focus-visible,
+.roadmap-minimal-item:focus-visible,
+.roadmap-ideabox-content:focus-visible,
+.roadmap-item:focus-visible {
+  outline: 2px solid var(--roadmap-accent);
+  outline-offset: 2px;
+}
+
 // Modal
 .roadmap-modal-dialog:focus {
   // Focus lands on the dialog itself when it has no field; the title announces it.

@@ -60,6 +60,10 @@ jQuery(document).ready(function($) {
             downBtn.addClass('active');
         }
 
+        // Voted state for assistive tech, not just the colour.
+        upBtn.attr('aria-pressed', userVote > 0 ? 'true' : 'false');
+        downBtn.attr('aria-pressed', userVote < 0 ? 'true' : 'false');
+
         currentUserVote = userVote;
     }
 
