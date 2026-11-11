@@ -147,7 +147,7 @@ class Roadmap_Settings {
 			'roadmap_product_name',
 			array(
 				'type'              => 'string',
-				'sanitize_callback' => 'sanitize_text_field',
+				'sanitize_callback' => $this->keep_when_absent( 'roadmap_product_name' ),
 				'default'           => '',
 			)
 		);
@@ -156,7 +156,7 @@ class Roadmap_Settings {
 			'roadmap_item_singular_label',
 			array(
 				'type'              => 'string',
-				'sanitize_callback' => 'sanitize_text_field',
+				'sanitize_callback' => $this->keep_when_absent( 'roadmap_item_singular_label' ),
 				'default'           => 'Feature',
 			)
 		);
@@ -165,7 +165,7 @@ class Roadmap_Settings {
 			'roadmap_item_plural_label',
 			array(
 				'type'              => 'string',
-				'sanitize_callback' => 'sanitize_text_field',
+				'sanitize_callback' => $this->keep_when_absent( 'roadmap_item_plural_label' ),
 				'default'           => 'Features',
 			)
 		);
@@ -181,6 +181,21 @@ class Roadmap_Settings {
 				'default'           => array(),
 			)
 		);
+	}
+
+	/**
+	 * Sanitizer for a text setting that lives on one tab of a shared option
+	 * group. options.php passes null for every registered setting the posted
+	 * form did not contain, which would otherwise save as an empty string and
+	 * wipe the value when another tab is saved.
+	 *
+	 * @param string $option Option name.
+	 * @return callable
+	 */
+	private function keep_when_absent( $option ) {
+		return static function ( $value ) use ( $option ) {
+			return null === $value ? get_option( $option, '' ) : sanitize_text_field( $value );
+		};
 	}
 
 	/**
