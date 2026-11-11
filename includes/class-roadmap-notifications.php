@@ -308,15 +308,15 @@ class Roadmap_Notifications {
         // Users who voted.
         $votes_table = $wpdb->prefix . 'roadmap_votes';
         // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        // phpcs:disable WordPress.DB.PreparedSQL.NotPrepared -- the fragment is a constant from Roadmap_API::active_vote_sql(), never user input.
         $voted = $wpdb->get_results($wpdb->prepare(
             "SELECT DISTINCT u.ID, u.user_email
             FROM {$votes_table} v
-            // phpcs:disable WordPress.DB.PreparedSQL.NotPrepared -- the fragment is a constant from Roadmap_API::active_vote_sql() or absint'd ids, never user input.
             JOIN {$wpdb->users} u ON v.user_id = u.ID
             WHERE v.item_id = %d AND " . Roadmap_API::active_vote_sql('v.'),
             $item_id
         )); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table query
-            // phpcs:enable WordPress.DB.PreparedSQL.NotPrepared
+        // phpcs:enable WordPress.DB.PreparedSQL.NotPrepared
         // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         foreach ((array) $voted as $u) {
             $users[(int) $u->ID] = $u->user_email;

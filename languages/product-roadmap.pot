@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-11T11:08:58+00:00\n"
+"POT-Creation-Date: 2026-11-11T11:12:50+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: product-roadmap\n"
@@ -48,43 +48,43 @@ msgstr ""
 msgid "Your vote could not be saved. Please try again."
 msgstr ""
 
-#: includes/class-roadmap-api.php:844
+#: includes/class-roadmap-api.php:846
 msgid "Thank you for your suggestion!"
 msgstr ""
 
-#: includes/class-roadmap-api.php:851
+#: includes/class-roadmap-api.php:853
 msgid "Failed to submit suggestion"
 msgstr ""
 
-#: includes/class-roadmap-api.php:1140
+#: includes/class-roadmap-api.php:1142
 msgid "Failed to create item"
 msgstr ""
 
-#: includes/class-roadmap-api.php:1196
+#: includes/class-roadmap-api.php:1198
 msgid "Failed to update item"
 msgstr ""
 
-#: includes/class-roadmap-api.php:1208
+#: includes/class-roadmap-api.php:1210
 msgid "Failed to delete item"
 msgstr ""
 
-#: includes/class-roadmap-api.php:1349
+#: includes/class-roadmap-api.php:1351
 msgid "Invalid roadmap item"
 msgstr ""
 
-#: includes/class-roadmap-api.php:1375
+#: includes/class-roadmap-api.php:1377
 msgid "Failed to add comment"
 msgstr ""
 
-#: includes/class-roadmap-api.php:1382
+#: includes/class-roadmap-api.php:1384
 msgid "Comment added successfully"
 msgstr ""
 
-#: includes/class-roadmap-api.php:1437
+#: includes/class-roadmap-api.php:1439
 msgid "Multiple products require the Pro version. Use product=main for free version."
 msgstr ""
 
-#: includes/class-roadmap-api.php:1484
+#: includes/class-roadmap-api.php:1486
 msgid "Changelog not found"
 msgstr ""
 
