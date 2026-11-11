@@ -3,7 +3,7 @@
 Buyer-level roll-up of what the free plugin does, verified against code. Status:
 `YES` shipped · `PARTIAL` works with a limit · `NO` not in free (often Pro).
 
-_Reviewed 2026-11-11 for the 1.8.2 release gate: no capability status changed. 1.8.2 refined
+_Reviewed 2026-11-11 (code freeze) for the 1.8.2 release gate: no capability status changed. 1.8.2 refined
 already-YES surfaces (status-email recipients, keyboard and dialog accessibility, theme radius
 tokens, block-theme and classic-theme page wrappers) and removed one setting that did nothing._
 
