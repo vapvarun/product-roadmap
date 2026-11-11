@@ -745,12 +745,14 @@ class Roadmap_API {
 		// it. One meaning of "Votes" everywhere: how many people voted.
 		// A removed vote keeps its row with vote_value 0 and stops counting here.
 		$vote_count = $wpdb->get_var(
+			// phpcs:disable WordPress.DB.PreparedSQL.NotPrepared -- the fragment is a constant from Roadmap_API::active_vote_sql() or absint'd ids, never user input.
 			$wpdb->prepare(
             // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 				"SELECT COUNT(*) FROM {$table} WHERE item_id = %d AND " . self::active_vote_sql(),
 				$item_id
 			)
 		); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table, vote count is cached in post meta
+			// phpcs:enable WordPress.DB.PreparedSQL.NotPrepared
 
 		update_post_meta( $item_id, '_roadmap_votes', (int) $vote_count );
 	}

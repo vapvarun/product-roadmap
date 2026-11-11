@@ -385,7 +385,7 @@ class RoadmapPlugin {
             // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
             $ids = $wpdb->get_col( "SELECT v.id FROM {$table} v LEFT JOIN {$wpdb->posts} p ON p.ID = v.item_id WHERE p.ID IS NULL LIMIT 1000" );
             if ( $ids ) {
-                // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+                // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared
                 $wpdb->query( "DELETE FROM {$table} WHERE id IN (" . implode( ',', array_map( 'absint', $ids ) ) . ')' );
             }
         } while ( 1000 === count( $ids ) );
