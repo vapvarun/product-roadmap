@@ -336,6 +336,15 @@ class Roadmap_Settings {
 				'post_status'    => array( 'publish', 'pending' ),
 			)
 		);
+		// Another member's pending suggestion is for editors and administrators; everyone else sees published items and their own.
+		if ( ! current_user_can( 'edit_others_posts' ) ) {
+			$recent_items = array_filter(
+				$recent_items,
+				static function ( $item ) {
+					return 'publish' === $item->post_status || current_user_can( 'edit_post', $item->ID );
+				}
+			);
+		}
 		?>
 		<div class="wrap">
 			<h1><?php esc_html_e( 'Roadmap Dashboard', 'product-roadmap' ); ?></h1>
@@ -392,9 +401,12 @@ class Roadmap_Settings {
 						<ul class="roadmap-recent-list">
 							<?php foreach ( $recent_items as $item ) : ?>
 								<li>
-									<a href="<?php echo esc_url( get_edit_post_link( $item->ID ) ); ?>">
+									<?php $edit_link = get_edit_post_link( $item->ID ); ?>
+									<?php if ( $edit_link ) : ?>
+										<a href="<?php echo esc_url( $edit_link ); ?>"><?php echo esc_html( $item->post_title ); ?></a>
+									<?php else : ?>
 										<?php echo esc_html( $item->post_title ); ?>
-									</a>
+									<?php endif; ?>
 									<span class="roadmap-item-date">
 										<?php echo esc_html( human_time_diff( strtotime( $item->post_date ), current_time( 'timestamp' ) ) . ' ago' ); ?>
 									</span>
@@ -1624,8 +1636,8 @@ class Roadmap_Settings {
 			return;
 		}
 
-		// Check if user can edit posts
-		if ( ! current_user_can( 'edit_posts' ) ) {
+		// The pending queue is the editors' to review; it also names other members' suggestions.
+		if ( ! current_user_can( 'edit_others_posts' ) ) {
 			return;
 		}
 

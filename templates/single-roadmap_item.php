@@ -96,9 +96,9 @@ while (have_posts()) : the_post();
 
                 <button class="roadmap-vote-btn roadmap-vote-down <?php echo $user_vote < 0 ? 'active' : ''; ?>"
                         data-action="downvote"
-                        aria-label="<?php esc_attr_e('Downvote this idea', 'product-roadmap'); ?>"
-                        aria-pressed="<?php echo $user_vote < 0 ? 'true' : 'false'; ?>"
-                        title="<?php esc_attr_e('Downvote this idea', 'product-roadmap'); ?>">
+                        aria-label="<?php esc_attr_e('Remove your vote', 'product-roadmap'); ?>"
+                        aria-disabled="<?php echo $user_vote > 0 ? 'false' : 'true'; ?>"
+                        title="<?php esc_attr_e('Remove your vote', 'product-roadmap'); ?>">
                     <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                         <polyline points="6 9 12 15 18 9"></polyline>
                     </svg>

@@ -19,7 +19,12 @@
       >
         <div 
           class="roadmap-list-group-header"
+          role="button"
+          tabindex="0"
+          :aria-expanded="expandedGroups.includes(group.key) ? 'true' : 'false'"
           @click="toggleGroup(group.key)"
+          @keydown.enter.self.prevent="toggleGroup(group.key)"
+          @keydown.space.self.prevent="toggleGroup(group.key)"
         >
           <h3>
             <span class="roadmap-list-toggle">

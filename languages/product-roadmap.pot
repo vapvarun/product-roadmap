@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-11T07:38:45+00:00\n"
+"POT-Creation-Date: 2026-11-11T11:00:24+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: product-roadmap\n"
@@ -247,7 +247,7 @@ msgid "Type"
 msgstr ""
 
 #: includes/class-roadmap-changelog.php:554
-#: includes/class-roadmap-settings.php:1560
+#: includes/class-roadmap-settings.php:1572
 #: includes/class-roadmap-shortcode.php:990
 msgid "Description"
 msgstr ""
@@ -425,8 +425,8 @@ msgstr ""
 #: includes/class-roadmap-cpt.php:237
 #: includes/class-roadmap-settings.php:65
 #: includes/class-roadmap-settings.php:66
-#: includes/class-roadmap-settings.php:351
-#: includes/class-roadmap-settings.php:897
+#: includes/class-roadmap-settings.php:360
+#: includes/class-roadmap-settings.php:909
 msgid "Products"
 msgstr ""
 
@@ -453,7 +453,7 @@ msgid "Update Product"
 msgstr ""
 
 #: includes/class-roadmap-cpt.php:235
-#: includes/class-roadmap-settings.php:919
+#: includes/class-roadmap-settings.php:931
 msgid "Add New Product"
 msgstr ""
 
@@ -468,7 +468,7 @@ msgstr ""
 
 #: includes/class-roadmap-cpt.php:285
 #: includes/class-roadmap-demo-import.php:400
-#: includes/class-roadmap-settings.php:361
+#: includes/class-roadmap-settings.php:370
 msgid "In Progress"
 msgstr ""
 
@@ -496,7 +496,7 @@ msgid "Roadmap Item Details"
 msgstr ""
 
 #: includes/class-roadmap-cpt.php:377
-#: includes/class-roadmap-settings.php:1426
+#: includes/class-roadmap-settings.php:1438
 msgid "Pro Features"
 msgstr ""
 
@@ -653,7 +653,7 @@ msgid "Total number of votes (automatically calculated)"
 msgstr ""
 
 #: includes/class-roadmap-cpt.php:514
-#: includes/class-roadmap-settings.php:1384
+#: includes/class-roadmap-settings.php:1396
 #: includes/class-roadmap-shortcode.php:1045
 msgid "Pro Feature"
 msgstr ""
@@ -975,15 +975,15 @@ msgstr ""
 
 #: includes/class-roadmap-settings.php:85
 #: includes/class-roadmap-settings.php:86
-#: includes/class-roadmap-settings.php:413
+#: includes/class-roadmap-settings.php:425
 #: includes/class-roadmap-shortcode.php:1082
 msgid "Add New Item"
 msgstr ""
 
 #: includes/class-roadmap-settings.php:112
 #: includes/class-roadmap-settings.php:113
-#: includes/class-roadmap-settings.php:424
-#: includes/class-roadmap-settings.php:1018
+#: includes/class-roadmap-settings.php:436
+#: includes/class-roadmap-settings.php:1030
 #: includes/class-roadmap-setup-wizard.php:215
 msgid "Settings"
 msgstr ""
@@ -993,567 +993,567 @@ msgid "Feature"
 msgstr ""
 
 #: includes/class-roadmap-settings.php:214
-#: includes/class-roadmap-settings.php:699
-#: includes/class-roadmap-settings.php:1059
+#: includes/class-roadmap-settings.php:711
+#: includes/class-roadmap-settings.php:1071
 msgid "Features"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:341
+#: includes/class-roadmap-settings.php:350
 msgid "Roadmap Dashboard"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:346
+#: includes/class-roadmap-settings.php:355
 msgid "Total Items"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:355
+#: includes/class-roadmap-settings.php:364
 msgid "Pro feature"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:390
+#: includes/class-roadmap-settings.php:399
 msgid "Recent Items"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:405
+#: includes/class-roadmap-settings.php:417
 msgid "No items yet."
 msgstr ""
 
-#: includes/class-roadmap-settings.php:410
+#: includes/class-roadmap-settings.php:422
 msgid "Quick Actions"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:416
+#: includes/class-roadmap-settings.php:428
 msgid "Manage Products"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:419
+#: includes/class-roadmap-settings.php:431
 msgid "Upgrade to Pro to manage multiple products"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:420
+#: includes/class-roadmap-settings.php:432
 msgid "Manage Products (Pro)"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:448
+#: includes/class-roadmap-settings.php:460
 msgid "Roadmap Settings"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:450
+#: includes/class-roadmap-settings.php:462
 msgid "Configure your roadmap settings to match your workflow and requirements."
 msgstr ""
 
-#: includes/class-roadmap-settings.php:461
+#: includes/class-roadmap-settings.php:473
 msgid "General"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:468
+#: includes/class-roadmap-settings.php:480
 msgid "Notifications"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:475
+#: includes/class-roadmap-settings.php:487
 msgid "Changelog Types"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:499
-#: includes/class-roadmap-settings.php:868
+#: includes/class-roadmap-settings.php:511
+#: includes/class-roadmap-settings.php:880
 #: includes/class-roadmap-shortcode.php:1046
 msgid "Upgrade to Pro"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:500
+#: includes/class-roadmap-settings.php:512
 msgid "Unlock advanced features like multiple products, timeline view, and more."
 msgstr ""
 
-#: includes/class-roadmap-settings.php:502
-#: includes/class-roadmap-settings.php:1395
-#: includes/class-roadmap-settings.php:1436
+#: includes/class-roadmap-settings.php:514
+#: includes/class-roadmap-settings.php:1407
+#: includes/class-roadmap-settings.php:1448
 msgid "Get Pro Version"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:553
-#: includes/class-roadmap-settings.php:1078
+#: includes/class-roadmap-settings.php:565
+#: includes/class-roadmap-settings.php:1090
 msgid "Save Settings"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:555
+#: includes/class-roadmap-settings.php:567
 msgid "Settings saved"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:585
+#: includes/class-roadmap-settings.php:597
 msgid "General Settings"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:587
+#: includes/class-roadmap-settings.php:599
 msgid "Configure the basic settings for your roadmap."
 msgstr ""
 
-#: includes/class-roadmap-settings.php:593
+#: includes/class-roadmap-settings.php:605
 msgid "Product Configuration"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:597
+#: includes/class-roadmap-settings.php:609
 #: includes/class-roadmap-setup-wizard.php:266
 msgid "Product Name"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:600
+#: includes/class-roadmap-settings.php:612
 msgid "The name of your product or project."
 msgstr ""
 
-#: includes/class-roadmap-settings.php:605
+#: includes/class-roadmap-settings.php:617
 msgid "Item Label (Singular)"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:608
+#: includes/class-roadmap-settings.php:620
 msgid "e.g., Feature, Task, Story"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:611
+#: includes/class-roadmap-settings.php:623
 msgid "Item Label (Plural)"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:614
+#: includes/class-roadmap-settings.php:626
 msgid "e.g., Features, Tasks, Stories"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:623
+#: includes/class-roadmap-settings.php:635
 msgid "Display Settings"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:628
-#: includes/class-roadmap-settings.php:1037
+#: includes/class-roadmap-settings.php:640
+#: includes/class-roadmap-settings.php:1049
 msgid "Default Status"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:637
+#: includes/class-roadmap-settings.php:649
 msgid "Default status for new items."
 msgstr ""
 
-#: includes/class-roadmap-settings.php:641
+#: includes/class-roadmap-settings.php:653
 msgid "Items Per Page"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:645
+#: includes/class-roadmap-settings.php:657
 msgid "Items to show per page."
 msgstr ""
 
-#: includes/class-roadmap-settings.php:654
+#: includes/class-roadmap-settings.php:666
 msgid "Permissions & Access"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:658
+#: includes/class-roadmap-settings.php:670
 msgid "Who Can Vote"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:661
-#: includes/class-roadmap-settings.php:675
+#: includes/class-roadmap-settings.php:673
+#: includes/class-roadmap-settings.php:687
 msgid "Anyone (including guests)"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:664
-#: includes/class-roadmap-settings.php:681
+#: includes/class-roadmap-settings.php:676
+#: includes/class-roadmap-settings.php:693
 msgid "Logged in users only"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:667
+#: includes/class-roadmap-settings.php:679
 msgid "Control who can vote on roadmap items."
 msgstr ""
 
-#: includes/class-roadmap-settings.php:671
+#: includes/class-roadmap-settings.php:683
 msgid "Who Can Suggest Ideas"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:677
+#: includes/class-roadmap-settings.php:689
 msgid "(Pro)"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:686
+#: includes/class-roadmap-settings.php:698
 msgid "Guest suggestions require Pro addon."
 msgstr ""
 
-#: includes/class-roadmap-settings.php:687
+#: includes/class-roadmap-settings.php:699
 msgid "Currently only logged-in users can submit ideas."
 msgstr ""
 
-#: includes/class-roadmap-settings.php:690
+#: includes/class-roadmap-settings.php:702
 msgid "Control who can submit new ideas."
 msgstr ""
 
-#: includes/class-roadmap-settings.php:710
+#: includes/class-roadmap-settings.php:722
 #: includes/class-roadmap-setup-wizard.php:329
 msgid "Enable Voting"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:711
+#: includes/class-roadmap-settings.php:723
 msgid "Allow users to vote on roadmap items."
 msgstr ""
 
-#: includes/class-roadmap-settings.php:722
+#: includes/class-roadmap-settings.php:734
 #: includes/class-roadmap-setup-wizard.php:349
 msgid "Enable Comments"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:723
+#: includes/class-roadmap-settings.php:735
 msgid "Allow users to comment on items."
 msgstr ""
 
-#: includes/class-roadmap-settings.php:734
+#: includes/class-roadmap-settings.php:746
 msgid "User Suggestions"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:735
+#: includes/class-roadmap-settings.php:747
 msgid "Let users submit feature ideas."
 msgstr ""
 
-#: includes/class-roadmap-settings.php:745
+#: includes/class-roadmap-settings.php:757
 msgid "Auto-approve user suggestions"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:747
+#: includes/class-roadmap-settings.php:759
 msgid "Automatically publish user suggestions without manual review. Use with caution."
 msgstr ""
 
-#: includes/class-roadmap-settings.php:751
+#: includes/class-roadmap-settings.php:763
 msgid "Default Status for Suggestions"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:760
+#: includes/class-roadmap-settings.php:772
 msgid "Status assigned to user-submitted suggestions (when auto-approve is enabled)."
 msgstr ""
 
-#: includes/class-roadmap-settings.php:772
+#: includes/class-roadmap-settings.php:784
 msgid "Email Notifications"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:774
+#: includes/class-roadmap-settings.php:786
 msgid "Configure email notifications to stay informed about roadmap activity."
 msgstr ""
 
-#: includes/class-roadmap-settings.php:780
+#: includes/class-roadmap-settings.php:792
 msgid "Email Configuration"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:791
+#: includes/class-roadmap-settings.php:803
 msgid "Enable Email Notifications"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:792
+#: includes/class-roadmap-settings.php:804
 msgid "Receive email alerts for roadmap activity."
 msgstr ""
 
-#: includes/class-roadmap-settings.php:797
+#: includes/class-roadmap-settings.php:809
 msgid "Notification Email Addresses"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:803
+#: includes/class-roadmap-settings.php:815
 msgid "Enter one email address per line. All addresses will receive notification emails. Leave empty to use the admin email."
 msgstr ""
 
-#: includes/class-roadmap-settings.php:811
+#: includes/class-roadmap-settings.php:823
 msgid "Notification Events"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:814
+#: includes/class-roadmap-settings.php:826
 msgid "Choose which events trigger email notifications."
 msgstr ""
 
-#: includes/class-roadmap-settings.php:822
+#: includes/class-roadmap-settings.php:834
 msgid "New Votes"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:823
+#: includes/class-roadmap-settings.php:835
 msgid "When users vote on roadmap items"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:833
+#: includes/class-roadmap-settings.php:845
 msgid "New Comments"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:834
+#: includes/class-roadmap-settings.php:846
 msgid "When users comment on items"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:844
+#: includes/class-roadmap-settings.php:856
 msgid "New Suggestions"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:845
+#: includes/class-roadmap-settings.php:857
 msgid "When users submit feature suggestions"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:857
+#: includes/class-roadmap-settings.php:869
 msgid "Pro Notification Features"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:862
+#: includes/class-roadmap-settings.php:874
 msgid "Custom email templates"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:863
+#: includes/class-roadmap-settings.php:875
 msgid "Multiple notification recipients"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:864
+#: includes/class-roadmap-settings.php:876
 msgid "Digest emails (daily/weekly)"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:865
+#: includes/class-roadmap-settings.php:877
 msgid "User notification preferences"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:899
+#: includes/class-roadmap-settings.php:911
 msgid "Manage your product roadmaps. Each product has its own roadmap that can be displayed using shortcodes."
 msgstr ""
 
-#: includes/class-roadmap-settings.php:906
+#: includes/class-roadmap-settings.php:918
 #: templates/archive-roadmap_item.php:181
 msgid "No Products Yet"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:907
+#: includes/class-roadmap-settings.php:919
 msgid "Create your first product to start building roadmaps your users will love."
 msgstr ""
 
-#: includes/class-roadmap-settings.php:911
+#: includes/class-roadmap-settings.php:923
 msgid "Create Your First Product"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:981
+#: includes/class-roadmap-settings.php:993
 msgid "Item"
 msgid_plural "Items"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/class-roadmap-settings.php:988
+#: includes/class-roadmap-settings.php:1000
 #: includes/class-roadmap-shortcode.php:927
 msgid "Vote"
 msgid_plural "Votes"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/class-roadmap-settings.php:994
-#: includes/class-roadmap-settings.php:1282
+#: includes/class-roadmap-settings.php:1006
+#: includes/class-roadmap-settings.php:1294
 msgid "Shortcode"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:999
-#: includes/class-roadmap-settings.php:1298
+#: includes/class-roadmap-settings.php:1011
+#: includes/class-roadmap-settings.php:1310
 #: includes/class-roadmap-setup-wizard.php:470
 msgid "Copy to clipboard"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:1009
+#: includes/class-roadmap-settings.php:1021
 msgid "View Items"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:1014
+#: includes/class-roadmap-settings.php:1026
 #: templates/archive-roadmap_item.php:164
 msgid "View Roadmap"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:1029
+#: includes/class-roadmap-settings.php:1041
 msgid "Product Settings"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:1062
+#: includes/class-roadmap-settings.php:1074
 msgid "Feature settings are controlled globally. Use the main settings page to enable/disable voting, comments, and suggestions."
 msgstr ""
 
-#: includes/class-roadmap-settings.php:1069
+#: includes/class-roadmap-settings.php:1081
 msgid "Theme Color"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:1268
+#: includes/class-roadmap-settings.php:1280
 msgid "Error saving settings. Please try again."
 msgstr ""
 
-#: includes/class-roadmap-settings.php:1269
+#: includes/class-roadmap-settings.php:1281
 msgid "Copied!"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:1270
+#: includes/class-roadmap-settings.php:1282
 msgid "Could not copy the shortcode. Select it and copy it manually."
 msgstr ""
 
-#: includes/class-roadmap-settings.php:1369
+#: includes/class-roadmap-settings.php:1381
 msgid "Template Settings"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:1371
+#: includes/class-roadmap-settings.php:1383
 msgid "Customize the appearance and layout of your roadmap."
 msgstr ""
 
-#: includes/class-roadmap-settings.php:1378
+#: includes/class-roadmap-settings.php:1390
 msgid "Template Options"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:1385
+#: includes/class-roadmap-settings.php:1397
 msgid "Unlock multiple template layouts and customization options with the Pro version."
 msgstr ""
 
-#: includes/class-roadmap-settings.php:1387
+#: includes/class-roadmap-settings.php:1399
 msgid "Timeline view template"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:1388
+#: includes/class-roadmap-settings.php:1400
 msgid "Grid view template"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:1389
+#: includes/class-roadmap-settings.php:1401
 msgid "Kanban board template"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:1390
+#: includes/class-roadmap-settings.php:1402
 msgid "Compact list template"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:1391
+#: includes/class-roadmap-settings.php:1403
 msgid "Custom CSS editor"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:1392
+#: includes/class-roadmap-settings.php:1404
 msgid "Dark mode support"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:1411
+#: includes/class-roadmap-settings.php:1423
 msgid "Advanced Settings"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:1413
+#: includes/class-roadmap-settings.php:1425
 msgid "Fine-tune your roadmap with advanced configuration options."
 msgstr ""
 
-#: includes/class-roadmap-settings.php:1420
+#: includes/class-roadmap-settings.php:1432
 msgid "More Advanced Options"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:1427
+#: includes/class-roadmap-settings.php:1439
 msgid "Access more advanced settings and customization options with the Pro version."
 msgstr ""
 
-#: includes/class-roadmap-settings.php:1429
+#: includes/class-roadmap-settings.php:1441
 msgid "Custom post type slug"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:1430
+#: includes/class-roadmap-settings.php:1442
 msgid "Advanced permissions"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:1431
+#: includes/class-roadmap-settings.php:1443
 msgid "API access control"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:1432
+#: includes/class-roadmap-settings.php:1444
 msgid "Export/Import settings"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:1433
+#: includes/class-roadmap-settings.php:1445
 msgid "Database optimization"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:1461
+#: includes/class-roadmap-settings.php:1473
 msgid "Changelog Badge Types"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:1463
+#: includes/class-roadmap-settings.php:1475
 msgid "Customize the badge types used in your changelogs. Each type can have its own color scheme."
 msgstr ""
 
-#: includes/class-roadmap-settings.php:1469
+#: includes/class-roadmap-settings.php:1481
 msgid "Badge Types"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:1477
+#: includes/class-roadmap-settings.php:1489
 msgid "Name"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:1478
+#: includes/class-roadmap-settings.php:1490
 msgid "Slug"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:1479
+#: includes/class-roadmap-settings.php:1491
 msgid "Preview"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:1480
+#: includes/class-roadmap-settings.php:1492
 msgid "Text Color"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:1481
+#: includes/class-roadmap-settings.php:1493
 msgid "Background"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:1482
+#: includes/class-roadmap-settings.php:1494
 msgid "Actions"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:1519
+#: includes/class-roadmap-settings.php:1531
 #: includes/class-roadmap-shortcode.php:1010
 msgid "Edit"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:1528
+#: includes/class-roadmap-settings.php:1540
 msgid "No changelog types found. They will be created automatically when you add your first changelog."
 msgstr ""
 
-#: includes/class-roadmap-settings.php:1534
+#: includes/class-roadmap-settings.php:1546
 msgid "Manage All Types"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:1543
+#: includes/class-roadmap-settings.php:1555
 msgid "How to Use Changelogs"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:1546
+#: includes/class-roadmap-settings.php:1558
 msgid "To display your changelog on your site, use this shortcode:"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:1551
+#: includes/class-roadmap-settings.php:1563
 #: includes/class-roadmap-setup-wizard.php:472
 msgid "Copy"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:1555
+#: includes/class-roadmap-settings.php:1567
 msgid "Shortcode Options"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:1559
+#: includes/class-roadmap-settings.php:1571
 msgid "Attribute"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:1561
+#: includes/class-roadmap-settings.php:1573
 msgid "Example"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:1567
+#: includes/class-roadmap-settings.php:1579
 msgid "Number of changelog entries to show"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:1572
+#: includes/class-roadmap-settings.php:1584
 msgid "Filter by product slug (Pro)"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:1577
+#: includes/class-roadmap-settings.php:1589
 msgid "Make versions expandable"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:1650
+#: includes/class-roadmap-settings.php:1662
 msgid "Roadmap Submissions:"
 msgstr ""
 
 #. translators: %s: Number of pending submissions
-#: includes/class-roadmap-settings.php:1655
+#: includes/class-roadmap-settings.php:1667
 #, php-format
 msgid "You have %s pending submission awaiting review."
 msgid_plural "You have %s pending submissions awaiting review."
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/class-roadmap-settings.php:1666
+#: includes/class-roadmap-settings.php:1678
 msgid "Review Now"
 msgstr ""
 
-#: includes/class-roadmap-settings.php:1693
+#: includes/class-roadmap-settings.php:1705
 msgid "You are not allowed to do that."
 msgstr ""
 
@@ -2659,7 +2659,7 @@ msgstr[1] ""
 
 #: templates/single-roadmap_item.php:99
 #: templates/single-roadmap_item.php:101
-msgid "Downvote this idea"
+msgid "Remove your vote"
 msgstr ""
 
 #. translators: %d: number of comments

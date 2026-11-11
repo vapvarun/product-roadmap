@@ -58,6 +58,10 @@ Feature suggestions don't use a separate shortcode - a "Suggest a feature" butto
 
 For the complete, current attribute list (including the Pro-only filters), see the [shortcode reference](../developer-guide/04-shortcode-reference.md).
 
+## Page width
+
+A board is a wide layout, so give its page room. If your theme shows a sidebar or a narrow content column on ordinary pages, choose the theme's full-width or no-sidebar page template for the page that holds the shortcode or block (on Reign, set the page layout to Full Width). The plugin's own item and archive pages already use the theme's content area with no sidebar.
+
 ## Theming and dark mode
 
 The board and every template automatically pick up your active theme's accent color and follow your theme's own light/dark toggle (themes like BuddyX Pro and Reign). There's no separate dark-mode switch to configure - if your theme has a light/dark toggle, the roadmap follows it. See [Theming](../developer-guide/01-architecture-overview.md#colours-and-theming) if you want to customize colors further.
