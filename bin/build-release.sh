@@ -17,7 +17,9 @@ NC='\033[0m' # No Color
 # Store current directory
 CURRENT_DIR=$(pwd)
 ROOT="$CURRENT_DIR"
-PLUGIN_SLUG="product-roadmap"
+slug=product-roadmap        # WordPress.org slug = zip folder. Locked by CI (wporg-folder-lock.yml).
+main=product-roadmap.php
+PLUGIN_SLUG="$slug"
 PRO_SLUG="roadmap-pro-addon"
 
 # Release gate flags
@@ -258,7 +260,22 @@ fi
 # Create free version zip
 echo "Creating free version zip..."
 cd "$TEMP_DIR"
-zip -r "$DIST_DIR/${PLUGIN_SLUG}-${VERSION}.zip" "$PLUGIN_SLUG" -q
+zip="$DIST_DIR/${PLUGIN_SLUG}-${VERSION}.zip"
+rm -f "$zip"
+# Deflate every entry: a PHP file stored uncompressed trips the store's upload firewall.
+python3 -I -c 'import os,sys,zipfile
+out,top=sys.argv[1],sys.argv[2]
+with zipfile.ZipFile(out,"w",zipfile.ZIP_DEFLATED,compresslevel=9) as z:
+    for r,d,f in os.walk(top):
+        d.sort()
+        for n in sorted(f): z.write(os.path.join(r,n))' "$zip" "$PLUGIN_SLUG" || exit 1
+
+# --- WordPress.org folder lock (Wbcom standard - do not edit) ----------------------
+top=$(unzip -Z1 "$zip" | head -1 | cut -d/ -f1)
+[ "$top" = "$slug" ] || { echo "Zip folder '$top' is not the WordPress.org slug '$slug'"; exit 1; }
+unzip -Z1 "$zip" | grep -qx "$slug/$main" || { echo "Main file $slug/$main missing from zip"; exit 1; }
+[ "$(LC_ALL=C grep -a -c '<?php' "$zip" || true)" = 0 ] || { echo "Zip has plain-text PHP (upload firewall)"; exit 1; }
+# -----------------------------------------------------------------------------------
 echo -e "${GREEN}✓ Free version package created: ${PLUGIN_SLUG}-${VERSION}.zip${NC}"
 
 # Build and package pro addon separately if it exists
